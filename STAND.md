@@ -19,7 +19,8 @@
 
 ## Stand
 - Phase 1 fertig: Compose + Socket-Proxy (getestet mit echtem Docker), Auth, Setup, Dashboard live, 61 Vitest-Tests.
-- Phase 2 läuft: Backend für Start/Stopp/RCON/Absturz-Helfer/Versionen fertig; UI für Server-Seite, Konsole, Assistent fehlt.
+- Phase 2 fertig: Server-Assistent (Live-Versionen), Import per ZIP (Erkennung, Zip-Slip-Schutz), Server-Seite (Status, IP-Karte, Kennzahlen, Verlauf), Live-Konsole (xterm, Verlauf, Tab), Absturz-Helfer. 69 Tests.
+- Phase 3 läuft: Datei-Manager, server.properties-Formular, Spieler, Welten.
 
 ## Lokal testen (Sandbox)
 - Backend simuliert: `MH_SECRET=… MH_DATA_DIR=./data MH_DOCKER_DRIVER=fake MH_DEMO=true pnpm --filter @mornihosting/server dev`
@@ -27,5 +28,5 @@
 - Tests: `pnpm --filter @mornihosting/server test`
 
 ## Nächste Schritte
-1. Server-Assistent, Import, Server-Seite (IP-Karte, Konsole, Statistik, Absturz-Helfer-UI)
-2. Phase 3–7 laut Prompt
+1. Phase 3: Datei-Manager, Einstellungen-Tab, Spieler, Welten
+2. Phase 4–7 laut Prompt

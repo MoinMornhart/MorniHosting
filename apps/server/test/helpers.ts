@@ -21,7 +21,7 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
   );
   const built = await buildApp({
     config,
-    logger: false,
+    logger: process.env['MH_TEST_LOG'] === '1',
     docker: createFakeDriver({ stepMs: FAKE_STEP_MS_FAST, simulatePlayers: false }),
   });
   await built.start();

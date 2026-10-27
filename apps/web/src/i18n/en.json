@@ -381,7 +381,9 @@
     "detected": "Detected: {{software}}",
     "submit": "Import",
     "uploading": "Uploading … {{percent}} %",
-    "done": "Server imported"
+    "done": "Server imported",
+    "files_one": "{{count}} file",
+    "files_other": "{{count}} files"
   },
   "errors": {
     "generic": "That did not work. Please try again.",
@@ -453,5 +455,12 @@
     "running": "Updating …",
     "started": "Update started. The panel will be back in a moment.",
     "howTo": "How to update"
+  },
+  "players": {
+    "online": "Online now",
+    "nobody": "Nobody is playing right now.",
+    "serverOff": "The server is off.",
+    "manage": "Manage players",
+    "starting": "The server is starting."
   }
 }

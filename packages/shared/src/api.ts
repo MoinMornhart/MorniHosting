@@ -525,3 +525,29 @@ export interface ApiErrorBody {
   readonly params?: Readonly<Record<string, string | number>>;
   readonly message?: string;
 }
+
+/* ---------- Import ---------- */
+
+export const importConfirmSchema = z.object({
+  stagingId: z.string().min(1).max(VERSION_MAX),
+  name: z.string().trim().min(1).max(NAME_MAX),
+  software: z.enum(SOFTWARE_IDS),
+  version: z.string().trim().min(1).max(VERSION_MAX),
+  memoryMb: memorySchema,
+  port: portSchema,
+  eula: z.literal(true),
+  startNow: z.boolean().default(false),
+});
+export type ImportConfirmInput = z.infer<typeof importConfirmSchema>;
+
+export interface ImportDetectionResult {
+  readonly stagingId: string;
+  readonly edition: Edition;
+  readonly software: SoftwareId;
+  readonly version: string | null;
+  readonly files: number;
+  readonly bytes: number;
+  readonly worlds: readonly string[];
+  readonly plugins: number;
+  readonly mods: number;
+}

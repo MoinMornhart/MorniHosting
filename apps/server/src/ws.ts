@@ -35,7 +35,9 @@ export function registerWebSocket(app: Api, ctx: AppContext, servers: ServerServ
     const subscriptions = { servers: false, consoles: new Set<string>() };
     const cache = { access: ctx.access.accessMap(user), at: Date.now() };
     const rightsFor = (serverId: string): readonly string[] => {
-      if (Date.now() - cache.at > ACCESS_REFRESH_SECONDS * MS_PER_SECOND) {
+      // A server created after the socket opened is unknown to the cache; look again right away.
+      const stale = Date.now() - cache.at > ACCESS_REFRESH_SECONDS * MS_PER_SECOND;
+      if (stale || !(serverId in cache.access)) {
         cache.access = ctx.access.accessMap(user);
         cache.at = Date.now();
       }

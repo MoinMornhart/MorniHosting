@@ -381,7 +381,9 @@
     "detected": "Erkannt: {{software}}",
     "submit": "Importieren",
     "uploading": "Wird hochgeladen … {{percent}} %",
-    "done": "Server importiert"
+    "done": "Server importiert",
+    "files_one": "{{count}} Datei",
+    "files_other": "{{count}} Dateien"
   },
   "errors": {
     "generic": "Das hat nicht geklappt. Bitte versuche es noch einmal.",
@@ -453,5 +455,12 @@
     "running": "Update läuft …",
     "started": "Update gestartet. Das Panel ist gleich wieder da.",
     "howTo": "So aktualisierst du"
+  },
+  "players": {
+    "online": "Gerade online",
+    "nobody": "Gerade spielt niemand.",
+    "serverOff": "Der Server ist aus.",
+    "manage": "Spieler verwalten",
+    "starting": "Der Server startet gerade."
   }
 }

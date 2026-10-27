@@ -32,6 +32,7 @@ import { AppError } from './lib/errors.js';
 import { setUserAgent } from './lib/http-client.js';
 import { HTTP_BAD_REQUEST, HTTP_INTERNAL, HTTP_NOT_FOUND, HTTP_TOO_MANY } from './lib/http-status.js';
 import { BYTES_PER_MB, MS_PER_HOUR, MS_PER_SECOND } from './lib/units.js';
+import { registerImportRoutes } from './servers/import-routes.js';
 import { registerServerRoutes } from './servers/routes.js';
 import { createServerService, type ServerService } from './servers/service.js';
 import { createSettingsService } from './settings/service.js';
@@ -185,6 +186,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
 
   registerAuthRoutes(app, ctx);
   registerServerRoutes(app, ctx, servers);
+  registerImportRoutes(app, ctx, servers);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));
