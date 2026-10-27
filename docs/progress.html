@@ -122,11 +122,11 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-27T21:45:00+01:00",
-  "now": "Basisdateien und Fortschrittsseite stehen, als Nächstes die 3 Mockups.",
+  "updated": "2026-10-27T21:52:00+01:00",
+  "now": "Die 3 Mockups sind fertig. Warte auf deine Wahl: A Smaragd, B Blockwerk oder C Leitstand.",
   "steps": [
-    { "title": "Vorbereitung", "status": "laeuft", "detail": "Pflichtfragen beantwortet, Cloud-Hooks, CLAUDE.md, STAND.md und diese Seite angelegt." },
-    { "title": "Mockups und Designwahl", "status": "offen", "detail": "3 Designrichtungen für Dashboard, Server-Übersicht mit IP-Karte und Plugin-Marktplatz." },
+    { "title": "Vorbereitung", "status": "fertig", "detail": "Pflichtfragen beantwortet, Cloud-Hooks, CLAUDE.md, STAND.md und diese Seite angelegt." },
+    { "title": "Mockups und Designwahl", "status": "laeuft", "detail": "3 Designrichtungen für Dashboard, Server-Übersicht mit IP-Karte und Plugin-Marktplatz stehen in docs/mockups/." },
     { "title": "Phase 1 · Grundgerüst", "status": "offen", "detail": "Docker Compose, Anmeldung, Einrichtungs-Assistent, leeres Dashboard." },
     { "title": "Phase 2 · Server-Kern", "status": "offen", "detail": "Server erstellen, Start/Stopp, Live-Konsole, IP-Karte." },
     { "title": "Phase 3 · Dateien und Einstellungen", "status": "offen", "detail": "Datei-Manager, server.properties als Formular, Spieler, Welten." },
@@ -135,8 +135,14 @@ footer { color: var(--muted); font-size: 13px; }
     { "title": "Phase 6 · Benutzer, Rollen, API", "status": "offen", "detail": "Rechte pro Server, Audit-Log, API-Tokens, OpenAPI." },
     { "title": "Phase 7 · Feinschliff", "status": "offen", "detail": "Absturz-Helfer, Geyser, Statistiken, Update-Funktion, Proxmox-Guide, README." }
   ],
-  "shots": [],
+  "shots": [
+    { "img": "progress/mockup-c-market.webp", "caption": "Mockup C · Leitstand: Plugin-Marktplatz", "time": "2026-10-27T21:50:00+01:00" },
+    { "img": "progress/mockup-b-server.webp", "caption": "Mockup B · Blockwerk: Server-Übersicht mit IP-Karte", "time": "2026-10-27T21:50:00+01:00" },
+    { "img": "progress/mockup-a-server.webp", "caption": "Mockup A · Smaragd: Server-Übersicht mit IP-Karte", "time": "2026-10-27T21:50:00+01:00" },
+    { "img": "progress/mockup-a-dash.webp", "caption": "Mockup A · Smaragd: Dashboard", "time": "2026-10-27T21:50:00+01:00" }
+  ],
   "files": [
+    { "tag": "neu", "path": "docs/mockups/index.html" },
     { "tag": "neu", "path": "CLAUDE.md" },
     { "tag": "neu", "path": "STAND.md" },
     { "tag": "neu", "path": ".gitignore" },

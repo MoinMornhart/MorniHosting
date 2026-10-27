@@ -1,0 +1,751 @@
+<title>MorniHosting Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&family=Pixelify+Sans:wght@500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: oben die Auswahl (Variante, Ansicht, Modus), darunter das Panel in voller Breite als Bühne */
+:root {
+  --v-bg: #eef2f0;
+  --v-surface: #ffffff;
+  --v-line: #d9e2dd;
+  --v-fg: #13201a;
+  --v-muted: #56675e;
+  --v-accent: #0b8f63;
+  --v-accent-soft: #d5f1e5;
+  --v-font: "Manrope", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --v-bg: #0b100e; --v-surface: #121916; --v-line: #24302a; --v-fg: #e5eee9; --v-muted: #98aaa0;
+    --v-accent: #3ed69f; --v-accent-soft: #123628; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --v-bg: #0b100e; --v-surface: #121916; --v-line: #24302a; --v-fg: #e5eee9; --v-muted: #98aaa0;
+  --v-accent: #3ed69f; --v-accent-soft: #123628; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--v-bg); color: var(--v-fg); font: 15px/1.5 var(--v-font);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.viewer { max-width: 1440px; margin: 0 auto; display: grid; gap: 20px; }
+.v-head { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; }
+.v-head h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.15; margin: 0 0 6px; font-weight: 800; letter-spacing: -0.02em; text-wrap: balance; }
+.v-head p { margin: 0; color: var(--v-muted); max-width: 64ch; }
+.v-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.seg { display: inline-flex; background: var(--v-surface); border: 1px solid var(--v-line); border-radius: 999px; padding: 4px; gap: 2px; }
+.seg button { font: 600 14px/1 var(--v-font); color: var(--v-muted); background: none; border: 0; border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--v-accent-soft); color: var(--v-fg); }
+.seg button:focus-visible, .v-card:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
+.v-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.v-card { text-align: left; font: inherit; color: inherit; background: var(--v-surface); border: 1px solid var(--v-line); border-radius: 14px; padding: 14px 16px; cursor: pointer; display: grid; gap: 4px; }
+.v-card[aria-pressed="true"] { border-color: var(--v-accent); box-shadow: 0 0 0 1px var(--v-accent) inset; }
+.v-card b { font-size: 16px; }
+.v-card span { color: var(--v-muted); font-size: 14px; }
+.v-note { color: var(--v-muted); font-size: 13px; margin: 0; }
+@media (max-width: 760px) { .v-cards { grid-template-columns: 1fr; } }
+
+.stage { container-type: inline-size; border-radius: 18px; overflow: hidden; border: 1px solid var(--v-line); }
+
+/* ---------- Mockup-Tokens je Variante und Modus ---------- */
+.mock {
+  --g: #0e1512; --s: #151e1a; --s2: #1b2621; --s3: #223029; --ln: rgba(255,255,255,.06); --ln2: rgba(255,255,255,.12);
+  --tx: #e9f1ed; --mu: #a2b5ab; --fa: #8a9d93;
+  --ac: #10b981; --ac-hi: #34d399; --ac-ink: #032015; --ac-soft: rgba(16,185,129,.14);
+  --ok: #34d399; --ok-soft: rgba(52,211,153,.13); --warn: #f6b54e; --warn-soft: rgba(246,181,78,.14);
+  --bad: #fb8a8a; --bad-soft: rgba(251,138,138,.13); --neu: #a2b5ab; --neu-soft: rgba(162,181,171,.12);
+  --sh: 0 1px 2px rgba(0,0,0,.25), 0 12px 32px rgba(0,0,0,.28);
+  --r: 16px; --r-sm: 10px; --r-btn: 12px;
+  --font: "Manrope", "Segoe UI", system-ui, sans-serif; --font-d: var(--font);
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --console: #0a0f0d;
+  color-scheme: dark;
+}
+.mock[data-v="a"][data-mode="light"] {
+  --g: #f2f6f4; --s: #ffffff; --s2: #f6faf8; --s3: #ebf2ee; --ln: #e2eae5; --ln2: #cfdcd5;
+  --tx: #0f1f18; --mu: #4f6258; --fa: #5f7168;
+  --ac: #059669; --ac-hi: #047857; --ac-ink: #ffffff; --ac-soft: #d8f3e8;
+  --ok: #067a55; --ok-soft: #d8f3e8; --warn: #9a5b00; --warn-soft: #fdf0d8;
+  --bad: #b42323; --bad-soft: #fde4e4; --neu: #55675e; --neu-soft: #e8efeb;
+  --sh: 0 1px 2px rgba(15,40,28,.05), 0 8px 24px rgba(15,40,28,.07);
+  --console: #0f1a15; color-scheme: light;
+}
+.mock[data-v="b"] {
+  --g: #161618; --s: #202024; --s2: #29292e; --s3: #323238; --ln: #2f2f35; --ln2: #45454d;
+  --tx: #f3f2ee; --mu: #b2b0a9; --fa: #9a9891;
+  --ac: #49c463; --ac-hi: #5fd877; --ac-ink: #0b2410; --ac-soft: rgba(73,196,99,.15);
+  --gold: #f0b443; --gold-soft: rgba(240,180,67,.15);
+  --ok: #5fd877; --ok-soft: rgba(95,216,119,.14); --warn: #f0b443; --warn-soft: rgba(240,180,67,.15);
+  --bad: #ff8f80; --bad-soft: rgba(255,143,128,.14); --neu: #b2b0a9; --neu-soft: rgba(178,176,169,.12);
+  --sh: 0 4px 0 rgba(0,0,0,.35);
+  --r: 12px; --r-sm: 8px; --r-btn: 8px;
+  --font: "Rubik", "Segoe UI", system-ui, sans-serif; --font-d: "Pixelify Sans", "Rubik", system-ui, sans-serif;
+  --console: #0e0e10; color-scheme: dark;
+}
+.mock[data-v="b"][data-mode="light"] {
+  --g: #f1efe9; --s: #ffffff; --s2: #f8f7f3; --s3: #ecebe5; --ln: #e1ded5; --ln2: #cbc7bb;
+  --tx: #1c1b18; --mu: #59564e; --fa: #6a675f;
+  --ac: #2f9a4a; --ac-hi: #27843f; --ac-ink: #ffffff; --ac-soft: #dff1e3;
+  --gold: #a26300; --gold-soft: #fbedd2;
+  --ok: #217a39; --ok-soft: #dff1e3; --warn: #8f5600; --warn-soft: #fbedd2;
+  --bad: #b3261e; --bad-soft: #fbe3df; --neu: #59564e; --neu-soft: #ecebe5;
+  --sh: 0 4px 0 rgba(60,50,30,.10);
+  --console: #1b1a17; color-scheme: light;
+}
+.mock[data-v="c"] {
+  --g: #0b0c0d; --s: #121315; --s2: #17191b; --s3: #1e2023; --ln: #232629; --ln2: #3a3e43;
+  --tx: #f4f5f6; --mu: #b0b5bb; --fa: #92989f;
+  --ac: #2fd3a4; --ac-hi: #5ee3bd; --ac-ink: #052a20; --ac-soft: rgba(47,211,164,.13);
+  --pri: #f4f5f6; --pri-ink: #0b0c0d;
+  --ok: #2fd3a4; --ok-soft: rgba(47,211,164,.12); --warn: #f2bd5c; --warn-soft: rgba(242,189,92,.12);
+  --bad: #f2828e; --bad-soft: rgba(242,130,142,.12); --neu: #b0b5bb; --neu-soft: rgba(176,181,187,.10);
+  --sh: none;
+  --r: 12px; --r-sm: 8px; --r-btn: 8px;
+  --font: "Instrument Sans", "Segoe UI", system-ui, sans-serif; --font-d: var(--font);
+  --console: #08090a; color-scheme: dark;
+}
+.mock[data-v="c"][data-mode="light"] {
+  --g: #f6f7f8; --s: #ffffff; --s2: #fafbfb; --s3: #f0f2f3; --ln: #e5e8ea; --ln2: #cdd2d6;
+  --tx: #111416; --mu: #575e65; --fa: #646b72;
+  --ac: #0c9a74; --ac-hi: #087c5d; --ac-ink: #ffffff; --ac-soft: #dcf3ec;
+  --pri: #15181b; --pri-ink: #ffffff;
+  --ok: #0a7a5c; --ok-soft: #dcf3ec; --warn: #8c5a00; --warn-soft: #fcf0d6;
+  --bad: #b1243a; --bad-soft: #fbe4e7; --neu: #575e65; --neu-soft: #eef0f2;
+  --console: #111416; color-scheme: light;
+}
+
+/* ---------- Gemeinsames Panel ---------- */
+.mock { background: var(--g); color: var(--tx); font: 14px/1.5 var(--font); display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 820px; }
+.mock * { box-sizing: border-box; }
+.mock svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.mock svg.i.sm { width: 15px; height: 15px; }
+.mock .num { font-variant-numeric: tabular-nums; }
+.mock .mono { font-family: var(--mono); }
+.mock button { font: inherit; color: inherit; cursor: pointer; }
+.mock :focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.pix { image-rendering: pixelated; display: block; flex: none; }
+
+.sb { background: var(--s); border-right: 1px solid var(--ln); padding: 20px 14px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 8px; font: 800 17px/1 var(--font-d); letter-spacing: -0.01em; }
+.brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--ac); display: grid; place-items: center; }
+.brand .mark canvas, .brand .mark img { width: 18px; height: 18px; }
+.switch { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--s2); border: 1px solid var(--ln); border-radius: var(--r-sm); padding: 9px 10px; }
+.switch .t { flex: 1; min-width: 0; }
+.switch .t b { display: block; font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.switch .t span { color: var(--mu); font-size: 12px; }
+.nav { display: grid; gap: 2px; }
+.nav .grp { color: var(--fa); font-size: 12px; padding: 14px 10px 6px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm); color: var(--mu); text-decoration: none; font-weight: 500; }
+.nav a:hover { color: var(--tx); background: var(--s2); }
+.nav a[aria-current="page"] { color: var(--tx); background: var(--s3); }
+.nav a .cnt { margin-left: auto; font-size: 12px; color: var(--mu); }
+.sb-foot { margin-top: auto; display: grid; gap: 10px; }
+.upd { display: grid; gap: 6px; background: var(--ac-soft); border-radius: var(--r-sm); padding: 12px; font-size: 13px; }
+.upd b { font-weight: 600; }
+.upd button { justify-self: start; background: var(--ac); color: var(--ac-ink); border: 0; border-radius: 8px; padding: 6px 10px; font-weight: 600; font-size: 13px; }
+.me { display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
+.me .pix { width: 30px; height: 30px; border-radius: 7px; }
+.me .t { font-size: 13px; line-height: 1.3; }
+.me .t span { color: var(--mu); }
+
+.mn { padding: 28px 32px 40px; display: grid; gap: 22px; align-content: start; min-width: 0; }
+.title-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.title-row .tt { flex: 1; min-width: 220px; }
+.title-row h2 { margin: 0; font: 700 26px/1.2 var(--font-d); letter-spacing: -0.02em; }
+.title-row p { margin: 4px 0 0; color: var(--mu); }
+.btn { display: inline-flex; align-items: center; gap: 8px; border-radius: var(--r-btn); padding: 9px 14px; font-weight: 600; font-size: 14px; border: 1px solid var(--ln2); background: var(--s2); color: var(--tx); white-space: nowrap; }
+.btn.pri { background: var(--ac); border-color: transparent; color: var(--ac-ink); }
+.btn.dng { color: var(--bad); }
+.btn.ghost { background: transparent; }
+.btn.sm { padding: 6px 10px; font-size: 13px; gap: 6px; }
+.btn.icon { padding: 8px; }
+
+.card { background: var(--s); border: 1px solid var(--ln); border-radius: var(--r); box-shadow: var(--sh); min-width: 0; }
+.card.pad { padding: 18px 20px; }
+.card h3 { margin: 0; font: 600 15px/1.3 var(--font); }
+.card .sub { color: var(--mu); font-size: 13px; }
+.card-head { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 14px; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1.4 var(--font); letter-spacing: 0; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.neu { background: var(--neu-soft); color: var(--neu); }
+.pill.plain::before { display: none; }
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--mu); background: var(--s2); border: 1px solid var(--ln); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+
+/* Host-Leiste */
+.host { display: grid; grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; }
+.host > div { padding: 16px 20px; display: grid; gap: 6px; align-content: start; }
+.host > div + div { border-left: 1px solid var(--ln); }
+.host .lbl { color: var(--mu); font-size: 13px; }
+.host .val { font: 700 20px/1.2 var(--font); }
+.host .val small { font-size: 13px; color: var(--mu); font-weight: 500; }
+.meter { height: 6px; border-radius: 99px; background: var(--s3); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--ac); border-radius: 99px; }
+
+/* Server-Karten */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.srv { padding: 18px; display: grid; gap: 14px; }
+.srv-top { display: flex; gap: 12px; align-items: center; }
+.srv-top .pix { width: 44px; height: 44px; border-radius: 10px; }
+.srv-top .t { flex: 1; min-width: 0; }
+.srv-top b { display: block; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srv-top span { color: var(--mu); font-size: 13px; }
+.addr { display: flex; align-items: center; gap: 8px; background: var(--s2); border: 1px solid var(--ln); border-radius: 8px; padding: 6px 6px 6px 10px; font: 500 13px/1.2 var(--mono); }
+.addr span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.addr button { background: none; border: 0; color: var(--mu); padding: 4px; border-radius: 6px; display: grid; }
+.addr button:hover { color: var(--tx); background: var(--s3); }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--s2); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.stat .lbl { color: var(--mu); font-size: 12px; }
+.stat .val { font-weight: 700; font-size: 15px; }
+.stat svg.spark { width: 100%; height: 26px; display: block; margin-top: 4px; }
+.srv-foot { display: flex; align-items: center; gap: 8px; }
+.heads { display: flex; align-items: center; }
+.heads .pix { width: 22px; height: 22px; border-radius: 5px; border: 2px solid var(--s); margin-left: -6px; }
+.heads .pix:first-child { margin-left: 0; }
+.srv-foot .who { color: var(--mu); font-size: 13px; flex: 1; min-width: 0; }
+.msg { border-radius: 10px; padding: 10px 12px; font-size: 13px; display: flex; gap: 8px; align-items: flex-start; }
+.msg.bad { background: var(--bad-soft); color: var(--tx); }
+.msg.bad svg { color: var(--bad); }
+.msg.warn { background: var(--warn-soft); }
+.load { display: grid; gap: 6px; }
+.load .meter i { background: var(--warn); }
+
+/* Server-Seite */
+.srv-head { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.srv-head .pix { width: 60px; height: 60px; border-radius: 14px; }
+.srv-head .t { flex: 1; min-width: 240px; }
+.srv-head h2 { margin: 0; font: 700 26px/1.2 var(--font-d); letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.srv-head p { margin: 4px 0 0; color: var(--mu); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--ln); scrollbar-width: none; }
+.tabs a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--mu); text-decoration: none; font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tabs a[aria-current="page"] { color: var(--tx); border-bottom-color: var(--ac); }
+.tabs a .cnt { font-size: 11px; background: var(--warn-soft); color: var(--warn); border-radius: 99px; padding: 1px 6px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.col { display: grid; gap: 16px; min-width: 0; }
+.banner { display: flex; gap: 16px; align-items: center; padding: 18px 20px; flex-wrap: wrap; }
+.banner .big { font: 700 20px/1.25 var(--font-d); }
+.banner .t { flex: 1; min-width: 200px; }
+.banner .t p { margin: 2px 0 0; color: var(--mu); }
+.ipcard { padding: 0; overflow: hidden; }
+.ip-main { padding: 20px; display: grid; gap: 12px; }
+.ip-main .lbl { color: var(--mu); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.ip-big { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ip-big .v { font: 600 26px/1.15 var(--mono); letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.ip-rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ln); }
+.ip-rows > div { padding: 14px 20px; display: grid; gap: 4px; min-width: 0; }
+.ip-rows > div + div { border-left: 1px solid var(--ln); }
+.ip-rows .lbl { color: var(--mu); font-size: 12px; }
+.ip-rows .v { font: 500 14px/1.3 var(--mono); display: flex; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+.ip-rows .v button { background: none; border: 0; color: var(--mu); padding: 3px; display: grid; border-radius: 6px; }
+.reach { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--ok-soft); flex-wrap: wrap; }
+.reach .t { flex: 1; min-width: 200px; font-size: 13px; }
+.reach .t b { display: block; font-size: 14px; color: var(--tx); }
+.reach .t span { color: var(--mu); }
+.reach .ico { width: 30px; height: 30px; border-radius: 50%; background: var(--ok); color: var(--g); display: grid; place-items: center; }
+.reach .ico svg { stroke-width: 2.6; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kpis > div { padding: 16px 20px; display: grid; gap: 4px; }
+.kpis > div + div { border-left: 1px solid var(--ln); }
+.kpis .lbl { color: var(--mu); font-size: 13px; }
+.kpis .val { font: 700 22px/1.2 var(--font); }
+.kpis .val small { font-size: 13px; color: var(--mu); font-weight: 500; }
+.kpis svg.spark { width: 100%; height: 30px; display: block; }
+.console { background: var(--console); border-radius: 12px; padding: 14px 16px; font: 12.5px/1.65 var(--mono); color: #cfd8d3; overflow-x: auto; }
+.console div { white-space: pre; }
+.console .tm { color: #6f817a; }
+.console .in { color: #7fd8ff; }
+.console .wn { color: #f6c26b; }
+.console .ok { color: #58e0a4; }
+.cmd { display: flex; gap: 8px; margin-top: 12px; }
+.cmd input { flex: 1; min-width: 0; background: var(--s2); color: var(--tx); border: 1px solid var(--ln2); border-radius: 10px; padding: 9px 12px; font: 13px var(--mono); }
+.players { display: grid; gap: 4px; }
+.player { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-radius: 8px; }
+.player .pix { width: 26px; height: 26px; border-radius: 5px; }
+.player b { flex: 1; font-weight: 600; font-size: 13px; }
+.player span { color: var(--mu); font-size: 12px; }
+.list { display: grid; }
+.list > div { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.list > div + div { border-top: 1px solid var(--ln); }
+.list .t { flex: 1; min-width: 0; }
+.list .t b { display: block; font-weight: 600; font-size: 13.5px; }
+.list .t span { color: var(--mu); font-size: 12.5px; }
+.list .ic { width: 32px; height: 32px; border-radius: 9px; background: var(--s2); display: grid; place-items: center; color: var(--mu); flex: none; }
+
+/* Marktplatz */
+.subtabs { display: inline-flex; gap: 4px; background: var(--s); border: 1px solid var(--ln); border-radius: 12px; padding: 4px; flex-wrap: wrap; }
+.subtabs a { padding: 7px 12px; border-radius: 8px; color: var(--mu); text-decoration: none; font-weight: 600; font-size: 13.5px; display: inline-flex; gap: 6px; align-items: center; }
+.subtabs a[aria-current="page"] { background: var(--s3); color: var(--tx); }
+.subtabs a .cnt { font-size: 11px; color: var(--warn); }
+.search { display: flex; align-items: center; gap: 10px; background: var(--s); border: 1px solid var(--ln2); border-radius: 14px; padding: 6px 6px 6px 16px; box-shadow: var(--sh); }
+.search input { flex: 1; min-width: 0; background: none; border: 0; color: var(--tx); font: 500 16px var(--font); padding: 8px 0; }
+.search input::placeholder { color: var(--fa); }
+.search input:focus { outline: none; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px; background: var(--s); border: 1px solid var(--ln2); color: var(--mu); font-weight: 600; font-size: 13px; }
+.chip[aria-pressed="true"] { background: var(--ac-soft); border-color: transparent; color: var(--tx); }
+.chip.off { opacity: .75; border-style: dashed; }
+.sep { width: 1px; height: 22px; background: var(--ln2); margin: 0 4px; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--tx); margin-left: auto; }
+.sw { width: 36px; height: 20px; border-radius: 99px; background: var(--ac); position: relative; flex: none; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 19px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+.sw.off { background: var(--s3); }
+.sw.off::after { left: 3px; }
+.results { display: grid; gap: 12px; }
+.res { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 18px; }
+.res .pix { width: 52px; height: 52px; border-radius: 12px; }
+.res .t b { font-size: 15px; font-weight: 700; }
+.res .t .by { color: var(--mu); font-size: 13px; margin-left: 6px; }
+.res .t p { margin: 3px 0 8px; color: var(--mu); font-size: 13.5px; }
+.res .meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.res .act { display: grid; gap: 6px; justify-items: end; }
+.res .act .ver { color: var(--mu); font-size: 12px; }
+.compat { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.compat.ok { background: var(--ok-soft); color: var(--ok); }
+.compat.warn { background: var(--warn-soft); color: var(--warn); }
+.dep { font-size: 12.5px; color: var(--mu); display: flex; align-items: center; gap: 6px; }
+.drop { border: 2px dashed var(--ln2); border-radius: var(--r); padding: 22px 18px; display: grid; gap: 8px; justify-items: center; text-align: center; color: var(--mu); }
+.drop b { color: var(--tx); font-size: 14px; }
+.drop .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--ac-soft); color: var(--ac); display: grid; place-items: center; }
+.inst > div { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+.inst > div + div { border-top: 1px solid var(--ln); }
+.inst .pix { width: 28px; height: 28px; border-radius: 7px; }
+.inst .t { flex: 1; min-width: 0; }
+.inst .t b { display: block; font-size: 13.5px; font-weight: 600; }
+.inst .t span { color: var(--mu); font-size: 12px; }
+.inst .t span.u { color: var(--warn); font-weight: 600; }
+.foot-note { color: var(--fa); font-size: 12px; }
+
+/* ---------- Variante A: Smaragd ---------- */
+.mock[data-v="a"] .sb { background: var(--g); border-right-color: transparent; }
+.mock[data-v="a"] .banner { background: var(--ac-soft); border-color: transparent; box-shadow: none; }
+.mock[data-v="a"] .banner .emo { font-size: 30px; line-height: 1; }
+.mock[data-v="a"] .nav a[aria-current="page"] { background: var(--ac-soft); color: var(--tx); }
+.mock[data-v="a"] .nav a[aria-current="page"] svg { color: var(--ac); }
+
+/* ---------- Variante B: Blockwerk ---------- */
+.mock[data-v="b"] .brand { font: 700 19px/1 var(--font-d); letter-spacing: 0; }
+.mock[data-v="b"] .brand .mark { border-radius: 6px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+.mock[data-v="b"] .btn { box-shadow: inset 0 -3px 0 rgba(0,0,0,.22); border-width: 1px; padding-bottom: 11px; }
+.mock[data-v="b"] .btn.sm { padding-bottom: 8px; }
+.mock[data-v="b"] .btn.ghost { box-shadow: none; padding-bottom: 9px; }
+.mock[data-v="b"] .title-row h2, .mock[data-v="b"] .srv-head h2 { font-weight: 600; letter-spacing: 0; font-size: 28px; }
+.mock[data-v="b"] .srv-top b { font: 600 16px/1.2 var(--font-d); }
+.mock[data-v="b"] .card { border-width: 1px; border-bottom-width: 1px; }
+.mock[data-v="b"] .srvlist { display: grid; gap: 2px; }
+.mock[data-v="b"] .srvlist .grp { color: var(--fa); font-size: 12px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; }
+.mock[data-v="b"] .srvlist .grp button { background: var(--ac); color: var(--ac-ink); border: 0; border-radius: 6px; width: 22px; height: 22px; display: grid; place-items: center; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.mock[data-v="b"] .srvlist a { display: flex; gap: 10px; align-items: center; padding: 7px 10px; border-radius: 8px; text-decoration: none; color: var(--tx); }
+.mock[data-v="b"] .srvlist a:hover { background: var(--s2); }
+.mock[data-v="b"] .srvlist a[aria-current="page"] { background: var(--s3); }
+.mock[data-v="b"] .srvlist .pix { width: 28px; height: 28px; border-radius: 6px; }
+.mock[data-v="b"] .srvlist .t { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock[data-v="b"] .srvlist .dot { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.mock[data-v="b"] .tabs { border-bottom: 0; background: var(--s); border: 1px solid var(--ln); border-radius: 12px; padding: 5px; gap: 4px; }
+.mock[data-v="b"] .tabs a { border-bottom: 0; margin-bottom: 0; border-radius: 8px; padding: 8px 12px; }
+.mock[data-v="b"] .tabs a[aria-current="page"] { background: var(--ac); color: var(--ac-ink); box-shadow: inset 0 -3px 0 rgba(0,0,0,.22); }
+.mock[data-v="b"] .ver-gold { color: var(--gold); background: var(--gold-soft); border-color: transparent; }
+.mock[data-v="b"] .banner { background: var(--s); }
+.mock[data-v="b"] .banner .emo { font-size: 28px; }
+.mock[data-v="b"] .pill { border-radius: 6px; }
+.mock[data-v="b"] .pill::before { border-radius: 2px; }
+.mock[data-v="b"] .ip-big .v { font-family: var(--font-d); font-weight: 600; font-size: 30px; letter-spacing: 0.01em; }
+.mock[data-v="b"] .meter { border-radius: 3px; height: 8px; }
+.mock[data-v="b"] .meter i { border-radius: 0; background: repeating-linear-gradient(90deg, var(--ac) 0 10px, var(--ac-hi) 10px 12px); }
+
+/* ---------- Variante C: Leitstand ---------- */
+.mock[data-v="c"] .sb { background: var(--g); }
+.mock[data-v="c"] .card { box-shadow: none; }
+.mock[data-v="c"] .btn.pri { background: var(--pri); color: var(--pri-ink); }
+.mock[data-v="c"] .upd button { background: var(--pri); color: var(--pri-ink); }
+.mock[data-v="c"] .upd { background: var(--s2); border: 1px solid var(--ln); }
+.mock[data-v="c"] .brand .mark { background: var(--s3); border: 1px solid var(--ln2); }
+.mock[data-v="c"] .title-row h2, .mock[data-v="c"] .srv-head h2 { font-size: 22px; font-weight: 600; }
+.mock[data-v="c"] .addr, .mock[data-v="c"] .stat { background: transparent; }
+.mock[data-v="c"] .stat { border: 1px solid var(--ln); }
+.mock[data-v="c"] .ip-big .v { font-size: 24px; }
+.mock[data-v="c"] .reach { background: transparent; border-top: 1px solid var(--ln); }
+.mock[data-v="c"] .reach .ico { background: var(--ok-soft); color: var(--ok); }
+.mock[data-v="c"] .banner { display: none; }
+.mock[data-v="c"] .chip[aria-pressed="true"] { background: var(--s3); border-color: var(--ln2); }
+.mock[data-v="c"] .drop .ic { background: var(--s3); color: var(--tx); }
+.mock[data-v="c"] .search { box-shadow: none; border-radius: 10px; }
+.mock[data-v="c"] .topbar { display: flex; align-items: center; gap: 10px; color: var(--mu); font-size: 13px; padding-bottom: 14px; border-bottom: 1px solid var(--ln); }
+.mock[data-v="c"] .topbar b { color: var(--tx); font-weight: 600; }
+.mock[data-v="c"] .topbar .sp { flex: 1; }
+
+/* ---------- Schmale Bühne (Tablet/Handy) ---------- */
+@container (max-width: 1180px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpis > div:nth-child(3) { border-left: 0; }
+  .kpis > div:nth-child(n+3) { border-top: 1px solid var(--ln); }
+}
+@container (max-width: 860px) {
+  .mock { grid-template-columns: 1fr; }
+  .sb { border-right: 0; border-bottom: 1px solid var(--ln); flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 16px; gap: 10px; }
+  .sb .nav, .sb .sb-foot, .sb .srvlist { display: none !important; }
+  .sb .switch { flex: 1; min-width: 180px; }
+  .mn { padding: 20px 16px 32px; }
+  .host { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .host > div:nth-child(3) { border-left: 0; }
+  .host > div:nth-child(n+3) { border-top: 1px solid var(--ln); }
+  .ip-rows { grid-template-columns: 1fr; }
+  .ip-rows > div + div { border-left: 0; border-top: 1px solid var(--ln); }
+}
+@container (max-width: 620px) {
+  .grid { grid-template-columns: 1fr; }
+  .res { grid-template-columns: 44px minmax(0, 1fr); }
+  .res .pix { width: 44px; height: 44px; }
+  .res .act { grid-column: 1 / -1; justify-items: start; grid-auto-flow: column; align-items: center; }
+  .toggle { margin-left: 0; }
+  .sep { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="viewer">
+  <div class="v-head">
+    <div>
+      <h1>MorniHosting Mockups</h1>
+      <p>Drei Richtungen für dasselbe Panel. Wähle oben die Variante und die Ansicht, mit „Hell“ siehst du das helle Gegenstück.</p>
+    </div>
+    <div class="v-controls">
+      <div class="seg" role="group" aria-label="Ansicht" id="screens">
+        <button type="button" data-s="dash" aria-pressed="true">Dashboard</button>
+        <button type="button" data-s="server" aria-pressed="false">Server mit IP-Karte</button>
+        <button type="button" data-s="market" aria-pressed="false">Plugin-Marktplatz</button>
+      </div>
+      <div class="seg" role="group" aria-label="Modus" id="modes">
+        <button type="button" data-m="dark" aria-pressed="true">Dunkel</button>
+        <button type="button" data-m="light" aria-pressed="false">Hell</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="v-cards" role="group" aria-label="Variante" id="variants">
+    <button type="button" class="v-card" data-v="a" aria-pressed="true"><b>A · Smaragd</b><span>Nah an deinem Briefing: dunkle Karten mit weichen Schatten, 16 px Ecken, Smaragdgrün auf den Hauptknöpfen. Großzügig und freundlich wie ein großer Hoster.</span></button>
+    <button type="button" class="v-card" data-v="b" aria-pressed="false"><b>B · Blockwerk</b><span>Mit Minecraft-Gefühl: Pixel-Schrift für Namen, Knöpfe mit Block-Kante, die Serverliste direkt in der Seitenleiste. Grasgrün und Gold.</span></button>
+    <button type="button" class="v-card" data-v="c" aria-pressed="false"><b>C · Leitstand</b><span>Ruhig und präzise: flache Flächen mit feinen Linien, Farbe nur für Status und Diagramme, Adressen in Festbreitenschrift. Mehr Infos auf einen Blick.</span></button>
+  </div>
+
+  <div class="stage"><div class="mock" id="mock" data-v="a" data-mode="dark"></div></div>
+  <p class="v-note">Alle Namen, Zahlen und Adressen sind Beispieldaten. Die öffentliche IP stammt aus einem Dokumentationsbereich.</p>
+</div>
+
+<script>
+(function () {
+  /* ---------- Hilfen ---------- */
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  var cache = {};
+  function canvasURL(key, w, h, paint) {
+    if (cache[key]) return cache[key];
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    paint(c.getContext('2d'));
+    return (cache[key] = c.toDataURL());
+  }
+  function px(g, x, y, col) { g.fillStyle = col; g.fillRect(x, y, 1, 1); }
+
+  var BLOCKS = {
+    grass: { top: ['#5aa636', '#6bbd42', '#4c9230', '#78c94e'], body: ['#8a5a2c', '#7a4d24', '#9a6936', '#6e4520'] },
+    diamond: { all: ['#7fe3dc', '#5fcfc7', '#a7f1ec', '#4bb7b0'] },
+    planks: { all: ['#b0803f', '#9c6d31', '#c18f4c', '#8a5e29'], grid: '#6e4a1f' },
+    pumpkin: { all: ['#e2902c', '#cf7d1e', '#f0a743', '#b96a14'], rib: '#a85c10' },
+    nether: { all: ['#7d2b2b', '#923636', '#5f1f20', '#a8473f'] },
+    stone: { all: ['#8b8b8b', '#7a7a7a', '#9d9d9d', '#6c6c6c'] }
+  };
+  function blockIcon(kind) {
+    return canvasURL('b:' + kind, 16, 16, function (g) {
+      var r = rng(hash(kind)), p = BLOCKS[kind];
+      for (var y = 0; y < 16; y++) for (var x = 0; x < 16; x++) {
+        var set = p.all;
+        if (p.top) { var edge = 4 + ((r() * 3) | 0) - (x % 3 === 0 ? 1 : 0); set = y < edge ? p.top : p.body; }
+        var col = set[(r() * set.length) | 0];
+        if (p.grid && (x % 8 === 0 || y === 5 || y === 10)) col = p.grid;
+        if (p.rib && (x === 4 || x === 11)) col = p.rib;
+        px(g, x, y, col);
+      }
+    });
+  }
+  var SKIN = ['#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#ffdbac', '#d9a066'];
+  var HAIR = ['#3b2414', '#6b3f1d', '#1f1a17', '#c9a24a', '#a8462a', '#4a4a52', '#e7d39a'];
+  var EYE = ['#2c5ea8', '#3f7d3a', '#5a3b22', '#2d2d2d'];
+  function head(name) {
+    return canvasURL('h:' + name, 8, 8, function (g) {
+      var r = rng(hash(name)), skin = SKIN[(r() * SKIN.length) | 0], hair = HAIR[(r() * HAIR.length) | 0], eye = EYE[(r() * EYE.length) | 0];
+      var long = r() > .5;
+      for (var y = 0; y < 8; y++) for (var x = 0; x < 8; x++) {
+        var c = skin;
+        if (y < 2 || (y === 2 && (x === 0 || x === 7 || r() > .7)) || (long && (x === 0 || x === 7) && y < 6)) c = hair;
+        px(g, x, y, c);
+      }
+      px(g, 1, 4, '#ffffff'); px(g, 2, 4, eye); px(g, 5, 4, eye); px(g, 6, 4, '#ffffff');
+      px(g, 3, 6, '#7a3b2e'); px(g, 4, 6, '#7a3b2e');
+      if (r() > .6) { px(g, 3, 5, 'rgba(0,0,0,.15)'); px(g, 4, 5, 'rgba(0,0,0,.15)'); }
+    });
+  }
+  function plugIcon(name, hue) {
+    return canvasURL('p:' + name, 8, 8, function (g) {
+      var r = rng(hash(name));
+      g.fillStyle = 'hsl(' + hue + ' 35% 22%)'; g.fillRect(0, 0, 8, 8);
+      for (var y = 1; y < 7; y++) for (var x = 1; x < 4; x++) {
+        if (r() > .45) { var col = 'hsl(' + hue + ' ' + (55 + r() * 20) + '% ' + (50 + r() * 18) + '%)'; px(g, x, y, col); px(g, 7 - x, y, col); }
+      }
+    });
+  }
+  function series(seed, n, base, spread, floor, ceil) {
+    var r = rng(seed), v = base, out = [];
+    for (var i = 0; i < n; i++) { v += (r() - .5) * spread; v = Math.max(floor, Math.min(ceil, v)); out.push(v); }
+    return out;
+  }
+  function spark(values, max, fill) {
+    var w = 120, h = 30, n = values.length, d = '';
+    values.forEach(function (v, i) { var x = (i / (n - 1)) * w, y = h - 2 - (v / max) * (h - 4); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); });
+    var area = fill ? '<path d="' + d + 'L' + w + ' ' + h + 'L0 ' + h + 'Z" fill="var(--ac)" opacity=".14"></path>' : '';
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' + area + '<path d="' + d + '" fill="none" stroke="var(--ac)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path></svg>';
+  }
+  var IC = {
+    grid: '<rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/>',
+    plus: '<path d="M5 12h14M12 5v14"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    sliders: '<path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/>',
+    code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>',
+    terminal: '<path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>',
+    box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+    archive: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    user: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+    play: '<path d="M6 3.5v17l14-8.5z"/>',
+    stop: '<rect x="5" y="5" width="14" height="14" rx="2"/>',
+    restart: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+    more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    house: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    chev: '<path d="m6 9 6 6 6-6"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    tunnel: '<path d="M4 20V10a8 8 0 0 1 16 0v10"/><path d="M8 20v-8a4 4 0 0 1 8 0v8"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>'
+  };
+  function ic(name, cls) { return '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + IC[name] + '</svg>'; }
+  function img(src, cls, alt) { return '<img class="pix' + (cls ? ' ' + cls : '') + '" src="' + src + '" alt="' + (alt || '') + '">'; }
+
+  /* ---------- Beispieldaten ---------- */
+  var SERVERS = [
+    { id: 'survival', name: 'Survival mit Freunden', sw: 'Paper', ver: '1.21.4', ed: 'Java', block: 'grass', state: 'run', pl: 7, max: 20, ram: 3.1, ramMax: 6, cpu: 38, addr: 'mc.morncloud.de', seed: 11, who: ['Morni', 'Lena_Baut', 'KaiKocht', 'Juna', 'Pixelpaul', 'Tobi_04', 'Mia.Builds'] },
+    { id: 'kreativ', name: 'Kreativwelt', sw: 'Purpur', ver: '1.21.4', ed: 'Java', block: 'diamond', state: 'run', pl: 2, max: 10, ram: 1.8, ramMax: 4, cpu: 12, addr: 'kreativ.morncloud.de', seed: 21, who: ['Lena_Baut', 'Mia.Builds'] },
+    { id: 'atm', name: 'All the Mods 10', sw: 'NeoForge', ver: '1.21.1', ed: 'Java', block: 'planks', state: 'start', pl: 0, max: 8, ram: 5.2, ramMax: 10, cpu: 71, addr: '192.168.178.40:25567', seed: 31, who: [] },
+    { id: 'bedrock', name: 'Familie Bedrock', sw: 'Bedrock', ver: '1.21.50', ed: 'Bedrock', block: 'pumpkin', state: 'run', pl: 3, max: 10, ram: 0.9, ramMax: 2, cpu: 6, addr: 'familie.morncloud.de:19132', seed: 41, who: ['Papa_M', 'Ella', 'Finn2015'] },
+    { id: 'hardcore', name: 'Hardcore-Event', sw: 'Paper', ver: '1.20.6', ed: 'Java', block: 'nether', state: 'crash', pl: 0, max: 30, ram: 0, ramMax: 2, cpu: 0, addr: '192.168.178.40:25569', seed: 51, who: [] },
+    { id: 'test', name: 'Testserver', sw: 'Fabric', ver: '1.21.4', ed: 'Java', block: 'stone', state: 'stop', pl: 0, max: 5, ram: 0, ramMax: 3, cpu: 0, addr: '192.168.178.40:25568', seed: 61, who: [] }
+  ];
+  var STATE = {
+    run: ['ok', 'Läuft'], start: ['warn', 'Startet …'], crash: ['bad', 'Abgestürzt'], stop: ['neu', 'Gestoppt']
+  };
+  var PLUGINS = [
+    { n: 'LuckPerms', by: 'Luck', d: 'Rechte und Gruppen für Spieler verwalten, mit Web-Editor.', src: ['Modrinth', 'Hangar'], dl: '2,1 Mio.', upd: 'vor 6 Tagen', c: 'ok', state: 'inst', ver: '5.4.152', hue: 205 },
+    { n: 'EssentialsX', by: 'EssentialsX-Team', d: '/home, /spawn, /tpa, Kits und viele Grundbefehle.', src: ['Modrinth', 'Hangar'], dl: '1,4 Mio.', upd: 'vor 2 Wochen', c: 'ok', state: 'get', ver: '2.21.0', hue: 12 },
+    { n: 'WorldGuard', by: 'EngineHub', d: 'Gebiete schützen, z. B. den Spawn oder das Rathaus.', src: ['Modrinth'], dl: '980 Tsd.', upd: 'vor 1 Monat', c: 'ok', state: 'get', ver: '7.0.13', hue: 140, dep: 'Braucht WorldEdit, ist schon installiert.' },
+    { n: 'CoreProtect', by: 'Intelli', d: 'Protokolliert jeden Block. Grief mit einem Befehl rückgängig machen.', src: ['Modrinth', 'Spiget'], dl: '760 Tsd.', upd: 'vor 4 Tagen', c: 'ok', state: 'upd', ver: '22.4 → 23.1', hue: 30 },
+    { n: 'Simple Voice Chat', by: 'henkelmax', d: 'Sprachchat in der Nähe. Deine Freunde brauchen dafür die passende Mod.', src: ['Modrinth'], dl: '3,3 Mio.', upd: 'vor 3 Tagen', c: 'ok', state: 'get', ver: '2.5.27', hue: 265 },
+    { n: 'TimberFall Classic', by: 'Beispiel', d: 'Bäume auf einen Schlag fällen.', src: ['Spiget'], dl: '41 Tsd.', upd: 'vor 1 Jahr', c: 'warn', cw: 'Nur bis 1.20.6 getestet', state: 'get', ver: '1.8.2', hue: 95 }
+  ];
+  var INSTALLED = [
+    { n: 'LuckPerms', v: '5.4.152', on: true, hue: 205 },
+    { n: 'WorldEdit', v: '7.3.9', on: true, hue: 180 },
+    { n: 'CoreProtect', v: '22.4', on: true, upd: '23.1', hue: 30 },
+    { n: 'Chunky', v: '1.4.28', on: true, hue: 50 },
+    { n: 'eigenes-Lobby.jar', v: 'hochgeladen', on: false, hue: 320 }
+  ];
+
+  var state = { v: 'a', s: 'dash', m: 'dark' };
+  try { var saved = JSON.parse(localStorage.getItem('mh-mock') || '{}'); ['v', 's', 'm'].forEach(function (k) { if (saved[k]) state[k] = saved[k]; }); } catch (e) {}
+
+  /* ---------- Seitenleiste ---------- */
+  function brand() {
+    return '<div class="brand"><span class="mark">' + img(blockIcon('grass'), '', '') + '</span>MorniHosting</div>';
+  }
+  function navLinks(active) {
+    var items = [
+      ['grid', 'Übersicht', 'dash'], ['plus', 'Server erstellen', 'new'],
+      ['grp', 'Verwaltung'], ['users', 'Benutzer und Rollen', 'users'], ['bell', 'Benachrichtigungen', 'hooks'], ['code', 'API-Zugänge', 'api'], ['sliders', 'Einstellungen', 'settings']
+    ];
+    return '<nav class="nav" aria-label="Hauptmenü">' + items.map(function (it) {
+      if (it[0] === 'grp') return '<div class="grp">' + it[1] + '</div>';
+      return '<a href="#" ' + (it[2] === active ? 'aria-current="page"' : '') + '>' + ic(it[0]) + it[1] + '</a>';
+    }).join('') + '</nav>';
+  }
+  function foot() {
+    return '<div class="sb-foot"><div class="upd"><b>Version 1.1.0 ist da</b><span>Neue Funktionen und Fehlerbehebungen. Deine Server laufen beim Update weiter.</span><button type="button">Jetzt aktualisieren</button></div>' +
+      '<div class="me">' + img(head('Morni'), '', '') + '<div class="t"><b>Philip</b><br><span>Administrator</span></div></div></div>';
+  }
+  function sidebar(screen) {
+    var cur = SERVERS[0];
+    if (state.v === 'b') {
+      var list = '<div class="srvlist"><div class="grp"><span>Deine Server</span><button type="button" aria-label="Neuer Server">' + ic('plus', 'sm') + '</button></div>' +
+        SERVERS.map(function (s) {
+          var col = { run: 'var(--ok)', start: 'var(--warn)', crash: 'var(--bad)', stop: 'var(--fa)' }[s.state];
+          return '<a href="#" ' + (screen !== 'dash' && s.id === 'survival' ? 'aria-current="page"' : '') + '>' + img(blockIcon(s.block)) + '<span class="t">' + s.name + '</span><span class="dot" style="background:' + col + '" aria-label="' + STATE[s.state][1] + '"></span></a>';
+        }).join('') + '</div>';
+      return '<aside class="sb">' + brand() + list + navLinks(screen === 'dash' ? 'dash' : '') + foot() + '</aside>';
+    }
+    var sw = '<button type="button" class="switch" aria-label="Server wählen">' + img(blockIcon(cur.block), '', '').replace('class="pix"', 'class="pix" style="width:32px;height:32px;border-radius:8px"') +
+      '<span class="t"><b>' + (screen === 'dash' ? 'Alle Server' : cur.name) + '</b><span>' + (screen === 'dash' ? '6 Server · 4 laufen' : cur.sw + ' ' + cur.ver) + '</span></span>' + ic('chev', 'sm') + '</button>';
+    return '<aside class="sb">' + brand() + sw + navLinks(screen === 'dash' ? 'dash' : '') + foot() + '</aside>';
+  }
+
+  /* ---------- Dashboard ---------- */
+  function hostStrip() {
+    return '<section class="card host" aria-label="Dein Host">' +
+      '<div><span class="lbl">Host</span><span class="val">morni-mc</span><span class="lbl">Proxmox-LXC · Debian 13</span></div>' +
+      '<div><span class="lbl">Prozessor</span><span class="val num">31 % <small>von 4 Kernen</small></span><span class="meter"><i style="width:31%"></i></span></div>' +
+      '<div><span class="lbl">Arbeitsspeicher</span><span class="val num">11,3 <small>von 24 GB</small></span><span class="meter"><i style="width:47%"></i></span></div>' +
+      '<div><span class="lbl">Speicherplatz</span><span class="val num">182 <small>von 500 GB</small></span><span class="meter"><i style="width:36%"></i></span></div></section>';
+  }
+  function serverCard(s) {
+    var st = STATE[s.state];
+    var body = '';
+    if (s.state === 'run') {
+      body = '<div class="stats"><div class="stat"><span class="lbl">Arbeitsspeicher</span><span class="val num">' + s.ram.toFixed(1).replace('.', ',') + ' / ' + s.ramMax + ' GB</span>' + spark(series(s.seed, 24, s.ram, s.ramMax * .12, s.ram * .7, s.ramMax * .95), s.ramMax, state.v !== 'c') + '</div>' +
+        '<div class="stat"><span class="lbl">Prozessor</span><span class="val num">' + s.cpu + ' %</span>' + spark(series(s.seed + 7, 24, s.cpu, 18, 2, 95), 100, state.v !== 'c') + '</div></div>';
+    } else if (s.state === 'start') {
+      body = '<div class="load"><div class="srv-foot"><span class="who">Welt wird geladen</span><span class="num" style="font-weight:600">64 %</span></div><span class="meter"><i style="width:64%"></i></span></div>' +
+        '<div class="msg warn">' + ic('clock', 'sm') + '<span>Modpacks brauchen beim ersten Start oft 2 bis 3 Minuten.</span></div>';
+    } else if (s.state === 'crash') {
+      body = '<div class="msg bad">' + ic('alert', 'sm') + '<span><b>Zu wenig Arbeitsspeicher.</b> Der Server hatte 2 GB und brauchte mehr. Wir zeigen dir, wie du das behebst.</span></div>';
+    } else {
+      body = '<div class="msg" style="background:var(--s2)">' + ic('clock', 'sm') + '<span>Gestoppt seit gestern, 22:14 Uhr. Deine Welt ist gespeichert.</span></div>';
+    }
+    var who = s.who.length ? '<span class="heads">' + s.who.slice(0, 4).map(function (n) { return img(head(n), '', n); }).join('') + '</span><span class="who">' + s.pl + ' von ' + s.max + ' Spielern online</span>' : '<span class="who">' + (s.state === 'start' ? 'Noch niemand online' : 'Niemand online') + '</span>';
+    var act = s.state === 'run' ? '<button type="button" class="btn sm">' + ic('stop', 'sm') + 'Stoppen</button>'
+      : s.state === 'crash' ? '<button type="button" class="btn sm pri">Lösung ansehen</button>'
+      : s.state === 'stop' ? '<button type="button" class="btn sm pri">' + ic('play', 'sm') + 'Starten</button>'
+      : '<button type="button" class="btn sm ghost">' + ic('terminal', 'sm') + 'Konsole</button>';
+    var verTag = '<span class="tag' + (state.v === 'b' ? ' ver-gold' : '') + '">' + s.ver + '</span>';
+    return '<article class="card srv"><div class="srv-top">' + img(blockIcon(s.block), '', '') + '<div class="t"><b>' + s.name + '</b><span>' + s.sw + ' ' + verTag + ' · ' + s.ed + '</span></div><span class="pill ' + st[0] + '">' + st[1] + '</span></div>' +
+      '<div class="addr"><span>' + s.addr + '</span><button type="button" aria-label="Adresse kopieren">' + ic('copy', 'sm') + '</button></div>' +
+      body + '<div class="srv-foot">' + who + act + '</div></article>';
+  }
+  function dashboard() {
+    var top = state.v === 'c' ? '<div class="topbar">' + ic('house', 'sm') + '<span>morni-mc</span><span>/</span><b>Übersicht</b><span class="sp"></span><span class="num">Aktualisiert 14:06 Uhr</span></div>' : '';
+    return top + '<div class="title-row"><div class="tt"><h2>' + (state.v === 'c' ? 'Übersicht' : 'Deine Server') + '</h2><p>4 von 6 Servern laufen · 12 Spieler sind gerade online</p></div>' +
+      '<button type="button" class="btn">' + ic('upload', 'sm') + 'Server importieren</button><button type="button" class="btn pri">' + ic('plus', 'sm') + 'Neuer Server</button></div>' +
+      hostStrip() + '<section class="grid" aria-label="Server">' + SERVERS.map(serverCard).join('') + '</section>';
+  }
+
+  /* ---------- Server-Seite ---------- */
+  function serverHead(activeTab) {
+    var s = SERVERS[0];
+    var tabs = [['grid', 'Übersicht'], ['terminal', 'Konsole'], ['box', 'Plugins', '1'], ['folder', 'Dateien'], ['archive', 'Backups'], ['clock', 'Zeitpläne'], ['user', 'Spieler'], ['sliders', 'Einstellungen']];
+    var top = state.v === 'c' ? '<div class="topbar">' + ic('house', 'sm') + '<span>morni-mc</span><span>/</span><span>Server</span><span>/</span><b>' + s.name + '</b><span class="sp"></span><span class="num">Läuft seit 3 Std. 12 Min.</span></div>' : '';
+    return top + '<div class="srv-head">' + img(blockIcon(s.block), '', '') + '<div class="t"><h2>' + s.name + ' <span class="pill ok">Läuft</span></h2><p>' + s.sw + ' ' + s.ver + ' · Java · Port 25565</p></div>' +
+      '<button type="button" class="btn">' + ic('restart', 'sm') + 'Neu starten</button><button type="button" class="btn">' + ic('stop', 'sm') + 'Stoppen</button><button type="button" class="btn icon" aria-label="Mehr, zum Beispiel sofort beenden">' + ic('more', 'sm') + '</button></div>' +
+      '<nav class="tabs" aria-label="Server-Bereiche">' + tabs.map(function (t) {
+        return '<a href="#" ' + (t[1] === activeTab ? 'aria-current="page"' : '') + '>' + ic(t[0], 'sm') + t[1] + (t[2] ? '<span class="cnt" aria-label="Updates">' + t[2] + '</span>' : '') + '</a>';
+      }).join('') + '</nav>';
+  }
+  function serverPage() {
+    var s = SERVERS[0];
+    var banner = '<section class="card banner"><span class="emo" aria-hidden="true">🎉</span><div class="t"><div class="big">Dein Server läuft</div><p>Seit 3 Std. 12 Min. · 7 Freunde spielen gerade</p></div><button type="button" class="btn">' + ic('terminal', 'sm') + 'Konsole öffnen</button></section>';
+    var ip = '<section class="card ipcard" aria-label="Verbindung"><div class="ip-main"><span class="lbl">' + ic('link', 'sm') + 'Adresse für deine Freunde</span>' +
+      '<div class="ip-big"><span class="v">mc.morncloud.de</span><button type="button" class="btn pri">' + ic('copy', 'sm') + 'Kopieren</button></div></div>' +
+      '<div class="ip-rows"><div><span class="lbl">Öffentliche IP</span><span class="v">203.0.113.42:25565<button type="button" aria-label="Kopieren">' + ic('copy', 'sm') + '</button></span></div>' +
+      '<div><span class="lbl">Im Heimnetz</span><span class="v">192.168.178.40:25565<button type="button" aria-label="Kopieren">' + ic('copy', 'sm') + '</button></span></div>' +
+      '<div><span class="lbl">Port</span><span class="v">25565 · TCP</span></div></div>' +
+      '<div class="reach"><span class="ico">' + ic('check', 'sm') + '</span><div class="t"><b>Von außen erreichbar</b><span>Freunde können sich von überall verbinden. Zuletzt geprüft vor 2 Minuten.</span></div>' +
+      '<button type="button" class="btn sm ghost">' + ic('refresh', 'sm') + 'Erneut prüfen</button><button type="button" class="btn sm ghost">' + ic('tunnel', 'sm') + 'Tunnel mit playit.gg</button></div></section>';
+    var ram = series(11, 40, 3.1, .5, 2.4, 5.6), cpu = series(17, 40, 38, 16, 8, 90), tps = series(23, 40, 19.9, .4, 18.8, 20), pl = series(29, 40, 6, 2, 1, 11);
+    var kpis = '<section class="card kpis" aria-label="Leistung, letzte Stunde">' +
+      '<div><span class="lbl">Spieler</span><span class="val num">7 <small>von 20</small></span>' + spark(pl, 20, state.v !== 'c') + '</div>' +
+      '<div><span class="lbl">Arbeitsspeicher</span><span class="val num">3,1 <small>von 6 GB</small></span>' + spark(ram, 6, state.v !== 'c') + '</div>' +
+      '<div><span class="lbl">Prozessor</span><span class="val num">38 %</span>' + spark(cpu, 100, state.v !== 'c') + '</div>' +
+      '<div><span class="lbl">Ticks pro Sekunde</span><span class="val num">19,9 <small>flüssig</small></span>' + spark(tps, 20, state.v !== 'c') + '</div></section>';
+    var con = '<section class="card pad"><div class="card-head"><h3>Konsole</h3><span class="sub">Live</span></div><div class="console" role="log" aria-label="Letzte Konsolenzeilen">' +
+      '<div><span class="tm">[14:01:52]</span> Mia.Builds joined the game</div>' +
+      '<div><span class="tm">[14:02:11]</span> <span class="in">&lt;KaiKocht&gt;</span> wer hat die Diamanten im Lager?</div>' +
+      '<div><span class="tm">[14:03:40]</span> <span class="ok">Automatische Speicherung abgeschlossen</span></div>' +
+      '<div><span class="tm">[14:04:05]</span> <span class="wn">Can\'t keep up! Is the server overloaded? Running 2104ms behind</span></div>' +
+      '<div><span class="tm">[14:05:18]</span> Pixelpaul has made the advancement [Diamonds!]</div>' +
+      '<div><span class="tm">[14:06:02]</span> <span class="in">&lt;Lena_Baut&gt;</span> ich bau heute die Brücke fertig</div></div>' +
+      '<div class="cmd"><label class="sr" for="cmd" style="position:absolute;left:-9999px">Befehl</label><input id="cmd" placeholder="Befehl eingeben, z. B. say Hallo" autocomplete="off"><button type="button" class="btn">Senden</button></div></section>';
+    var players = '<section class="card pad"><div class="card-head"><h3>Gerade online</h3><span class="sub num">7 von 20</span></div><div class="players">' +
+      s.who.map(function (n, i) { return '<div class="player">' + img(head(n), '', '') + '<b>' + n + '</b><span>' + ['seit 2 Std.', 'seit 48 Min.', 'seit 31 Min.', 'seit 25 Min.', 'seit 12 Min.', 'seit 9 Min.', 'seit 4 Min.'][i] + '</span></div>'; }).join('') + '</div></section>';
+    var next = '<section class="card pad"><div class="card-head"><h3>Als Nächstes</h3><a href="#" class="sub">Alle Zeitpläne</a></div><div class="list">' +
+      '<div><span class="ic">' + ic('archive', 'sm') + '</span><span class="t"><b>Backup</b><span>Heute um 04:00 Uhr · 7 werden aufbewahrt</span></span></div>' +
+      '<div><span class="ic">' + ic('restart', 'sm') + '</span><span class="t"><b>Neustart mit Warnung</b><span>Jeden Tag um 05:00 Uhr</span></span></div>' +
+      '<div><span class="ic">' + ic('check', 'sm') + '</span><span class="t"><b>Letztes Backup</b><span>Heute 04:00 Uhr · 1,2 GB · erfolgreich</span></span><button type="button" class="btn sm ghost" aria-label="Backup herunterladen">' + ic('download', 'sm') + '</button></div></div></section>';
+    return serverHead('Übersicht') + banner + '<div class="two"><div class="col">' + ip + kpis + con + '</div><div class="col">' + players + next + '</div></div>';
+  }
+
+  /* ---------- Marktplatz ---------- */
+  function market() {
+    var src = function (list) { return list.map(function (x) { return '<span class="tag">' + x + '</span>'; }).join(''); };
+    var res = PLUGINS.map(function (p) {
+      var btn = p.state === 'inst' ? '<button type="button" class="btn sm ghost">' + ic('check', 'sm') + 'Installiert</button>'
+        : p.state === 'upd' ? '<button type="button" class="btn sm">' + ic('download', 'sm') + 'Aktualisieren</button>'
+        : p.c === 'warn' ? '<button type="button" class="btn sm">Trotzdem installieren</button>'
+        : '<button type="button" class="btn sm pri">' + ic('download', 'sm') + 'Installieren</button>';
+      return '<article class="card res">' + img(plugIcon(p.n, p.hue), '', '') + '<div class="t"><b>' + p.n + '</b><span class="by">von ' + p.by + '</span><p>' + p.d + '</p>' +
+        '<div class="meta"><span class="compat ' + p.c + '">' + (p.c === 'ok' ? 'Passt zu Paper 1.21.4' : p.cw) + '</span>' + src(p.src) + '<span class="tag num">' + ic('download', 'sm') + p.dl + '</span><span class="tag">' + p.upd + '</span></div>' +
+        (p.dep ? '<div class="dep" style="margin-top:8px">' + ic('link', 'sm') + p.dep + '</div>' : '') + '</div>' +
+        '<div class="act">' + btn + '<span class="ver num">' + p.ver + '</span></div></article>';
+    }).join('');
+    var inst = '<section class="card pad"><div class="card-head"><h3>Installiert</h3><a href="#" class="sub">Alle 12</a></div><div class="inst">' +
+      INSTALLED.map(function (p) {
+        return '<div>' + img(plugIcon(p.n, p.hue), '', '') + '<span class="t"><b>' + p.n + '</b>' + (p.upd ? '<span class="u">Update auf ' + p.upd + '</span>' : '<span>' + p.v + (p.on ? '' : ' · ausgeschaltet') + '</span>') + '</span>' +
+          '<span class="sw' + (p.on ? '' : ' off') + '" role="switch" aria-checked="' + p.on + '" aria-label="' + p.n + ' ein- oder ausschalten"></span></div>';
+      }).join('') + '</div></section>';
+    var drop = '<section class="drop"><span class="ic">' + ic('upload') + '</span><b>Eigene Plugins hier ablegen</b><span>.jar-Dateien bis 100 MB. Danach den Server neu starten.</span><button type="button" class="btn sm">Datei auswählen</button></section>';
+    var deps = '<section class="card pad"><div class="card-head"><h3>So prüfen wir</h3></div><div class="list">' +
+      '<div><span class="ic">' + ic('check', 'sm') + '</span><span class="t"><b>Passende Version</b><span>Nur Dateien für Paper 1.21.4</span></span></div>' +
+      '<div><span class="ic">' + ic('link', 'sm') + '</span><span class="t"><b>Abhängigkeiten</b><span>Werden automatisch mitinstalliert</span></span></div>' +
+      '<div><span class="ic">' + ic('zap', 'sm') + '</span><span class="t"><b>Prüfsumme</b><span>Jeder Download wird geprüft</span></span></div></div></section>';
+    return serverHead('Plugins') +
+      '<div class="title-row"><div class="tt"><h2 style="font-size:20px">Plugins finden</h2><p>Durchsucht Modrinth, Hangar und SpigotMC auf einmal. Gezeigt wird, was zu deinem Server passt.</p></div>' +
+      '<nav class="subtabs" aria-label="Plugin-Ansicht"><a href="#" aria-current="page">Entdecken</a><a href="#">Installiert 12</a><a href="#">Updates <span class="cnt">1</span></a></nav></div>' +
+      '<div class="search">' + ic('search') + '<label for="q" style="position:absolute;left:-9999px">Plugins suchen</label><input id="q" placeholder="Wonach suchst du? Zum Beispiel Schutz, Wirtschaft, Minispiele" autocomplete="off"><button type="button" class="btn pri">Suchen</button></div>' +
+      '<div class="filters"><button type="button" class="chip" aria-pressed="true">Modrinth</button><button type="button" class="chip" aria-pressed="true">Hangar</button><button type="button" class="chip" aria-pressed="true">SpigotMC</button><button type="button" class="chip off" aria-pressed="false" title="In den Einstellungen einen eigenen API-Schlüssel eintragen">CurseForge · Schlüssel fehlt</button>' +
+      '<span class="sep" aria-hidden="true"></span><button type="button" class="chip" aria-pressed="true">Beliebt</button><button type="button" class="chip" aria-pressed="false">Verwaltung</button><button type="button" class="chip" aria-pressed="false">Schutz</button><button type="button" class="chip" aria-pressed="false">Spaß</button><button type="button" class="chip" aria-pressed="false">Wirtschaft</button>' +
+      '<span class="toggle"><span class="sw" role="switch" aria-checked="true" aria-label="Nur passende anzeigen"></span>Nur passende</span></div>' +
+      '<div class="two"><div class="results">' + res + '</div><div class="col">' + drop + inst + deps + '</div></div>';
+  }
+
+  /* ---------- Rendern ---------- */
+  var mock = document.getElementById('mock');
+  function render() {
+    mock.setAttribute('data-v', state.v);
+    mock.setAttribute('data-mode', state.m);
+    var main = state.s === 'dash' ? dashboard() : state.s === 'server' ? serverPage() : market();
+    mock.innerHTML = sidebar(state.s) + '<main class="mn">' + main + '</main>';
+    [['variants', 'v'], ['screens', 's'], ['modes', 'm']].forEach(function (g) {
+      document.querySelectorAll('#' + g[0] + ' button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-' + g[1]) === state[g[1]])); });
+    });
+    try { localStorage.setItem('mh-mock', JSON.stringify(state)); } catch (e) {}
+  }
+  [['variants', 'v'], ['screens', 's'], ['modes', 'm']].forEach(function (g) {
+    document.getElementById(g[0]).addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      state[g[1]] = b.getAttribute('data-' + g[1]); render();
+    });
+  });
+  mock.addEventListener('click', function (e) { if (e.target.closest('a')) e.preventDefault(); });
+  render();
+})();
+</script>
