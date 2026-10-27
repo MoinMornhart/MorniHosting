@@ -1,0 +1,136 @@
+/* eslint-disable ts-patterns/no-magic-numbers -- tests compare against literal expected values */
+import fs from 'node:fs';
+import path from 'node:path';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import type { ServerDetail, ServerSummary } from '@mornihosting/shared';
+import { authHeaders, createTestApp, setupAdmin, waitFor, type Session, type TestApp } from './helpers.js';
+
+const paper = {
+  name: 'Survival',
+  edition: 'java',
+  software: 'paper',
+  version: '1.21.4',
+  memoryMb: 3072,
+  port: 25565,
+  eula: true,
+};
+
+describe('server lifecycle with the fake driver', () => {
+  let t: TestApp;
+  let s: Session;
+  beforeEach(async () => {
+    t = await createTestApp();
+    s = await setupAdmin(t);
+  });
+  afterEach(async () => {
+    await t.cleanup();
+  });
+
+  const state = async (id: string): Promise<string> =>
+    (await t.app.inject({ url: `/api/servers/${id}`, headers: authHeaders(s) })).json<ServerDetail>().live
+      .state;
+
+  test('create, start, command, stop', async () => {
+    const created = (
+      await t.app.inject({ method: 'POST', url: '/api/servers', headers: authHeaders(s), payload: paper })
+    ).json<ServerSummary>();
+    await waitFor(async () => (await state(created.id)) === 'running');
+    const answer = await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/command`,
+      headers: authHeaders(s),
+      payload: { command: 'op Juna' },
+    });
+    expect(answer.json()).toEqual({ answer: 'Made Juna a server operator' });
+    const ops = JSON.parse(
+      fs.readFileSync(path.join(t.dataDir, 'servers', created.id, 'ops.json'), 'utf8'),
+    ) as { name: string }[];
+    expect(ops.map((o) => o.name)).toEqual(['Juna']);
+    await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/actions/stop`,
+      headers: authHeaders(s),
+    });
+    await waitFor(async () => (await state(created.id)) === 'stopped');
+  });
+
+  test('a port can only be used once', async () => {
+    await t.app.inject({
+      method: 'POST',
+      url: '/api/servers',
+      headers: authHeaders(s),
+      payload: { ...paper, startNow: false },
+    });
+    const second = await t.app.inject({
+      method: 'POST',
+      url: '/api/servers',
+      headers: authHeaders(s),
+      payload: { ...paper, name: 'Zwei', startNow: false },
+    });
+    expect(second.statusCode).toBe(409);
+    expect(second.json()).toMatchObject({ error: 'port_taken' });
+  });
+
+  test('a modpack with too little memory crashes and the crash helper names the cause', async () => {
+    const created = (
+      await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: { ...paper, software: 'neoforge', version: '1.21.1', memoryMb: 2048 },
+      })
+    ).json<ServerSummary>();
+    await waitFor(async () => (await state(created.id)) === 'crashed');
+    const detail = (
+      await t.app.inject({ url: `/api/servers/${created.id}`, headers: authHeaders(s) })
+    ).json<ServerDetail>();
+    expect(detail.crash?.ruleId).toBe('out-of-memory');
+  });
+
+  test('bedrock servers start and report their port as UDP', async () => {
+    const created = (
+      await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: {
+          ...paper,
+          name: 'Familie',
+          edition: 'bedrock',
+          software: 'bedrock',
+          version: 'LATEST',
+          port: 19132,
+          memoryMb: 1024,
+        },
+      })
+    ).json<ServerSummary>();
+    await waitFor(async () => (await state(created.id)) === 'running');
+    const connection = (
+      await t.app.inject({ url: `/api/servers/${created.id}/connection`, headers: authHeaders(s) })
+    ).json<{ protocol: string }>();
+    expect(connection.protocol).toBe('udp');
+  });
+
+  test('deleting keeps the files in the archive unless asked to delete them', async () => {
+    const created = (
+      await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: { ...paper, startNow: false },
+      })
+    ).json<ServerSummary>();
+    fs.writeFileSync(path.join(t.dataDir, 'servers', created.id, 'marker.txt'), 'keep me');
+    const res = await t.app.inject({
+      method: 'DELETE',
+      url: `/api/servers/${created.id}`,
+      headers: authHeaders(s),
+    });
+    expect(res.statusCode).toBe(204);
+    const archived = fs.readdirSync(path.join(t.dataDir, 'archive'));
+    expect(archived).toHaveLength(1);
+    expect(fs.readFileSync(path.join(t.dataDir, 'archive', archived[0] ?? '', 'marker.txt'), 'utf8')).toBe(
+      'keep me',
+    );
+  });
+});

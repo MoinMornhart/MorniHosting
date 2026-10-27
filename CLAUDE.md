@@ -3,6 +3,7 @@
 @STAND.md
 
 ## Regeln für dieses Projekt
+
 - Oberfläche auf Deutsch (Standard) und Englisch, freundliche Sprache, keine Fachbegriffe ohne Erklärung.
 - **„Verfasst mit Claude 🤖“ gilt:** als letzte Zeile in Commit-Messages (durch eine Leerzeile getrennt), in PRs, Issues und Release-Notes; einmal als Fußzeile im README.
 - **Update-Funktion:** ja. **Proxmox-Quick-Start:** ja.

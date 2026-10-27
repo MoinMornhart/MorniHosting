@@ -1,0 +1,333 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Bell,
+  ChevronsUpDown,
+  Code2,
+  LayoutGrid,
+  LogOut,
+  Menu,
+  Moon,
+  Plus,
+  ScrollText,
+  SlidersHorizontal,
+  Sun,
+  SunMoon,
+  UserRound,
+  Users,
+  WifiOff,
+  X,
+} from 'lucide-react';
+import { Dialog as SheetPrimitive } from 'radix-ui';
+import { useState, type ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+import { NavLink, Outlet, useNavigate, useParams } from 'react-router';
+import { SOFTWARE, type MeResponse, type Theme } from '@mornihosting/shared';
+import { BrandMark, PlayerHead, ServerIcon } from '@/components/server-visuals';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { api } from '@/lib/api';
+import { cn } from '@/lib/utils';
+import { disconnect } from '@/lib/ws';
+import { setLanguage } from '@/i18n';
+import { meQuery, useSession } from '@/features/auth/session';
+import { useLiveSync, useServers } from '@/features/servers/live';
+import { applyTheme } from './theme';
+import { UpdateCard } from './UpdateCard';
+
+interface NavItem {
+  readonly to: string;
+  readonly label: string;
+  readonly icon: typeof LayoutGrid;
+  readonly show: boolean;
+  readonly end?: boolean;
+}
+
+function useNavItems(): { main: NavItem[]; admin: NavItem[] } {
+  const { t } = useTranslation();
+  const { me } = useSession();
+  const admin = me.user.isAdmin;
+  return {
+    main: [
+      { to: '/', label: t('nav.overview'), icon: LayoutGrid, show: true, end: true },
+      { to: '/servers/new', label: t('nav.createServer'), icon: Plus, show: me.user.canCreateServers },
+    ],
+    admin: [
+      { to: '/users', label: t('nav.users'), icon: Users, show: admin },
+      { to: '/notifications', label: t('nav.notifications'), icon: Bell, show: admin },
+      { to: '/api-access', label: t('nav.api'), icon: Code2, show: true },
+      { to: '/settings', label: t('nav.settings'), icon: SlidersHorizontal, show: admin },
+      { to: '/audit', label: t('nav.audit'), icon: ScrollText, show: admin },
+    ],
+  };
+}
+
+function NavList({ onNavigate }: { onNavigate?: () => void }): ReactElement {
+  const { t } = useTranslation();
+  const { main, admin } = useNavItems();
+  const link = (item: NavItem): ReactElement => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      end={item.end}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        cn(
+          'flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground [&_svg]:size-[18px]',
+          isActive && 'bg-accent text-foreground [&_svg]:text-primary',
+        )
+      }
+    >
+      <item.icon aria-hidden />
+      {item.label}
+    </NavLink>
+  );
+  const adminItems = admin.filter((i) => i.show);
+  return (
+    <nav aria-label={t('nav.main')} className="grid gap-0.5">
+      {main.filter((i) => i.show).map(link)}
+      {adminItems.length ? (
+        <div className="px-2.5 pb-1.5 pt-4 text-xs text-muted-foreground">{t('nav.administration')}</div>
+      ) : null}
+      {adminItems.map(link)}
+    </nav>
+  );
+}
+
+function ServerSwitcher({ onNavigate }: { onNavigate?: () => void }): ReactElement {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { serverId } = useParams();
+  const { data: servers = [] } = useServers();
+  const current = servers.find((s) => s.id === serverId);
+  const running = servers.filter((s) => s.live.state === 'running').length;
+  const go = (path: string): void => {
+    navigate(path);
+    onNavigate?.();
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={t('nav.chooseServer')}
+          className="flex w-full min-w-0 items-center gap-2.5 rounded-[10px] border border-border bg-secondary px-2.5 py-2 text-left hover:bg-muted"
+        >
+          {current ? (
+            <ServerIcon
+              id={current.id}
+              software={current.software}
+              hasIcon={current.hasIcon}
+              className="size-8 rounded-[8px]"
+            />
+          ) : (
+            <ServerIcon id="all" software="paper" hasIcon={false} className="size-8 rounded-[8px]" />
+          )}
+          <span className="min-w-0 flex-1">
+            <b className="block truncate text-sm font-semibold">{current?.name ?? t('nav.allServers')}</b>
+            <span className="block truncate text-xs text-muted-foreground">
+              {current
+                ? `${SOFTWARE[current.software].label} ${current.version}`
+                : t('nav.serversRunning', { total: servers.length, running })}
+            </span>
+          </span>
+          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-60">
+        <DropdownMenuItem onSelect={() => go('/')}>
+          <LayoutGrid />
+          {t('nav.allServers')}
+        </DropdownMenuItem>
+        {servers.length ? <DropdownMenuSeparator /> : null}
+        {servers.map((s) => (
+          <DropdownMenuItem key={s.id} onSelect={() => go(`/servers/${s.id}`)}>
+            <ServerIcon
+              id={s.id}
+              software={s.software}
+              hasIcon={s.hasIcon}
+              className="size-6 rounded-[6px]"
+            />
+            <span className="min-w-0 flex-1 truncate">{s.name}</span>
+            <span
+              aria-label={t(`states.${s.live.state}`)}
+              className={cn(
+                'size-2 shrink-0 rounded-full',
+                s.live.state === 'running' && 'bg-success',
+                ['starting', 'stopping', 'installing'].includes(s.live.state) && 'bg-warning',
+                s.live.state === 'crashed' && 'bg-destructive',
+                s.live.state === 'stopped' && 'bg-muted-foreground/50',
+              )}
+            />
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function UserMenu({ me }: { me: MeResponse }): ReactElement {
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const saveAccount = useMutation({
+    mutationFn: (patch: { theme?: Theme; locale?: 'de' | 'en' }) =>
+      api<MeResponse>('/api/account', { method: 'PATCH', body: patch }),
+    onSuccess: (next) => queryClient.setQueryData(meQuery.queryKey, next),
+  });
+  const logout = useMutation({
+    mutationFn: () => api<void>('/api/auth/logout', { method: 'POST' }),
+    onSettled: () => {
+      disconnect();
+      queryClient.clear();
+      navigate('/login');
+    },
+  });
+  const themeIcon: Readonly<Record<Theme, typeof Sun>> = { dark: Moon, light: Sun, system: SunMoon };
+  const ThemeIcon = themeIcon[me.user.theme];
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left hover:bg-secondary"
+        >
+          <PlayerHead name={me.user.username} className="size-8 rounded-[8px]" />
+          <span className="min-w-0 flex-1 text-[13px] leading-tight">
+            <b className="block truncate">{me.user.displayName}</b>
+            <span className="text-muted-foreground">
+              {me.user.isAdmin ? t('nav.administrator') : t('nav.member')}
+            </span>
+          </span>
+          <ThemeIcon className="size-4 text-muted-foreground" aria-hidden />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="w-60">
+        <DropdownMenuItem onSelect={() => navigate('/account')}>
+          <UserRound />
+          {t('nav.account')}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>{t('nav.theme')}</DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={me.user.theme}
+          onValueChange={(value) => {
+            const theme = value as Theme; // the radio values below are exactly the Theme members
+            applyTheme(theme);
+            saveAccount.mutate({ theme });
+          }}
+        >
+          <DropdownMenuRadioItem value="dark">{t('theme.dark')}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="light">{t('theme.light')}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">{t('theme.system')}</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup
+          value={i18n.language}
+          onValueChange={(value) => {
+            const locale = value === 'en' ? 'en' : 'de';
+            setLanguage(locale);
+            saveAccount.mutate({ locale });
+          }}
+        >
+          <DropdownMenuRadioItem value="de">Deutsch</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem destructive onSelect={() => logout.mutate()}>
+          <LogOut />
+          {t('nav.logout')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function Brand(): ReactElement {
+  return (
+    <NavLink to="/" className="flex items-center gap-2.5 px-2 text-[17px] font-extrabold tracking-[-0.01em]">
+      <BrandMark />
+      MorniHosting
+    </NavLink>
+  );
+}
+
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }): ReactElement {
+  const { me } = useSession();
+  return (
+    <div className="flex h-full flex-col gap-[18px] px-3.5 py-5">
+      <Brand />
+      <ServerSwitcher onNavigate={onNavigate} />
+      <NavList onNavigate={onNavigate} />
+      <div className="mt-auto grid gap-2.5">
+        {me.user.isAdmin ? <UpdateCard /> : null}
+        <UserMenu me={me} />
+      </div>
+    </div>
+  );
+}
+
+export function AppShell(): ReactElement {
+  const { t } = useTranslation();
+  const connected = useLiveSync();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="grid min-h-dvh lg:grid-cols-[252px_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-dvh overflow-y-auto bg-sidebar lg:block">
+        <SidebarContent />
+      </aside>
+
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <Brand />
+        <div className="ml-auto" />
+        <SheetPrimitive.Root open={open} onOpenChange={setOpen}>
+          <SheetPrimitive.Trigger asChild>
+            <Button variant="secondary" size="icon" aria-label={t('nav.menu')}>
+              <Menu />
+            </Button>
+          </SheetPrimitive.Trigger>
+          <SheetPrimitive.Portal>
+            <SheetPrimitive.Overlay className="fixed inset-0 z-40 bg-black/60" />
+            <SheetPrimitive.Content className="fixed inset-y-0 left-0 z-50 w-[min(300px,85vw)] overflow-y-auto bg-sidebar shadow-float data-[state=open]:animate-in data-[state=open]:slide-in-from-left">
+              <SheetPrimitive.Title className="sr-only">{t('nav.main')}</SheetPrimitive.Title>
+              <SheetPrimitive.Close asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="absolute right-3 top-4"
+                  aria-label={t('common.close')}
+                >
+                  <X />
+                </Button>
+              </SheetPrimitive.Close>
+              <SidebarContent onNavigate={() => setOpen(false)} />
+            </SheetPrimitive.Content>
+          </SheetPrimitive.Portal>
+        </SheetPrimitive.Root>
+      </header>
+
+      <main className="min-w-0">
+        {!connected ? (
+          <div
+            className="flex items-center gap-2 bg-warning-soft px-4 py-2 text-sm text-foreground sm:px-8"
+            role="status"
+          >
+            <WifiOff className="size-4 text-warning" />
+            {t('common.connectionLost')}
+          </div>
+        ) : null}
+        <div className="mx-auto grid max-w-[1440px] content-start gap-[22px] px-4 py-6 sm:px-8 sm:py-7">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+}

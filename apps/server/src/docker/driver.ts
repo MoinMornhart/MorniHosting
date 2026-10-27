@@ -1,0 +1,81 @@
+export interface PortBinding {
+  readonly containerPort: number;
+  readonly hostPort: number;
+  readonly protocol: 'tcp' | 'udp';
+}
+
+export interface ContainerSpec {
+  /** Container name; also its host name on the Minecraft network. */
+  readonly name: string;
+  readonly image: string;
+  readonly env: Readonly<Record<string, string>>;
+  readonly ports: readonly PortBinding[];
+  readonly memoryLimitBytes: number;
+  /** Server folder as the panel sees it, e.g. /data/servers/abc. */
+  readonly dataDir: string;
+  readonly labels: Readonly<Record<string, string>>;
+}
+
+export interface ContainerState {
+  readonly running: boolean;
+  readonly status: string;
+  readonly exitCode: number | null;
+  readonly oomKilled: boolean;
+  readonly startedAt: string | null;
+  readonly finishedAt: string | null;
+}
+
+export interface ContainerStats {
+  readonly cpuPercent: number;
+  readonly memoryBytes: number;
+  readonly memoryLimitBytes: number;
+}
+
+/** How a console command reaches the server process. */
+export type CommandChannel =
+  | { readonly kind: 'rcon'; readonly host: string; readonly port: number; readonly password: string }
+  | { readonly kind: 'exec'; readonly argv: readonly string[] }
+  | { readonly kind: 'stdin' };
+
+export interface ContainerEvent {
+  readonly containerId: string;
+  readonly action: 'start' | 'die' | 'oom' | 'destroy';
+}
+
+export interface HostDockerInfo {
+  readonly name: string;
+  readonly cpus: number;
+  readonly memoryBytes: number;
+}
+
+export type PullProgress = (percent: number | null, status: string) => void;
+export type LogListener = (line: string) => void;
+
+export interface DockerDriver {
+  readonly kind: 'docker' | 'fake';
+  readonly ping: () => Promise<void>;
+  readonly ensureImage: (image: string, onProgress?: PullProgress) => Promise<void>;
+  readonly ensureNetwork: (name: string) => Promise<void>;
+  readonly createContainer: (spec: ContainerSpec) => Promise<string>;
+  readonly removeContainer: (id: string) => Promise<void>;
+  readonly start: (id: string) => Promise<void>;
+  readonly stop: (id: string, timeoutSeconds: number) => Promise<void>;
+  readonly kill: (id: string) => Promise<void>;
+  readonly inspect: (id: string) => Promise<ContainerState | null>;
+  /**
+   * Streams log lines (the last `tail` old ones first, or all of them) until the container
+   * stops or the returned function is called. Only a running container has a live stream.
+   */
+  readonly followLogs: (id: string, tail: number | 'all', onLine: LogListener) => Promise<() => void>;
+  readonly stats: (id: string) => Promise<ContainerStats | null>;
+  readonly sendCommand: (id: string, command: string, channel: CommandChannel) => Promise<string>;
+  readonly onContainerEvent: (listener: (event: ContainerEvent) => void) => () => void;
+  readonly hostInfo: () => Promise<HostDockerInfo>;
+  /** Host path of the panel's data folder, needed to bind server folders into new containers. */
+  readonly resolveHostDataDir: () => Promise<string>;
+  readonly close: () => void;
+}
+
+export class DockerUnavailableError extends Error {
+  override readonly name = 'DockerUnavailableError';
+}

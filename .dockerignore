@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+data
+.git
+.claude
+chats
+docs
+coverage
+playwright-report
+test-results
+*.log
+.env

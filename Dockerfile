@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+# MorniHosting: one image with the web app and the API.
+
+FROM node:22-alpine AS build
+RUN apk add --no-cache python3 make g++ && corepack enable
+WORKDIR /src
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/server/package.json apps/server/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+RUN pnpm install --frozen-lockfile
+COPY . .
+ARG MH_VERSION=dev
+RUN pnpm --filter @mornihosting/web build \
+ && pnpm --filter @mornihosting/server build \
+ && pnpm --filter @mornihosting/server deploy --prod --legacy /out \
+ && cp -r apps/server/dist apps/server/drizzle /out/
+
+FROM node:22-alpine
+ARG MH_VERSION=dev
+LABEL org.opencontainers.image.title="MorniHosting" \
+      org.opencontainers.image.description="Selbst gehostetes Web-Panel für Minecraft-Server" \
+      org.opencontainers.image.source="https://github.com/MoinMornhart/MorniHosting" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="${MH_VERSION}"
+ENV NODE_ENV=production \
+    MH_DATA_DIR=/data \
+    MH_WEB_DIR=/app/web \
+    MH_VERSION=${MH_VERSION}
+WORKDIR /app
+COPY --from=build /out /app/server
+COPY --from=build /src/apps/web/dist /app/web
+# The node user (uid 1000) is the same user the Minecraft images write files as.
+RUN mkdir -p /data && chown node:node /data
+USER node
+EXPOSE 8080
+VOLUME ["/data"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
+  CMD node -e "fetch('http://127.0.0.1:8080/api/system/status').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+CMD ["node", "/app/server/dist/index.js"]

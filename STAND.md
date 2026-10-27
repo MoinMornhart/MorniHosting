@@ -3,17 +3,29 @@
 **Ziel:** Selbst gehostetes Web-Panel für Minecraft-Server (Funktionsumfang wie Crafty Controller 4, Bedienung wie GGServers/Nodecraft).
 
 ## Entscheidungen (27.10.2026)
-- Name: **MorniHosting** (Panel und Repo)
-- Repo: `MoinMornhart/MorniHosting`, **öffentlich** → Chat-Sicherung aus (`.claude/hooks/chat-sichern-aus`)
-- Update-Funktion: **ja** (GitHub-Releases prüfen, Ein-Klick-Update)
-- Hinweis „Verfasst mit Claude 🤖“: **ja**
-- Proxmox-Quick-Start: **ja** (community-scripts-Stil)
-- Arbeitsweise: alle 7 Phasen am Stück durchbauen, nach jeder Phase Tests, Fortschrittsseite, Push
+- Name: **MorniHosting** (Panel und Repo), Design **A · Smaragd** (docs/mockups/)
+- Repo: `MoinMornhart/MorniHosting`, **öffentlich** → Chat-Sicherung aus
+- Update-Funktion: **ja** · Hinweis „Verfasst mit Claude 🤖“: **ja** · Proxmox-Quick-Start: **ja**
+- Arbeitsweise: alle 7 Phasen am Stück, nach jeder Phase Tests, Fortschrittsseite, Push
 - Entwicklungs-Branch: `claude/gallant-clarke-bipv7b`
 
-## Aktueller Schritt
-Vorbereitung: Basisdateien, Fortschrittsseite, danach 3 Mockups zur Auswahl.
+## Architektur (kurz)
+- `apps/server`: Fastify 5 + Zod (fastify-type-provider-zod), SQLite/Drizzle, Argon2, Sitzungen + CSRF, WebSocket `/api/ws`.
+  Docker über `DockerDriver` (echt: dockerode → tecnativa Socket-Proxy; `fake`: Simulation für Tests/Demo, `MH_DEMO=true`).
+  Jeder Minecraft-Server = Container `mh-<id>` aus itzg-Images im Netz `mornihosting-mc`, Befehle per RCON (Java), `send-command` (Bedrock), stdin (Velocity).
+- `apps/web`: React 19, Vite, Tailwind 4, Radix, TanStack Query, i18next (de/en).
+- `packages/shared`: Typen, Zod-Schemas, Software-Katalog, Zeitplan → Cron.
+- Code-Regeln: ts-patterns-Plugin (keine magischen Zahlen, keine Schleifen/switch, Regex mit Beispiel + Link).
+
+## Stand
+- Phase 1 fertig: Compose + Socket-Proxy (getestet mit echtem Docker), Auth, Setup, Dashboard live, 61 Vitest-Tests.
+- Phase 2 läuft: Backend für Start/Stopp/RCON/Absturz-Helfer/Versionen fertig; UI für Server-Seite, Konsole, Assistent fehlt.
+
+## Lokal testen (Sandbox)
+- Backend simuliert: `MH_SECRET=… MH_DATA_DIR=./data MH_DOCKER_DRIVER=fake MH_DEMO=true pnpm --filter @mornihosting/server dev`
+- Web: `pnpm --filter @mornihosting/web dev` (Proxy auf :8099, `MH_DEV_BACKEND`)
+- Tests: `pnpm --filter @mornihosting/server test`
 
 ## Nächste Schritte
-1. Mockups → Designwahl
-2. Phase 1 Grundgerüst
+1. Server-Assistent, Import, Server-Seite (IP-Karte, Konsole, Statistik, Absturz-Helfer-UI)
+2. Phase 3–7 laut Prompt

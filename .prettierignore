@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+dist
+coverage
+docs/mockups
+docs/progress.html
+apps/server/drizzle
+.claude
+chats
