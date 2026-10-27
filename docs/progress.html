@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T00:15:00+01:00",
-  "now": "Phase 2 ist fertig: Server-Assistent, Import, Server-Seite mit IP-Karte, Live-Konsole und Absturz-Helfer. Weiter mit Phase 3: Datei-Manager und Einstellungen.",
+  "updated": "2026-10-28T00:45:00+01:00",
+  "now": "Phase 3 ist fertig: Datei-Manager mit Editor und Papierkorb, Spiel-Einstellungen als Formular mit MOTD-Vorschau, Spieler und Welten. Weiter mit Phase 4: Marktplatz für Plugins und Mods.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -147,12 +147,12 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 3 · Dateien und Einstellungen",
-      "status": "laeuft",
-      "detail": "Datei-Manager, server.properties als Formular, Spieler, Welten."
+      "status": "fertig",
+      "detail": "Datei-Manager (Baum, Drag & Drop, Editor mit Syntaxfarben, ZIP, Papierkorb 7 Tage), server.properties als Formular mit Erklärungen und MOTD-Vorschau, Spieler (OP, Whitelist, Sperren, auch offline), Welten (hochladen, wechseln, neu mit Seed), Server-Bild, Server löschen. 93 Tests."
     },
     {
       "title": "Phase 4 · Marktplatz",
-      "status": "offen",
+      "status": "laeuft",
       "detail": "Modrinth, Hangar, Spiget, CurseForge optional, eigene .jar-Dateien."
     },
     {
@@ -173,6 +173,31 @@ footer { color: var(--muted); font-size: 13px; }
   ],
   "shots": [
     {
+      "img": "progress/p3-files.webp",
+      "caption": "Phase 3 · Datei-Manager mit Ordnerbaum, Upload per Drag & Drop und Papierkorb",
+      "time": "2026-10-28T00:45:00+01:00"
+    },
+    {
+      "img": "progress/p3-editor.webp",
+      "caption": "Phase 3 · Editor mit Syntaxfarben, Strg+S speichert",
+      "time": "2026-10-28T00:45:00+01:00"
+    },
+    {
+      "img": "progress/p3-settings-properties.webp",
+      "caption": "Phase 3 · Spiel-Einstellungen mit Erklärungen und MOTD-Vorschau wie im Spiel",
+      "time": "2026-10-28T00:45:00+01:00"
+    },
+    {
+      "img": "progress/p3-players.webp",
+      "caption": "Phase 3 · Spieler: Operatoren, Whitelist und Sperren ohne Befehle",
+      "time": "2026-10-28T00:45:00+01:00"
+    },
+    {
+      "img": "progress/p3-settings-phone.webp",
+      "caption": "Phase 3 · Einstellungen auf dem Handy",
+      "time": "2026-10-28T00:45:00+01:00"
+    },
+    {
       "img": "progress/p2-server-overview.webp",
       "caption": "Phase 2 · Server-Übersicht mit IP-Karte, Kennzahlen und Konsole",
       "time": "2026-10-28T00:12:00+01:00"
@@ -188,38 +213,13 @@ footer { color: var(--muted); font-size: 13px; }
       "time": "2026-10-28T00:12:00+01:00"
     },
     {
-      "img": "progress/p2-create-software.webp",
-      "caption": "Phase 2 · Server-Assistent: Software wählen",
-      "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
       "img": "progress/p2-import.webp",
       "caption": "Phase 2 · Import: Paper 1.21.4 mit Welt und 2 Plugins erkannt",
       "time": "2026-10-28T00:12:00+01:00"
     },
     {
-      "img": "progress/p2-server-phone.webp",
-      "caption": "Phase 2 · Server-Seite auf dem Handy",
-      "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
       "img": "progress/p1-dashboard-light.webp",
       "caption": "Phase 1 · Dashboard hell: Live-Status, Absturz-Helfer beim Modpack mit zu wenig RAM",
-      "time": "2026-10-27T23:55:00+01:00"
-    },
-    {
-      "img": "progress/p1-dashboard-dark.webp",
-      "caption": "Phase 1 · Dashboard dunkel (Standard)",
-      "time": "2026-10-27T23:55:00+01:00"
-    },
-    {
-      "img": "progress/p1-dashboard-phone.webp",
-      "caption": "Phase 1 · Dashboard auf dem Handy",
-      "time": "2026-10-27T23:55:00+01:00"
-    },
-    {
-      "img": "progress/p1-setup-account.webp",
-      "caption": "Phase 1 · Einrichtungs-Assistent: Administrator-Konto",
       "time": "2026-10-27T23:55:00+01:00"
     },
     {
@@ -236,27 +236,27 @@ footer { color: var(--muted); font-size: 13px; }
   "files": [
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/ (Server-Seite, Konsole, Assistent, Import)"
+      "path": "apps/web/src/features/servers/files/ (Datei-Manager, Editor, Papierkorb)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/servers/import.ts, lib/zip.ts, lib/paths.ts"
-    },
-    {
-      "tag": "geändert",
-      "path": "apps/server/src/ws.ts (Rechte für neue Server sofort)"
+      "path": "apps/web/src/features/servers/settings/ (Allgemein, Spiel-Einstellungen, MOTD, Welten, Bild)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/ (Fastify-API, Docker-Treiber, Auth, Server-Dienst)"
+      "path": "apps/web/src/features/servers/players/PlayersTab.tsx"
     },
     {
       "tag": "neu",
-      "path": "apps/web/ (React, Tailwind, Smaragd-Design)"
+      "path": "apps/server/src/files/ (Dateidienst und Routen)"
     },
     {
       "tag": "neu",
-      "path": "packages/shared/ (Typen, Schemas, Software-Katalog)"
+      "path": "apps/server/src/servers/properties-file.ts, players.ts, worlds.ts"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/server/test/files.test.ts, properties.test.ts"
     }
   ]
 }

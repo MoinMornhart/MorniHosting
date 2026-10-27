@@ -32,6 +32,8 @@ import { AppError } from './lib/errors.js';
 import { setUserAgent } from './lib/http-client.js';
 import { HTTP_BAD_REQUEST, HTTP_INTERNAL, HTTP_NOT_FOUND, HTTP_TOO_MANY } from './lib/http-status.js';
 import { BYTES_PER_MB, MS_PER_HOUR, MS_PER_SECOND } from './lib/units.js';
+import { registerFileRoutes } from './files/routes.js';
+import { createFileService } from './files/service.js';
 import { registerImportRoutes } from './servers/import-routes.js';
 import { registerServerRoutes } from './servers/routes.js';
 import { createServerService, type ServerService } from './servers/service.js';
@@ -114,6 +116,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     docker: options.docker ?? createDriver(config),
   };
   const servers = createServerService(ctx);
+  const files = createFileService(config);
 
   await app.register(helmet, {
     contentSecurityPolicy: {
@@ -187,6 +190,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerAuthRoutes(app, ctx);
   registerServerRoutes(app, ctx, servers);
   registerImportRoutes(app, ctx, servers);
+  registerFileRoutes(app, ctx, servers, files);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));
@@ -194,7 +198,9 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     await app.register(fastifyStatic, { root: config.webDir, wildcard: false, index: false });
   }
   app.setNotFoundHandler((request, reply) => {
-    const wantsPage = request.method === 'GET' && !request.url.startsWith('/api/');
+    // Missing build files (e.g. an old chunk after an update) must stay 404, not turn into the page.
+    const wantsPage =
+      request.method === 'GET' && !request.url.startsWith('/api/') && !request.url.startsWith('/assets/');
     if (wantsPage && hasWeb) return reply.type('text/html').sendFile('index.html');
     return reply.code(HTTP_NOT_FOUND).send({ error: 'not_found' });
   });
@@ -208,6 +214,8 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       sampleHostCpu();
       intervals.push(setInterval(sampleHostCpu, HOST_SAMPLE_SECONDS * MS_PER_SECOND));
       intervals.push(setInterval(() => ctx.sessions.purgeExpired(), MS_PER_HOUR));
+      files.purgeOld();
+      intervals.push(setInterval(() => files.purgeOld(), MS_PER_HOUR));
       await servers.init();
     },
     stop: async () => {

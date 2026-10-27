@@ -1,0 +1,274 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { RotateCw, Save, TriangleAlert } from 'lucide-react';
+import { useMemo, useState, type FormEvent, type ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import {
+  JAVA_TAGS,
+  SOFTWARE,
+  compareMcVersions,
+  javaTagFor,
+  recommendedMemoryMb,
+  type JavaTag,
+  type ServerDetail,
+  type UpdateServerInput,
+  type VersionOption,
+} from '@mornihosting/shared';
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Field } from '@/components/ui/label';
+import { Slider } from '@/components/ui/misc';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { api } from '@/lib/api';
+import { formatMemoryMb } from '@/lib/format';
+import { cn } from '@/lib/utils';
+import { hostQuery } from '@/features/dashboard/HostStrip';
+import { useServerAction } from '@/features/dashboard/ServerCard';
+
+const MEMORY_STEP_MB = 512;
+const MEMORY_MIN_MB = 512;
+const MEMORY_CAP_MB = 32768;
+const FALLBACK_HOST_MB = 16384;
+const MEMORY_SLIDER_MIN_MAX_MB = 1024;
+const MAX_VERSIONS = 80;
+const AUTO = 'auto';
+// Everything that is not a digit: in "25 565" it matches the space.
+// https://regex101.com/?regex=%5CD&flags=g&testString=25%20565
+const NON_DIGITS = /\D/g;
+
+interface Draft {
+  readonly name: string;
+  readonly memoryMb: number;
+  readonly port: string;
+  readonly autoStart: boolean;
+  readonly domain: string;
+  readonly javaTag: JavaTag | typeof AUTO;
+  readonly version: string;
+}
+
+function draftOf(server: ServerDetail): Draft {
+  return {
+    name: server.name,
+    memoryMb: server.memoryMb,
+    port: String(server.port),
+    autoStart: server.autoStart,
+    domain: server.domain ?? '',
+    javaTag: server.javaTag ?? AUTO,
+    version: server.version,
+  };
+}
+
+/** Only the fields that changed, in the shape PATCH /api/servers/:id expects. */
+function patchOf(server: ServerDetail, draft: Draft): UpdateServerInput {
+  const javaTag = draft.javaTag === AUTO ? null : draft.javaTag;
+  return {
+    ...(draft.name.trim() !== server.name ? { name: draft.name.trim() } : {}),
+    ...(draft.memoryMb !== server.memoryMb ? { memoryMb: draft.memoryMb } : {}),
+    ...(Number(draft.port) !== server.port ? { port: Number(draft.port) } : {}),
+    ...(draft.autoStart !== server.autoStart ? { autoStart: draft.autoStart } : {}),
+    ...(draft.domain.trim() !== (server.domain ?? '') ? { domain: draft.domain.trim() } : {}),
+    ...(javaTag !== server.javaTag ? { javaTag } : {}),
+    ...(draft.version !== server.version ? { version: draft.version } : {}),
+  };
+}
+
+/** Name, memory, port, autostart, domain, Java and Minecraft version. Changes apply on the next start. */
+export function GeneralCard({ server }: { server: ServerDetail }): ReactElement {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const restart = useServerAction(server.id);
+  const [draft, setDraft] = useState<Draft>(() => draftOf(server));
+  const [pendingRestart, setPendingRestart] = useState(false);
+  const { data: host } = useQuery(hostQuery);
+  const versions = useQuery({
+    queryKey: ['versions', server.software],
+    queryFn: () => api<VersionOption[]>(`/api/versions/${server.software}`),
+    staleTime: Infinity,
+  });
+  const save = useMutation({
+    mutationFn: (patch: UpdateServerInput) =>
+      api(`/api/servers/${server.id}`, { method: 'PATCH', body: patch }),
+    onSuccess: async () => {
+      toast.success(t('common.saved'));
+      if (server.live.state === 'running') setPendingRestart(true);
+      await queryClient.invalidateQueries({ queryKey: ['server', server.id] });
+      await queryClient.invalidateQueries({ queryKey: ['servers'] });
+    },
+  });
+
+  const set = <K extends keyof Draft>(key: K, value: Draft[K]): void =>
+    setDraft((d) => ({ ...d, [key]: value }));
+  const patch = patchOf(server, draft);
+  const changed = Object.keys(patch).length > 0;
+  const hostTotal = host?.memoryTotalMb ?? FALLBACK_HOST_MB;
+  const maxMemory = Math.max(MEMORY_SLIDER_MIN_MAX_MB, Math.min(MEMORY_CAP_MB, hostTotal), server.memoryMb);
+  const java = SOFTWARE[server.software].edition === 'java' && !SOFTWARE[server.software].proxy;
+  const downgrade = compareMcVersions(draft.version, server.version) < 0;
+  const versionList = useMemo(() => {
+    const stable = (versions.data ?? []).filter((v) => v.stable).slice(0, MAX_VERSIONS);
+    return stable.some((v) => v.id === server.version)
+      ? stable
+      : [{ id: server.version, stable: true }, ...stable];
+  }, [versions.data, server.version]);
+
+  const submit = (e: FormEvent): void => {
+    e.preventDefault();
+    if (changed) save.mutate(patch);
+  };
+
+  return (
+    <Card className="p-5 sm:p-6">
+      <CardHeader className="mb-1">
+        <CardTitle>{t('settings.general.title')}</CardTitle>
+      </CardHeader>
+      <CardDescription className="mb-5">{t('settings.general.text')}</CardDescription>
+      <form onSubmit={submit} className="grid gap-5">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field id="s-name" label={t('create.name')}>
+            <Input
+              id="s-name"
+              value={draft.name}
+              maxLength={60}
+              onChange={(e) => set('name', e.target.value)}
+            />
+          </Field>
+          <Field id="s-port" label={t('create.port')} hint={t('settings.general.portHint')}>
+            <Input
+              id="s-port"
+              inputMode="numeric"
+              value={draft.port}
+              onChange={(e) => set('port', e.target.value.replace(NON_DIGITS, ''))}
+            />
+          </Field>
+        </div>
+
+        <div id="memory" className="grid scroll-mt-24 gap-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-sm font-semibold">{t('settings.general.memory')}</span>
+            <span className="tabular text-lg font-bold">{formatMemoryMb(draft.memoryMb)}</span>
+          </div>
+          <Slider
+            value={[draft.memoryMb]}
+            min={MEMORY_MIN_MB}
+            max={maxMemory}
+            step={MEMORY_STEP_MB}
+            onValueChange={([value]) => set('memoryMb', value ?? draft.memoryMb)}
+            aria-label={t('settings.general.memory')}
+          />
+          <p className="text-[13px] text-muted-foreground">
+            {t('settings.general.memoryHint', {
+              recommended: formatMemoryMb(recommendedMemoryMb(server.software)),
+            })}
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field id="s-version" label={t('settings.general.version')}>
+            <Select value={draft.version} onValueChange={(v) => set('version', v)}>
+              <SelectTrigger id="s-version">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {versionList.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    {v.id}
+                    {v.id === server.version ? ` · ${t('settings.general.current')}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          {java ? (
+            <Field
+              id="s-java"
+              label={t('settings.general.java')}
+              hint={t('settings.general.javaHint', {
+                auto: javaTagFor(server.software, draft.version).replace('java', 'Java '),
+              })}
+            >
+              <Select value={draft.javaTag} onValueChange={(v) => set('javaTag', v as Draft['javaTag'])}>
+                <SelectTrigger id="s-java">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={AUTO}>{t('settings.general.javaAuto')}</SelectItem>
+                  {JAVA_TAGS.map((tag) => (
+                    <SelectItem key={tag} value={tag}>
+                      {tag.replace('java', 'Java ')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          ) : null}
+        </div>
+        {downgrade ? (
+          <p className="flex items-start gap-2 rounded-[12px] bg-warning-soft px-3 py-2.5 text-sm text-warning">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+            {t('settings.general.downgrade')}
+          </p>
+        ) : null}
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field id="s-domain" label={t('settings.general.domain')} hint={t('settings.general.domainHint')}>
+            <Input
+              id="s-domain"
+              value={draft.domain}
+              placeholder="mc.example.de"
+              onChange={(e) => set('domain', e.target.value)}
+            />
+          </Field>
+          <label className="flex items-start gap-3 rounded-[12px] border border-border p-3 md:self-end">
+            <Switch
+              checked={draft.autoStart}
+              onCheckedChange={(on) => set('autoStart', on)}
+              className="mt-0.5"
+            />
+            <span>
+              <b className="block text-sm font-semibold">{t('settings.general.autoStart')}</b>
+              <span className="text-[13px] text-muted-foreground">{t('settings.general.autoStartHint')}</span>
+            </span>
+          </label>
+        </div>
+
+        <div
+          className={cn(
+            'flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4',
+            pendingRestart && 'justify-between',
+          )}
+        >
+          {pendingRestart ? (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              {t('settings.restartToApply')}
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={restart.isPending}
+                onClick={() => {
+                  restart.mutate('restart');
+                  setPendingRestart(false);
+                }}
+              >
+                <RotateCw />
+                {t('actions.restart')}
+              </Button>
+            </p>
+          ) : null}
+          <div className="flex gap-2">
+            {changed ? (
+              <Button variant="ghost" onClick={() => setDraft(draftOf(server))}>
+                {t('common.cancel')}
+              </Button>
+            ) : null}
+            <Button type="submit" disabled={!changed || save.isPending}>
+              <Save />
+              {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Card>
+  );
+}

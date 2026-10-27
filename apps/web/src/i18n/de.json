@@ -446,7 +446,18 @@
     "self_update_unavailable": "Das automatische Update ist auf diesem System nicht eingerichtet.",
     "world_not_found": "Diese Welt gibt es nicht.",
     "geyser_java_only": "Geyser gibt es nur für Java-Server mit Plugins.",
-    "bedrock_port_taken": "Port 19132 (UDP) ist schon belegt."
+    "bedrock_port_taken": "Port 19132 (UDP) ist schon belegt.",
+    "icon_not_png": "Das Bild konnte nicht gelesen werden.",
+    "icon_wrong_size": "Das Server-Bild muss 64 × 64 Pixel groß sein.",
+    "invalid_name": "Dieser Name geht nicht. Bitte ohne / \\ und ohne Punkt am Anfang.",
+    "invalid_property": "Der Wert für „{{key}}“ passt nicht.",
+    "managed_property": "„{{key}}“ setzt das Panel selbst.",
+    "invalid_token": "Dieser API-Schlüssel ist ungültig oder abgelaufen.",
+    "no_icon": "Kein Server-Bild vorhanden.",
+    "not_supported_on_bedrock": "Das geht bei Bedrock-Servern leider nicht.",
+    "player_unknown": "Diesen Minecraft-Namen gibt es nicht. Prüfe die Schreibweise.",
+    "world_invalid": "In der ZIP-Datei ist keine Minecraft-Welt (es fehlt level.dat).",
+    "missing_permission": "Dafür fehlt dir auf diesem Server das Recht „{{permission}}“."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -462,5 +473,415 @@
     "serverOff": "Der Server ist aus.",
     "manage": "Spieler verwalten",
     "starting": "Der Server startet gerade."
+  },
+  "files": {
+    "location": "Ordner",
+    "root": "Server",
+    "tree": "Ordner",
+    "newFolder": "Neuer Ordner",
+    "newFile": "Neue Datei",
+    "trash": "Papierkorb",
+    "uploading": "Lädt hoch: {{names}}",
+    "uploaded_one": "Datei hochgeladen",
+    "uploaded_other": "{{count}} Dateien hochgeladen",
+    "selected_one": "1 ausgewählt",
+    "selected_other": "{{count}} ausgewählt",
+    "selectAll": "Alle auswählen",
+    "select": "{{name}} auswählen",
+    "clearSelection": "Auswahl aufheben",
+    "zip": "Als ZIP packen",
+    "unzipHere": "Hier entpacken",
+    "unzipped_one": "1 Datei entpackt",
+    "unzipped_other": "{{count}} Dateien entpackt",
+    "downloadZip": "Als ZIP herunterladen",
+    "loadFailed": "Dieser Ordner konnte nicht geöffnet werden.",
+    "toRoot": "Zum Server-Ordner",
+    "emptyTitle": "Noch keine Dateien",
+    "emptyText": "Zieh Dateien hierher oder klick auf „Hochladen“. Die Dateien entstehen auch beim ersten Start des Servers.",
+    "emptyFolder": "Dieser Ordner ist leer. Zieh Dateien hierher, um sie hochzuladen.",
+    "size": "Größe",
+    "modified": "Geändert",
+    "up": "Eine Ebene höher",
+    "actionsFor": "Aktionen für {{name}}",
+    "dropHere": "Loslassen zum Hochladen",
+    "dialog": {
+      "mkdir": "Neuer Ordner",
+      "newfile": "Neue Datei",
+      "zip": "Als ZIP packen",
+      "rename": "Umbenennen"
+    },
+    "deleteTitle_one": "In den Papierkorb verschieben?",
+    "deleteTitle_other": "{{count}} Einträge in den Papierkorb verschieben?",
+    "deleteText": "Gelöschte Dateien bleiben 7 Tage im Papierkorb und lassen sich mit einem Klick wiederherstellen.",
+    "moveToTrash": "In den Papierkorb",
+    "movedToTrash_one": "In den Papierkorb verschoben",
+    "movedToTrash_other": "{{count}} Einträge in den Papierkorb verschoben",
+    "trashText": "Gelöschte Dateien und Ordner der letzten 7 Tage. Danach werden sie endgültig entfernt.",
+    "trashEmpty": "Der Papierkorb ist leer.",
+    "emptyTrash": "Papierkorb leeren",
+    "restored": "„{{name}}“ ist wieder da",
+    "deletedAgo": "gelöscht {{when}}",
+    "deleteForever": "{{name}} endgültig löschen",
+    "savedFile": "„{{name}}“ gespeichert",
+    "unsaved": "Nicht gespeichert",
+    "saveShortcut": "Strg+S",
+    "cannotEdit": "Diese Datei lässt sich nicht im Editor öffnen",
+    "cannotEditText": "Sie ist keine Textdatei oder größer als 5 MB. Du kannst sie herunterladen.",
+    "leaveTitle": "Änderungen verwerfen?",
+    "leaveText": "Deine Änderungen an „{{name}}“ sind noch nicht gespeichert.",
+    "discard": "Verwerfen"
+  },
+  "playersTab": {
+    "proxy": "Ein Proxy hat keine eigene Spielerliste. Verwalte die Spieler auf den Servern dahinter.",
+    "offline": "Der Server ist aus. Du kannst Operatoren, Whitelist und Sperren trotzdem bearbeiten; die Änderungen gelten beim nächsten Start.",
+    "offlineBedrock": "Der Server ist aus. Die Erlaubnisliste kannst du trotzdem bearbeiten; für alles andere muss er laufen.",
+    "online": "Gerade online",
+    "onlineText": "Wer gerade spielt. Rauswerfen trennt nur die Verbindung, sperren verhindert das Wiederkommen.",
+    "isOp": "Operator",
+    "ops": "Operatoren",
+    "opsText": "Operatoren dürfen alle Befehle im Spiel benutzen, z. B. /gamemode oder /tp. Gib das nur Leuten, denen du vertraust.",
+    "opsTextBedrock": "Operatoren dürfen im Spiel Befehle benutzen. Bei Bedrock vergibst du das am einfachsten im Spiel oder in der Konsole.",
+    "noOps": "Noch keine Operatoren.",
+    "whitelist": "Whitelist",
+    "allowlist": "Erlaubnisliste",
+    "whitelistText": "Ist sie an, dürfen nur Spieler auf dieser Liste auf den Server. Praktisch für private Server mit Freunden.",
+    "noWhitelist": "Noch niemand auf der Liste.",
+    "banned": "Gesperrt",
+    "bannedText": "Gesperrte Spieler können nicht mehr auf den Server, bis du die Sperre aufhebst.",
+    "noBans": "Niemand ist gesperrt.",
+    "namePlaceholder": "Spielername, z. B. Lena_Baut",
+    "reason": "Grund",
+    "reasonPlaceholder": "Grund (optional)",
+    "actions": {
+      "op": "Zum Operator machen",
+      "deop": "Operator entfernen",
+      "kick": "Rauswerfen",
+      "ban": "Sperren",
+      "pardon": "Sperre aufheben",
+      "whitelist-add": "Hinzufügen",
+      "whitelist-remove": "Von der Liste nehmen"
+    },
+    "done": {
+      "op": "{{name}} ist jetzt Operator",
+      "deop": "{{name}} ist kein Operator mehr",
+      "kick": "{{name}} wurde rausgeworfen",
+      "ban": "{{name}} ist gesperrt",
+      "pardon": "Sperre für {{name}} aufgehoben",
+      "whitelist-add": "{{name}} steht auf der Liste",
+      "whitelist-remove": "{{name}} ist nicht mehr auf der Liste"
+    },
+    "confirm": {
+      "kickTitle": "{{name}} rauswerfen?",
+      "kickText": "Die Verbindung wird getrennt. Der Spieler kann sofort wieder beitreten.",
+      "banTitle": "{{name}} sperren?",
+      "banText": "Der Spieler wird getrennt und kann nicht mehr beitreten, bis du die Sperre aufhebst."
+    }
+  },
+  "settings": {
+    "sections": {
+      "general": "Allgemein",
+      "game": "Spiel-Einstellungen",
+      "worlds": "Welten",
+      "icon": "Server-Bild",
+      "danger": "Gefahrenzone"
+    },
+    "restartToApply": "Gilt nach einem Neustart.",
+    "general": {
+      "title": "Allgemein",
+      "text": "Name, Größe und Version deines Servers. Änderungen gelten beim nächsten Start.",
+      "portHint": "Über diesen Port verbinden sich die Spieler.",
+      "memory": "Arbeitsspeicher (RAM)",
+      "memoryHint": "Empfohlen: {{recommended}}. Zu wenig RAM lässt den Server ruckeln oder abstürzen.",
+      "version": "Minecraft-Version",
+      "current": "aktuell",
+      "java": "Java-Version",
+      "javaAuto": "Automatisch (empfohlen)",
+      "javaHint": "Minecraft braucht eine passende Java-Version. Automatisch nimmt {{auto}}.",
+      "downgrade": "Du wählst eine ältere Version. Das kann deine Welt beschädigen. Mach vorher ein Backup.",
+      "domain": "Eigene Adresse (Domain)",
+      "domainHint": "Optional. Wird statt der IP angezeigt, z. B. mc.meinname.de.",
+      "autoStart": "Automatisch starten",
+      "autoStartHint": "Startet den Server mit, wenn der Rechner oder das Panel neu startet."
+    },
+    "properties": {
+      "title": "Spiel-Einstellungen",
+      "text": "Die wichtigsten Einstellungen aus der Datei server.properties, verständlich erklärt.",
+      "openFile": "Als Datei bearbeiten",
+      "groups": {
+        "general": "Spiel",
+        "players": "Spieler",
+        "world": "Welt",
+        "advanced": "Für Fortgeschrittene"
+      },
+      "caution": "Vorsicht",
+      "range": "Bitte eine Zahl von {{min}} bis {{max}}.",
+      "managed": "Vom Panel verwaltet",
+      "managedText": "Diese Werte setzt das Panel selbst, damit Port und Konsole funktionieren.",
+      "changes_one": "1 Änderung nicht gespeichert",
+      "changes_other": "{{count}} Änderungen nicht gespeichert",
+      "noChanges": "Alles gespeichert."
+    },
+    "motd": {
+      "toolbar": "Farben und Schrift",
+      "colours": {
+        "0": "Schwarz",
+        "1": "Dunkelblau",
+        "2": "Dunkelgrün",
+        "3": "Türkis",
+        "4": "Dunkelrot",
+        "5": "Lila",
+        "6": "Gold",
+        "7": "Grau",
+        "8": "Dunkelgrau",
+        "9": "Blau",
+        "a": "Grün",
+        "b": "Hellblau",
+        "c": "Rot",
+        "d": "Pink",
+        "e": "Gelb",
+        "f": "Weiß"
+      },
+      "formats": {
+        "bold": "Fett",
+        "italic": "Kursiv",
+        "underline": "Unterstrichen",
+        "strike": "Durchgestrichen",
+        "reset": "Formatierung zurücksetzen"
+      }
+    },
+    "worlds": {
+      "title": "Welten",
+      "text": "Hier liegen alle Welten deines Servers. Gespielt wird immer die aktive Welt.",
+      "active": "Aktiv",
+      "activate": "Aktivieren",
+      "activateHint": "Diese Welt beim nächsten Start spielen",
+      "activated": "„{{name}}“ ist jetzt die aktive Welt",
+      "upload": "Welt hochladen",
+      "uploaded": "Welt „{{name}}“ hochgeladen",
+      "download": "{{name}} herunterladen",
+      "none": "Noch keine Welt. Sie entsteht beim ersten Start.",
+      "stopFirst": "Stoppe den Server zuerst.",
+      "reset": "Welt neu erstellen",
+      "resetHint": "Die aktive Welt kommt in den Papierkorb, beim nächsten Start entsteht eine neue.",
+      "resetTitle": "Welt neu erstellen?",
+      "resetText": "Die aktive Welt (mit Nether und End) kommt 7 Tage in den Papierkorb. Beim nächsten Start erzeugt Minecraft eine neue Welt.",
+      "resetDone": "Die alte Welt liegt im Papierkorb. Starte den Server für die neue Welt.",
+      "seed": "Seed",
+      "seedHint": "Optional. Gleicher Seed = gleiche Welt. Leer lassen für eine zufällige Welt."
+    },
+    "icon": {
+      "title": "Server-Bild",
+      "text": "Das Bild neben deinem Server in der Serverliste. Jedes Bild geht, wir schneiden es passend auf 64 × 64 Pixel zu.",
+      "choose": "Bild auswählen",
+      "remove": "Entfernen",
+      "saved": "Server-Bild gespeichert"
+    },
+    "danger": {
+      "text": "Löscht den Server mit allen Einstellungen, Zeitplänen und Backups aus dem Panel.",
+      "delete": "Server löschen",
+      "confirmTitle": "„{{name}}“ löschen?",
+      "confirmArchive": "Der Server verschwindet aus dem Panel. Seine Dateien bleiben im Archiv-Ordner auf dem Host liegen.",
+      "confirmFiles": "Der Server und alle seine Dateien, Welten und Backups werden endgültig gelöscht.",
+      "deleteFiles": "Auch alle Dateien und Welten löschen",
+      "deleteFilesHint": "Ohne Haken landen sie im Archiv-Ordner des Panels.",
+      "deleted": "„{{name}}“ wurde gelöscht"
+    }
+  },
+  "props": {
+    "motd": {
+      "label": "Beschreibung (MOTD)",
+      "hint": "Der Text unter dem Servernamen in der Serverliste. Zwei Zeilen, mit Farben."
+    },
+    "server-name": {
+      "label": "Servername",
+      "hint": "So heißt dein Server in der Liste der Bedrock-Spieler."
+    },
+    "gamemode": {
+      "label": "Spielmodus",
+      "hint": "Womit neue Spieler starten.",
+      "options": {
+        "survival": "Überleben",
+        "creative": "Kreativ",
+        "adventure": "Abenteuer",
+        "spectator": "Zuschauer"
+      }
+    },
+    "difficulty": {
+      "label": "Schwierigkeit",
+      "hint": "Wie gefährlich Monster sind und wie schnell der Hunger kommt.",
+      "options": {
+        "peaceful": "Friedlich",
+        "easy": "Einfach",
+        "normal": "Normal",
+        "hard": "Schwer"
+      }
+    },
+    "hardcore": {
+      "label": "Hardcore",
+      "hint": "Wer stirbt, wird Zuschauer und kann nicht weiterspielen."
+    },
+    "pvp": {
+      "label": "Spieler gegen Spieler (PvP)",
+      "hint": "Ob Spieler sich gegenseitig Schaden machen können."
+    },
+    "force-gamemode": {
+      "label": "Spielmodus erzwingen",
+      "hint": "Setzt Spieler beim Betreten immer auf den Standard-Spielmodus zurück."
+    },
+    "allow-cheats": {
+      "label": "Cheats erlauben",
+      "hint": "Erlaubt Befehle wie /give oder /time im Spiel."
+    },
+    "max-players": {
+      "label": "Maximale Spielerzahl",
+      "hint": "So viele Spieler können gleichzeitig online sein."
+    },
+    "white-list": {
+      "label": "Whitelist",
+      "hint": "Nur Spieler auf der Whitelist dürfen auf den Server (siehe Tab Spieler)."
+    },
+    "enforce-whitelist": {
+      "label": "Whitelist sofort durchsetzen",
+      "hint": "Wirft Spieler, die nicht (mehr) auf der Whitelist stehen, sofort raus."
+    },
+    "allow-list": {
+      "label": "Erlaubnisliste",
+      "hint": "Nur Spieler auf der Erlaubnisliste dürfen auf den Server (siehe Tab Spieler)."
+    },
+    "online-mode": {
+      "label": "Konten prüfen (Online-Modus)",
+      "hint": "Prüft bei Mojang/Microsoft, ob jeder Spieler ein echtes Konto hat.",
+      "caution": "Ausgeschaltet kann sich jeder als jeder ausgeben, auch als du. Nur abschalten, wenn ein Proxy (z. B. Velocity) davor die Konten prüft."
+    },
+    "allow-flight": {
+      "label": "Fliegen erlauben",
+      "hint": "Verhindert, dass Spieler mit Flug-Mods oder manchen Plugins wegen „Fliegens“ rausfliegen."
+    },
+    "spawn-protection": {
+      "label": "Spawn-Schutz",
+      "hint": "Um den Spawnpunkt dürfen in diesem Radius (in Blöcken) nur Operatoren bauen. 0 schaltet ihn ab."
+    },
+    "player-idle-timeout": {
+      "label": "Untätige Spieler trennen",
+      "hint": "Nach so vielen Minuten ohne Bewegung wird ein Spieler getrennt. 0 = nie."
+    },
+    "op-permission-level": {
+      "label": "Rechte-Stufe der Operatoren",
+      "hint": "1 = Spawnschutz umgehen, 2 = Cheats, 3 = Spieler verwalten, 4 = alles inklusive Server stoppen."
+    },
+    "default-player-permission-level": {
+      "label": "Standard-Rechte neuer Spieler",
+      "hint": "Welche Rechte Spieler beim ersten Betreten bekommen.",
+      "options": {
+        "visitor": "Besucher (nur schauen)",
+        "member": "Mitglied (bauen und abbauen)",
+        "operator": "Operator (alles)"
+      }
+    },
+    "enforce-secure-profile": {
+      "label": "Signierte Chat-Nachrichten verlangen",
+      "hint": "Spieler brauchen ein von Mojang signiertes Profil zum Chatten. Bei Problemen mit älteren Clients abschalten."
+    },
+    "hide-online-players": {
+      "label": "Spielerliste verstecken",
+      "hint": "Zeigt in der Serverliste nicht an, wer gerade online ist."
+    },
+    "level-name": {
+      "label": "Weltname",
+      "hint": "Der Ordner der aktiven Welt."
+    },
+    "level-seed": {
+      "label": "Seed für neue Welten",
+      "hint": "Gleicher Seed ergibt die gleiche Welt. Gilt nur, wenn eine neue Welt erstellt wird."
+    },
+    "level-type": {
+      "label": "Welt-Typ",
+      "hint": "Wie neue Welten aussehen. Gilt nur, wenn eine neue Welt erstellt wird.",
+      "options": {
+        "minecraft:normal": "Normal",
+        "minecraft:flat": "Flachland",
+        "minecraft:large_biomes": "Große Biome",
+        "minecraft:amplified": "Zerklüftet",
+        "DEFAULT": "Normal",
+        "FLAT": "Flachland",
+        "LEGACY": "Alte Welt (begrenzt)"
+      }
+    },
+    "generate-structures": {
+      "label": "Bauwerke erzeugen",
+      "hint": "Dörfer, Tempel, Festungen und Co. in neuen Gebieten."
+    },
+    "allow-nether": {
+      "label": "Nether erlauben",
+      "hint": "Ob Spieler in den Nether reisen können."
+    },
+    "spawn-monsters": {
+      "label": "Monster",
+      "hint": "Ob feindliche Monster wie Zombies und Creeper erscheinen."
+    },
+    "view-distance": {
+      "label": "Sichtweite",
+      "hint": "Wie viele Chunks (16 × 16 Blöcke) Spieler um sich sehen. Weniger entlastet den Server stark."
+    },
+    "simulation-distance": {
+      "label": "Aktiv-Bereich",
+      "hint": "In wie vielen Chunks um Spieler Pflanzen wachsen und Tiere sich bewegen. Weniger = weniger Last."
+    },
+    "tick-distance": {
+      "label": "Aktiv-Bereich",
+      "hint": "In wie vielen Chunks um Spieler die Welt läuft (4 bis 12). Weniger = weniger Last."
+    },
+    "max-world-size": {
+      "label": "Maximale Weltgröße",
+      "hint": "Radius der Weltgrenze in Blöcken. Kleiner hält die Welt und Backups klein."
+    },
+    "enable-command-block": {
+      "label": "Befehlsblöcke",
+      "hint": "Erlaubt Befehlsblöcke für Abenteuerkarten und Minispiele."
+    },
+    "resource-pack": {
+      "label": "Ressourcenpaket (Link)",
+      "hint": "Direkter Download-Link zu einer ZIP-Datei mit Texturen, die Spieler beim Beitreten bekommen."
+    },
+    "require-resource-pack": {
+      "label": "Ressourcenpaket verlangen",
+      "hint": "Wer das Paket ablehnt, kann nicht beitreten."
+    },
+    "texturepack-required": {
+      "label": "Texturpaket verlangen",
+      "hint": "Spieler müssen die Texturpakete des Servers laden."
+    },
+    "enable-status": {
+      "label": "In der Serverliste anzeigen",
+      "hint": "Aus: Der Server erscheint in der Liste als offline, man kann aber trotzdem beitreten."
+    },
+    "sync-chunk-writes": {
+      "label": "Sicheres Speichern",
+      "hint": "Schreibt Chunks sofort auf die Platte. Sicherer bei Stromausfall, aber etwas langsamer."
+    },
+    "network-compression-threshold": {
+      "label": "Netzwerk-Komprimierung ab",
+      "hint": "Pakete ab dieser Größe (Bytes) werden komprimiert. -1 schaltet es ab. Standard 256 passt fast immer."
+    },
+    "max-tick-time": {
+      "label": "Hänger-Erkennung",
+      "hint": "Nach so vielen Millisekunden ohne Fortschritt hält der Server sich für abgestürzt. -1 schaltet es ab."
+    },
+    "entity-broadcast-range-percentage": {
+      "label": "Sichtweite für Lebewesen",
+      "hint": "Wie weit Tiere und Monster sichtbar sind, in Prozent. Weniger spart Bandbreite."
+    }
+  },
+  "permissions": {
+    "control": "Starten und Stoppen",
+    "commands": "Befehle senden",
+    "console": "Konsole ansehen",
+    "logs": "Protokolle lesen",
+    "schedules": "Zeitpläne",
+    "backups": "Backups",
+    "files": "Dateien",
+    "config": "Einstellungen",
+    "players": "Spieler verwalten",
+    "plugins": "Plugins und Mods"
   }
 }

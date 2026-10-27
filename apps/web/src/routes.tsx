@@ -7,6 +7,9 @@ import { OverviewTab } from '@/features/servers/OverviewTab';
 import { ServerLayout } from '@/features/servers/ServerLayout';
 
 const ConsoleTab = lazy(() => import('@/features/servers/ConsoleTab'));
+const FilesTab = lazy(() => import('@/features/servers/files/FilesTab'));
+const PlayersTab = lazy(() => import('@/features/servers/players/PlayersTab'));
+const SettingsTab = lazy(() => import('@/features/servers/settings/SettingsTab'));
 
 function Lazy({ children }: { children: ReactElement }): ReactElement {
   return <Suspense fallback={<Skeleton className="h-96 rounded-[16px]" />}>{children}</Suspense>;
@@ -26,6 +29,30 @@ export const appRoutes: RouteObject[] = [
         element: (
           <Lazy>
             <ConsoleTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'files',
+        element: (
+          <Lazy>
+            <FilesTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'players',
+        element: (
+          <Lazy>
+            <PlayersTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <Lazy>
+            <SettingsTab />
           </Lazy>
         ),
       },

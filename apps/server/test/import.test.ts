@@ -4,19 +4,18 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import type { ImportDetectionResult, ServerSummary } from '@mornihosting/shared';
 import { resolveInside } from '../src/lib/paths.js';
-import { authHeaders, createTestApp, setupAdmin, type Session, type TestApp } from './helpers.js';
+import {
+  authHeaders,
+  createTestApp,
+  multipartBody,
+  setupAdmin,
+  type Session,
+  type TestApp,
+} from './helpers.js';
 import { storedZip } from './zip-fixture.js';
 
 function multipart(file: Buffer, name: string): { payload: Buffer; headers: Record<string, string> } {
-  const boundary = '----mhtest' + Date.now();
-  const head = Buffer.from(
-    `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${name}"\r\nContent-Type: application/zip\r\n\r\n`,
-  );
-  const tail = Buffer.from(`\r\n--${boundary}--\r\n`);
-  return {
-    payload: Buffer.concat([head, file, tail]),
-    headers: { 'content-type': `multipart/form-data; boundary=${boundary}` },
-  };
+  return multipartBody([{ name, data: file, type: 'application/zip' }]);
 }
 
 describe('paths stay inside their folder', () => {

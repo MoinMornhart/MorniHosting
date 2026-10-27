@@ -6,3 +6,4 @@ docs/progress.html
 apps/server/drizzle
 .claude
 chats
+.github/workflows/vibeworks-check.yml

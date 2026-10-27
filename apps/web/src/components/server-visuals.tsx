@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import { useState, type ReactElement, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ServerState } from '@mornihosting/shared';
 import { blockForServer, blockIcon, playerFace } from '@/lib/pixel';
@@ -31,14 +31,35 @@ export interface ServerIconProps {
 }
 
 /** The server's own server-icon.png if it has one, otherwise a block that fits its software. */
+const iconVersions = new Map<string, number>();
+const iconListeners = new Set<() => void>();
+
+/** Call after a new icon was uploaded, so every place showing it loads the new picture. */
+export function refreshServerIcon(id: string): void {
+  iconVersions.set(id, Date.now());
+  iconListeners.forEach((listener) => listener());
+}
+
+function useIconVersion(id: string): number {
+  return useSyncExternalStore(
+    (listener) => {
+      iconListeners.add(listener);
+      return () => iconListeners.delete(listener);
+    },
+    () => iconVersions.get(id) ?? 0,
+  );
+}
+
 export function ServerIcon({ id, software, hasIcon, className }: ServerIconProps): ReactElement {
-  const [failed, setFailed] = useState(false);
-  const src = hasIcon && !failed ? `/api/servers/${id}/icon` : blockIcon(blockForServer(software, id));
+  const version = useIconVersion(id);
+  const iconUrl = `/api/servers/${id}/icon${version ? `?v=${version}` : ''}`;
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const src = hasIcon && failedUrl !== iconUrl ? iconUrl : blockIcon(blockForServer(software, id));
   return (
     <img
       src={src}
       alt=""
-      onError={() => setFailed(true)}
+      onError={() => setFailedUrl(iconUrl)}
       className={cn('pixelated size-11 shrink-0 rounded-[10px] object-cover', className)}
     />
   );

@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import type { Theme } from '@mornihosting/shared';
 
 const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -38,4 +39,21 @@ export function initialTheme(): Theme {
     // Fall through to the default.
   }
   return 'dark';
+}
+
+const themeListeners = new Set<() => void>();
+new MutationObserver(() => themeListeners.forEach((l) => l())).observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ['class'],
+});
+
+/** The theme actually shown right now ("system" resolved), for widgets that style themselves. */
+export function useResolvedTheme(): 'dark' | 'light' {
+  return useSyncExternalStore(
+    (listener) => {
+      themeListeners.add(listener);
+      return () => themeListeners.delete(listener);
+    },
+    () => (document.documentElement.classList.contains('dark') ? 'dark' : 'light'),
+  );
 }

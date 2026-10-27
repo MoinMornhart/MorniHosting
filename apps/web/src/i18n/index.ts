@@ -24,6 +24,8 @@ void i18n.use(initReactI18next).init({
   fallbackLng: 'de',
   interpolation: { escapeValue: false },
   returnNull: false,
+  // Option values such as "minecraft:flat" contain colons; there is only one namespace.
+  nsSeparator: false,
 });
 
 export function setLanguage(language: Language): void {

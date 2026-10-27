@@ -446,7 +446,18 @@
     "self_update_unavailable": "Automatic updates are not set up on this system.",
     "world_not_found": "This world does not exist.",
     "geyser_java_only": "Geyser is only available for Java servers with plugins.",
-    "bedrock_port_taken": "Port 19132 (UDP) is already in use."
+    "bedrock_port_taken": "Port 19132 (UDP) is already in use.",
+    "icon_not_png": "The picture could not be read.",
+    "icon_wrong_size": "The server picture must be 64 × 64 pixels.",
+    "invalid_name": "This name doesn't work. Please avoid / \\ and a leading dot.",
+    "invalid_property": "The value for “{{key}}” doesn't fit.",
+    "managed_property": "The panel sets “{{key}}” itself.",
+    "invalid_token": "This API key is invalid or expired.",
+    "no_icon": "No server picture.",
+    "not_supported_on_bedrock": "Unfortunately that doesn't work on Bedrock servers.",
+    "player_unknown": "This Minecraft name doesn't exist. Check the spelling.",
+    "world_invalid": "The ZIP file contains no Minecraft world (level.dat is missing).",
+    "missing_permission": "You are missing the “{{permission}}” right on this server."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -462,5 +473,415 @@
     "serverOff": "The server is off.",
     "manage": "Manage players",
     "starting": "The server is starting."
+  },
+  "files": {
+    "location": "Folder",
+    "root": "Server",
+    "tree": "Folders",
+    "newFolder": "New folder",
+    "newFile": "New file",
+    "trash": "Trash",
+    "uploading": "Uploading: {{names}}",
+    "uploaded_one": "File uploaded",
+    "uploaded_other": "{{count}} files uploaded",
+    "selected_one": "1 selected",
+    "selected_other": "{{count}} selected",
+    "selectAll": "Select all",
+    "select": "Select {{name}}",
+    "clearSelection": "Clear selection",
+    "zip": "Pack as ZIP",
+    "unzipHere": "Unpack here",
+    "unzipped_one": "1 file unpacked",
+    "unzipped_other": "{{count}} files unpacked",
+    "downloadZip": "Download as ZIP",
+    "loadFailed": "This folder could not be opened.",
+    "toRoot": "Go to the server folder",
+    "emptyTitle": "No files yet",
+    "emptyText": "Drag files here or click “Upload”. Files are also created when the server starts for the first time.",
+    "emptyFolder": "This folder is empty. Drag files here to upload them.",
+    "size": "Size",
+    "modified": "Changed",
+    "up": "One level up",
+    "actionsFor": "Actions for {{name}}",
+    "dropHere": "Drop to upload",
+    "dialog": {
+      "mkdir": "New folder",
+      "newfile": "New file",
+      "zip": "Pack as ZIP",
+      "rename": "Rename"
+    },
+    "deleteTitle_one": "Move to trash?",
+    "deleteTitle_other": "Move {{count}} items to the trash?",
+    "deleteText": "Deleted files stay in the trash for 7 days and can be restored with one click.",
+    "moveToTrash": "Move to trash",
+    "movedToTrash_one": "Moved to the trash",
+    "movedToTrash_other": "{{count}} items moved to the trash",
+    "trashText": "Files and folders deleted in the last 7 days. After that they are removed for good.",
+    "trashEmpty": "The trash is empty.",
+    "emptyTrash": "Empty trash",
+    "restored": "“{{name}}” is back",
+    "deletedAgo": "deleted {{when}}",
+    "deleteForever": "Delete {{name}} for good",
+    "savedFile": "“{{name}}” saved",
+    "unsaved": "Not saved",
+    "saveShortcut": "Ctrl+S",
+    "cannotEdit": "This file can't be opened in the editor",
+    "cannotEditText": "It isn't a text file or it is larger than 5 MB. You can download it.",
+    "leaveTitle": "Discard changes?",
+    "leaveText": "Your changes to “{{name}}” are not saved yet.",
+    "discard": "Discard"
+  },
+  "playersTab": {
+    "proxy": "A proxy has no player list of its own. Manage players on the servers behind it.",
+    "offline": "The server is off. You can still edit operators, the whitelist and bans; changes apply on the next start.",
+    "offlineBedrock": "The server is off. You can still edit the allowlist; everything else needs the server running.",
+    "online": "Online now",
+    "onlineText": "Who is playing right now. Kicking only disconnects; banning keeps them from coming back.",
+    "isOp": "Operator",
+    "ops": "Operators",
+    "opsText": "Operators may use every command in the game, e.g. /gamemode or /tp. Only give this to people you trust.",
+    "opsTextBedrock": "Operators may use commands in the game. On Bedrock, give this in the game or the console.",
+    "noOps": "No operators yet.",
+    "whitelist": "Whitelist",
+    "allowlist": "Allowlist",
+    "whitelistText": "When it is on, only players on this list can join. Handy for a private server with friends.",
+    "noWhitelist": "Nobody on the list yet.",
+    "banned": "Banned",
+    "bannedText": "Banned players can't join until you lift the ban.",
+    "noBans": "Nobody is banned.",
+    "namePlaceholder": "Player name, e.g. Lena_Builds",
+    "reason": "Reason",
+    "reasonPlaceholder": "Reason (optional)",
+    "actions": {
+      "op": "Make operator",
+      "deop": "Remove operator",
+      "kick": "Kick",
+      "ban": "Ban",
+      "pardon": "Lift ban",
+      "whitelist-add": "Add",
+      "whitelist-remove": "Remove from list"
+    },
+    "done": {
+      "op": "{{name}} is now an operator",
+      "deop": "{{name}} is no longer an operator",
+      "kick": "{{name}} was kicked",
+      "ban": "{{name}} is banned",
+      "pardon": "Ban lifted for {{name}}",
+      "whitelist-add": "{{name}} is on the list",
+      "whitelist-remove": "{{name}} is off the list"
+    },
+    "confirm": {
+      "kickTitle": "Kick {{name}}?",
+      "kickText": "They are disconnected and can join again right away.",
+      "banTitle": "Ban {{name}}?",
+      "banText": "They are disconnected and can't join until you lift the ban."
+    }
+  },
+  "settings": {
+    "sections": {
+      "general": "General",
+      "game": "Game settings",
+      "worlds": "Worlds",
+      "icon": "Server picture",
+      "danger": "Danger zone"
+    },
+    "restartToApply": "Applies after a restart.",
+    "general": {
+      "title": "General",
+      "text": "Name, size and version of your server. Changes apply on the next start.",
+      "portHint": "Players connect through this port.",
+      "memory": "Memory (RAM)",
+      "memoryHint": "Recommended: {{recommended}}. Too little RAM makes the server lag or crash.",
+      "version": "Minecraft version",
+      "current": "current",
+      "java": "Java version",
+      "javaAuto": "Automatic (recommended)",
+      "javaHint": "Minecraft needs a matching Java version. Automatic picks {{auto}}.",
+      "downgrade": "You picked an older version. That can damage your world. Make a backup first.",
+      "domain": "Own address (domain)",
+      "domainHint": "Optional. Shown instead of the IP, e.g. mc.myname.com.",
+      "autoStart": "Start automatically",
+      "autoStartHint": "Starts the server when the machine or the panel restarts."
+    },
+    "properties": {
+      "title": "Game settings",
+      "text": "The most important settings from server.properties, explained in plain words.",
+      "openFile": "Edit as file",
+      "groups": {
+        "general": "Game",
+        "players": "Players",
+        "world": "World",
+        "advanced": "Advanced"
+      },
+      "caution": "Careful",
+      "range": "Please enter a number from {{min}} to {{max}}.",
+      "managed": "Managed by the panel",
+      "managedText": "The panel sets these itself so the port and the console keep working.",
+      "changes_one": "1 unsaved change",
+      "changes_other": "{{count}} unsaved changes",
+      "noChanges": "All saved."
+    },
+    "motd": {
+      "toolbar": "Colours and style",
+      "colours": {
+        "0": "Black",
+        "1": "Dark blue",
+        "2": "Dark green",
+        "3": "Teal",
+        "4": "Dark red",
+        "5": "Purple",
+        "6": "Gold",
+        "7": "Grey",
+        "8": "Dark grey",
+        "9": "Blue",
+        "a": "Green",
+        "b": "Light blue",
+        "c": "Red",
+        "d": "Pink",
+        "e": "Yellow",
+        "f": "White"
+      },
+      "formats": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline",
+        "strike": "Strikethrough",
+        "reset": "Reset formatting"
+      }
+    },
+    "worlds": {
+      "title": "Worlds",
+      "text": "All worlds of your server. The active world is the one being played.",
+      "active": "Active",
+      "activate": "Activate",
+      "activateHint": "Play this world on the next start",
+      "activated": "“{{name}}” is now the active world",
+      "upload": "Upload world",
+      "uploaded": "World “{{name}}” uploaded",
+      "download": "Download {{name}}",
+      "none": "No world yet. It is created on the first start.",
+      "stopFirst": "Stop the server first.",
+      "reset": "Create a new world",
+      "resetHint": "The active world goes to the trash; a new one is created on the next start.",
+      "resetTitle": "Create a new world?",
+      "resetText": "The active world (with Nether and End) stays in the trash for 7 days. Minecraft creates a new world on the next start.",
+      "resetDone": "The old world is in the trash. Start the server for the new world.",
+      "seed": "Seed",
+      "seedHint": "Optional. Same seed = same world. Leave empty for a random world."
+    },
+    "icon": {
+      "title": "Server picture",
+      "text": "The picture next to your server in the server list. Any picture works; we crop it to 64 × 64 pixels.",
+      "choose": "Choose picture",
+      "remove": "Remove",
+      "saved": "Server picture saved"
+    },
+    "danger": {
+      "text": "Removes the server with all its settings, schedules and backups from the panel.",
+      "delete": "Delete server",
+      "confirmTitle": "Delete “{{name}}”?",
+      "confirmArchive": "The server disappears from the panel. Its files stay in the archive folder on the host.",
+      "confirmFiles": "The server and all its files, worlds and backups are deleted for good.",
+      "deleteFiles": "Also delete all files and worlds",
+      "deleteFilesHint": "If unticked, they are moved to the panel's archive folder.",
+      "deleted": "“{{name}}” was deleted"
+    }
+  },
+  "props": {
+    "motd": {
+      "label": "Description (MOTD)",
+      "hint": "The text below the server name in the server list. Two lines, with colours."
+    },
+    "server-name": {
+      "label": "Server name",
+      "hint": "What Bedrock players see in their server list."
+    },
+    "gamemode": {
+      "label": "Game mode",
+      "hint": "What new players start with.",
+      "options": {
+        "survival": "Survival",
+        "creative": "Creative",
+        "adventure": "Adventure",
+        "spectator": "Spectator"
+      }
+    },
+    "difficulty": {
+      "label": "Difficulty",
+      "hint": "How dangerous monsters are and how fast hunger drains.",
+      "options": {
+        "peaceful": "Peaceful",
+        "easy": "Easy",
+        "normal": "Normal",
+        "hard": "Hard"
+      }
+    },
+    "hardcore": {
+      "label": "Hardcore",
+      "hint": "Players who die become spectators and can't keep playing."
+    },
+    "pvp": {
+      "label": "Player vs player (PvP)",
+      "hint": "Whether players can hurt each other."
+    },
+    "force-gamemode": {
+      "label": "Force game mode",
+      "hint": "Always resets players to the default game mode when they join."
+    },
+    "allow-cheats": {
+      "label": "Allow cheats",
+      "hint": "Allows commands such as /give or /time in the game."
+    },
+    "max-players": {
+      "label": "Maximum players",
+      "hint": "How many players can be online at the same time."
+    },
+    "white-list": {
+      "label": "Whitelist",
+      "hint": "Only players on the whitelist can join (see the Players tab)."
+    },
+    "enforce-whitelist": {
+      "label": "Enforce whitelist right away",
+      "hint": "Kicks players who are not (or no longer) on the whitelist immediately."
+    },
+    "allow-list": {
+      "label": "Allowlist",
+      "hint": "Only players on the allowlist can join (see the Players tab)."
+    },
+    "online-mode": {
+      "label": "Check accounts (online mode)",
+      "hint": "Checks with Mojang/Microsoft that every player has a real account.",
+      "caution": "When off, anyone can pretend to be anyone, including you. Only turn it off when a proxy (e.g. Velocity) in front checks accounts."
+    },
+    "allow-flight": {
+      "label": "Allow flight",
+      "hint": "Stops players with flight mods or some plugins from being kicked for “flying”."
+    },
+    "spawn-protection": {
+      "label": "Spawn protection",
+      "hint": "Within this radius (in blocks) around spawn only operators can build. 0 turns it off."
+    },
+    "player-idle-timeout": {
+      "label": "Disconnect idle players",
+      "hint": "Players who don't move for this many minutes are disconnected. 0 = never."
+    },
+    "op-permission-level": {
+      "label": "Operator permission level",
+      "hint": "1 = bypass spawn protection, 2 = cheats, 3 = manage players, 4 = everything including stopping the server."
+    },
+    "default-player-permission-level": {
+      "label": "Default rights for new players",
+      "hint": "Which rights players get when they first join.",
+      "options": {
+        "visitor": "Visitor (look only)",
+        "member": "Member (build and mine)",
+        "operator": "Operator (everything)"
+      }
+    },
+    "enforce-secure-profile": {
+      "label": "Require signed chat",
+      "hint": "Players need a Mojang-signed profile to chat. Turn off if older clients have trouble."
+    },
+    "hide-online-players": {
+      "label": "Hide player list",
+      "hint": "Doesn't show who is online in the server list."
+    },
+    "level-name": {
+      "label": "World name",
+      "hint": "The folder of the active world."
+    },
+    "level-seed": {
+      "label": "Seed for new worlds",
+      "hint": "The same seed gives the same world. Only used when a new world is created."
+    },
+    "level-type": {
+      "label": "World type",
+      "hint": "What new worlds look like. Only used when a new world is created.",
+      "options": {
+        "minecraft:normal": "Normal",
+        "minecraft:flat": "Flat",
+        "minecraft:large_biomes": "Large biomes",
+        "minecraft:amplified": "Amplified",
+        "DEFAULT": "Normal",
+        "FLAT": "Flat",
+        "LEGACY": "Old world (limited)"
+      }
+    },
+    "generate-structures": {
+      "label": "Generate structures",
+      "hint": "Villages, temples, strongholds and more in new areas."
+    },
+    "allow-nether": {
+      "label": "Allow the Nether",
+      "hint": "Whether players can travel to the Nether."
+    },
+    "spawn-monsters": {
+      "label": "Monsters",
+      "hint": "Whether hostile monsters such as zombies and creepers spawn."
+    },
+    "view-distance": {
+      "label": "View distance",
+      "hint": "How many chunks (16 × 16 blocks) players see around them. Less takes a lot of load off the server."
+    },
+    "simulation-distance": {
+      "label": "Active area",
+      "hint": "Within how many chunks around players crops grow and animals move. Less = less load."
+    },
+    "tick-distance": {
+      "label": "Active area",
+      "hint": "Within how many chunks around players the world runs (4 to 12). Less = less load."
+    },
+    "max-world-size": {
+      "label": "Maximum world size",
+      "hint": "Radius of the world border in blocks. Smaller keeps the world and backups small."
+    },
+    "enable-command-block": {
+      "label": "Command blocks",
+      "hint": "Allows command blocks for adventure maps and minigames."
+    },
+    "resource-pack": {
+      "label": "Resource pack (link)",
+      "hint": "Direct download link to a ZIP with textures that players get when they join."
+    },
+    "require-resource-pack": {
+      "label": "Require resource pack",
+      "hint": "Players who decline the pack can't join."
+    },
+    "texturepack-required": {
+      "label": "Require texture pack",
+      "hint": "Players must load the server's texture packs."
+    },
+    "enable-status": {
+      "label": "Show in the server list",
+      "hint": "Off: the server shows as offline in the list, but people can still join."
+    },
+    "sync-chunk-writes": {
+      "label": "Safe saving",
+      "hint": "Writes chunks to disk right away. Safer during power cuts, but a bit slower."
+    },
+    "network-compression-threshold": {
+      "label": "Compress network from",
+      "hint": "Packets from this size (bytes) are compressed. -1 turns it off. The default 256 nearly always fits."
+    },
+    "max-tick-time": {
+      "label": "Freeze detection",
+      "hint": "After this many milliseconds without progress the server considers itself crashed. -1 turns it off."
+    },
+    "entity-broadcast-range-percentage": {
+      "label": "View distance for mobs",
+      "hint": "How far animals and monsters are visible, in percent. Less saves bandwidth."
+    }
+  },
+  "permissions": {
+    "control": "Start and stop",
+    "commands": "Send commands",
+    "console": "View console",
+    "logs": "Read logs",
+    "schedules": "Schedules",
+    "backups": "Backups",
+    "files": "Files",
+    "config": "Settings",
+    "players": "Manage players",
+    "plugins": "Plugins and mods"
   }
 }

@@ -90,3 +90,28 @@ export async function waitFor(
   };
   await poll();
 }
+
+export interface UploadPart {
+  readonly name: string;
+  readonly data: Buffer | string;
+  readonly type?: string;
+}
+
+/** A multipart/form-data body with one or more files (field name "file"). */
+export function multipartBody(parts: readonly UploadPart[]): {
+  payload: Buffer;
+  headers: Record<string, string>;
+} {
+  const boundary = `----mhtest${Date.now()}`;
+  const chunks = parts.flatMap((part) => [
+    Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${part.name}"\r\nContent-Type: ${part.type ?? 'application/octet-stream'}\r\n\r\n`,
+    ),
+    Buffer.from(part.data),
+    Buffer.from('\r\n'),
+  ]);
+  return {
+    payload: Buffer.concat([...chunks, Buffer.from(`--${boundary}--\r\n`)]),
+    headers: { 'content-type': `multipart/form-data; boundary=${boundary}` },
+  };
+}
