@@ -1,0 +1,34 @@
+# Abhängigkeiten & Build
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# Laufzeitdaten & Geheimnisse (nie ins Repo)
+.env
+.env.*
+!.env.example
+data/
+/servers/
+*.sqlite
+*.sqlite-journal
+*.db
+
+# Tests
+playwright-report/
+test-results/
+blob-report/
+
+# Editor & System
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# Claude
+.claude/fortschritt/
+.claude/settings.local.json

@@ -1,0 +1,198 @@
+<title>MorniHosting Fortschritt</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: eine ruhige Spalte – Kopf mit Fortschritt, darunter Bausteine, Zwischenstände, Dateien */
+:root {
+  --bg: #f4f7f5;
+  --surface: #ffffff;
+  --line: #dde5e0;
+  --fg: #14201a;
+  --muted: #5a6b62;
+  --accent: #0e9f6e;
+  --accent-soft: #d6f3e7;
+  --run: #b46a00;
+  --run-soft: #fbecd2;
+  --bad: #c43d3d;
+  --bad-soft: #f8dcdc;
+  --open: #6b7a72;
+  --open-soft: #e9eeeb;
+  --shadow: 0 1px 2px rgba(20, 40, 30, .06), 0 6px 20px rgba(20, 40, 30, .06);
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1411; --surface: #141d19; --line: #24312b; --fg: #e6efe9; --muted: #95a89e;
+    --accent: #34d399; --accent-soft: #123a2b; --run: #f0b55a; --run-soft: #3a2a10;
+    --bad: #f08a8a; --bad-soft: #3d1c1c; --open: #8fa197; --open-soft: #1d2823;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1411; --surface: #141d19; --line: #24312b; --fg: #e6efe9; --muted: #95a89e;
+  --accent: #34d399; --accent-soft: #123a2b; --run: #f0b55a; --run-soft: #3a2a10;
+  --bad: #f08a8a; --bad-soft: #3d1c1c; --open: #8fa197; --open-soft: #1d2823;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 28px; }
+header { display: grid; gap: 14px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(28px, 5vw, 40px)/1.1 var(--display); margin: 0; text-wrap: balance; }
+.goal { margin: 0; color: var(--muted); max-width: 62ch; }
+.meter { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.meter-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.pct { font: 700 34px/1 var(--display); font-variant-numeric: tabular-nums; }
+.updated { color: var(--muted); font-size: 13px; }
+.bar { height: 10px; border-radius: 99px; background: var(--open-soft); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .6s ease; }
+.now { font-size: 14px; color: var(--fg); }
+.now b { color: var(--run); font-weight: 600; }
+h2 { font: 600 20px/1.2 var(--display); margin: 0 0 12px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.step { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.step-body { min-width: 0; }
+.step-title { font-weight: 600; }
+.step-detail { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.pill { justify-self: start; font: 500 12px/1 var(--body); padding: 6px 10px; border-radius: 99px; white-space: nowrap; }
+.pill.fertig { background: var(--accent-soft); color: var(--accent); }
+.pill.laeuft { background: var(--run-soft); color: var(--run); }
+.pill.problem { background: var(--bad-soft); color: var(--bad); }
+.pill.offen { background: var(--open-soft); color: var(--open); }
+.shots { display: grid; gap: 18px; }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+figure img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--line); }
+figure pre { margin: 0; padding: 14px 16px; font: 13px/1.5 var(--mono); overflow-x: auto; background: var(--open-soft); }
+figcaption { padding: 10px 14px; font-size: 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+figcaption time { color: var(--muted); font: 12px/1.6 var(--mono); }
+.empty { color: var(--muted); padding: 16px; border: 1px dashed var(--line); border-radius: 12px; }
+.files { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 13px/1.6 var(--mono); }
+.files li { overflow-wrap: anywhere; }
+.files .tag { color: var(--accent); margin-right: 8px; }
+footer { color: var(--muted); font-size: 13px; }
+@media (max-width: 520px) { .step { grid-template-columns: 1fr; gap: 6px; } }
+@media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">MorniHosting · Fortschritt</div>
+    <h1>MorniHosting Fortschritt</h1>
+    <p class="goal" id="goal"></p>
+    <div class="meter">
+      <div class="meter-top">
+        <div class="pct" id="pct">0 %</div>
+        <div class="updated" id="updated"></div>
+      </div>
+      <div class="bar" role="progressbar" aria-label="Gesamtfortschritt" id="bar" aria-valuemin="0" aria-valuemax="100"><span id="barfill" style="width:0%"></span></div>
+      <div class="now" id="now"></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Bausteine</h2>
+    <ol class="steps" id="steps"></ol>
+  </section>
+
+  <section>
+    <h2>Zwischenstände</h2>
+    <div class="shots" id="shots"></div>
+  </section>
+
+  <section>
+    <h2>Neue und geänderte Dateien</h2>
+    <ul class="files" id="files"></ul>
+  </section>
+
+  <footer>Verfasst mit Claude 🤖</footer>
+</div>
+
+<script type="application/json" id="data">
+{
+  "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
+  "updated": "2026-10-27T21:45:00+01:00",
+  "now": "Basisdateien und Fortschrittsseite stehen, als Nächstes die 3 Mockups.",
+  "steps": [
+    { "title": "Vorbereitung", "status": "laeuft", "detail": "Pflichtfragen beantwortet, Cloud-Hooks, CLAUDE.md, STAND.md und diese Seite angelegt." },
+    { "title": "Mockups und Designwahl", "status": "offen", "detail": "3 Designrichtungen für Dashboard, Server-Übersicht mit IP-Karte und Plugin-Marktplatz." },
+    { "title": "Phase 1 · Grundgerüst", "status": "offen", "detail": "Docker Compose, Anmeldung, Einrichtungs-Assistent, leeres Dashboard." },
+    { "title": "Phase 2 · Server-Kern", "status": "offen", "detail": "Server erstellen, Start/Stopp, Live-Konsole, IP-Karte." },
+    { "title": "Phase 3 · Dateien und Einstellungen", "status": "offen", "detail": "Datei-Manager, server.properties als Formular, Spieler, Welten." },
+    { "title": "Phase 4 · Marktplatz", "status": "offen", "detail": "Modrinth, Hangar, Spiget, CurseForge optional, eigene .jar-Dateien." },
+    { "title": "Phase 5 · Backups, Zeitpläne, Webhooks", "status": "offen", "detail": "Backups mit Aufbewahrung, Zeitpläne ohne Cron, Discord zuerst." },
+    { "title": "Phase 6 · Benutzer, Rollen, API", "status": "offen", "detail": "Rechte pro Server, Audit-Log, API-Tokens, OpenAPI." },
+    { "title": "Phase 7 · Feinschliff", "status": "offen", "detail": "Absturz-Helfer, Geyser, Statistiken, Update-Funktion, Proxmox-Guide, README." }
+  ],
+  "shots": [],
+  "files": [
+    { "tag": "neu", "path": "CLAUDE.md" },
+    { "tag": "neu", "path": "STAND.md" },
+    { "tag": "neu", "path": ".gitignore" },
+    { "tag": "neu", "path": ".claude/settings.json" },
+    { "tag": "neu", "path": "docs/progress.html" }
+  ]
+}
+</script>
+<script>
+(function () {
+  var d = JSON.parse(document.getElementById('data').textContent);
+  var label = { fertig: 'fertig', laeuft: 'läuft gerade', problem: 'Problem', offen: 'offen' };
+  var weight = { fertig: 1, laeuft: 0.5, problem: 0.25, offen: 0 };
+  var sum = 0;
+  d.steps.forEach(function (s) { sum += weight[s.status] || 0; });
+  var pct = Math.round((sum / d.steps.length) * 100);
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  document.getElementById('goal').textContent = d.goal;
+  document.getElementById('pct').textContent = pct + ' %';
+  document.getElementById('barfill').style.width = pct + '%';
+  document.getElementById('bar').setAttribute('aria-valuenow', String(pct));
+  var t = new Date(d.updated);
+  document.getElementById('updated').textContent = 'Zuletzt aktualisiert: ' + t.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+  var now = document.getElementById('now');
+  now.appendChild(el('b', null, 'Gerade: '));
+  now.appendChild(document.createTextNode(d.now));
+  var steps = document.getElementById('steps');
+  d.steps.forEach(function (s) {
+    var li = el('li', 'step');
+    li.appendChild(el('span', 'pill ' + s.status, label[s.status] || s.status));
+    var body = el('div', 'step-body');
+    body.appendChild(el('div', 'step-title', s.title));
+    if (s.detail) body.appendChild(el('div', 'step-detail', s.detail));
+    li.appendChild(body);
+    steps.appendChild(li);
+  });
+  var shots = document.getElementById('shots');
+  if (!d.shots.length) shots.appendChild(el('div', 'empty', 'Noch keine Zwischenstände. Die ersten Bilder kommen mit den Mockups.'));
+  d.shots.slice(0, 12).forEach(function (s) {
+    var f = el('figure');
+    if (s.img) { var i = el('img'); i.src = s.img; i.alt = s.caption; i.loading = 'lazy'; f.appendChild(i); }
+    if (s.text) f.appendChild(el('pre', null, s.text));
+    var c = el('figcaption');
+    c.appendChild(el('span', null, s.caption));
+    var tm = el('time', null, new Date(s.time).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }));
+    tm.setAttribute('datetime', s.time);
+    c.appendChild(tm);
+    f.appendChild(c);
+    shots.appendChild(f);
+  });
+  var files = document.getElementById('files');
+  d.files.forEach(function (x) {
+    var li = el('li');
+    li.appendChild(el('span', 'tag', x.tag));
+    li.appendChild(document.createTextNode(x.path));
+    files.appendChild(li);
+  });
+})();
+</script>
