@@ -6,6 +6,7 @@ export const SOURCE_LABELS: Readonly<Record<InstalledContent['source'], string>>
   hangar: 'Hangar',
   spiget: 'SpigotMC',
   curseforge: 'CurseForge',
+  geysermc: 'GeyserMC',
   upload: '',
 };
 

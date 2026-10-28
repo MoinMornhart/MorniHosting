@@ -4,7 +4,10 @@ name: mornihosting
 services:
   panel:
     image: ghcr.io/moinmornhart/mornihosting:${MH_IMAGE_TAG:-latest}
-    build: .
+    build:
+      context: .
+      args:
+        MH_VERSION: ${MH_BUILD_VERSION:-dev}
     container_name: mornihosting
     restart: unless-stopped
     env_file: .env

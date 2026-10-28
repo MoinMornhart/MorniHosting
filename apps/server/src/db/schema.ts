@@ -106,7 +106,7 @@ export const servers = sqliteTable('servers', {
   domain: text('domain'),
   autoStart: integer('auto_start', { mode: 'boolean' }).notNull().default(true),
   extraPorts: text('extra_ports', { mode: 'json' })
-    .$type<{ port: number; protocol: 'tcp' | 'udp'; purpose: string }[]>()
+    .$type<{ port: number; containerPort?: number; protocol: 'tcp' | 'udp'; purpose: string }[]>()
     .notNull()
     .default([]),
   extraEnv: text('extra_env', { mode: 'json' }).$type<Record<string, string>>().notNull().default({}),
@@ -193,7 +193,9 @@ export const installedContent = sqliteTable(
     serverId: text('server_id')
       .notNull()
       .references(() => servers.id, { onDelete: 'cascade' }),
-    provider: text('provider').$type<'modrinth' | 'hangar' | 'spiget' | 'curseforge' | 'upload'>().notNull(),
+    provider: text('provider')
+      .$type<'modrinth' | 'hangar' | 'spiget' | 'curseforge' | 'geysermc' | 'upload'>()
+      .notNull(),
     projectId: text('project_id'),
     projectName: text('project_name').notNull(),
     versionId: text('version_id'),

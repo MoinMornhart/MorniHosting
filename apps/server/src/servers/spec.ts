@@ -88,7 +88,11 @@ export function buildContainerSpec(config: Config, row: ServerRow, timezone: str
     env: { ...env, ...row.extraEnv },
     ports: [
       { containerPort: info.defaultPort, hostPort: row.port, protocol: info.protocol },
-      ...row.extraPorts.map((p) => ({ containerPort: p.port, hostPort: p.port, protocol: p.protocol })),
+      ...row.extraPorts.map((p) => ({
+        containerPort: p.containerPort ?? p.port,
+        hostPort: p.port,
+        protocol: p.protocol,
+      })),
     ],
     memoryLimitBytes: memoryLimitBytes(row),
     dataDir: serverDir(config, row.id),

@@ -14,7 +14,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { lazy, Suspense, useRef, useState, type DragEvent, type ReactElement } from 'react';
+import { Suspense, useRef, useState, type DragEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -34,13 +34,14 @@ import { Checkbox, Progress, Skeleton } from '@/components/ui/misc';
 import { api, upload, type UploadProgress } from '@/lib/api';
 import { formatBytes, formatRelative } from '@/lib/format';
 import { toastError } from '@/lib/query';
+import { lazyPage } from '@/lib/lazy-page';
 import { cn } from '@/lib/utils';
 import { useServer } from '../ServerLayout';
 import { downloadUrl, iconFor, isEditable, isZip, joinPath, parentOf } from './file-kinds';
 import { FolderTree } from './FolderTree';
 import { TrashDialog } from './TrashDialog';
 
-const FileEditor = lazy(() => import('./FileEditor'));
+const FileEditor = lazyPage(() => import('./FileEditor'));
 
 const PERCENT = 100;
 

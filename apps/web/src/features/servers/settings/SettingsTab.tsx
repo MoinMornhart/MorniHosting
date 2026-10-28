@@ -6,11 +6,12 @@ import { EmptyState } from '@/components/page';
 import { useServer } from '../ServerLayout';
 import { DangerZone } from './DangerZone';
 import { GeneralCard } from './GeneralCard';
+import { GEYSER_SOFTWARE, GeyserCard } from './GeyserCard';
 import { IconCard } from './IconCard';
 import { PropertiesCard } from './PropertiesCard';
 import { WorldsCard } from './WorldsCard';
 
-const SECTIONS = ['general', 'game', 'worlds', 'icon', 'danger'] as const;
+const SECTIONS = ['general', 'bedrock', 'game', 'worlds', 'icon', 'danger'] as const;
 
 /** Everything about one server on one page, with a section list to jump around. */
 export default function SettingsTab(): ReactElement {
@@ -25,7 +26,10 @@ export default function SettingsTab(): ReactElement {
   }, [hash]);
 
   if (!can('config')) return <EmptyState title={t('server.noPermission')} />;
-  const sections = SECTIONS.filter((s) => !proxy || (s !== 'game' && s !== 'worlds'));
+  const geyser = GEYSER_SOFTWARE.includes(server.software);
+  const sections = SECTIONS.filter(
+    (s) => (!proxy || (s !== 'game' && s !== 'worlds')) && (geyser || s !== 'bedrock'),
+  );
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[190px_minmax(0,1fr)]">
       <nav aria-label={t('server.tabs.settings')} className="sticky top-4 hidden gap-0.5 lg:grid">
@@ -43,6 +47,11 @@ export default function SettingsTab(): ReactElement {
         <section id="s-general" className="scroll-mt-4">
           <GeneralCard key={`${server.id}-${server.memoryMb}-${server.version}`} server={server} />
         </section>
+        {geyser ? (
+          <section id="s-bedrock" className="scroll-mt-4">
+            <GeyserCard server={server} />
+          </section>
+        ) : null}
         {proxy ? null : (
           <section id="s-game" className="scroll-mt-4">
             <PropertiesCard server={server} />

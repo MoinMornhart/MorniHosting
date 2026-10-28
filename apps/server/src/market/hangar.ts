@@ -3,7 +3,7 @@ import type { MarketSort, MarketVersion } from '@mornihosting/shared';
 import { AppError, notFound } from '../lib/errors.js';
 import { fetchJson } from '../lib/http-client.js';
 import { HTTP_UNPROCESSABLE } from '../lib/http-status.js';
-import { compatibility, PAGE_SIZE, type Provider, type Target } from './types.js';
+import { checksGameVersion, compatibility, PAGE_SIZE, type Provider, type Target } from './types.js';
 
 /** Hangar, PaperMC's plugin repository (https://hangar.papermc.io/api-docs). Hashes: sha256. */
 
@@ -78,7 +78,7 @@ async function listVersions(
   onlyCompatible: boolean,
 ): Promise<HangarVersion[]> {
   const params = new URLSearchParams({ platform: platformOf(target), limit: String(VERSION_LIMIT) });
-  if (onlyCompatible) params.set('platformVersion', target.version);
+  if (onlyCompatible && checksGameVersion(target)) params.set('platformVersion', target.version);
   const data = listSchema(versionSchema).parse(
     await fetchJson(`${API}/projects/${encodeURIComponent(projectId)}/versions?${params.toString()}`),
   );
@@ -93,7 +93,7 @@ export const hangar: Provider = {
       limit: String(PAGE_SIZE),
       offset: String(q.page * PAGE_SIZE),
     });
-    if (q.compatibleOnly) params.set('version', target.version);
+    if (q.compatibleOnly && checksGameVersion(target)) params.set('version', target.version);
     const sort = SORT[q.sort];
     if (sort) params.set('sort', sort);
     const data = listSchema(projectSchema).parse(await fetchJson(`${API}/projects?${params.toString()}`));
@@ -123,7 +123,8 @@ export const hangar: Provider = {
       gameVersions: v.platformDependencies[platform] ?? [],
       publishedAt: v.createdAt,
       channel: channelOf(v.channel.name),
-      compatible: (v.platformDependencies[platform] ?? []).includes(target.version),
+      compatible:
+        !checksGameVersion(target) || (v.platformDependencies[platform] ?? []).includes(target.version),
     }));
   },
 

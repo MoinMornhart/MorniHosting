@@ -199,6 +199,8 @@ export interface ServerDetail extends ServerSummary {
   readonly domain: string | null;
   readonly image: string;
   readonly geyser: boolean;
+  /** Host UDP port Bedrock players use when Geyser is on. */
+  readonly geyserPort: number | null;
   readonly permissions: readonly ServerPermission[];
 }
 
@@ -315,6 +317,8 @@ export const switchWorldSchema = z.object({ name: z.string().trim().min(1).max(N
 
 export const MARKET_SOURCES = ['modrinth', 'hangar', 'spiget', 'curseforge'] as const;
 export type MarketSource = (typeof MARKET_SOURCES)[number];
+/** Where installed files can come from: the searchable marketplaces plus GeyserMC's own downloads (Geyser one-click). */
+export type ContentSource = MarketSource | 'geysermc';
 export const MARKET_SORTS = ['relevance', 'downloads', 'updated'] as const;
 export type MarketSort = (typeof MARKET_SORTS)[number];
 export type Compatibility = 'yes' | 'no' | 'unknown';
@@ -375,7 +379,7 @@ export interface InstalledContent {
   readonly enabled: boolean;
   readonly size: number;
   readonly modifiedAt: string;
-  readonly source: MarketSource | 'upload';
+  readonly source: ContentSource | 'upload';
   readonly projectId: string | null;
   readonly name: string;
   readonly versionName: string | null;

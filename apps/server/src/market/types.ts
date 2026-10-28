@@ -1,8 +1,8 @@
 import type {
   Compatibility,
+  ContentSource,
   MarketProject,
   MarketSort,
-  MarketSource,
   MarketVersion,
   SoftwareInfo,
 } from '@mornihosting/shared';
@@ -23,7 +23,7 @@ export interface FileToDownload {
 
 /** A project reference from a dependency list. */
 export interface DependencyRef {
-  readonly source: MarketSource;
+  readonly source: ContentSource;
   readonly projectId: string;
   readonly name: string;
 }
@@ -64,4 +64,9 @@ export const PAGE_SIZE = 20;
 export function compatibility(matches: boolean | null): Compatibility {
   if (matches === null) return 'unknown';
   return matches ? 'yes' : 'no';
+}
+
+/** A proxy's own version (Velocity 3.4) is not a Minecraft version; its plugins are not tied to it. */
+export function checksGameVersion(target: Target): boolean {
+  return !target.software.proxy;
 }

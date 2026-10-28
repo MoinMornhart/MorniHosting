@@ -9,6 +9,7 @@ import {
   type InstalledContent,
   type MarketInstallInput,
   type MarketSearchResult,
+  type ContentSource,
   type MarketSource,
   type MarketVersion,
 } from '@mornihosting/shared';
@@ -20,11 +21,13 @@ import { AppError, badRequest, conflict, notFound } from '../lib/errors.js';
 import { UpstreamError, upstreamToAppError } from '../lib/http-client.js';
 import { HTTP_UNPROCESSABLE } from '../lib/http-status.js';
 import { createKeyedLock } from '../lib/locks.js';
+import { compareVersionNames } from '../lib/version-compare.js';
 import type { ServerService } from '../servers/service.js';
 import { createCurseForge } from './curseforge.js';
 import { downloadVerified } from './download.js';
 import { hangar } from './hangar.js';
 import { identifyBySha1, modrinth, modrinthProjectUrl, projectsById } from './modrinth.js';
+import { geysermc } from './geysermc.js';
 import { spiget } from './spiget.js';
 import {
   PAGE_SIZE,
@@ -34,6 +37,8 @@ import {
   type SearchQuery,
   type Target,
 } from './types.js';
+
+export { compareVersionNames };
 
 /** Search, install (with dependencies), switch on/off, update and remove plugins and mods. */
 
@@ -45,7 +50,7 @@ const MAX_DOWNLOAD_FACTOR = 4;
 type Row = typeof installedContent.$inferSelect;
 
 interface Planned {
-  readonly source: MarketSource;
+  readonly source: ContentSource;
   readonly resolved: ResolvedInstall;
   readonly dependencyOf: string | null;
 }
@@ -58,6 +63,13 @@ export interface MarketService {
   ) => Promise<MarketSearchResult>;
   readonly versions: (serverId: string, source: MarketSource, projectId: string) => Promise<MarketVersion[]>;
   readonly install: (serverId: string, input: MarketInstallInput, actor: Actor) => Promise<InstallResult>;
+  /** Installs the newest fitting version from any content source (also GeyserMC), with dependencies. */
+  readonly installFrom: (
+    serverId: string,
+    source: ContentSource,
+    projectId: string,
+    actor: Actor,
+  ) => Promise<InstallResult>;
   readonly list: (serverId: string) => InstalledContent[];
   readonly checkUpdates: (serverId: string) => Promise<InstalledContent[]>;
   readonly update: (serverId: string, fileName: string, actor: Actor) => Promise<InstallResult>;
@@ -84,20 +96,6 @@ async function wrapUpstream<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
-// Runs of digits in a version name: "v5.5.71-bukkit" gives 5, 5, 71.
-// https://regex101.com/?regex=%5Cd%2B&flags=g&testString=v5.5.71-bukkit
-const DIGIT_RUNS = /\d+/g;
-
-/** Version names compared by their numbers; only a really newer version counts as an update. */
-export function compareVersionNames(a: string, b: string): number | null {
-  const left = (a.match(DIGIT_RUNS) ?? []).map(Number);
-  const right = (b.match(DIGIT_RUNS) ?? []).map(Number);
-  if (!left.length || !right.length) return null;
-  const length = Math.max(left.length, right.length);
-  const diff = Array.from({ length }, (_, i) => (left[i] ?? 0) - (right[i] ?? 0)).find((d) => d !== 0);
-  return diff ?? 0;
-}
-
 function isNewer(
   latest: { versionId: string; versionName: string },
   current: { versionId: string | null; versionName: string | null },
@@ -112,8 +110,9 @@ export function createMarketService(
   servers: ServerService,
   files: FileService,
 ): MarketService {
-  const providers: Readonly<Record<MarketSource, Provider>> = {
+  const providers: Readonly<Record<ContentSource, Provider>> = {
     modrinth,
+    geysermc,
     hangar,
     spiget,
     curseforge: createCurseForge(() => ctx.settings.curseforgeKey()),
@@ -134,7 +133,7 @@ export function createMarketService(
   };
   const rowsOf = (serverId: string): Row[] =>
     ctx.db.select().from(installedContent).where(eq(installedContent.serverId, serverId)).all();
-  const providerOf = (source: MarketSource): Provider => providers[source];
+  const providerOf = (source: ContentSource): Provider => providers[source];
 
   const plan = async (
     target: Target,
@@ -233,7 +232,7 @@ export function createMarketService(
 
   const installResolved = async (
     serverId: string,
-    source: MarketSource,
+    source: ContentSource,
     root: ResolvedInstall,
     actor: Actor,
   ): Promise<InstallResult> => {
@@ -282,6 +281,7 @@ export function createMarketService(
       hangar: (id) => `https://hangar.papermc.io/${id}`,
       spiget: (id) => `https://www.spigotmc.org/resources/${id}/`,
       curseforge: (id) => `https://www.curseforge.com/projects/${id}`,
+      geysermc: () => 'https://geysermc.org/download',
     };
     return {
       fileName: name,
@@ -395,6 +395,14 @@ export function createMarketService(
         }),
       ),
 
+    installFrom: (serverId, source, projectId, actor) =>
+      withLock(serverId, () =>
+        wrapUpstream(async () => {
+          const root = await providerOf(source).resolve(targetOf(serverId), projectId);
+          return installResolved(serverId, source, root, actor);
+        }),
+      ),
+
     list,
 
     checkUpdates: (serverId) =>
@@ -406,7 +414,7 @@ export function createMarketService(
           const results = await Promise.allSettled(
             rows.map(async (r) => ({
               row: r,
-              latest: await providerOf(r.provider as MarketSource).resolve(target, r.projectId ?? ''),
+              latest: await providerOf(r.provider as ContentSource).resolve(target, r.projectId ?? ''),
             })),
           );
           const found = results.flatMap((res) =>
@@ -433,7 +441,7 @@ export function createMarketService(
         wrapUpstream(async () => {
           const row = rowsOf(serverId).find((r) => r.fileName === baseName(fileName));
           if (!row?.projectId || row.provider === 'upload') throw notFound('not_found');
-          const source = row.provider as MarketSource;
+          const source = row.provider as ContentSource;
           const root = await providerOf(source).resolve(targetOf(serverId), row.projectId);
           if (!isNewer(root, row)) {
             throw new AppError(HTTP_UNPROCESSABLE, 'content_up_to_date');

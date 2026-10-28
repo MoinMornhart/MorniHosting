@@ -24,6 +24,8 @@ export const DOWNLOAD_HOSTS: ReadonlySet<string> = new Set([
   'edge.forgecdn.net',
   'mediafilez.forgecdn.net',
   'media.forgecdn.net',
+  // Only reached through the Geyser one-click (market/geysermc.ts), always with a sha256.
+  'download.geysermc.org',
 ]);
 
 const MAX_REDIRECTS = 5;

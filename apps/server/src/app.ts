@@ -38,6 +38,8 @@ import { registerFileRoutes } from './files/routes.js';
 import { createFileService } from './files/service.js';
 import { registerBackupRoutes } from './backups/routes.js';
 import { createBackupService } from './backups/service.js';
+import { registerGeyserRoutes } from './geyser/routes.js';
+import { createGeyserService } from './geyser/service.js';
 import { registerMarketRoutes } from './market/routes.js';
 import { createMarketService } from './market/service.js';
 import { registerImportRoutes } from './servers/import-routes.js';
@@ -48,6 +50,8 @@ import { createScheduleService } from './schedules/service.js';
 import { registerSettingsRoutes } from './settings/routes.js';
 import { createSettingsService } from './settings/service.js';
 import { sampleHostCpu } from './system/host.js';
+import { registerSystemRoutes } from './system/routes.js';
+import { createUpdateService } from './system/update.js';
 import { createAccessService } from './users/access.js';
 import { registerUserRoutes } from './users/routes.js';
 import { registerWebhookRoutes } from './webhooks/routes.js';
@@ -209,7 +213,9 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerServerRoutes(app, ctx, servers);
   registerImportRoutes(app, ctx, servers);
   registerFileRoutes(app, ctx, servers, files);
-  registerMarketRoutes(app, ctx, servers, createMarketService(ctx, servers, files));
+  const market = createMarketService(ctx, servers, files);
+  registerMarketRoutes(app, ctx, servers, market);
+  registerGeyserRoutes(app, ctx, createGeyserService(ctx, servers, market));
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
   registerWebhookRoutes(app, webhooks);
@@ -217,6 +223,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerTokenRoutes(app, ctx);
   registerAuditRoutes(app, ctx);
   registerSettingsRoutes(app, ctx);
+  registerSystemRoutes(app, createUpdateService(ctx));
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));

@@ -1,4 +1,5 @@
-import { lazy, Suspense, type ReactElement } from 'react';
+import { Suspense, type ReactElement } from 'react';
+import { lazyPage } from '@/lib/lazy-page';
 import { Skeleton } from '@/components/ui/misc';
 import { useServer } from './ServerLayout';
 import { ConnectionCard } from './overview/ConnectionCard';
@@ -8,7 +9,7 @@ import { KpiStrip } from './overview/KpiStrip';
 import { PlayersCard } from './overview/PlayersCard';
 import { StatusBanner } from './overview/StatusBanner';
 
-const StatsChart = lazy(() => import('./overview/StatsChart'));
+const StatsChart = lazyPage(() => import('./overview/StatsChart'));
 
 export function OverviewTab(): ReactElement {
   const { server, can } = useServer();

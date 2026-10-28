@@ -27,7 +27,9 @@
 - Phase 4 fertig: Marktplatz (`apps/server/src/market/`): Modrinth, Hangar, Spiget, CurseForge (Schlüssel in den Panel-Einstellungen). Downloads nur über HTTPS von erlaubten Hosts (`market/download.ts`, jede Weiterleitung geprüft), Prüfsumme wenn vorhanden, Größenlimit. Abhängigkeiten automatisch, gleiches Plugin aus zwei Quellen wird abgelehnt. Updates nur bei wirklich neuerer Version; unbekannte .jar werden per sha1 bei Modrinth erkannt. An/Aus = `.jar.disabled`. 105 Tests.
 - Phase 5 fertig: Backups (`apps/server/src/backups/`, ZIP unter `data/backups/<id>/`, vorher `save-off`/`save-all flush`, Retention, Wiederherstellen legt ein Sicherheits-Backup an), Zeitpläne (`schedules/`, croner nur für die nächste Zeit, eigener Timer mit Vorwarnung im Chat), Webhooks (`webhooks/`, URL verschlüsselt, Host passend zum Dienst, `lib/net-guard.ts` blockt private Adressen). Fehler behoben: Beim Neustart wurde das Ende des alten Containers als Absturz des neuen gewertet. 126 Tests.
 - Phase 6 fertig: Benutzer/Rollen/Zugriff (`users/routes.ts`, letzter Admin geschützt, Sperren beendet Sitzungen), API-Schlüssel (`auth/token-routes.ts`, nur Hash gespeichert, Schlüssel kann keine Schlüssel erzeugen), Protokoll (`audit/routes.ts`, Texte unter `audit.actions.*`), Panel-Einstellungen (`settings/routes.ts`), Konto mit 2FA (Seiten in `apps/web/src/features/admin/`). 132 Tests.
-- Phase 7 läuft: Geyser/Floodgate, Update-Funktion, Proxmox-Skripte, GitHub Actions, Playwright, README.
+- Phase 7 fertig: Geyser/Floodgate (`geyser/`, Geyser von Modrinth, Floodgate für Paper/Velocity von download.geysermc.org mit sha256, UDP-Port ab 19132), TPS im Verlauf, Update-Funktion (`system/update.ts`: GitHub-Release prüfen; Knopf legt `data/update/request.json` an, systemd-Path-Unit aus `install.sh` startet `update.sh`; Builds ohne Release-Version („dev“, Commit) nehmen jedes Release), Rettungsbefehle `node /app/server/dist/cli.js list-users|reset-password|reset-2fa`, `install.sh`, `update.sh`, `proxmox/mornihosting.sh`, `docs/proxmox-quickstart.md`, `.github/workflows/ci.yml` (Lint, Format, Typen, Vitest, Build, Playwright; Image nach GHCR bei `v*`-Tags, amd64+arm64), Playwright (`e2e/`, Port 8199, Fake-Driver), README mit Bildern (`docs/screenshots/`) und FAQ, LICENSE (MIT). 139 Tests + 3 Playwright-Abläufe.
+- Mit echtem Docker getestet: Erststart wie `install.sh`, Updater-Teil (agent.json → `canSelfUpdate`), `update.sh` tauscht den Panel-Container, Status „done“, Rettungsbefehl im Container. Nicht getestet: Proxmox-Skript auf echtem Proxmox-Host, systemd-Path-Unit (Sandbox ohne systemd).
+- Fehler behoben: Volume heißt `mornihosting-data` (nicht `mornihosting_mornihosting-data`) – `install.sh` wäre sonst beim Updater abgebrochen.
 
 ## Lokal testen (Sandbox)
 
@@ -37,5 +39,6 @@
 
 ## Nächste Schritte
 
-1. Phase 7: Geyser/Floodgate mit einem Klick, Update-Funktion (`/api/system/update`, Host-Updater), Proxmox-Skripte und Anleitung, GitHub Actions (Lint, Tests, GHCR), Playwright-Abläufe, README mit FAQ
-2. Merken: nach Updates alte Browser-Chunks abfangen (Seite neu laden, wenn ein Lazy-Import fehlschlägt)
+1. Branch `claude/gallant-clarke-bipv7b` nach `main` übernehmen – die Einzeiler (Proxmox, install.sh) laden von `main`.
+2. Erste Version taggen (`v1.0.0`); danach das GHCR-Paket `mornihosting` auf „Public“ stellen, sonst baut `install.sh` das Image selbst.
+3. Proxmox-Skript einmal auf einem echten Proxmox-Host laufen lassen.

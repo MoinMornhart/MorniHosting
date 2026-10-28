@@ -222,7 +222,9 @@
     "portForwardSteps": "1. Öffne die Oberfläche deines Routers (bei der FRITZ!Box: fritz.box).\n2. Suche „Portfreigabe“ (FRITZ!Box: Internet → Freigaben).\n3. Lege eine Freigabe für dieses Gerät an: {{protocol}}, Port {{port}}, Ziel {{lanIp}}.\n4. Speichern und hier „Erneut prüfen“ klicken.",
     "playit": "Tunnel mit playit.gg",
     "playitText": "Kein Zugriff auf den Router? playit.gg macht deinen Server ohne Portfreigabe erreichbar.",
-    "lanUnknown": "die IP dieses Geräts"
+    "lanUnknown": "die IP dieses Geräts",
+    "bedrock": "Bedrock (Handy, Konsole):",
+    "bedrockPort": "Port"
   },
   "stats": {
     "players": "Spieler",
@@ -445,7 +447,7 @@
     "update_unavailable": "Die Update-Prüfung ist gerade nicht möglich.",
     "self_update_unavailable": "Das automatische Update ist auf diesem System nicht eingerichtet.",
     "world_not_found": "Diese Welt gibt es nicht.",
-    "geyser_java_only": "Geyser gibt es nur für Java-Server mit Plugins.",
+    "geyser_java_only": "Bedrock-Server brauchen das nicht: Bedrock-Spieler können direkt beitreten.",
     "bedrock_port_taken": "Port 19132 (UDP) ist schon belegt.",
     "icon_not_png": "Das Bild konnte nicht gelesen werden.",
     "icon_wrong_size": "Das Server-Bild muss 64 × 64 Pixel groß sein.",
@@ -463,7 +465,8 @@
     "backup_failed": "Das Sicherheits-Backup hat nicht geklappt, darum wurde nichts wiederhergestellt.",
     "webhook_unresolvable": "Die Adresse {{host}} wurde nicht gefunden.",
     "cannot_disable_self": "Du kannst dich nicht selbst sperren.",
-    "session_required": "Neue API-Schlüssel kannst du nur angemeldet im Panel erstellen."
+    "session_required": "Neue API-Schlüssel kannst du nur angemeldet im Panel erstellen.",
+    "geyser_unsupported": "Für diese Server-Software gibt es Geyser leider nicht. Es geht mit Paper, Purpur, Fabric, NeoForge und Velocity."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -471,7 +474,13 @@
     "now": "Jetzt aktualisieren",
     "running": "Update läuft …",
     "started": "Update gestartet. Das Panel ist gleich wieder da.",
-    "howTo": "So aktualisierst du"
+    "howTo": "So aktualisierst du",
+    "title": "Updates",
+    "upToDate": "Aktuell",
+    "current": "Installiert: Version {{version}}",
+    "checked": "geprüft {{when}}",
+    "manual": "Der Updater auf dem Host ist nicht eingerichtet. Aktualisiere dort mit einem dieser Befehle (Proxmox-Container bzw. eigener Server):",
+    "releaseNotes": "Was ist neu?"
   },
   "players": {
     "online": "Gerade online",
@@ -589,7 +598,8 @@
       "game": "Spiel-Einstellungen",
       "worlds": "Welten",
       "icon": "Server-Bild",
-      "danger": "Gefahrenzone"
+      "danger": "Gefahrenzone",
+      "bedrock": "Bedrock-Spieler"
     },
     "restartToApply": "Gilt nach einem Neustart.",
     "general": {
@@ -1332,7 +1342,12 @@
       "whitelist_off": "Whitelist ausgeschaltet",
       "schedule_enable": "Zeitplan eingeschaltet",
       "schedule_disable": "Zeitplan ausgeschaltet",
-      "setup_complete": "Panel eingerichtet"
+      "setup_complete": "Panel eingerichtet",
+      "geyser_enable": "Bedrock-Zugang eingeschaltet",
+      "geyser_disable": "Bedrock-Zugang ausgeschaltet",
+      "panel_update": "Panel-Update gestartet",
+      "account_password_reset": "Passwort auf dem Host zurückgesetzt",
+      "account_two_factor_reset": "2FA auf dem Host ausgeschaltet"
     }
   },
   "account": {
@@ -1359,5 +1374,15 @@
     "disable2fa": "Ausschalten",
     "twoFactorOn": "2FA ist eingeschaltet",
     "twoFactorOff": "2FA ist ausgeschaltet"
+  },
+  "geyser": {
+    "title": "Bedrock-Spieler erlauben",
+    "text": "Mit Geyser und Floodgate können Freunde auf Handy, Tablet, Konsole oder der Windows-Version von Minecraft deinem Java-Server beitreten, ohne Java-Konto. Wir installieren beides und öffnen einen eigenen Port.",
+    "installing": "Geyser und Floodgate werden installiert …",
+    "on": "An",
+    "enabled": "Bedrock-Spieler können jetzt über Port {{port}} beitreten",
+    "disabled": "Bedrock-Zugang ist aus",
+    "portInfo": "Bedrock-Spieler verbinden sich mit derselben Adresse und Port {{port}}.",
+    "routerHint": "Für Freunde außerhalb deines WLANs musst du diesen Port im Router für UDP freigeben."
   }
 }

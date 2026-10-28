@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Save } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 import { toast } from 'sonner';
 import { LOCALES, type Locale, type PanelSettings } from '@mornihosting/shared';
 import { EmptyState, PageHeader } from '@/components/page';
@@ -15,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
 import { useSession } from '@/features/auth/session';
+import { UpdateSection } from './UpdateSection';
 
 const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = { de: 'Deutsch', en: 'English' };
 
@@ -55,6 +57,12 @@ export function PanelSettingsPage(): ReactElement {
   useEffect(() => {
     if (data) setDraft(data);
   }, [data]);
+  const { hash } = useLocation();
+  const loaded = draft !== null;
+  useEffect(() => {
+    if (hash && loaded)
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [hash, loaded]);
   const zones = useMemo(() => Intl.supportedValuesOf('timeZone'), []);
   const save = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
@@ -204,6 +212,7 @@ export function PanelSettingsPage(): ReactElement {
           {t('common.save')}
         </Button>
       </div>
+      <UpdateSection />
     </form>
   );
 }

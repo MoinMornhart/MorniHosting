@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T01:29:00+01:00",
-  "now": "Phase 6 ist fertig: Benutzer mit Rollen pro Server, eigene Rollen, API-Schlüssel mit Doku, Protokoll, Panel-Einstellungen und Konto mit 2FA. Weiter mit Phase 7: Geyser, Update-Funktion, Proxmox-Skript, CI, README.",
+  "updated": "2026-10-28T02:15:00+01:00",
+  "now": "Alle 7 Phasen sind fertig. MorniHosting ist bereit zum Ausprobieren: Proxmox-Einzeiler, Update per Knopf, Geyser mit einem Klick, README mit Anleitung und FAQ. Als Nächstes: auf main übernehmen und die erste Version (v1.0.0) veröffentlichen.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -167,19 +167,29 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 7 · Feinschliff",
-      "status": "laeuft",
-      "detail": "Geyser, Statistiken, Update-Funktion, Proxmox-Guide, README, CI."
+      "status": "fertig",
+      "detail": "Geyser/Floodgate mit einem Schalter (eigener UDP-Port), TPS in der Statistik, Update-Funktion (Panel prüft GitHub, Knopf startet den Host-Updater, Minecraft-Server laufen weiter; mit echtem Docker getestet), Rettungsbefehle für vergessenes Passwort und verlorene 2FA, Proxmox-Einzeiler, install.sh, update.sh, GitHub Actions (Lint, Typen, Tests, Playwright, Image nach GHCR bei Tags), 3 Playwright-Abläufe, README mit FAQ. 139 Tests."
     }
   ],
   "shots": [
     {
-      "img": "progress/p6-users.webp",
-      "caption": "Phase 6 · Benutzer mit ihren Rollen pro Server",
-      "time": "2026-10-28T01:29:00+01:00"
+      "img": "progress/p7-geyser.webp",
+      "caption": "Phase 7 · Bedrock-Spieler erlauben: Geyser und Floodgate mit einem Schalter",
+      "time": "2026-10-28T02:15:00+01:00"
     },
     {
-      "img": "progress/p6-access.webp",
-      "caption": "Phase 6 · Zugriff vergeben: pro Server eine Rolle",
+      "img": "progress/p7-update.webp",
+      "caption": "Phase 7 · Neue Version? Ein Klick, die Minecraft-Server laufen weiter (Beispiel)",
+      "time": "2026-10-28T02:15:00+01:00"
+    },
+    {
+      "img": "progress/p7-stats.webp",
+      "caption": "Phase 7 · Verlauf über 24 Stunden: CPU, RAM, TPS und Spieler",
+      "time": "2026-10-28T02:15:00+01:00"
+    },
+    {
+      "img": "progress/p6-users.webp",
+      "caption": "Phase 6 · Benutzer mit ihren Rollen pro Server",
       "time": "2026-10-28T01:29:00+01:00"
     },
     {
@@ -203,11 +213,6 @@ footer { color: var(--muted); font-size: 13px; }
       "time": "2026-10-28T01:18:00+01:00"
     },
     {
-      "img": "progress/p5-schedule-dialog.webp",
-      "caption": "Phase 5 · Zeitplan anlegen: was, wann, Spieler vorwarnen",
-      "time": "2026-10-28T01:18:00+01:00"
-    },
-    {
       "img": "progress/p5-webhook-dialog.webp",
       "caption": "Phase 5 · Benachrichtigungen an Discord, Slack oder Teams",
       "time": "2026-10-28T01:18:00+01:00"
@@ -223,11 +228,6 @@ footer { color: var(--muted); font-size: 13px; }
       "time": "2026-10-28T01:02:00+01:00"
     },
     {
-      "img": "progress/p4-versions.webp",
-      "caption": "Phase 4 · Versionen eines Plugins, die passende ist vorausgewählt",
-      "time": "2026-10-28T01:02:00+01:00"
-    },
-    {
       "img": "progress/p3-files.webp",
       "caption": "Phase 3 · Datei-Manager mit Ordnerbaum, Upload per Drag & Drop und Papierkorb",
       "time": "2026-10-28T00:45:00+01:00"
@@ -236,19 +236,27 @@ footer { color: var(--muted); font-size: 13px; }
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/users/routes.ts (Benutzer, Rollen, Zugriff)"
+      "path": "apps/server/src/geyser/, market/geysermc.ts (Geyser mit einem Klick)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/auth/token-routes.ts, audit/routes.ts, settings/routes.ts"
+      "path": "apps/server/src/system/update.ts, routes.ts (Update-Funktion)"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/admin/ (Benutzer, API, Einstellungen, Protokoll, Konto)"
+      "path": "apps/server/src/admin-cli.ts, cli.ts (Passwort/2FA zurücksetzen)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/test/users.test.ts"
+      "path": "install.sh, update.sh, proxmox/mornihosting.sh, docs/proxmox-quickstart.md"
+    },
+    {
+      "tag": "neu",
+      "path": ".github/workflows/ci.yml, playwright.config.ts, e2e/"
+    },
+    {
+      "tag": "neu",
+      "path": "README.md, LICENSE, docs/screenshots/"
     }
   ]
 }

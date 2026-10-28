@@ -15,17 +15,19 @@ const RANGE_LABEL: Readonly<Record<Range, string>> = {
   '24h': 'stats.last24h',
   '7d': 'stats.last7d',
 };
-const METRICS = ['cpu', 'mem', 'players'] as const;
+const METRICS = ['cpu', 'mem', 'tps', 'players'] as const;
 type Metric = (typeof METRICS)[number];
 const METRIC_LABEL: Readonly<Record<Metric, string>> = {
   cpu: 'stats.cpu',
   mem: 'stats.memory',
+  tps: 'stats.tps',
   players: 'stats.players',
 };
 const REFRESH_MS = 60000;
 const CHART_HEIGHT = 200;
 const MB_PER_GB = 1024;
 const ONE_DECIMAL = 1;
+const DECIMAL_METRICS: ReadonlySet<Metric> = new Set(['mem', 'tps']);
 const DAY_RANGE: Range = '7d';
 const AXIS_FONT = 11;
 const TOOLTIP_FONT = 12;
@@ -56,7 +58,10 @@ export default function StatsChart({ serverId }: { serverId: string }): ReactEle
     t: p.t,
     value: metric === 'mem' && p.mem !== null ? p.mem / MB_PER_GB : p[metric],
   }));
-  const unit: Readonly<Record<Metric, string>> = { cpu: '%', mem: 'GB', players: '' };
+  const unit: Readonly<Record<Metric, string>> = { cpu: '%', mem: 'GB', tps: '', players: '' };
+  // Bedrock servers have no TPS command, so the button only shows when there are TPS values.
+  const metrics = METRICS.filter((m) => m !== 'tps' || data.some((p) => p.tps !== null));
+  const decimals = DECIMAL_METRICS.has(metric) ? ONE_DECIMAL : 0;
   const tickFormat = (iso: string): string =>
     range === DAY_RANGE ? new Date(iso).toLocaleDateString(undefined, { weekday: 'short' }) : formatTime(iso);
 
@@ -65,7 +70,7 @@ export default function StatsChart({ serverId }: { serverId: string }): ReactEle
       <CardHeader className="flex-wrap">
         <CardTitle>{t('stats.title')}</CardTitle>
         <div className="flex flex-wrap gap-1.5">
-          {METRICS.map((m) => (
+          {metrics.map((m) => (
             <button
               key={m}
               type="button"
@@ -120,13 +125,14 @@ export default function StatsChart({ serverId }: { serverId: string }): ReactEle
                 axisLine={false}
                 tickLine={false}
                 width={48}
-                allowDecimals={metric === 'mem'}
+                allowDecimals={DECIMAL_METRICS.has(metric)}
+                tickFormatter={(v: number) => formatNumber(v, decimals)}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 labelFormatter={(iso: string) => new Date(iso).toLocaleString()}
                 formatter={(value: number) => [
-                  `${formatNumber(value, metric === 'mem' ? ONE_DECIMAL : 0)} ${unit[metric]}`,
+                  `${formatNumber(value, decimals)} ${unit[metric]}`,
                   t(METRIC_LABEL[metric]),
                 ]}
               />

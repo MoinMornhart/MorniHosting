@@ -222,7 +222,9 @@
     "portForwardSteps": "1. Open your router's web interface (often 192.168.0.1 or 192.168.1.1).\n2. Look for “Port forwarding”.\n3. Add a rule for this device: {{protocol}}, port {{port}}, target {{lanIp}}.\n4. Save and click “Check again” here.",
     "playit": "Tunnel with playit.gg",
     "playitText": "No access to the router? playit.gg makes your server reachable without port forwarding.",
-    "lanUnknown": "this device's IP"
+    "lanUnknown": "this device's IP",
+    "bedrock": "Bedrock (phone, console):",
+    "bedrockPort": "port"
   },
   "stats": {
     "players": "Players",
@@ -445,7 +447,7 @@
     "update_unavailable": "Update check is not possible right now.",
     "self_update_unavailable": "Automatic updates are not set up on this system.",
     "world_not_found": "This world does not exist.",
-    "geyser_java_only": "Geyser is only available for Java servers with plugins.",
+    "geyser_java_only": "Bedrock servers don't need this: Bedrock players can join directly.",
     "bedrock_port_taken": "Port 19132 (UDP) is already in use.",
     "icon_not_png": "The picture could not be read.",
     "icon_wrong_size": "The server picture must be 64 × 64 pixels.",
@@ -463,7 +465,8 @@
     "backup_failed": "The safety backup did not work, so nothing was restored.",
     "webhook_unresolvable": "The address {{host}} was not found.",
     "cannot_disable_self": "You cannot lock yourself.",
-    "session_required": "New API keys can only be created while signed in to the panel."
+    "session_required": "New API keys can only be created while signed in to the panel.",
+    "geyser_unsupported": "Geyser is not available for this server software. It works with Paper, Purpur, Fabric, NeoForge and Velocity."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -471,7 +474,13 @@
     "now": "Update now",
     "running": "Updating …",
     "started": "Update started. The panel will be back in a moment.",
-    "howTo": "How to update"
+    "howTo": "How to update",
+    "title": "Updates",
+    "upToDate": "Up to date",
+    "current": "Installed: version {{version}}",
+    "checked": "checked {{when}}",
+    "manual": "The host updater is not set up. Update on the host with one of these commands (Proxmox container or your own server):",
+    "releaseNotes": "What's new?"
   },
   "players": {
     "online": "Online now",
@@ -589,7 +598,8 @@
       "game": "Game settings",
       "worlds": "Worlds",
       "icon": "Server picture",
-      "danger": "Danger zone"
+      "danger": "Danger zone",
+      "bedrock": "Bedrock players"
     },
     "restartToApply": "Applies after a restart.",
     "general": {
@@ -1332,7 +1342,12 @@
       "whitelist_off": "Whitelist switched off",
       "schedule_enable": "Schedule switched on",
       "schedule_disable": "Schedule switched off",
-      "setup_complete": "Panel set up"
+      "setup_complete": "Panel set up",
+      "geyser_enable": "Bedrock access switched on",
+      "geyser_disable": "Bedrock access switched off",
+      "panel_update": "Panel update started",
+      "account_password_reset": "Password reset on the host",
+      "account_two_factor_reset": "2FA turned off on the host"
     }
   },
   "account": {
@@ -1359,5 +1374,15 @@
     "disable2fa": "Switch off",
     "twoFactorOn": "2FA is on",
     "twoFactorOff": "2FA is off"
+  },
+  "geyser": {
+    "title": "Allow Bedrock players",
+    "text": "With Geyser and Floodgate, friends on phones, tablets, consoles or the Windows version of Minecraft can join your Java server without a Java account. We install both and open a separate port.",
+    "installing": "Installing Geyser and Floodgate …",
+    "on": "On",
+    "enabled": "Bedrock players can now join on port {{port}}",
+    "disabled": "Bedrock access is off",
+    "portInfo": "Bedrock players connect with the same address and port {{port}}.",
+    "routerHint": "For friends outside your Wi-Fi, open this port for UDP in your router."
   }
 }

@@ -1,6 +1,7 @@
-import { lazy, Suspense, type ReactElement } from 'react';
+import { Suspense, type ReactElement } from 'react';
 import type { RouteObject } from 'react-router';
 import { Skeleton } from '@/components/ui/misc';
+import { lazyPage } from '@/lib/lazy-page';
 import { AccountPage } from '@/features/admin/AccountPage';
 import { ApiAccessPage } from '@/features/admin/ApiAccessPage';
 import { AuditPage } from '@/features/admin/AuditPage';
@@ -12,13 +13,13 @@ import { ImportServerPage } from '@/features/servers/create/ImportServerPage';
 import { OverviewTab } from '@/features/servers/OverviewTab';
 import { ServerLayout } from '@/features/servers/ServerLayout';
 
-const ConsoleTab = lazy(() => import('@/features/servers/ConsoleTab'));
-const ContentTab = lazy(() => import('@/features/servers/content/ContentTab'));
-const BackupsTab = lazy(() => import('@/features/servers/backups/BackupsTab'));
-const SchedulesTab = lazy(() => import('@/features/servers/schedules/SchedulesTab'));
-const FilesTab = lazy(() => import('@/features/servers/files/FilesTab'));
-const PlayersTab = lazy(() => import('@/features/servers/players/PlayersTab'));
-const SettingsTab = lazy(() => import('@/features/servers/settings/SettingsTab'));
+const ConsoleTab = lazyPage(() => import('@/features/servers/ConsoleTab'));
+const ContentTab = lazyPage(() => import('@/features/servers/content/ContentTab'));
+const BackupsTab = lazyPage(() => import('@/features/servers/backups/BackupsTab'));
+const SchedulesTab = lazyPage(() => import('@/features/servers/schedules/SchedulesTab'));
+const FilesTab = lazyPage(() => import('@/features/servers/files/FilesTab'));
+const PlayersTab = lazyPage(() => import('@/features/servers/players/PlayersTab'));
+const SettingsTab = lazyPage(() => import('@/features/servers/settings/SettingsTab'));
 
 function Lazy({ children }: { children: ReactElement }): ReactElement {
   return <Suspense fallback={<Skeleton className="h-96 rounded-[16px]" />}>{children}</Suspense>;

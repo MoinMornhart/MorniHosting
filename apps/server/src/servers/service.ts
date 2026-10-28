@@ -64,6 +64,8 @@ export interface ServerService {
   readonly isRunning: (id: string) => boolean;
   readonly setExtraPorts: (id: string, ports: ServerRow['extraPorts']) => void;
   readonly setGeyser: (id: string, enabled: boolean) => void;
+  /** The first port from `start` upwards that no other server uses. */
+  readonly freePort: (start: number, protocol: 'tcp' | 'udp', exceptId: string) => number;
   readonly newId: () => string;
 }
 
@@ -84,6 +86,8 @@ interface Runtime {
 }
 
 const LOG_BUFFER_LINES = 1000;
+/** How many ports above the wanted one are tried when looking for a free one. */
+const PORT_SEARCH_LIMIT = 100;
 const ATTACH_TAIL_LINES = 300;
 const STATS_INTERVAL_SECONDS = 10;
 const TPS_EVERY_TICKS = 3;
@@ -550,6 +554,7 @@ export function createServerService(ctx: AppContext): ServerService {
         domain: r.domain,
         image: r.image,
         geyser: r.geyser,
+        geyserPort: r.geyser ? (r.extraPorts.find((p) => p.purpose === 'geyser')?.port ?? null) : null,
         permissions: ctx.access.permissionsFor(user, id),
       };
     },
@@ -728,6 +733,19 @@ export function createServerService(ctx: AppContext): ServerService {
     isRunning: (id) => ACTIVE_STATES.includes(rt(id).state),
     setExtraPorts: (id, ports) => {
       db.update(servers).set({ extraPorts: ports }).where(eq(servers.id, id)).run();
+    },
+    freePort: (start, protocol, exceptId) => {
+      const isFree = (port: number): boolean => {
+        try {
+          assertPortFree(port, protocol, exceptId);
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      const found = Array.from({ length: PORT_SEARCH_LIMIT }, (_, i) => start + i).find(isFree);
+      if (found === undefined) throw conflict('port_taken', { port: start, server: '' });
+      return found;
     },
     setGeyser: (id, enabled) => {
       db.update(servers).set({ geyser: enabled }).where(eq(servers.id, id)).run();

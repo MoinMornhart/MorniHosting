@@ -6,6 +6,7 @@ import {
   ExternalLink,
   Link2,
   RefreshCw,
+  Smartphone,
   TriangleAlert,
 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
@@ -105,10 +106,20 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
               {t('connection.noPublicAddress')}
             </span>
             <Button asChild variant="secondary" size="sm">
-              <Link to="settings#domain">{t('connection.setAddress')}</Link>
+              <Link to="settings#s-domain">{t('connection.setAddress')}</Link>
             </Button>
           </div>
         )}
+        {server.geyser && server.geyserPort && host ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px]">
+            <Smartphone className="size-4 text-primary" aria-hidden />
+            <span className="text-muted-foreground">{t('connection.bedrock')}</span>
+            <span className="font-mono font-semibold">{host}</span>
+            <span className="text-muted-foreground">{t('connection.bedrockPort')}</span>
+            <span className="font-mono font-semibold">{server.geyserPort}</span>
+            <CopyButton text={host} className="size-7" toastText={t('card.addressCopied')} />
+          </div>
+        ) : null}
       </div>
       <div className="grid border-t border-border sm:grid-cols-3 sm:divide-x [&>*+*]:border-t sm:[&>*+*]:border-t-0">
         {rows.map((row) => (

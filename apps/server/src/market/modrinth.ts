@@ -3,6 +3,7 @@ import type { MarketSort, MarketVersion } from '@mornihosting/shared';
 import { notFound } from '../lib/errors.js';
 import { fetchJson } from '../lib/http-client.js';
 import {
+  checksGameVersion,
   compatibility,
   PAGE_SIZE,
   type FileToDownload,
@@ -81,7 +82,7 @@ function projectUrl(type: string, slug: string): string {
 
 function fits(target: Target, version: Pick<ModrinthVersion, 'loaders' | 'game_versions'>): boolean {
   return (
-    version.game_versions.includes(target.version) &&
+    (!checksGameVersion(target) || version.game_versions.includes(target.version)) &&
     version.loaders.some((l) => target.software.modrinthLoaders.includes(l))
   );
 }
@@ -100,7 +101,7 @@ async function fetchVersions(
   const params = onlyCompatible
     ? `?${query({
         loaders: JSON.stringify(target.software.modrinthLoaders),
-        game_versions: JSON.stringify([target.version]),
+        ...(checksGameVersion(target) ? { game_versions: JSON.stringify([target.version]) } : {}),
       })}`
     : '';
   return z
@@ -114,7 +115,7 @@ export const modrinth: Provider = {
     const facets = [
       [`project_type:${projectType}`],
       target.software.modrinthLoaders.map((l) => `categories:${l}`),
-      ...(q.compatibleOnly ? [[`versions:${target.version}`]] : []),
+      ...(q.compatibleOnly && checksGameVersion(target) ? [[`versions:${target.version}`]] : []),
       ...(projectType === 'mod' ? [['server_side:required', 'server_side:optional']] : []),
     ];
     const data = searchSchema.parse(
@@ -141,7 +142,7 @@ export const modrinth: Provider = {
         updatedAt: h.date_modified ?? null,
         url: projectUrl(h.project_type, h.slug),
         compatible: compatibility(
-          h.versions.includes(target.version) &&
+          (!checksGameVersion(target) || h.versions.includes(target.version)) &&
             h.categories.some((c) => target.software.modrinthLoaders.includes(c)),
         ),
         installable: true,
