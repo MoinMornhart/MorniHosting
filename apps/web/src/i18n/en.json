@@ -231,7 +231,8 @@
     "bedrockPort": "port",
     "voiceChat": "Voice chat:",
     "voicePort": "UDP port {{port}}",
-    "netbirdError": "NetBird could not set up the address: {{reason}}"
+    "netbirdError": "NetBird could not set up the address: {{reason}}",
+    "atHome": "You are on the same home network right now – join from here with this address:"
   },
   "stats": {
     "players": "Players",

@@ -17,6 +17,7 @@ import type { Api, AppContext } from '../context.js';
 import { stats } from '../db/schema.js';
 import { forbidden, notFound } from '../lib/errors.js';
 import { HTTP_ACCEPTED, HTTP_NO_CONTENT } from '../lib/http-status.js';
+import { isHomeNetworkAddress } from '../lib/net-guard.js';
 import { MS_PER_DAY, MS_PER_HOUR, MS_PER_MINUTE } from '../lib/units.js';
 import { hostInfo } from '../system/host.js';
 import { checkReachability, connectionInfo } from './connectivity.js';
@@ -125,7 +126,11 @@ export function registerServerRoutes(app: Api, ctx: AppContext, servers: ServerS
   app.get('/api/servers/:id/connection', { schema: { params: idParams } }, async (request) => {
     const auth = requireAuth(request);
     access.assertAny(auth.user, request.params.id);
-    return connectionInfo(servers.row(request.params.id), ctx.settings);
+    // Friends outside need the public address; someone at home only gets in through the LAN address.
+    return {
+      ...(await connectionInfo(servers.row(request.params.id), ctx.settings)),
+      viewerAtHome: isHomeNetworkAddress(request.ip),
+    };
   });
 
   app.post(

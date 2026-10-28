@@ -29,6 +29,16 @@ const BLOCKED_V6: readonly (readonly [string, number])[] = [
   ['ff00::', 8],
   ['64:ff9b::', 96],
 ];
+/** Home networks (routers hand these out); not CGNAT or VPNs such as NetBird (100.64.0.0/10). */
+const HOME_V4: readonly (readonly [string, number])[] = [
+  ['10.0.0.0', 8],
+  ['172.16.0.0', 12],
+  ['192.168.0.0', 16],
+];
+const HOME_V6: readonly (readonly [string, number])[] = [
+  ['fc00::', 7],
+  ['fe80::', 10],
+];
 /* eslint-enable ts-patterns/no-magic-numbers */
 
 const blockList = new net.BlockList();
@@ -47,6 +57,18 @@ export function isPrivateAddress(address: string): boolean {
   }
   if (!net.isIP(lower)) return true;
   return blockList.check(lower, net.isIPv4(lower) ? 'ipv4' : 'ipv6');
+}
+
+const homeList = new net.BlockList();
+HOME_V4.forEach(([address, prefix]) => homeList.addSubnet(address, prefix, 'ipv4'));
+HOME_V6.forEach(([address, prefix]) => homeList.addSubnet(address, prefix, 'ipv6'));
+
+/** True for a visitor from the same home network, e.g. "192.168.178.20" or "::ffff:10.0.0.5". */
+export function isHomeNetworkAddress(address: string): boolean {
+  const lower = address.toLowerCase();
+  const v4 = lower.startsWith(IPV4_MAPPED) ? lower.slice(IPV4_MAPPED.length) : lower;
+  if (net.isIPv4(v4)) return homeList.check(v4, 'ipv4');
+  return net.isIPv6(lower) && homeList.check(lower, 'ipv6');
 }
 
 export type Resolver = (hostname: string) => Promise<readonly string[]>;
