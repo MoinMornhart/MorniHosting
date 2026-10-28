@@ -402,7 +402,7 @@
     "no_pending_login": "Die Anmeldung ist abgelaufen. Bitte melde dich erneut an.",
     "rate_limited": "Zu viele Versuche. Warte eine Minute und versuche es dann erneut.",
     "csrf": "Die Sitzung ist abgelaufen. Lade die Seite neu.",
-    "bad_origin": "Anfrage von einer fremden Seite abgelehnt.",
+    "bad_origin": "Anfrage von einer fremden Seite abgelehnt. Läuft das Panel hinter NetBird oder einem anderen Proxy, schalte dort „Pass Host Header“ ein.",
     "forbidden": "Dafür fehlen dir die Rechte.",
     "admin_only": "Das darf nur ein Administrator.",
     "owner_only": "Das darf nur der Besitzer des Servers.",
@@ -1430,7 +1430,8 @@
     "removeText": "Mit „{{name}}“ kannst du dich danach nicht mehr anmelden. Dein Passwort bleibt gültig.",
     "removeConfirm": "Entfernen",
     "needsHttps": "Passkeys gehen nur, wenn das Panel über HTTPS mit einer Domain läuft (z. B. https://panel.deine-domain.de). Die Domain trägt ein Admin im Admin-Bereich ein.",
-    "wrongHost": "Passkeys gehören zu {{domain}}. Öffne das Panel über https://{{domain}}, um sie hinzuzufügen oder zu benutzen."
+    "wrongHost": "Passkeys gehören zu {{domain}}. Öffne das Panel über https://{{domain}}, um sie hinzuzufügen oder zu benutzen.",
+    "proxyHint": "Passkeys sind gerade aus: Das Panel sieht nicht, dass du über {{host}} hier bist. Trag die Adresse im Admin-Bereich unter „Domain“ ein und schalte bei NetBird (oder deinem Proxy) „Pass Host Header“ ein."
   },
   "admin": {
     "title": "Admin-Bereich",

@@ -5,12 +5,24 @@ import {
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/browser';
-import type { LoginResponse, PasskeyEntry } from '@mornihosting/shared';
+import type { LoginResponse, PasskeyEntry, SystemStatus } from '@mornihosting/shared';
 import { api } from '@/lib/api';
+
+const HTTPS = 'https:';
 
 /** Passkeys need WebAuthn and a secure page (HTTPS or localhost). */
 export function passkeysInBrowser(): boolean {
   return window.isSecureContext && browserSupportsWebAuthn();
+}
+
+/**
+ * The page is open over HTTPS on its domain, but the panel cannot see that address: a proxy (e.g. NetBird
+ * without "Pass Host Header") hands on its own target address instead, so passkeys stay off.
+ */
+export function proxyHidesAddress(status: SystemStatus): boolean {
+  const onDomain = status.passkeys === 'wrong_host' && status.panelDomain === window.location.hostname;
+  const httpsHidden = status.passkeys === 'needs_https' && window.location.protocol === HTTPS;
+  return onDomain || httpsHidden;
 }
 
 export async function signInWithPasskey(): Promise<LoginResponse> {

@@ -10,7 +10,7 @@ import { Field } from '@/components/ui/label';
 import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { AuthLayout } from './AuthLayout';
-import { passkeysInBrowser, signInWithPasskey } from './passkey';
+import { passkeysInBrowser, proxyHidesAddress, signInWithPasskey } from './passkey';
 import { adoptMe, meQuery, statusQuery } from './session';
 
 export function LoginPage(): ReactElement {
@@ -61,7 +61,8 @@ export function LoginPage(): ReactElement {
   };
   const error = step === 'password' ? (login.error ?? passkey.error) : verify.error;
   const passkeyReady = step === 'password' && status.data?.passkeys === 'ok' && passkeysInBrowser();
-  const passkeyDomain = status.data?.passkeys === 'wrong_host' ? status.data.panelDomain : null;
+  const proxyHint = step === 'password' && status.data ? proxyHidesAddress(status.data) : false;
+  const passkeyDomain = status.data?.passkeys === 'wrong_host' && !proxyHint ? status.data.panelDomain : null;
   const busy = login.isPending || verify.isPending || passkey.isPending;
 
   return (
@@ -147,6 +148,11 @@ export function LoginPage(): ReactElement {
               {passkey.isPending ? t('login.passkeyWaiting') : t('login.passkey')}
             </Button>
           </>
+        ) : null}
+        {proxyHint ? (
+          <p className="text-center text-sm text-muted-foreground">
+            {t('passkeys.proxyHint', { host: window.location.hostname })}
+          </p>
         ) : null}
         {step === 'password' && passkeyDomain ? (
           <p className="text-center text-sm text-muted-foreground">

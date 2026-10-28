@@ -13,7 +13,7 @@ import { Pill } from '@/components/ui/pill';
 import { api } from '@/lib/api';
 import { formatRelative } from '@/lib/format';
 import { statusQuery } from '@/features/auth/session';
-import { addPasskey, deviceName, passkeysInBrowser } from '@/features/auth/passkey';
+import { addPasskey, deviceName, passkeysInBrowser, proxyHidesAddress } from '@/features/auth/passkey';
 
 const PASSKEY_NAME_MAX = 60;
 const passkeysQuery = {
@@ -26,6 +26,7 @@ function useBlocker(): string | null {
   const { t } = useTranslation();
   const { data: status } = useQuery(statusQuery);
   if (!status) return null;
+  if (proxyHidesAddress(status)) return t('passkeys.proxyHint', { host: window.location.hostname });
   if (status.passkeys === 'wrong_host' && status.panelDomain)
     return t('passkeys.wrongHost', { domain: status.panelDomain });
   if (status.passkeys !== 'ok' || !passkeysInBrowser()) return t('passkeys.needsHttps');

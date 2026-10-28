@@ -402,7 +402,7 @@
     "no_pending_login": "The sign-in expired. Please sign in again.",
     "rate_limited": "Too many attempts. Wait a minute and try again.",
     "csrf": "Your session expired. Reload the page.",
-    "bad_origin": "Request from another site rejected.",
+    "bad_origin": "Request from a foreign page rejected. If the panel runs behind NetBird or another proxy, turn on “Pass Host Header” there.",
     "forbidden": "You do not have the rights for this.",
     "admin_only": "Only an administrator can do this.",
     "owner_only": "Only the server's owner can do this.",
@@ -1430,7 +1430,8 @@
     "removeText": "You will no longer be able to sign in with “{{name}}”. Your password stays valid.",
     "removeConfirm": "Remove",
     "needsHttps": "Passkeys only work when the panel runs over HTTPS with a domain (e.g. https://panel.your-domain.com). An admin enters the domain in the admin area.",
-    "wrongHost": "Passkeys belong to {{domain}}. Open the panel at https://{{domain}} to add or use them."
+    "wrongHost": "Passkeys belong to {{domain}}. Open the panel at https://{{domain}} to add or use them.",
+    "proxyHint": "Passkeys are off right now: the panel cannot see that you are here via {{host}}. Enter the address in the admin area under “Domain” and turn on “Pass Host Header” in NetBird (or your proxy)."
   },
   "admin": {
     "title": "Admin area",

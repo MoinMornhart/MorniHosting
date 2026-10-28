@@ -132,7 +132,12 @@ Du hast das Panel über eine andere Adresse geöffnet als die eingetragene. Öff
 <details>
 <summary><b>Anmelden geht, aber Passkeys nicht / „Anfrage von einer fremden Seite abgelehnt“</b></summary>
 
-Meist fehlt **Pass Host Header** beim Panel-Service in NetBird. Einschalten, speichern, Seite neu laden.
+Meist fehlt **Pass Host Header** beim Panel-Service in NetBird. Dann sieht das Panel statt deiner Domain nur die
+interne Adresse, an die NetBird weiterleitet. Anmelden mit Passwort und die Live-Anzeige gehen trotzdem (ab
+der Version vom 28.10.), Passkeys aber nicht – die Anmeldeseite sagt dir das dann auch. Einschalten, speichern,
+Seite neu laden.
+
+Ältere Version im Container? Auf dem Proxmox-Host `pct enter <ID>` und dann `update` eingeben.
 
 </details>
 
