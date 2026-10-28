@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { KeyRound, Plus, Trash2 } from 'lucide-react';
+import { Globe, KeyRound, Plus, Trash2 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -12,8 +12,8 @@ import { Field } from '@/components/ui/label';
 import { Pill } from '@/components/ui/pill';
 import { api } from '@/lib/api';
 import { formatRelative } from '@/lib/format';
-import { statusQuery } from '@/features/auth/session';
-import { addPasskey, deviceName, passkeysInBrowser, proxyHidesAddress } from '@/features/auth/passkey';
+import { statusQuery, useSession } from '@/features/auth/session';
+import { addPasskey, deviceName, panelDomainMissing, passkeysUsable } from '@/features/auth/passkey';
 
 const PASSKEY_NAME_MAX = 60;
 const passkeysQuery = {
@@ -21,16 +21,45 @@ const passkeysQuery = {
   queryFn: () => api<PasskeyEntry[]>('/api/account/passkeys'),
 } as const;
 
+interface Blocker {
+  readonly text: string;
+  /** This HTTPS address only needs to be entered as the panel domain. */
+  readonly adoptable: boolean;
+}
+
 /** Why passkeys cannot be used from this address, in plain words; null when they can. */
-function useBlocker(): string | null {
+function useBlocker(): Blocker | null {
   const { t } = useTranslation();
   const { data: status } = useQuery(statusQuery);
-  if (!status) return null;
-  if (proxyHidesAddress(status)) return t('passkeys.proxyHint', { host: window.location.hostname });
+  if (!status || passkeysUsable(status)) return null;
+  if (panelDomainMissing(status))
+    return { text: t('passkeys.proxyHint', { host: window.location.hostname }), adoptable: true };
   if (status.passkeys === 'wrong_host' && status.panelDomain)
-    return t('passkeys.wrongHost', { domain: status.panelDomain });
-  if (status.passkeys !== 'ok' || !passkeysInBrowser()) return t('passkeys.needsHttps');
-  return null;
+    return { text: t('passkeys.wrongHost', { domain: status.panelDomain }), adoptable: false };
+  return { text: t('passkeys.needsHttps'), adoptable: false };
+}
+
+/** One click for admins: the address this page runs on becomes the panel domain. */
+function AdoptDomainButton(): ReactElement {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const host = window.location.hostname;
+  const adopt = useMutation({
+    mutationFn: () => api('/api/settings', { method: 'PUT', body: { panelDomain: host } }),
+    onSuccess: async () => {
+      toast.success(t('passkeys.domainAdopted', { host }));
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: statusQuery.queryKey }),
+        queryClient.invalidateQueries({ queryKey: ['panel-settings'] }),
+      ]);
+    },
+  });
+  return (
+    <Button type="button" variant="secondary" disabled={adopt.isPending} onClick={() => adopt.mutate()}>
+      <Globe />
+      {t('passkeys.adoptDomain', { host })}
+    </Button>
+  );
 }
 
 /** Sign in with fingerprint, face or device PIN instead of the password. */
@@ -39,6 +68,7 @@ export function PasskeysCard(): ReactElement {
   const queryClient = useQueryClient();
   const { data: passkeys = [] } = useQuery(passkeysQuery);
   const blocker = useBlocker();
+  const { me } = useSession();
   const suggestedName = (): string => {
     const device = deviceName();
     return device ? t('passkeys.defaultName', { device }) : '';
@@ -95,7 +125,14 @@ export function PasskeysCard(): ReactElement {
         </ul>
       ) : null}
       {blocker ? (
-        <p className="rounded-[12px] bg-secondary px-3 py-2.5 text-sm text-muted-foreground">{blocker}</p>
+        <div className="grid gap-3 rounded-[12px] bg-secondary px-3 py-2.5 text-sm">
+          <p className="text-muted-foreground">{blocker.text}</p>
+          {blocker.adoptable && me.user.isAdmin ? (
+            <div>
+              <AdoptDomainButton />
+            </div>
+          ) : null}
+        </div>
       ) : (
         <form
           className="flex flex-wrap items-end gap-3"

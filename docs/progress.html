@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:50:11+00:00",
-  "now": "NetBird-Automatik fertig gebaut und im Browser geprüft – jetzt alle Prüfungen, dann Pull Request",
+  "updated": "2026-10-28T07:56:42+00:00",
+  "now": "NetBird-Automatik ist fertig und in main. Bei dir: Update einspielen und NetBird im Admin-Bereich verbinden.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -197,8 +197,8 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 10 · Server-Adressen automatisch über NetBird",
-      "status": "laeuft",
-      "detail": "Einmal im Admin-Bereich NetBird-API-Schlüssel und deine Domain (z. B. moinmornhart.de) eintragen. Danach gibst du jedem Server nur einen Namen, und das Panel legt in NetBird alles selbst an: minecraft.moinmornhart.de für Java oder Bedrock, dazu Geyser und Voice-Chat. Den Port nach außen vergibt NetBird; das Panel zeigt die fertige Adresse."
+      "status": "fertig",
+      "detail": "Einmal im Admin-Bereich NetBird-API-Schlüssel und deine Domain (z. B. moinmornhart.de) eintragen. Danach gibst du jedem Server nur einen Namen, und das Panel legt in NetBird alles selbst an: minecraft.moinmornhart.de für Java oder Bedrock, dazu Geyser und Voice-Chat. Den Port nach außen vergibt NetBird; das Panel zeigt die fertige Adresse. 165 Tests, im Browser gegen ein nachgebautes NetBird geprüft; mit echtem NetBird noch nicht getestet."
     }
   ],
   "shots": [
@@ -285,37 +285,42 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "README.md, docs/netbird.md, Demo-Website"
     }
   ],
-  "eta": "2026-10-28T08:15:00Z",
+  "eta": null,
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-28T07:20:00Z",
-      "title": "NetBird-Schnittstelle geprüft (Dienste anlegen, Domains, Rechner)"
-    },
-    {
-      "status": "done",
       "until": "2026-10-28T07:34:00Z",
-      "title": "Server-Teil: Verbindung, Dienste pro Server anlegen, ändern, löschen; Panel-Adresse"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-28T07:36:00Z",
-      "title": "Tests mit nachgebautem NetBird (165 grün)"
+      "title": "Server-Teil: Dienste in NetBird pro Server anlegen, ändern, löschen; Panel-Adresse"
     },
     {
       "status": "done",
       "until": "2026-10-28T07:46:00Z",
-      "title": "Oberfläche: Admin-Karte, Name im Assistenten und in den Einstellungen, Adress-Karte (im Browser geprüft)"
+      "title": "Oberfläche: Admin-Karte, Name im Assistenten und in den Einstellungen"
     },
     {
       "status": "done",
       "until": "2026-10-28T07:52:00Z",
-      "title": "Demo-Website, README, docs/netbird.md, Bilder"
+      "title": "Demo-Website, README, docs/netbird.md"
     },
     {
-      "status": "current",
-      "until": "2026-10-28T08:15:00Z",
-      "title": "Alle Prüfungen, Pull Request, nach main übernehmen"
+      "status": "done",
+      "until": "2026-10-28T07:56:00Z",
+      "title": "Alle Prüfungen grün, nach main übernommen"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "Update im Container: pct enter <ID>, dann update"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "NetBird: Team → Service Users → Create Token, dann Admin-Bereich → NetBird → Verbinden"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "Release v1.0.0 auf GitHub: „Draft a new release“ → Tag v1.0.0 → „Publish release“"
     }
   ]
 }

@@ -238,7 +238,7 @@ export function PanelSettingsPage(): ReactElement {
         </Card>
       </form>
 
-      <NetbirdAutomationCard />
+      <NetbirdAutomationCard panelDomain={data?.panelDomain ?? ''} />
       <UpdateSection />
       <PasswordResetCard />
 

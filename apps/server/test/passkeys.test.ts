@@ -163,6 +163,69 @@ describe('passkeys', () => {
     expect(signedIn.json<LoginResponse>().status).toBe('ok');
   });
 
+  test('passkeys work on the panel domain even when NetBird hides it (no "Pass Host Header")', async () => {
+    await t.app.inject({
+      method: 'PUT',
+      url: '/api/settings',
+      headers: { ...BROWSER, ...authHeaders(s) },
+      payload: { panelDomain: 'hosting.moinmornhart.de' },
+    });
+    // What reaches the panel through NetBird: its own target address as Host, the real page as Origin.
+    const viaNetbird = {
+      host: '100.92.14.7:8080',
+      origin: 'https://hosting.moinmornhart.de',
+      'sec-fetch-site': 'same-origin',
+    };
+    const login = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      headers: viaNetbird,
+      payload: { username: 'philip', password: 'supersecret123' },
+    });
+    expect(String(login.headers['set-cookie'])).toContain('Secure');
+    const session = {
+      cookie: String(login.headers['set-cookie']).split(';')[0] ?? '',
+      csrf: login.json<{ me: { csrfToken: string } }>().me.csrfToken,
+    };
+    const headers = { ...viaNetbird, ...authHeaders(session) };
+    const device = createSoftAuthenticator();
+    const options = (
+      await t.app.inject({ method: 'POST', url: '/api/account/passkeys/options', headers })
+    ).json<RegistrationOptions>();
+    expect(options.rp.id).toBe('hosting.moinmornhart.de');
+    const added = await t.app.inject({
+      method: 'POST',
+      url: '/api/account/passkeys',
+      headers,
+      payload: { name: 'Handy', response: device.register(options, viaNetbird.origin) },
+    });
+    expect(added.statusCode).toBe(200);
+    const loginOptions = (
+      await t.app.inject({ method: 'POST', url: '/api/auth/passkey/options', headers: viaNetbird })
+    ).json<LoginOptions>();
+    const signedIn = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/passkey/login',
+      headers: viaNetbird,
+      payload: { response: device.login(loginOptions, viaNetbird.origin) },
+    });
+    expect(signedIn.json<LoginResponse>().status).toBe('ok');
+
+    // Only the panel domain over HTTPS counts: plain HTTP or another site get no passkey ceremony.
+    const fromHttp = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/passkey/options',
+      headers: { host: '100.92.14.7:8080', origin: 'http://hosting.moinmornhart.de' },
+    });
+    expect(fromHttp.statusCode).toBe(403);
+    const fromElsewhere = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/passkey/options',
+      headers: { host: '100.92.14.7:8080', origin: 'https://evil.example', 'sec-fetch-site': 'cross-site' },
+    });
+    expect(fromElsewhere.statusCode).toBe(403);
+  });
+
   test('without the original Host header, pages from the panel domain are still accepted', async () => {
     await t.app.inject({
       method: 'PUT',

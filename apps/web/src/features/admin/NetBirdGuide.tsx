@@ -7,6 +7,7 @@ import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
+import { NetbirdNameInput } from '@/features/netbird/NetbirdNameInput';
 import { toNetbirdName } from '@/features/netbird/netbird';
 import { serverQuery, serversQuery } from '@/features/servers/live';
 
@@ -22,7 +23,7 @@ const LXC_TUN =
 const CNAME_TARGET = 'eu.proxy.netbird.io';
 const DEFAULT_PANEL_PORT = '8080';
 const FALLBACK_BASE = 'mc.deine-domain.de';
-const PANEL_SUB = 'panel';
+const DEFAULT_PANEL_NAME = 'panel';
 const SRV_EXAMPLE = 'survival';
 interface Row {
   readonly key: string;
@@ -111,13 +112,18 @@ export function NetBirdGuide({
   onUsePanelDomain: (domain: string) => void;
 }): ReactElement {
   const { t } = useTranslation();
+  // "hosting.moinmornhart.de" → name "hosting" in front of the NetBird domain "moinmornhart.de".
   const [base, setBase] = useState(() => panelDomain.split('.').slice(1).join('.') || '');
+  const [panelName, setPanelName] = useState(
+    () => (panelDomain.includes('.') && panelDomain.split('.')[0]) || '',
+  );
   const { data: servers = [] } = useQuery(serversQuery);
   const details = useQueries({ queries: servers.map((s) => serverQuery(s.id)) }).map((q) => q.data);
   const domain = base.trim().toLowerCase() || FALLBACK_BASE;
   const panelPort = window.location.port || DEFAULT_PANEL_PORT;
   const target = lanIp || t('netbird.thisMachine');
-  const panelAddress = `${PANEL_SUB}.${domain}`;
+  const panelSub = toNetbirdName(panelName, DEFAULT_PANEL_NAME);
+  const panelAddress = `${panelSub}.${domain}`;
   const rows = rowsFor(servers, details);
   const srvName = `${rows.find((r) => r.mode === 'TCP')?.sub ?? SRV_EXAMPLE}.${domain}`;
   const link = <b className="font-semibold text-foreground" />;
@@ -138,6 +144,15 @@ export function NetBirdGuide({
           placeholder={FALLBACK_BASE}
           autoComplete="off"
           onChange={(e) => setBase(e.target.value)}
+        />
+      </Field>
+      <Field id="nb-panel-name" label={t('netbird.panelName')} hint={t('netbird.panelNameHint')}>
+        <NetbirdNameInput
+          id="nb-panel-name"
+          value={panelName}
+          placeholder={DEFAULT_PANEL_NAME}
+          domain={domain}
+          onChange={setPanelName}
         />
       </Field>
       <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -180,7 +195,7 @@ export function NetBirdGuide({
           </p>
           <ul className="grid gap-1.5 text-[13px]">
             <li>
-              {t('netbird.mode')} <Value>HTTP</Value> · {t('netbird.subdomain')} <Value>{PANEL_SUB}</Value> ·{' '}
+              {t('netbird.mode')} <Value>HTTP</Value> · {t('netbird.subdomain')} <Value>{panelSub}</Value> ·{' '}
               {t('netbird.baseDomain')} <Value>{domain}</Value>
             </li>
             <li>

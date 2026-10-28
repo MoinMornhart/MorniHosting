@@ -2,7 +2,7 @@ import type { FastifyRequest } from 'fastify';
 import type { PasskeySupport } from '@mornihosting/shared';
 import type { AppContext } from '../context.js';
 import { badRequest } from '../lib/errors.js';
-import { onPanelDomain, servedOverHttps } from './hook.js';
+import { onPanelDomain, panelOrigin, servedOverHttps } from './hook.js';
 import { MS_PER_MINUTE } from '../lib/units.js';
 
 /**
@@ -35,6 +35,10 @@ export function passkeySupport(ctx: AppContext, request: FastifyRequest): Passke
 
 /** The domain and origin for a passkey ceremony, or an error the page can explain. */
 export function passkeyScope(ctx: AppContext, request: FastifyRequest): PasskeyScope {
+  // On the panel domain the browser's Origin decides, so a proxy that rewrites Host does not matter.
+  // Safe: the browser signs that origin into the answer, and a passkey only works on its own domain.
+  const viaDomain = panelOrigin(ctx, request);
+  if (viaDomain) return { rpID: viaDomain.hostname, origin: viaDomain.origin };
   const support = passkeySupport(ctx, request);
   if (support !== 'ok') throw badRequest(`passkey_${support}`);
   const origin = request.headers.origin ?? '';
