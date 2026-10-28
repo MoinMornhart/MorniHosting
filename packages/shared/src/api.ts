@@ -9,6 +9,7 @@ import {
   type JavaTag,
   type SoftwareId,
 } from './software.js';
+import type { NetbirdServerInfo } from './netbird.js';
 
 export const LOCALES = ['de', 'en'] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -57,6 +58,19 @@ export const hostnameSchema = z.string().trim().max(DOMAIN_MAX).regex(HOSTNAME_P
 export const playerNameSchema = z.string().trim().regex(PLAYER_PATTERN);
 export const portSchema = z.number().int().min(PORT_MIN).max(PORT_MAX);
 export const memorySchema = z.number().int().min(MEMORY_MIN_MB).max(MEMORY_MAX_MB);
+
+/** Room for the "-bedrock" and "-voice" endings within the 63 characters of a DNS label. */
+const NETBIRD_NAME_MAX = 40;
+// A name in front of the NetBird domain: lowercase letters, digits and inner dashes.
+// Matches "survival", "mc-2"; rejects "-mc", "mc-", "Mein Server" and "mc.alt".
+// https://regex101.com/?flavor=javascript&regex=%5E%5Ba-z0-9%5D(%5Ba-z0-9-%5D*%5Ba-z0-9%5D)%3F%24&flags=gm&testString=survival%0Amc-2%0A-mc%0Amc-%0AMein%20Server%0Amc.alt
+const NETBIRD_NAME_PATTERN = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+export const netbirdNameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(NETBIRD_NAME_MAX)
+  .regex(NETBIRD_NAME_PATTERN);
 
 /* ---------- Auth and account ---------- */
 
@@ -147,6 +161,8 @@ export const createServerSchema = z.object({
   eula: z.literal(true),
   autoStart: z.boolean().default(true),
   startNow: z.boolean().default(true),
+  /** Name in front of the NetBird domain (admins with NetBird set up); the panel creates the services. */
+  netbirdName: netbirdNameSchema.optional(),
 });
 export type CreateServerInput = z.infer<typeof createServerSchema>;
 
@@ -225,6 +241,8 @@ export interface ServerDetail extends ServerSummary {
   readonly geyser: boolean;
   /** Host UDP port Bedrock players use when Geyser is on. */
   readonly geyserPort: number | null;
+  /** Outside UDP port for Bedrock players when a tunnel gives another one (NetBird). */
+  readonly geyserPublicPort: number | null;
   readonly publicPort: number | null;
   readonly voiceChat: boolean;
   /** Host UDP port of Simple Voice Chat when it is on. */
@@ -232,6 +250,8 @@ export interface ServerDetail extends ServerSummary {
   readonly voicePublicPort: number | null;
   /** What players' voice chat mods connect to (voice_host), e.g. "mc.example.de:24454". */
   readonly voiceHost: string | null;
+  /** Addresses the panel set up in NetBird for this server, or null. */
+  readonly netbird: NetbirdServerInfo | null;
   readonly permissions: readonly ServerPermission[];
 }
 

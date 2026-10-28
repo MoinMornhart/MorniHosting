@@ -24,6 +24,7 @@ export interface SettingsService {
   readonly curseforgeKey: () => string | null;
   readonly getValue: <TValue>(key: string) => TValue | undefined;
   readonly setValue: (key: string, value: unknown) => void;
+  readonly deleteValue: (key: string) => void;
 }
 
 const SETTINGS_KEY = 'panel';
@@ -94,5 +95,9 @@ export function createSettingsService(db: Db, config: Config, secrets: SecretBox
     };
   };
 
-  return { get, update, publicView, curseforgeKey, getValue, setValue };
+  const deleteValue = (key: string): void => {
+    db.delete(settings).where(eq(settings.key, key)).run();
+  };
+
+  return { get, update, publicView, curseforgeKey, getValue, setValue, deleteValue };
 }

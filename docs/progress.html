@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:05:39+00:00",
-  "now": "Fehler behoben und in main. Bei dir: Update im Container einspielen (pct enter <ID>, dann update).",
+  "updated": "2026-10-28T07:36:01+00:00",
+  "now": "NetBird-Automatik: Server-Teil fertig (165 Tests grün) – jetzt die Oberfläche",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -194,6 +194,11 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Fehler behoben · Anmelden über deine NetBird-Domain",
       "status": "fertig",
       "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt. 159 Tests, im Browser über einen nachgestellten NetBird-Proxy geprüft."
+    },
+    {
+      "title": "Phase 10 · Server-Adressen automatisch über NetBird",
+      "status": "laeuft",
+      "detail": "Einmal im Admin-Bereich NetBird-API-Schlüssel und deine Domain (z. B. moinmornhart.de) eintragen. Danach gibst du jedem Server nur einen Namen, und das Panel legt in NetBird alles selbst an: minecraft.moinmornhart.de für Java oder Bedrock, dazu Geyser und Voice-Chat. Den Port nach außen vergibt NetBird; das Panel zeigt die fertige Adresse."
     }
   ],
   "shots": [
@@ -288,42 +293,32 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-28T09:15:00Z",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-28T06:52:00Z",
-      "title": "Ursache gefunden: NetBird gibt ohne „Pass Host Header“ die interne Adresse weiter"
+      "until": "2026-10-28T07:20:00Z",
+      "title": "NetBird-Schnittstelle geprüft (Dienste anlegen, Domains, Rechner)"
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:55:00Z",
-      "title": "Anmeldung erkennt die eigene Seite am Browser-Merkmal"
+      "until": "2026-10-28T07:34:00Z",
+      "title": "Server-Teil: Verbindung, Dienste pro Server anlegen, ändern, löschen; Panel-Adresse mit „Pass Host Header“"
     },
     {
       "status": "done",
-      "until": "2026-10-28T07:00:00Z",
-      "title": "Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus; im Browser geprüft"
+      "until": "2026-10-28T07:36:00Z",
+      "title": "Tests mit nachgebautem NetBird (6 neue, alle 165 grün)"
     },
     {
-      "status": "done",
-      "until": "2026-10-28T07:05:00Z",
-      "title": "Alle Prüfungen grün, nach main übernommen"
-    },
-    {
-      "status": "next",
-      "until": "",
-      "title": "Update einspielen: auf dem Proxmox-Host pct enter <ID>, dann update"
+      "status": "current",
+      "until": "2026-10-28T08:30:00Z",
+      "title": "Oberfläche: Admin-Bereich, Name beim Server-Anlegen und in den Einstellungen, Adress-Karte"
     },
     {
       "status": "next",
-      "until": "",
-      "title": "Für Passkeys: in NetBird „Pass Host Header“ an, Domain im Admin-Bereich eintragen"
-    },
-    {
-      "status": "next",
-      "until": "",
-      "title": "Release v1.0.0 auf GitHub: „Draft a new release“ → Tag v1.0.0 → „Publish release“"
+      "until": "2026-10-28T09:15:00Z",
+      "title": "Demo, Anleitung, Prüfungen, Pull Request"
     }
   ]
 }

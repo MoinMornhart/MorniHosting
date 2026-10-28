@@ -6,6 +6,7 @@ import type {
   Edition,
   JavaTag,
   Locale,
+  NetbirdPurpose,
   ScheduleAction,
   ScheduleSpec,
   ServerPermission,
@@ -135,6 +136,10 @@ export const servers = sqliteTable('servers', {
   voiceChat: integer('voice_chat', { mode: 'boolean' }).notNull().default(false),
   /** Outside UDP port for Simple Voice Chat, when it differs from the host port. */
   voicePublicPort: integer('voice_public_port'),
+  /** Outside UDP port for Geyser (Bedrock players), when a tunnel gives another one. */
+  geyserPublicPort: integer('geyser_public_port'),
+  /** Name in front of the NetBird domain ("survival" → survival.example.de); the panel keeps NetBird in sync. */
+  netbirdName: text('netbird_name'),
   backupSettings: text('backup_settings', { mode: 'json' })
     .$type<BackupSettings>()
     .notNull()
@@ -260,3 +265,20 @@ export const stats = sqliteTable(
   },
   (t) => [index('stats_server_at').on(t.serverId, t.at)],
 );
+
+/**
+ * Reverse-proxy services the panel created in the admin's NetBird account. Not tied to the servers table:
+ * after a server is deleted its rows stay until the services are gone in NetBird too.
+ */
+export const netbirdServices = sqliteTable('netbird_services', {
+  /** Service id in NetBird. */
+  id: text('id').primaryKey(),
+  /** Null for the panel's own service. */
+  serverId: text('server_id'),
+  purpose: text('purpose').$type<NetbirdPurpose>().notNull(),
+  domain: text('domain').notNull(),
+  mode: text('mode').$type<'http' | 'tcp' | 'udp'>().notNull(),
+  targetPort: integer('target_port').notNull(),
+  listenPort: integer('listen_port'),
+  createdAt: createdAt(),
+});
