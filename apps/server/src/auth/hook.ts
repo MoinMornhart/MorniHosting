@@ -19,6 +19,8 @@ const CSRF_EXEMPT: readonly string[] = [
   '/api/setup',
   '/api/auth/two-factor',
   '/api/auth/logout',
+  '/api/auth/passkey/options',
+  '/api/auth/passkey/login',
 ];
 const TOKEN_TOUCH_MS = MS_PER_MINUTE;
 

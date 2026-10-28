@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { LogIn, ShieldCheck } from 'lucide-react';
+import { KeyRound, LogIn, ShieldCheck } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router';
@@ -10,6 +10,7 @@ import { Field } from '@/components/ui/label';
 import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { AuthLayout } from './AuthLayout';
+import { passkeysInBrowser, signInWithPasskey } from './passkey';
 import { adoptMe, meQuery, statusQuery } from './session';
 
 export function LoginPage(): ReactElement {
@@ -44,15 +45,24 @@ export function LoginPage(): ReactElement {
     onSuccess: finish,
     onError: () => undefined,
   });
+  const passkey = useMutation({
+    mutationFn: signInWithPasskey,
+    onSuccess: finish,
+    onError: () => undefined,
+  });
 
   if (status.data?.setupRequired) return <Navigate to="/setup" replace />;
 
   const submit = (e: FormEvent): void => {
     e.preventDefault();
+    passkey.reset();
     if (step === 'password') login.mutate();
     else verify.mutate();
   };
-  const error = step === 'password' ? login.error : verify.error;
+  const error = step === 'password' ? (login.error ?? passkey.error) : verify.error;
+  const passkeyReady = step === 'password' && status.data?.passkeys === 'ok' && passkeysInBrowser();
+  const passkeyDomain = status.data?.passkeys === 'wrong_host' ? status.data.panelDomain : null;
+  const busy = login.isPending || verify.isPending || passkey.isPending;
 
   return (
     <AuthLayout>
@@ -112,10 +122,40 @@ export function LoginPage(): ReactElement {
             {errorText(error)}
           </p>
         ) : null}
-        <Button type="submit" size="lg" disabled={login.isPending || verify.isPending}>
+        <Button type="submit" size="lg" disabled={busy}>
           {step === 'password' ? <LogIn /> : <ShieldCheck />}
           {step === 'password' ? t('login.submit') : t('login.twoFactorSubmit')}
         </Button>
+        {passkeyReady ? (
+          <>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground" aria-hidden>
+              <span className="h-px flex-1 bg-border" />
+              {t('login.or')}
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={busy}
+              onClick={() => {
+                login.reset();
+                passkey.mutate();
+              }}
+            >
+              <KeyRound />
+              {passkey.isPending ? t('login.passkeyWaiting') : t('login.passkey')}
+            </Button>
+          </>
+        ) : null}
+        {step === 'password' && passkeyDomain ? (
+          <p className="text-center text-sm text-muted-foreground">
+            {t('login.passkeyElsewhere')}{' '}
+            <a className="font-semibold text-primary hover:underline" href={`https://${passkeyDomain}`}>
+              {passkeyDomain}
+            </a>
+          </p>
+        ) : null}
         {step === 'code' ? (
           <Button variant="link" onClick={() => setStep('password')}>
             {t('login.backToLogin')}

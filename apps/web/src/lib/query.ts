@@ -9,6 +9,13 @@ const MAX_RETRIES = 2;
 const HTTP_CLIENT_ERRORS_FROM = 400;
 const HTTP_SERVER_ERRORS_FROM = 500;
 const MISSING_PERMISSION = 'missing_permission_';
+/** Browser errors from a passkey dialog, by their DOMException name. */
+const WEBAUTHN_ERRORS: Readonly<Record<string, string>> = {
+  NotAllowedError: 'errors.passkey_cancelled',
+  AbortError: 'errors.passkey_cancelled',
+  InvalidStateError: 'errors.passkey_exists',
+  SecurityError: 'errors.passkey_needs_https',
+};
 
 export function errorText(err: unknown): string {
   if (err instanceof ApiError) {
@@ -21,6 +28,9 @@ export function errorText(err: unknown): string {
     const key = `errors.${err.code}`;
     return i18n.exists(key) ? i18n.t(key, err.params) : i18n.t('errors.generic');
   }
+  const webauthn =
+    err instanceof Error && Object.hasOwn(WEBAUTHN_ERRORS, err.name) ? WEBAUTHN_ERRORS[err.name] : undefined;
+  if (webauthn) return i18n.t(webauthn);
   if (err instanceof TypeError) return i18n.t('errors.network');
   return i18n.t('errors.generic');
 }

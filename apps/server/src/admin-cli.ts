@@ -1,7 +1,6 @@
-import { randomBytes } from 'node:crypto';
 import { asc, eq, sql } from 'drizzle-orm';
 import { createAuditService, SYSTEM_ACTOR } from './audit/service.js';
-import { hashPassword } from './auth/passwords.js';
+import { hashPassword, randomPassword } from './auth/passwords.js';
 import type { Db } from './db/index.js';
 import { sessions, users } from './db/schema.js';
 
@@ -18,8 +17,6 @@ export interface CliResult {
 type Command = (db: Db, args: readonly string[]) => Promise<CliResult>;
 type UserRow = typeof users.$inferSelect;
 
-/** 12 random bytes give a 16-character password, above the minimum of 10. */
-const NEW_PASSWORD_BYTES = 12;
 const USAGE = [
   'MorniHosting – Rettungsbefehle',
   '',
@@ -66,7 +63,7 @@ const listUsers: Command = async (db) => {
 const resetPassword: Command = async (db, [username]) => {
   const user = findUser(db, username);
   if (!user) return unknownUser(username);
-  const password = randomBytes(NEW_PASSWORD_BYTES).toString('base64url');
+  const password = randomPassword();
   db.update(users)
     .set({ passwordHash: await hashPassword(password) })
     .where(eq(users.id, user.id))

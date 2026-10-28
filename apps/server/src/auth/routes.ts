@@ -16,12 +16,13 @@ import { AppError, badRequest, conflict, unauthorized } from '../lib/errors.js';
 import { HTTP_FORBIDDEN, HTTP_NO_CONTENT } from '../lib/http-status.js';
 import { actorOf, requireAuth, toUserInfo, type UserRow } from './context.js';
 import { clearSessionCookie, pendingSession, setSessionCookie } from './hook.js';
+import { passkeySupport } from './passkeys.js';
 import { burnPasswordCheck, hashPassword, verifyPassword } from './passwords.js';
 import { newTotpSecret, totpSetupData, verifyTotp } from './totp.js';
 
 const LOGIN_LIMIT = 10;
 const LOGIN_WINDOW = '1 minute';
-const loginRateLimit = { rateLimit: { max: LOGIN_LIMIT, timeWindow: LOGIN_WINDOW } };
+export const loginRateLimit = { rateLimit: { max: LOGIN_LIMIT, timeWindow: LOGIN_WINDOW } };
 
 export function meFor(ctx: AppContext, user: UserRow, csrfToken: string): MeResponse {
   return { user: toUserInfo(user), csrfToken, access: ctx.access.accessMap(user) };
@@ -40,7 +41,7 @@ function findUser(ctx: AppContext, username: string): UserRow | undefined {
 }
 
 export function registerAuthRoutes(app: Api, ctx: AppContext): void {
-  app.get('/api/system/status', async (): Promise<SystemStatus> => {
+  app.get('/api/system/status', async (request): Promise<SystemStatus> => {
     const docker = await (async () => {
       try {
         await ctx.docker.ping();
@@ -55,6 +56,8 @@ export function registerAuthRoutes(app: Api, ctx: AppContext): void {
       docker,
       demo: ctx.config.demo,
       defaultLocale: ctx.settings.get().defaultLocale,
+      passkeys: passkeySupport(ctx, request),
+      panelDomain: ctx.settings.get().panelDomain || null,
     };
   });
 

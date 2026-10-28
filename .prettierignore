@@ -7,3 +7,5 @@ apps/server/drizzle
 .claude
 chats
 .github/workflows/vibeworks-check.yml
+dist-demo
+apps/web/src/demo/fixtures.json

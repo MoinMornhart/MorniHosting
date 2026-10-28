@@ -83,6 +83,25 @@ export const apiTokens = sqliteTable('api_tokens', {
   expiresAt: text('expires_at'),
 });
 
+/** WebAuthn credentials ("Passkeys"); the id is the credential id the authenticator gave out. */
+export const passkeys = sqliteTable(
+  'passkeys',
+  {
+    id: text('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    /** COSE public key, base64url. */
+    publicKey: text('public_key').notNull(),
+    counter: integer('counter').notNull().default(0),
+    transports: text('transports', { mode: 'json' }).$type<string[]>().notNull().default([]),
+    createdAt: createdAt(),
+    lastUsedAt: text('last_used_at'),
+  },
+  (t) => [index('passkeys_user').on(t.userId)],
+);
+
 export const roles = sqliteTable('roles', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),

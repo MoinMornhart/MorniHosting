@@ -65,10 +65,13 @@ export function ServerIcon({ id, software, hasIcon, className }: ServerIconProps
   );
 }
 
+const DEMO = import.meta.env.MODE === 'demo';
+
 /** A player's face from mc-heads.net; falls back to a drawn face offline or for Bedrock names. */
 export function PlayerHead({ name, className }: { name: string; className?: string }): ReactElement {
   const [failed, setFailed] = useState(false);
-  const usable = !failed && /^[A-Za-z0-9_]{3,16}$/.test(name); // eslint-disable-line ts-patterns/require-regex-example -- Java names: "Lena_Baut" has a skin, "Finn 2015" (Bedrock) does not
+  // The demo cannot load pictures from other sites, so it draws the faces itself.
+  const usable = !failed && !DEMO && /^[A-Za-z0-9_]{3,16}$/.test(name); // eslint-disable-line ts-patterns/require-regex-example -- Java names: "Lena_Baut" has a skin, "Finn 2015" (Bedrock) does not
   return (
     <img
       src={usable ? `https://mc-heads.net/avatar/${encodeURIComponent(name)}/32` : playerFace(name)}

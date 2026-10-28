@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T02:15:00+01:00",
-  "now": "Alle 7 Phasen sind fertig. MorniHosting ist bereit zum Ausprobieren: Proxmox-Einzeiler, Update per Knopf, Geyser mit einem Klick, README mit Anleitung und FAQ. Als Nächstes: auf main übernehmen und die erste Version (v1.0.0) veröffentlichen.",
+  "updated": "2026-10-28T07:10:00+01:00",
+  "now": "Phase 8 ist fertig: Anmelden mit Passkey, ein Admin-Bereich (Domain, Updates, Passwörter zurücksetzen), eine klickbare Demo als Artefakt und ein README mit Bildern und Animation. Für v1.0.0 fehlt nur noch das Release auf GitHub (ein Klick von Philip).",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -169,9 +169,34 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Phase 7 · Feinschliff",
       "status": "fertig",
       "detail": "Geyser/Floodgate mit einem Schalter (eigener UDP-Port), TPS in der Statistik, Update-Funktion (Panel prüft GitHub, Knopf startet den Host-Updater, Minecraft-Server laufen weiter; mit echtem Docker getestet), Rettungsbefehle für vergessenes Passwort und verlorene 2FA, Proxmox-Einzeiler, install.sh, update.sh, GitHub Actions (Lint, Typen, Tests, Playwright, Image nach GHCR bei Tags), 3 Playwright-Abläufe, README mit FAQ. 139 Tests."
+    },
+    {
+      "title": "Phase 8 · Passkeys, Admin-Bereich, Demo",
+      "status": "fertig",
+      "detail": "Anmelden mit Passkey (WebAuthn, an die Domain gebunden, mit echtem Browser-Test), Admin-Bereich mit Domain, Updates und Passwort-Zurücksetzen per Klick (wird einmal angezeigt, optional 2FA und Passkeys entfernen), klickbare Demo als Artefakt (echte Oberfläche, nachgebauter Server im Browser), README mit Titelbild, Bildern je Funktion und Animation. Fehler behoben: Laufzeit konnte kurz negativ angezeigt werden. 147 Tests + 4 Browser-Abläufe."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p8-login.webp",
+      "caption": "Phase 8 · Anmelden mit Passwort oder Passkey",
+      "time": "2026-10-28T07:10:00+01:00"
+    },
+    {
+      "img": "progress/p8-admin.webp",
+      "caption": "Phase 8 · Admin-Bereich: Domain, Updates, Passwörter",
+      "time": "2026-10-28T07:10:00+01:00"
+    },
+    {
+      "img": "progress/p8-reset.webp",
+      "caption": "Phase 8 · Neues Passwort für Lena, nur einmal sichtbar",
+      "time": "2026-10-28T07:10:00+01:00"
+    },
+    {
+      "img": "progress/p8-demo-passkey.webp",
+      "caption": "Phase 8 · Demo: simulierter Passkey-Dialog (im echten Panel fragt das Gerät)",
+      "time": "2026-10-28T07:10:00+01:00"
+    },
     {
       "img": "progress/p7-geyser.webp",
       "caption": "Phase 7 · Bedrock-Spieler erlauben: Geyser und Floodgate mit einem Schalter",
@@ -193,16 +218,6 @@ footer { color: var(--muted); font-size: 13px; }
       "time": "2026-10-28T01:29:00+01:00"
     },
     {
-      "img": "progress/p6-api.webp",
-      "caption": "Phase 6 · API-Schlüssel: wird nur einmal angezeigt",
-      "time": "2026-10-28T01:29:00+01:00"
-    },
-    {
-      "img": "progress/p6-account.webp",
-      "caption": "Phase 6 · Mein Konto: Passwort und 2FA per QR-Code",
-      "time": "2026-10-28T01:29:00+01:00"
-    },
-    {
       "img": "progress/p5-backups.webp",
       "caption": "Phase 5 · Backups: ein Klick zum Sichern, einer zum Wiederherstellen",
       "time": "2026-10-28T01:18:00+01:00"
@@ -218,45 +233,35 @@ footer { color: var(--muted); font-size: 13px; }
       "time": "2026-10-28T01:18:00+01:00"
     },
     {
-      "img": "progress/p4-installed.webp",
-      "caption": "Phase 4 · Installierte Plugins: Quelle, Abhängigkeit, An/Aus, Updates",
-      "time": "2026-10-28T01:02:00+01:00"
-    },
-    {
       "img": "progress/p4-market.webp",
       "caption": "Phase 4 · Marktplatz: nur passende Plugins, Installieren mit einem Klick",
       "time": "2026-10-28T01:02:00+01:00"
-    },
-    {
-      "img": "progress/p3-files.webp",
-      "caption": "Phase 3 · Datei-Manager mit Ordnerbaum, Upload per Drag & Drop und Papierkorb",
-      "time": "2026-10-28T00:45:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/geyser/, market/geysermc.ts (Geyser mit einem Klick)"
+      "path": "apps/server/src/auth/passkeys.ts, passkey-routes.ts, drizzle/0001_passkeys.sql"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/system/update.ts, routes.ts (Update-Funktion)"
+      "path": "apps/web/src/features/admin/PasskeysCard.tsx, PasswordResetCard.tsx"
+    },
+    {
+      "tag": "geändert",
+      "path": "apps/web/src/features/admin/PanelSettingsPage.tsx (Admin-Bereich mit Domain)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/admin-cli.ts, cli.ts (Passwort/2FA zurücksetzen)"
+      "path": "apps/web/src/demo/ (nachgebauter Server, Passkey-Simulation), scripts/inline-demo.mjs"
     },
     {
       "tag": "neu",
-      "path": "install.sh, update.sh, proxmox/mornihosting.sh, docs/proxmox-quickstart.md"
+      "path": "apps/server/test/passkeys.test.ts, soft-authenticator.ts, e2e/passkey.spec.ts"
     },
     {
-      "tag": "neu",
-      "path": ".github/workflows/ci.yml, playwright.config.ts, e2e/"
-    },
-    {
-      "tag": "neu",
-      "path": "README.md, LICENSE, docs/screenshots/"
+      "tag": "geändert",
+      "path": "README.md, docs/screenshots/ (Titelbild, Animation, Bilder)"
     }
   ]
 }

@@ -30,6 +30,8 @@
 - Phase 7 fertig: Geyser/Floodgate (`geyser/`, Geyser von Modrinth, Floodgate für Paper/Velocity von download.geysermc.org mit sha256, UDP-Port ab 19132), TPS im Verlauf, Update-Funktion (`system/update.ts`: GitHub-Release prüfen; Knopf legt `data/update/request.json` an, systemd-Path-Unit aus `install.sh` startet `update.sh`; Builds ohne Release-Version („dev“, Commit) nehmen jedes Release), Rettungsbefehle `node /app/server/dist/cli.js list-users|reset-password|reset-2fa`, `install.sh`, `update.sh`, `proxmox/mornihosting.sh`, `docs/proxmox-quickstart.md`, `.github/workflows/ci.yml` (Lint, Format, Typen, Vitest, Build, Playwright; Image nach GHCR bei `v*`-Tags, amd64+arm64), Playwright (`e2e/`, Port 8199, Fake-Driver), README mit Bildern (`docs/screenshots/`) und FAQ, LICENSE (MIT). 139 Tests + 3 Playwright-Abläufe.
 - Mit echtem Docker getestet: Erststart wie `install.sh`, Updater-Teil (agent.json → `canSelfUpdate`), `update.sh` tauscht den Panel-Container, Status „done“, Rettungsbefehl im Container. Nicht getestet: Proxmox-Skript auf echtem Proxmox-Host, systemd-Path-Unit (Sandbox ohne systemd).
 - Fehler behoben: Volume heißt `mornihosting-data` (nicht `mornihosting_mornihosting-data`) – `install.sh` wäre sonst beim Updater abgebrochen.
+- Phase 8 fertig (auf Philips Wunsch, 28.10.): Passkeys (`auth/passkeys.ts`, `auth/passkey-routes.ts`, Tabelle `passkeys`, @simplewebauthn v14; Passkeys nur über HTTPS/localhost und, sobald im Admin-Bereich eine Panel-Domain steht, nur über diese Domain; Passkey-Login überspringt 2FA), Admin-Bereich (`PanelSettingsPage.tsx`: Domain `panelDomain`, Updates, Passwörter zurücksetzen über `POST /api/users/:id/reset-password`, Einstellungen), Demo-Website (`apps/web/src/demo/`: echte Oberfläche + nachgebauter Server im Browser aus aufgezeichneten Antworten, `pnpm --filter @mornihosting/web build:demo` → eine HTML-Datei; Login `philip`/`minecraft1` oder simulierter Passkey; Artefakt https://claude.ai/artifact/DGaWzgEdpEztT9inVZz9KD, privat), README mit Titelbild, Animation und Bildern. Fehler behoben: Laufzeit „Seit -1 Tag“ direkt nach dem Start. 147 Tests + 4 Playwright-Abläufe (inkl. Passkey mit virtuellem Authenticator).
+- Demo-Daten neu aufnehmen: Dev-Server mit `MH_DEMO=true` starten, Aufnahme-Skript klickt alles durch und schreibt `apps/web/src/demo/fixtures.json` (Plugin-Bilder eingebettet, öffentliche IP ersetzt durch 203.0.113.25).
 
 ## Lokal testen (Sandbox)
 
@@ -45,6 +47,6 @@
 ## Nächste Schritte
 
 1. Philip: Release v1.0.0 anlegen (GitHub → Releases → „Draft a new release“ → Tag `v1.0.0`, Ziel `main` → „Publish release“). Aus der Cloud-Sitzung blockiert die Sicherheitsprüfung den Tag-Push. CI baut danach das Image und setzt Titel und Text des Releases.
-2. Philip: GHCR-Paket `mornihosting` auf „Public“ stellen (GitHub → Profil → Packages → mornihosting → Package settings → Change visibility). Geht nur im Browser; bis dahin baut `install.sh` das Image selbst.
+2. Philip: GHCR-Paket `mornihosting` auf „Public“ stellen (GitHub → Profil → Packages → mornihosting → Package settings → Change visibility).
 3. Philip: Proxmox-Skript einmal auf dem echten Proxmox-Host laufen lassen.
-4. Optional: In den Repo-Einstellungen `main` als Standard-Branch setzen.
+4. Optional: `main` als Standard-Branch setzen; Demo-Artefakt öffentlich teilen und im README verlinken.

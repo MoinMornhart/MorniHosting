@@ -115,12 +115,21 @@ export interface MeResponse {
 export type LoginResponse =
   { readonly status: 'ok'; readonly me: MeResponse } | { readonly status: 'two-factor' };
 
+/**
+ * Whether this browser address can use passkeys: WebAuthn needs HTTPS (or localhost), and once the
+ * panel has its own domain, passkeys belong to that domain.
+ */
+export type PasskeySupport = 'ok' | 'needs_https' | 'wrong_host';
+
 export interface SystemStatus {
   readonly setupRequired: boolean;
   readonly version: string;
   readonly docker: { readonly ok: boolean; readonly message?: string };
   readonly demo: boolean;
   readonly defaultLocale: Locale;
+  readonly passkeys: PasskeySupport;
+  /** The panel's own domain from the admin area, or null. */
+  readonly panelDomain: string | null;
 }
 
 /* ---------- Servers ---------- */
@@ -497,6 +506,16 @@ export const userCreateSchema = z.object({
   canCreateServers: z.boolean().default(false),
   locale: z.enum(LOCALES).default('de'),
 });
+export const passwordResetSchema = z.object({
+  /** Also switch off 2FA and remove passkeys, e.g. when the phone is lost. */
+  removeSecondFactors: z.boolean().default(false),
+});
+
+export interface PasswordResetResult {
+  /** Shown exactly once to the admin who reset it. */
+  readonly password: string;
+}
+
 export const userUpdateSchema = z.object({
   displayName: z.string().trim().max(DISPLAY_NAME_MAX).optional(),
   password: passwordSchema.optional(),
@@ -545,6 +564,53 @@ export interface ApiTokenEntry {
   readonly expiresAt: string | null;
 }
 
+/* ---------- Passkeys ---------- */
+
+const PASSKEY_NAME_MAX = 60;
+const WEBAUTHN_FIELD_MAX = 16_384;
+const b64url = z.string().max(WEBAUTHN_FIELD_MAX);
+
+/** What the browser hands over after creating a passkey (WebAuthn RegistrationResponseJSON). */
+export const passkeyRegistrationSchema = z.object({
+  name: z.string().trim().min(1).max(PASSKEY_NAME_MAX),
+  response: z.object({
+    id: b64url,
+    rawId: b64url,
+    type: z.literal('public-key'),
+    response: z.looseObject({
+      clientDataJSON: b64url,
+      attestationObject: b64url,
+      transports: z.array(z.string().max(NAME_MAX)).optional(),
+    }),
+    authenticatorAttachment: z.string().max(NAME_MAX).optional(),
+    clientExtensionResults: z.record(z.string(), z.unknown()),
+  }),
+});
+
+/** What the browser hands over after signing in with a passkey (WebAuthn AuthenticationResponseJSON). */
+export const passkeyLoginSchema = z.object({
+  response: z.object({
+    id: b64url,
+    rawId: b64url,
+    type: z.literal('public-key'),
+    response: z.looseObject({
+      clientDataJSON: b64url,
+      authenticatorData: b64url,
+      signature: b64url,
+      userHandle: b64url.optional(),
+    }),
+    authenticatorAttachment: z.string().max(NAME_MAX).optional(),
+    clientExtensionResults: z.record(z.string(), z.unknown()),
+  }),
+});
+
+export interface PasskeyEntry {
+  readonly id: string;
+  readonly name: string;
+  readonly createdAt: string;
+  readonly lastUsedAt: string | null;
+}
+
 export interface AuditEntry {
   readonly id: number;
   readonly at: string;
@@ -559,6 +625,7 @@ export interface AuditEntry {
 /* ---------- Panel settings and updates ---------- */
 
 export const settingsUpdateSchema = z.object({
+  panelDomain: z.union([hostnameSchema, z.literal('')]).optional(),
   publicAddress: z.union([hostnameSchema, z.literal('')]).optional(),
   lanIp: z.union([z.ipv4(), z.literal('')]).optional(),
   publicIpLookup: z.boolean().optional(),
@@ -570,6 +637,8 @@ export const settingsUpdateSchema = z.object({
 });
 
 export interface PanelSettings {
+  /** The panel's own domain (e.g. panel.example.de); passkeys belong to it. */
+  readonly panelDomain: string;
   readonly publicAddress: string;
   readonly lanIp: string;
   readonly publicIpLookup: boolean;
