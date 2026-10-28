@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T06:46:04+00:00",
-  "now": "Alles fertig und in main. Der Proxmox-Einzeiler lädt die neue Version mit NetBird-Frage. Jetzt bist du dran: Proxmox aufsetzen und Release-Knopf drücken.",
+  "updated": "2026-10-28T07:00:01+00:00",
+  "now": "Fehler aus deinem Test behoben (Anmeldung über die NetBird-Domain) – alle Prüfungen laufen, danach main und Update-Anleitung",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -189,6 +189,11 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Phase 9 · NetBird-Anleitung und Simple Voice Chat",
       "status": "fertig",
       "detail": "Reiter „NetBird“ im Admin-Bereich: was du wo in NetBird einträgst (eigene Domain mit CNAME, HTTPS fürs Panel mit „Pass Host Header“, TCP/UDP-Dienste je Server mit deinen echten Ports zum Kopieren), auch als docs/netbird.md. Das Panel erkennt seine Domain hinter NetBird als HTTPS, damit gehen Passkeys. Öffentlicher Port pro Server für Tunnel mit anderem Außen-Port. Simple Voice Chat mit einem Schalter: Plugin/Mod von Modrinth, eigener UDP-Port ab 24454, Adresse für die Mods wird vor jedem Start neu eingetragen. Demo-Website kann beides. 155 Tests. Proxmox-Skript: Container ist immer für NetBird vorbereitet und kann NetBird mit deinem Setup-Key gleich mit einrichten."
+    },
+    {
+      "title": "Fehler behoben · Anmelden über deine NetBird-Domain",
+      "status": "laeuft",
+      "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt."
     }
   ],
   "shots": [
@@ -283,37 +288,32 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-28T07:20:00Z",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-28T06:22:00Z",
-      "title": "Oberfläche: Voice-Chat-Karte, Reiter „NetBird“, öffentlicher Port, Texte DE/EN"
+      "until": "2026-10-28T06:52:00Z",
+      "title": "Ursache gefunden: NetBird gibt ohne „Pass Host Header“ die interne Adresse weiter"
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:34:00Z",
-      "title": "Demo-Website, Bilder, README, docs/netbird.md"
+      "until": "2026-10-28T06:55:00Z",
+      "title": "Anmeldung erkennt die eigene Seite am Browser-Merkmal (Test grün)"
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:41:00Z",
-      "title": "Proxmox-Skript: Container für NetBird vorbereitet, Setup-Key optional"
+      "until": "2026-10-28T07:00:00Z",
+      "title": "Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus; im Browser über einen nachgebauten Proxy geprüft"
     },
     {
-      "status": "done",
-      "until": "2026-10-28T06:45:00Z",
-      "title": "GitHub-Prüfung grün, Phase 9 nach main übernommen"
+      "status": "current",
+      "until": "2026-10-28T07:10:00Z",
+      "title": "Alle Prüfungen, Push, Pull Request"
     },
     {
       "status": "next",
-      "until": "",
-      "title": "Release v1.0.0: auf GitHub „Draft a new release“ → Tag v1.0.0, Ziel main → „Publish release“ (aus der Cloud gesperrt)"
-    },
-    {
-      "status": "next",
-      "until": "",
-      "title": "Proxmox: Einzeiler in der Host-Shell starten, bei „NetBird gleich mit einrichten?“ den Setup-Key einfügen"
+      "until": "2026-10-28T07:20:00Z",
+      "title": "Nach main übernehmen; dann bei dir: pct enter <ID> und update"
     }
   ]
 }

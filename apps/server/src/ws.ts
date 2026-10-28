@@ -5,6 +5,7 @@ import { getAuth } from './auth/context.js';
 import { originAllowed } from './auth/hook.js';
 import type { Api, AppContext } from './context.js';
 import type { ServerService } from './servers/service.js';
+import { safeEqual } from './lib/crypto.js';
 import { MS_PER_SECOND } from './lib/units.js';
 
 /**
@@ -12,7 +13,12 @@ import { MS_PER_SECOND } from './lib/units.js';
  * and to the console of the server it shows; every message is checked against the user's rights.
  */
 
+const CSRF_MAX = 200;
+/** How long a socket from an unknown origin may take to prove itself before it is closed. */
+const PROOF_SECONDS = 10;
+
 const clientMessage = z.union([
+  z.object({ type: z.literal('hello'), csrf: z.string().max(CSRF_MAX) }),
   z.object({ type: z.literal('subscribe'), channel: z.literal('servers') }),
   z.object({ type: z.literal('subscribe'), channel: z.literal('console'), serverId: z.string() }),
   z.object({ type: z.literal('unsubscribe'), channel: z.literal('console'), serverId: z.string() }),
@@ -27,11 +33,17 @@ const MAX_MESSAGE_BYTES = 4096;
 export function registerWebSocket(app: Api, ctx: AppContext, servers: ServerService): void {
   app.get('/api/ws', { websocket: true }, (socket: WebSocket, request) => {
     const auth = getAuth(request);
-    if (!auth || !originAllowed(ctx, request)) {
+    if (!auth) {
       socket.close(POLICY_VIOLATION, 'unauthorized');
       return;
     }
     const user = auth.user;
+    // Behind a proxy that rewrites the Host header (NetBird without "Pass Host Header") the Origin cannot
+    // be checked, and browsers send no fetch metadata on WebSocket handshakes. Such a socket gets nothing
+    // until its first message carries the session's CSRF token, which other pages cannot read.
+    const proof = { ok: originAllowed(ctx, request) };
+    const reject = (): void => socket.close(POLICY_VIOLATION, 'unauthorized');
+    const proofTimer = proof.ok ? null : setTimeout(reject, PROOF_SECONDS * MS_PER_SECOND);
     const subscriptions = { servers: false, consoles: new Set<string>() };
     const cache = { access: ctx.access.accessMap(user), at: Date.now() };
     const rightsFor = (serverId: string): readonly string[] => {
@@ -75,6 +87,16 @@ export function registerWebSocket(app: Api, ctx: AppContext, servers: ServerServ
         return;
       }
       const msg = parsed.data;
+      if (msg.type === 'hello') {
+        proof.ok = proof.ok || (auth.csrfToken !== null && safeEqual(msg.csrf, auth.csrfToken));
+        if (proofTimer) clearTimeout(proofTimer);
+        if (!proof.ok) reject();
+        return;
+      }
+      if (!proof.ok) {
+        reject();
+        return;
+      }
       if (msg.type === 'ping') {
         send({ type: 'pong' });
         return;
@@ -96,6 +118,9 @@ export function registerWebSocket(app: Api, ctx: AppContext, servers: ServerServ
       send({ type: 'console-history', serverId: msg.serverId, lines: servers.logs(msg.serverId) });
     });
 
-    socket.on('close', () => offs.forEach((off) => off()));
+    socket.on('close', () => {
+      if (proofTimer) clearTimeout(proofTimer);
+      offs.forEach((off) => off());
+    });
   });
 }

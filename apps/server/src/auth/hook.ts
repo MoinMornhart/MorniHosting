@@ -71,10 +71,18 @@ export function clearSessionCookie(reply: FastifyReply): void {
 }
 
 /**
+ * Fetch metadata the browser sets itself (pages cannot fake it): "same-origin" is the panel's own page,
+ * "none" a request the user started. It stays correct when a proxy rewrites the Host header.
+ */
+const OWN_PAGE_SITES: readonly string[] = ['same-origin', 'none'];
+
+/**
  * Rejects cross-site requests: a browser always sends Origin on unsafe requests and WebSocket handshakes.
  * Pages from the panel's own domain count as the same site even when a proxy rewrites the Host header.
  */
 export function originAllowed(ctx: AppContext, request: FastifyRequest): boolean {
+  const site = request.headers['sec-fetch-site'];
+  if (typeof site === 'string' && OWN_PAGE_SITES.includes(site)) return true;
   const origin = request.headers.origin;
   if (!origin) return true;
   if (!URL.canParse(origin)) return false;

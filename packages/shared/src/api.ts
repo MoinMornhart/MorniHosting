@@ -698,6 +698,8 @@ export type WsServerMessage =
   | { readonly type: 'pong' };
 
 export type WsClientMessage =
+  /** First message of every socket: proves it was opened by the panel's own page. */
+  | { readonly type: 'hello'; readonly csrf: string }
   | { readonly type: 'subscribe'; readonly channel: 'servers' }
   | { readonly type: 'subscribe'; readonly channel: 'console'; readonly serverId: string }
   | { readonly type: 'unsubscribe'; readonly channel: 'console'; readonly serverId: string }

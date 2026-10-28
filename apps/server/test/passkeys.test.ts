@@ -182,6 +182,20 @@ describe('passkeys', () => {
     expect((await rewritten('https://evil.example')).statusCode).toBe(403);
   });
 
+  test("behind a proxy that rewrites the Host header, the browser's own-page marker lets sign-in through", async () => {
+    const login = (headers: Record<string, string>) =>
+      t.app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        headers: { host: '100.92.14.7:8080', origin: 'https://panel.example.de', ...headers },
+        payload: { username: 'philip', password: 'supersecret123' },
+      });
+    expect((await login({})).json()).toMatchObject({ error: 'bad_origin' });
+    expect((await login({ 'sec-fetch-site': 'same-origin' })).json<LoginResponse>().status).toBe('ok');
+    expect((await login({ 'sec-fetch-site': 'cross-site' })).json()).toMatchObject({ error: 'bad_origin' });
+    expect((await login({ 'sec-fetch-site': 'same-site' })).json()).toMatchObject({ error: 'bad_origin' });
+  });
+
   test('a request from another page cannot start a passkey ceremony', async () => {
     const res = await t.app.inject({
       method: 'POST',

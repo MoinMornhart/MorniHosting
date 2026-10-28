@@ -1,4 +1,5 @@
 import type { WsClientMessage, WsServerMessage } from '@mornihosting/shared';
+import { csrfToken } from './api';
 
 type Listener = (message: WsServerMessage) => void;
 
@@ -45,6 +46,7 @@ function connect(): void {
   socket.addEventListener('open', () => {
     state.delay = RECONNECT_MIN_MS;
     setConnected(true);
+    send({ type: 'hello', csrf: csrfToken() });
     resubscribe();
     state.ping = window.setInterval(() => send({ type: 'ping' }), PING_INTERVAL_MS);
   });
