@@ -8,7 +8,7 @@ Container (LXC) an, installiert darin Docker und MorniHosting und zeigt dir am E
 Öffne in Proxmox den Host (z. B. `pve`) → **Shell** und füge diese Zeile ein:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 ```
 
 Es erscheint eine Zusammenfassung mit den Standardwerten:
@@ -30,7 +30,7 @@ Container braucht, richtet das Skript immer ein – du kannst NetBird also auch 
 Ohne Rückfragen geht es auch, indem du die Werte vorher setzt:
 
 ```bash
-CTID=210 RAM=12288 CORES=6 DISK=64 NETBIRD_SETUP_KEY=<KEY> bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
+CTID=210 RAM=12288 CORES=6 DISK=64 NETBIRD_SETUP_KEY=<KEY> bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 ```
 
 ## 2. Panel öffnen
@@ -81,7 +81,7 @@ Deine Minecraft-Server laufen während des Updates weiter.
 Proxmox VE 8.
 
 **Ich will lieber eine VM.** Dann in der VM (Debian 12 oder Ubuntu 24.04) einfach
-`bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/install.sh)"` ausführen.
+`bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/install.sh)"` ausführen.
 
 **Wie viel RAM brauche ich?** Pro Server: Vanilla oder Paper 2–4 GB, Modpacks 6–10 GB. Dazu
 etwa 1 GB für das System. Das Panel warnt, wenn du mehr RAM verteilst, als frei ist.

@@ -20,7 +20,7 @@ FROM node:22-alpine
 ARG MH_VERSION=dev
 LABEL org.opencontainers.image.title="MorniHosting" \
       org.opencontainers.image.description="Selbst gehostetes Web-Panel für Minecraft-Server" \
-      org.opencontainers.image.source="https://github.com/MoinMornhart/MorniHosting" \
+      org.opencontainers.image.source="https://github.com/pmornhart/MorniHosting" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${MH_VERSION}"
 ENV NODE_ENV=production \
