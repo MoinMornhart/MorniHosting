@@ -67,7 +67,7 @@
     "users": "Benutzer und Rollen",
     "notifications": "Benachrichtigungen",
     "api": "API-Zugänge",
-    "settings": "Einstellungen",
+    "settings": "Admin-Bereich",
     "audit": "Protokoll",
     "account": "Mein Konto",
     "logout": "Abmelden",
@@ -148,7 +148,11 @@
     "twoFactorText": "Öffne deine Authenticator-App und gib den 6-stelligen Code für MorniHosting ein.",
     "twoFactorSubmit": "Bestätigen",
     "code": "Code",
-    "backToLogin": "Zurück zur Anmeldung"
+    "backToLogin": "Zurück zur Anmeldung",
+    "or": "oder",
+    "passkey": "Mit Passkey anmelden",
+    "passkeyWaiting": "Warte auf dein Gerät …",
+    "passkeyElsewhere": "Mit Passkey anmelden geht über"
   },
   "dashboard": {
     "title": "Deine Server",
@@ -466,7 +470,17 @@
     "webhook_unresolvable": "Die Adresse {{host}} wurde nicht gefunden.",
     "cannot_disable_self": "Du kannst dich nicht selbst sperren.",
     "session_required": "Neue API-Schlüssel kannst du nur angemeldet im Panel erstellen.",
-    "geyser_unsupported": "Für diese Server-Software gibt es Geyser leider nicht. Es geht mit Paper, Purpur, Fabric, NeoForge und Velocity."
+    "geyser_unsupported": "Für diese Server-Software gibt es Geyser leider nicht. Es geht mit Paper, Purpur, Fabric, NeoForge und Velocity.",
+    "passkey_cancelled": "Der Passkey-Dialog wurde abgebrochen oder hat zu lange gedauert. Versuch es noch einmal.",
+    "passkey_exists": "Dieses Gerät hat schon einen Passkey für dein Konto.",
+    "passkey_needs_https": "Passkeys gehen nur über HTTPS mit einer Domain.",
+    "passkey_wrong_host": "Passkeys gehen nur über die Domain des Panels.",
+    "passkey_failed": "Der Passkey wurde nicht angenommen. Versuch es noch einmal.",
+    "passkey_unknown": "Dieser Passkey gehört zu keinem Konto in diesem Panel.",
+    "passkey_expired": "Das hat zu lange gedauert. Bitte noch einmal versuchen.",
+    "passkey_not_found": "Diesen Passkey gibt es nicht mehr.",
+    "cannot_reset_self": "Dein eigenes Passwort änderst du unter „Mein Konto“.",
+    "demo_readonly": "In der Demo kann man keine Dateien hochladen. Im echten Panel geht das per Drag & Drop."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -1244,9 +1258,9 @@
   "panelSettings": {
     "title": "Panel-Einstellungen",
     "subtitle": "Gilt für das ganze Panel und alle Server.",
-    "addressTitle": "Adresse für deine Freunde",
-    "addressText": "So zeigt die IP-Karte, wie man sich verbindet.",
-    "publicAddress": "Öffentliche Adresse",
+    "addressTitle": "Netzwerk",
+    "addressText": "Wie die IP-Karte deine Adressen herausfindet.",
+    "publicAddress": "Adresse für Minecraft",
     "publicAddressHint": "Deine Domain oder DynDNS-Adresse, z. B. mc.meinname.de. Leer = öffentliche IP.",
     "lanIp": "IP im Heimnetz",
     "lanIpHint": "Für Spieler im selben WLAN. Leer = automatisch erkennen.",
@@ -1347,11 +1361,14 @@
       "geyser_disable": "Bedrock-Zugang ausgeschaltet",
       "panel_update": "Panel-Update gestartet",
       "account_password_reset": "Passwort auf dem Host zurückgesetzt",
-      "account_two_factor_reset": "2FA auf dem Host ausgeschaltet"
+      "account_two_factor_reset": "2FA auf dem Host ausgeschaltet",
+      "account_passkey_added": "Passkey hinzugefügt",
+      "account_passkey_removed": "Passkey entfernt",
+      "user_password_reset": "Passwort zurückgesetzt"
     }
   },
   "account": {
-    "subtitle": "Dein Name, dein Passwort und die Zwei-Faktor-Anmeldung.",
+    "subtitle": "Dein Name, dein Passwort, deine Passkeys und die Zwei-Faktor-Anmeldung.",
     "profile": "Profil",
     "usernameIs": "Dein Benutzername zum Anmelden: {{username}}",
     "password": "Passwort",
@@ -1384,5 +1401,66 @@
     "disabled": "Bedrock-Zugang ist aus",
     "portInfo": "Bedrock-Spieler verbinden sich mit derselben Adresse und Port {{port}}.",
     "routerHint": "Für Freunde außerhalb deines WLANs musst du diesen Port im Router für UDP freigeben."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "text": "Melde dich mit Fingerabdruck, Gesicht oder der PIN deines Geräts an – ganz ohne Passwort. Der Passkey bleibt sicher auf deinem Handy, Computer oder Sicherheitsschlüssel.",
+    "count_one": "{{count}} Passkey",
+    "count_other": "{{count}} Passkeys",
+    "lastUsed": "Zuletzt benutzt {{when}}",
+    "neverUsed": "Angelegt {{when}}, noch nicht benutzt",
+    "name": "Name für den neuen Passkey",
+    "namePlaceholder": "z. B. Mein Handy",
+    "defaultName": "Passkey auf {{device}}",
+    "add": "Passkey hinzufügen",
+    "waiting": "Warte auf dein Gerät …",
+    "added": "Passkey hinzugefügt. Ab jetzt kannst du dich damit anmelden.",
+    "removed": "Passkey entfernt",
+    "remove": "{{name}} entfernen",
+    "removeTitle": "Passkey entfernen?",
+    "removeText": "Mit „{{name}}“ kannst du dich danach nicht mehr anmelden. Dein Passwort bleibt gültig.",
+    "removeConfirm": "Entfernen",
+    "needsHttps": "Passkeys gehen nur, wenn das Panel über HTTPS mit einer Domain läuft (z. B. https://panel.deine-domain.de). Die Domain trägt ein Admin im Admin-Bereich ein.",
+    "wrongHost": "Passkeys gehören zu {{domain}}. Öffne das Panel über https://{{domain}}, um sie hinzuzufügen oder zu benutzen."
+  },
+  "admin": {
+    "title": "Admin-Bereich",
+    "subtitle": "Nur für Admins: Domain, Updates, Passwörter und Einstellungen für das ganze Panel.",
+    "sections": {
+      "domain": "Domain",
+      "update": "Updates",
+      "passwords": "Passwörter",
+      "settings": "Einstellungen"
+    },
+    "domainTitle": "Domain",
+    "domainSet": "Eingetragen",
+    "domainNone": "Noch keine",
+    "domainText": "Hast du eine eigene Domain? Trag sie hier ein. Dann öffnest du das Panel über https://deine-domain, und Anmelden mit Passkey funktioniert.",
+    "panelDomain": "Adresse des Panels",
+    "panelDomainHint": "Nur der Name, z. B. panel.meinname.de. Passkeys gehören dann zu dieser Adresse.",
+    "domainActive": "✅ Du bist gerade über diese Domain mit HTTPS verbunden. Passkeys funktionieren.",
+    "domainOpen": "Damit Passkeys gehen, öffne das Panel über deine Domain:",
+    "httpsGuideTitle": "So bekommt deine Domain HTTPS",
+    "httpsStep1": "Beim Domain-Anbieter einen Eintrag (A-Record) auf deine öffentliche IP setzen – oder eine DynDNS-Adresse nutzen.",
+    "httpsStep2": "Einen Reverse-Proxy mit HTTPS davorsetzen, z. B. Nginx Proxy Manager oder Caddy. Ziel: http://<IP des Panels>:8080.",
+    "httpsStep3": "In der .env MH_TRUST_PROXY=true setzen und das Panel neu starten (Befehl: update)."
+  },
+  "passwordReset": {
+    "cardTitle": "Passwörter zurücksetzen",
+    "cardText": "Hat jemand sein Passwort vergessen? Erzeuge ein neues und gib es weiter. Alle offenen Anmeldungen dieser Person werden beendet.",
+    "button": "Neues Passwort",
+    "title": "Neues Passwort für {{name}}?",
+    "text": "MorniHosting erzeugt ein sicheres Passwort und zeigt es dir einmal an. {{name}} wird überall abgemeldet.",
+    "removeSecondFactors": "Auch 2FA und Passkeys entfernen",
+    "removeSecondFactorsHint": "Nur nötig, wenn das Handy verloren ist. Danach reicht das neue Passwort zum Anmelden.",
+    "confirm": "Passwort zurücksetzen",
+    "doneTitle": "Neues Passwort",
+    "doneText": "Gib {{name}} dieses Passwort. Es wird nur jetzt angezeigt und kann danach unter „Mein Konto“ geändert werden.",
+    "close": "Fertig",
+    "nobody": "Außer dir gibt es noch niemanden.",
+    "addUser": "Benutzer anlegen",
+    "ownHint": "Dein eigenes Passwort und deine Passkeys änderst du unter",
+    "has2fa": "2FA",
+    "locked": "Gesperrt"
   }
 }

@@ -39,9 +39,11 @@ export function formatGbFromMb(mb: number): string {
 /** "3 Std. 12 Min." / "3 h 12 min" */
 export function formatDuration(ms: number): string {
   const t = i18n.t.bind(i18n);
-  const days = Math.floor(ms / DAY_MS);
-  const hours = Math.floor((ms % DAY_MS) / HOUR_MS);
-  const minutes = Math.floor((ms % HOUR_MS) / MINUTE_MS);
+  // The page clock ticks once a minute, so a server that just started can lie slightly in its future.
+  const span = Math.max(0, ms);
+  const days = Math.floor(span / DAY_MS);
+  const hours = Math.floor((span % DAY_MS) / HOUR_MS);
+  const minutes = Math.floor((span % HOUR_MS) / MINUTE_MS);
   const parts = [
     days ? t('time.days', { count: days }) : '',
     hours ? t('time.hours', { count: hours }) : '',

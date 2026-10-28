@@ -36,3 +36,4 @@ e2e/.data/
 e2e/.auth.json
 playwright-report/
 test-results/
+dist-demo/

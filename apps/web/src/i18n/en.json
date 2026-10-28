@@ -67,7 +67,7 @@
     "users": "Users and roles",
     "notifications": "Notifications",
     "api": "API access",
-    "settings": "Settings",
+    "settings": "Admin area",
     "audit": "Activity log",
     "account": "My account",
     "logout": "Sign out",
@@ -148,7 +148,11 @@
     "twoFactorText": "Open your authenticator app and enter the 6-digit code for MorniHosting.",
     "twoFactorSubmit": "Verify",
     "code": "Code",
-    "backToLogin": "Back to sign in"
+    "backToLogin": "Back to sign in",
+    "or": "or",
+    "passkey": "Sign in with a passkey",
+    "passkeyWaiting": "Waiting for your device …",
+    "passkeyElsewhere": "Passkey sign-in works at"
   },
   "dashboard": {
     "title": "Your servers",
@@ -466,7 +470,17 @@
     "webhook_unresolvable": "The address {{host}} was not found.",
     "cannot_disable_self": "You cannot lock yourself.",
     "session_required": "New API keys can only be created while signed in to the panel.",
-    "geyser_unsupported": "Geyser is not available for this server software. It works with Paper, Purpur, Fabric, NeoForge and Velocity."
+    "geyser_unsupported": "Geyser is not available for this server software. It works with Paper, Purpur, Fabric, NeoForge and Velocity.",
+    "passkey_cancelled": "The passkey dialog was cancelled or took too long. Please try again.",
+    "passkey_exists": "This device already has a passkey for your account.",
+    "passkey_needs_https": "Passkeys only work over HTTPS with a domain.",
+    "passkey_wrong_host": "Passkeys only work on the panel's domain.",
+    "passkey_failed": "The passkey was not accepted. Please try again.",
+    "passkey_unknown": "This passkey does not belong to any account on this panel.",
+    "passkey_expired": "That took too long. Please try again.",
+    "passkey_not_found": "This passkey no longer exists.",
+    "cannot_reset_self": "Change your own password under “My account”.",
+    "demo_readonly": "Uploading files is not possible in the demo. In the real panel it works by drag and drop."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1244,9 +1258,9 @@
   "panelSettings": {
     "title": "Panel settings",
     "subtitle": "Applies to the whole panel and all servers.",
-    "addressTitle": "Address for your friends",
-    "addressText": "How the IP card shows people how to connect.",
-    "publicAddress": "Public address",
+    "addressTitle": "Network",
+    "addressText": "How the address card finds out your addresses.",
+    "publicAddress": "Minecraft address",
     "publicAddressHint": "Your domain or dynamic DNS name, e.g. mc.myname.com. Empty = public IP.",
     "lanIp": "IP in your home network",
     "lanIpHint": "For players on the same Wi-Fi. Empty = detect automatically.",
@@ -1347,11 +1361,14 @@
       "geyser_disable": "Bedrock access switched off",
       "panel_update": "Panel update started",
       "account_password_reset": "Password reset on the host",
-      "account_two_factor_reset": "2FA turned off on the host"
+      "account_two_factor_reset": "2FA turned off on the host",
+      "account_passkey_added": "Passkey added",
+      "account_passkey_removed": "Passkey removed",
+      "user_password_reset": "Password reset"
     }
   },
   "account": {
-    "subtitle": "Your name, your password and two-factor sign-in.",
+    "subtitle": "Your name, password, passkeys and two-factor sign-in.",
     "profile": "Profile",
     "usernameIs": "Your username for signing in: {{username}}",
     "password": "Password",
@@ -1384,5 +1401,66 @@
     "disabled": "Bedrock access is off",
     "portInfo": "Bedrock players connect with the same address and port {{port}}.",
     "routerHint": "For friends outside your Wi-Fi, open this port for UDP in your router."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "text": "Sign in with your fingerprint, face or device PIN – no password needed. The passkey stays safe on your phone, computer or security key.",
+    "count_one": "{{count}} passkey",
+    "count_other": "{{count}} passkeys",
+    "lastUsed": "Last used {{when}}",
+    "neverUsed": "Added {{when}}, not used yet",
+    "name": "Name for the new passkey",
+    "namePlaceholder": "e.g. My phone",
+    "defaultName": "Passkey on {{device}}",
+    "add": "Add passkey",
+    "waiting": "Waiting for your device …",
+    "added": "Passkey added. You can sign in with it from now on.",
+    "removed": "Passkey removed",
+    "remove": "Remove {{name}}",
+    "removeTitle": "Remove passkey?",
+    "removeText": "You will no longer be able to sign in with “{{name}}”. Your password stays valid.",
+    "removeConfirm": "Remove",
+    "needsHttps": "Passkeys only work when the panel runs over HTTPS with a domain (e.g. https://panel.your-domain.com). An admin enters the domain in the admin area.",
+    "wrongHost": "Passkeys belong to {{domain}}. Open the panel at https://{{domain}} to add or use them."
+  },
+  "admin": {
+    "title": "Admin area",
+    "subtitle": "Admins only: domain, updates, passwords and settings for the whole panel.",
+    "sections": {
+      "domain": "Domain",
+      "update": "Updates",
+      "passwords": "Passwords",
+      "settings": "Settings"
+    },
+    "domainTitle": "Domain",
+    "domainSet": "Set",
+    "domainNone": "None yet",
+    "domainText": "Do you have your own domain? Enter it here. Then you open the panel at https://your-domain and passkey sign-in works.",
+    "panelDomain": "Panel address",
+    "panelDomainHint": "Just the name, e.g. panel.myname.com. Passkeys will belong to this address.",
+    "domainActive": "✅ You are connected through this domain with HTTPS right now. Passkeys work.",
+    "domainOpen": "For passkeys, open the panel through your domain:",
+    "httpsGuideTitle": "How your domain gets HTTPS",
+    "httpsStep1": "At your domain provider, point a record (A record) to your public IP – or use a DynDNS address.",
+    "httpsStep2": "Put a reverse proxy with HTTPS in front, e.g. Nginx Proxy Manager or Caddy. Target: http://<panel IP>:8080.",
+    "httpsStep3": "Set MH_TRUST_PROXY=true in the .env and restart the panel (command: update)."
+  },
+  "passwordReset": {
+    "cardTitle": "Reset passwords",
+    "cardText": "Someone forgot their password? Create a new one and pass it on. All of that person's open sessions end.",
+    "button": "New password",
+    "title": "New password for {{name}}?",
+    "text": "MorniHosting creates a strong password and shows it to you once. {{name}} is signed out everywhere.",
+    "removeSecondFactors": "Also remove 2FA and passkeys",
+    "removeSecondFactorsHint": "Only needed when the phone is lost. Afterwards the new password is enough to sign in.",
+    "confirm": "Reset password",
+    "doneTitle": "New password",
+    "doneText": "Give {{name}} this password. It is only shown now and can be changed under “My account” afterwards.",
+    "close": "Done",
+    "nobody": "Nobody else is here yet.",
+    "addUser": "Add user",
+    "ownHint": "You change your own password and passkeys under",
+    "has2fa": "2FA",
+    "locked": "Locked"
   }
 }

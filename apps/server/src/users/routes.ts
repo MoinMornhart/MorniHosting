@@ -2,16 +2,18 @@ import { and, eq, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import {
   accessUpdateSchema,
+  passwordResetSchema,
   roleInputSchema,
   userCreateSchema,
   userUpdateSchema,
+  type PasswordResetResult,
   type RoleEntry,
   type UserListEntry,
 } from '@mornihosting/shared';
 import { actorOf, requireAdmin, toUserInfo, type UserRow } from '../auth/context.js';
-import { hashPassword } from '../auth/passwords.js';
+import { hashPassword, randomPassword } from '../auth/passwords.js';
 import type { Api, AppContext } from '../context.js';
-import { roles, serverAccess, servers, users } from '../db/schema.js';
+import { passkeys, roles, serverAccess, servers, users } from '../db/schema.js';
 import { badRequest, conflict, notFound } from '../lib/errors.js';
 import { HTTP_NO_CONTENT } from '../lib/http-status.js';
 
@@ -127,6 +129,33 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
         changed: Object.keys(input).filter((k) => k !== 'password' || passwordHash),
       });
       return listEntry(userOf(target.id));
+    },
+  );
+
+  app.post(
+    '/api/users/:userId/reset-password',
+    { schema: { params: userParams, body: passwordResetSchema } },
+    async (request): Promise<PasswordResetResult> => {
+      const auth = requireAdmin(request);
+      const target = userOf(request.params.userId);
+      // Your own password belongs on the account page, where the old one is asked first.
+      if (target.id === auth.user.id) throw badRequest('cannot_reset_self');
+      const password = randomPassword();
+      const { removeSecondFactors } = request.body;
+      db.update(users)
+        .set({
+          passwordHash: await hashPassword(password),
+          ...(removeSecondFactors ? { totpEnabled: false, totpSecret: null } : {}),
+        })
+        .where(eq(users.id, target.id))
+        .run();
+      if (removeSecondFactors) db.delete(passkeys).where(eq(passkeys.userId, target.id)).run();
+      ctx.sessions.destroyAllFor(target.id);
+      ctx.audit.record(actorOf(request), 'user.password_reset', null, {
+        username: target.username,
+        removeSecondFactors,
+      });
+      return { password };
     },
   );
 

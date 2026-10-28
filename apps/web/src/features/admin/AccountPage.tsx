@@ -13,6 +13,7 @@ import { Field } from '@/components/ui/label';
 import { Pill } from '@/components/ui/pill';
 import { api } from '@/lib/api';
 import { adoptMe, useSession } from '@/features/auth/session';
+import { PasskeysCard } from './PasskeysCard';
 
 interface TwoFactorSetup {
   readonly secret: string;
@@ -268,7 +269,7 @@ function TwoFactorCard(): ReactElement {
   );
 }
 
-/** The signed-in person's own settings: name, password and two-factor login. */
+/** The signed-in person's own settings: name, password, passkeys and two-factor login. */
 export function AccountPage(): ReactElement {
   const { t } = useTranslation();
   return (
@@ -276,6 +277,7 @@ export function AccountPage(): ReactElement {
       <PageHeader title={t('nav.account')} subtitle={t('account.subtitle')} />
       <ProfileCard />
       <PasswordCard />
+      <PasskeysCard />
       <TwoFactorCard />
     </div>
   );

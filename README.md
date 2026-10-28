@@ -1,31 +1,112 @@
-# 🟩 MorniHosting
+<p align="center">
+  <img src="docs/screenshots/banner.webp" alt="MorniHosting – dein eigenes Minecraft-Hosting zu Hause" width="100%">
+</p>
 
-**Dein eigenes Minecraft-Hosting zu Hause.** MorniHosting ist ein Web-Panel, mit dem du Minecraft-Server auf
-deinem eigenen Rechner (z. B. Proxmox, Raspberry Pi, alter PC) anlegst und verwaltest – so einfach wie bei
-einem großen Hoster, aber ohne monatliche Kosten.
+<p align="center">
+  <b>Minecraft-Server zu Hause – so einfach wie bei einem großen Hoster.</b><br>
+  Anlegen, starten, Plugins installieren, Backups machen: alles im Browser, ohne Fachwissen und ohne monatliche Kosten.
+</p>
 
-Es kann so viel wie [Crafty Controller 4](https://craftycontrol.com/) und ist so aufgeräumt wie die Panels von
-GGServers oder Nodecraft. Leitsatz: **Jede häufige Aufgabe in höchstens 3 Klicks – ohne Anleitung.**
+<p align="center">
+  <a href="https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml"><img src="https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Lizenz-MIT-10b981" alt="Lizenz: MIT">
+  <img src="https://img.shields.io/badge/Sprachen-DE%20%7C%20EN-10b981" alt="Sprachen: Deutsch und Englisch">
+  <img src="https://img.shields.io/badge/Plattform-Proxmox%20%7C%20Linux%20%7C%20Docker-10b981" alt="Plattform: Proxmox, Linux, Docker">
+  <img src="https://img.shields.io/badge/Minecraft-Java%20%26%20Bedrock-10b981" alt="Minecraft: Java und Bedrock">
+</p>
 
-[![CI](https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml/badge.svg)](https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml)
-![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-10b981)
-![Sprachen: Deutsch und Englisch](https://img.shields.io/badge/Sprachen-DE%20%7C%20EN-10b981)
+<p align="center">
+  <a href="#installation"><b>Installation</b></a> ·
+  <a href="#was-kann-mornihosting"><b>Funktionen</b></a> ·
+  <a href="#deine-domain-und-passkeys"><b>Domain &amp; Passkeys</b></a> ·
+  <a href="#updates"><b>Updates</b></a> ·
+  <a href="#häufige-fragen"><b>Fragen</b></a>
+</p>
 
-![Übersicht mit drei Servern](docs/screenshots/dashboard.webp)
+MorniHosting ist ein Web-Panel für deine eigenen Minecraft-Server – auf Proxmox, einem Mini-PC, einem Raspberry
+Pi oder einem gemieteten Server. Es kann so viel wie [Crafty Controller 4](https://craftycontrol.com/) und ist
+so aufgeräumt wie die Panels von GGServers oder Nodecraft. Leitsatz: **Jede häufige Aufgabe in höchstens 3
+Klicks – ohne Anleitung.**
 
-## Inhalt
+## So legst du einen Server an
 
-- [Was kann MorniHosting?](#was-kann-mornihosting)
-- [Bilder](#bilder)
-- [Installation](#installation)
-- [Erster Start](#erster-start)
-- [Freunde einladen](#freunde-einladen)
-- [Updates](#updates)
-- [Sicherheit](#sicherheit)
-- [Häufige Fragen](#häufige-fragen)
-- [Für Entwickler](#für-entwickler)
+<p align="center">
+  <img src="docs/screenshots/wizard.webp" alt="Ein neuer Paper-Server entsteht: Spieltyp, Software, Version, Größe, Name – und er läuft" width="100%">
+</p>
+
+Spieltyp wählen, Software, Version, Größe, Name – fertig. Der Server startet sofort, und oben steht die Adresse
+für deine Freunde zum Kopieren.
 
 ## Was kann MorniHosting?
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/dashboard.webp" alt="Übersicht mit drei Servern"></td>
+    <td width="50%"><img src="docs/screenshots/server.webp" alt="Server-Seite mit Adresse, Spielern und Kennzahlen"></td>
+  </tr>
+  <tr>
+    <td><b>Alle Server auf einen Blick</b><br>Status, Spieler, Arbeitsspeicher und Prozessor live – Starten und Stoppen direkt auf der Karte.</td>
+    <td><b>Die Adresse für deine Freunde</b><br>Zum Kopieren, mit Bedrock-Port, Heimnetz-IP und der Prüfung „Von außen erreichbar?“.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/console.webp" alt="Live-Konsole"></td>
+    <td><img src="docs/screenshots/market.webp" alt="Plugin-Marktplatz"></td>
+  </tr>
+  <tr>
+    <td><b>Live-Konsole</b><br>Mit Farben, Befehlsverlauf (↑/↓), Tab-Ergänzung, Suche und Kopieren.</td>
+    <td><b>Plugins und Mods mit einem Klick</b><br>Aus Modrinth, Hangar, SpigotMC und CurseForge – nur was zu deinem Server passt, Abhängigkeiten automatisch.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/plugins.webp" alt="Installierte Plugins mit An/Aus-Schalter"></td>
+    <td><img src="docs/screenshots/files.webp" alt="Datei-Manager"></td>
+  </tr>
+  <tr>
+    <td><b>Installierte Plugins</b><br>An/Aus-Schalter, Updates per Klick, eigene <code>.jar</code> per Drag &amp; Drop.</td>
+    <td><b>Dateien</b><br>Ordnerbaum, Drag &amp; Drop, Editor mit Syntaxfarben, ZIP, Papierkorb für 7 Tage.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/backups.webp" alt="Backups"></td>
+    <td><img src="docs/screenshots/schedules.webp" alt="Zeitpläne"></td>
+  </tr>
+  <tr>
+    <td><b>Backups</b><br>Per Klick oder geplant, die Welt wird vorher gespeichert, Wiederherstellen legt eine Sicherheitskopie an.</td>
+    <td><b>Zeitpläne ohne Cron</b><br>„Jeden Tag um 04:00 neu starten“ – mit Vorwarnung im Spiel-Chat.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/players.webp" alt="Spieler"></td>
+    <td><img src="docs/screenshots/geyser.webp" alt="Bedrock-Spieler erlauben"></td>
+  </tr>
+  <tr>
+    <td><b>Spieler</b><br>Online-Liste mit Köpfen, OP, Kick, Bann und Whitelist per Klick.</td>
+    <td><b>Bedrock-Spieler erlauben</b><br>Geyser und Floodgate mit einem Schalter: Freunde auf Handy, Konsole oder Windows spielen mit.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin.webp" alt="Admin-Bereich mit Domain, Updates und Passwörtern"></td>
+    <td><img src="docs/screenshots/login.webp" alt="Anmelden mit Passwort oder Passkey"></td>
+  </tr>
+  <tr>
+    <td><b>Admin-Bereich</b><br>Domain eintragen, Panel aktualisieren, Passwörter zurücksetzen – nur für Admins.</td>
+    <td><b>Anmelden mit Passkey</b><br>Fingerabdruck, Gesicht oder Geräte-PIN statt Passwort.</td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/screenshots/stats.webp" alt="Verlauf der letzten 24 Stunden" width="70%">
+</p>
+
+<table>
+  <tr>
+    <td width="66%"><img src="docs/screenshots/light.webp" alt="Helles Design"></td>
+    <td width="17%"><img src="docs/screenshots/phone.webp" alt="Server-Seite auf dem Handy"></td>
+    <td width="17%"><img src="docs/screenshots/phone-console.webp" alt="Konsole auf dem Handy"></td>
+  </tr>
+  <tr>
+    <td colspan="3" align="center"><b>Hell oder dunkel, am Computer oder auf dem Handy.</b></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>Alle Funktionen als Liste</b></summary>
 
 | Bereich                   | Was du bekommst                                                                                                                                       |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -45,25 +126,13 @@ GGServers oder Nodecraft. Leitsatz: **Jede häufige Aufgabe in höchstens 3 Klic
 | ⏰ **Zeitpläne**          | Neustart, Backup oder Befehl – „jeden Tag um 04:00“ statt Cron-Syntax, mit Vorwarnung im Spiel-Chat.                                                  |
 | 📊 **Statistik**          | CPU, RAM, TPS und Spieler über die letzte Stunde, 24 Stunden oder 7 Tage.                                                                             |
 | 🔔 **Benachrichtigungen** | Discord, Slack, Microsoft Teams oder eigene Webhooks: Server gestartet oder abgestürzt, Backup fertig, Spieler beigetreten.                           |
-| 🔐 **Benutzer & Rollen**  | Rollen pro Server (Besitzer, Moderator, Zuschauer oder eigene), 2FA per App, Protokoll aller Aktionen.                                                |
+| 🔐 **Benutzer & Rollen**  | Rollen pro Server (Besitzer, Moderator, Zuschauer oder eigene), Passkeys, 2FA per App, Protokoll aller Aktionen.                                      |
+| 🛡️ **Admin-Bereich**      | Domain des Panels, Updates per Klick, Passwörter anderer zurücksetzen, Einstellungen für das ganze Panel.                                             |
 | 🤖 **REST-API**           | API-Schlüssel mit Ablaufdatum und OpenAPI-Doku unter `/api/docs`.                                                                                     |
 | ⬆️ **Updates**            | Das Panel zeigt neue Versionen an und aktualisiert sich per Knopfdruck. Deine Minecraft-Server laufen dabei weiter.                                   |
 | 🌗 **Bedienung**          | Dunkel und hell, Deutsch und Englisch, auch auf dem Handy gut bedienbar.                                                                              |
 
-## Bilder
-
-|                                                                        |                                                  |
-| ---------------------------------------------------------------------- | ------------------------------------------------ |
-| ![Server-Seite mit Adresse und Spielern](docs/screenshots/server.webp) | ![Live-Konsole](docs/screenshots/console.webp)   |
-| **Server-Seite:** Adresse, Bedrock-Port, Spieler, Kennzahlen           | **Konsole:** live, mit Verlauf und Tab-Ergänzung |
-| ![Plugin-Marktplatz](docs/screenshots/market.webp)                     | ![Datei-Manager](docs/screenshots/files.webp)    |
-| **Marktplatz:** nur Plugins, die zu deinem Server passen               | **Dateien:** Baum, Drag & Drop, Editor           |
-| ![Statistik der letzten 24 Stunden](docs/screenshots/stats.webp)       | ![Helles Design](docs/screenshots/light.webp)    |
-| **Statistik:** CPU, RAM, TPS und Spieler                               | **Hell oder dunkel**, wie du magst               |
-
-<p align="center"><img src="docs/screenshots/phone.webp" alt="Server-Seite auf dem Handy" width="300"></p>
-
-Den Weg dorthin zeigt die [Fortschrittsseite](docs/progress.html).
+</details>
 
 ## Installation
 
@@ -78,9 +147,12 @@ In Proxmox den Host öffnen (z. B. `pve`) → **Shell** → diese Zeile einfüge
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 ```
 
-Das Skript legt einen eigenen Container (Debian 12, 4 Kerne, 8 GB RAM, 32 GB Platte) an, installiert Docker
-und MorniHosting und zeigt dir am Ende die Adresse. Alle Werte kannst du vorher ändern.
-Mehr dazu: [Proxmox-Anleitung](docs/proxmox-quickstart.md).
+| CPU     | RAM  | Platte | System    | Adresse danach             |
+| ------- | ---- | ------ | --------- | -------------------------- |
+| 4 Kerne | 8 GB | 32 GB  | Debian 12 | `http://<IP des LXC>:8080` |
+
+Das Skript legt einen eigenen Container an, installiert Docker und MorniHosting und zeigt dir am Ende die
+Adresse. Alle Werte kannst du vorher ändern. Mehr dazu: [Proxmox-Anleitung](docs/proxmox-quickstart.md).
 
 ### B) Debian oder Ubuntu (Server, VM, Mini-PC)
 
@@ -141,9 +213,38 @@ Ports an deinen Rechner weiter:
 Der Knopf **Jetzt prüfen** auf der Server-Seite sagt dir, ob es klappt. Kein Zugriff auf den Router? Dann hilft
 ein Tunnel wie [playit.gg](https://playit.gg) – der Knopf dazu steht direkt daneben.
 
+## Deine Domain und Passkeys
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/account.webp" alt="Passkeys im Konto"></td>
+    <td width="50%"><img src="docs/screenshots/reset.webp" alt="Neues Passwort für Lena"></td>
+  </tr>
+  <tr>
+    <td><b>Passkeys</b> im Konto hinzufügen und entfernen.</td>
+    <td><b>Passwort vergessen?</b> Der Admin erzeugt ein neues, es wird genau einmal angezeigt.</td>
+  </tr>
+</table>
+
+Mit einer eigenen Domain erreichst du das Panel über `https://panel.deine-domain.de`, und die Anmeldung mit
+**Passkey** (Fingerabdruck, Gesicht oder Geräte-PIN) funktioniert. Browser erlauben Passkeys nur über HTTPS.
+
+1. **Domain auf dich zeigen lassen:** Beim Domain-Anbieter einen Eintrag (A-Record) auf deine öffentliche IP
+   setzen – oder eine DynDNS-Adresse nutzen.
+2. **HTTPS davorsetzen:** z. B. mit Nginx Proxy Manager oder Caddy. Ziel ist `http://<IP des Panels>:8080`.
+3. **Panel Bescheid sagen:** In der `.env` `MH_TRUST_PROXY=true` setzen und neu starten (`update`). Dann im
+   Panel unter **Admin-Bereich → Domain** die Adresse eintragen.
+4. **Passkey anlegen:** Panel über die Domain öffnen → **Mein Konto → Passkeys → Passkey hinzufügen**. Ab
+   jetzt reicht auf der Anmeldeseite ein Klick auf **Mit Passkey anmelden**.
+
+Das Passwort bleibt als Rückfallebene erhalten. Wer sein Passwort vergessen hat, bekommt im **Admin-Bereich →
+Passwörter** mit zwei Klicks ein neues.
+
 ## Updates
 
-- **Im Panel:** Unter _Einstellungen → Updates_ (und unten links in der Seitenleiste) erscheint ein Hinweis,
+<img src="docs/screenshots/admin.webp" alt="Admin-Bereich mit Updates" width="100%">
+
+- **Im Panel:** Im **Admin-Bereich → Updates** (und unten links in der Seitenleiste) erscheint ein Hinweis,
   sobald es eine neue Version gibt. Ein Klick auf **Jetzt aktualisieren** genügt.
 - **Auf der Konsole:** `update` (nach Weg A oder B) bzw. `sudo /opt/mornihosting/update.sh`.
 - **Weg C (von Hand):** `git pull` und danach `docker compose pull && docker compose up -d`
@@ -159,8 +260,9 @@ Deine Minecraft-Server sind eigene Container und laufen während des Updates ein
 - **Ohne Root:** Der Panel-Container läuft als normaler Benutzer, schreibgeschützt, mit `cap_drop: ALL` und
   `no-new-privileges`.
 - **Keine Standard-Passwörter:** Das erste Konto legst du selbst an; Geheimnisse stehen nur in der `.env`.
-- **Anmeldung:** Passwörter mit Argon2, Sitzungs-Cookies (`httpOnly`, `SameSite`, bei HTTPS `Secure`),
-  CSRF-Schutz, Rate-Limit beim Login, 2FA per Authenticator-App, API-Schlüssel nur als Hash gespeichert.
+- **Anmeldung:** Passwörter mit Argon2, Passkeys nach WebAuthn-Standard (an die Domain gebunden, daher sicher
+  gegen nachgemachte Seiten), Sitzungs-Cookies (`httpOnly`, `SameSite`, bei HTTPS `Secure`), CSRF-Schutz,
+  Rate-Limit beim Login, 2FA per Authenticator-App, API-Schlüssel nur als Hash gespeichert.
 - **Dateien:** Jeder Pfad bleibt im Ordner des Servers (kein `../`), ZIPs werden auf „Zip-Slip“ geprüft,
   Uploads haben ein Größenlimit, im Plugin-Bereich sind nur `.jar` erlaubt.
 - **Downloads:** Plugins und Mods kommen nur von Modrinth, Hangar, SpigotMC, CurseForge und (für Floodgate)
@@ -168,8 +270,8 @@ Deine Minecraft-Server sind eigene Container und laufen während des Updates ein
   liefert.
 - **Webhooks:** Adressen werden verschlüsselt gespeichert und dürfen nicht ins Heimnetz zeigen.
 
-Das Panel selbst (Port 8080) gehört **nicht** ins Internet. Für unterwegs nimm ein VPN (WireGuard, Tailscale)
-oder einen Reverse-Proxy mit HTTPS und setze dann `MH_TRUST_PROXY=true`.
+Das Panel selbst (Port 8080) gehört **nicht** ungeschützt ins Internet. Für unterwegs nimm ein VPN (WireGuard,
+Tailscale) oder einen Reverse-Proxy mit HTTPS wie oben beschrieben.
 
 Eine Sicherheitslücke gefunden? Bitte nicht als öffentliches Issue, sondern über
 [GitHub Security Advisories](https://github.com/MoinMornhart/MorniHosting/security/advisories/new) melden.
@@ -202,6 +304,15 @@ Floodgate und öffnet einen UDP-Port (meist 19132). Das geht bei Paper, Purpur, 
 </details>
 
 <details>
+<summary><b>Warum sehe ich keinen Knopf „Mit Passkey anmelden“?</b></summary>
+
+Passkeys gehen nur über HTTPS mit einer Domain (oder direkt am Rechner unter `localhost`). Über
+`http://192.168.…` blendet MorniHosting den Knopf aus. Wie du HTTPS einrichtest, steht unter
+[Deine Domain und Passkeys](#deine-domain-und-passkeys).
+
+</details>
+
+<details>
 <summary><b>Kann ich meinen bisherigen Server mitnehmen?</b></summary>
 
 Ja. Packe den Server-Ordner als ZIP und nutze **Server importieren** auf der Übersicht. Software und Version
@@ -220,8 +331,9 @@ Backups kannst du im Panel auch direkt herunterladen.
 <details>
 <summary><b>Ich habe mein Passwort vergessen oder mein Handy (2FA) verloren.</b></summary>
 
-Ein anderer Administrator kann es unter _Benutzer und Rollen_ neu setzen. Bist du der einzige Admin, setze es
-auf dem Rechner zurück (bei Proxmox vorher `pct enter <ID>`):
+Ein anderer Administrator gibt dir im **Admin-Bereich → Passwörter** mit zwei Klicks ein neues Passwort und
+kann dabei auch 2FA und Passkeys entfernen. Bist du der einzige Admin, setze es auf dem Rechner zurück (bei
+Proxmox vorher `pct enter <ID>`):
 
 ```bash
 docker exec mornihosting node /app/server/dist/cli.js reset-password <name>
@@ -259,13 +371,18 @@ MH_SECRET=$(openssl rand -hex 32) MH_DATA_DIR=./data MH_DEMO=true pnpm --filter 
 pnpm --filter @mornihosting/web dev
 ```
 
-| Befehl           | Was es tut                                                               |
-| ---------------- | ------------------------------------------------------------------------ |
-| `pnpm lint`      | ESLint                                                                   |
-| `pnpm typecheck` | TypeScript (strict) für alle Pakete und die Browser-Tests                |
-| `pnpm test`      | Vitest für die Backend-Logik                                             |
-| `pnpm build`     | Web-App und Server bauen                                                 |
-| `pnpm test:e2e`  | Playwright: Server anlegen, Plugin installieren, Backup wiederherstellen |
+| Befehl                                       | Was es tut                                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------- |
+| `pnpm lint`                                  | ESLint                                                                            |
+| `pnpm typecheck`                             | TypeScript (strict) für alle Pakete und die Browser-Tests                         |
+| `pnpm test`                                  | Vitest für die Backend-Logik                                                      |
+| `pnpm build`                                 | Web-App und Server bauen                                                          |
+| `pnpm test:e2e`                              | Playwright: Server anlegen, Plugin installieren, Backup wiederherstellen, Passkey |
+| `pnpm --filter @mornihosting/web build:demo` | Klickbare Demo als eine HTML-Datei (`apps/web/dist-demo/mornihosting-demo.html`)  |
+
+Die Demo ist die echte Oberfläche mit einem nachgebauten Server im Browser (`apps/web/src/demo/`): Anmelden
+(`philip` / `minecraft1` oder Passkey), Server starten und stoppen, Konsole, Admin-Bereich und Updates
+funktionieren, gespeichert wird nichts.
 
 Aufbau: `apps/server` (Fastify, SQLite/Drizzle, Docker über den Socket-Proxy), `apps/web` (React, Vite,
 Tailwind, Radix, TanStack Query), `packages/shared` (Typen, Schemas, Software-Katalog). Jeder Minecraft-Server
@@ -274,7 +391,8 @@ ist ein eigener Container auf Basis der [itzg-Images](https://github.com/itzg/do
 GitHub Actions prüft jeden Push (Lint, Typen, Tests, Playwright). Eine neue Version entsteht mit einem Tag
 `v1.2.3`: Dann wird das Image `ghcr.io/moinmornhart/mornihosting` für amd64 und arm64 gebaut und danach das
 GitHub-Release angelegt – mit den Hinweisen aus `docs/releases/v1.2.3.md`, falls es die Datei gibt. Sobald das
-Release da ist, bieten alle Panels das Update an.
+Release da ist, bieten alle Panels das Update an. Den Weg dorthin zeigt die
+[Fortschrittsseite](docs/progress.html).
 
 ## Lizenz
 

@@ -1,5 +1,5 @@
 import { Suspense, type ReactElement } from 'react';
-import type { RouteObject } from 'react-router';
+import { Navigate, type RouteObject } from 'react-router';
 import { Skeleton } from '@/components/ui/misc';
 import { lazyPage } from '@/lib/lazy-page';
 import { AccountPage } from '@/features/admin/AccountPage';
@@ -32,6 +32,7 @@ export const appRoutes: RouteObject[] = [
   { path: 'users', element: <UsersPage /> },
   { path: 'api-access', element: <ApiAccessPage /> },
   { path: 'settings', element: <PanelSettingsPage /> },
+  { path: 'admin', element: <Navigate to="/settings" replace /> },
   { path: 'audit', element: <AuditPage /> },
   { path: 'account', element: <AccountPage /> },
   { path: 'servers/import', element: <ImportServerPage /> },

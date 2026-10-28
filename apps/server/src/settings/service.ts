@@ -6,6 +6,7 @@ import { settings } from '../db/schema.js';
 import type { SecretBox } from '../lib/crypto.js';
 
 export interface StoredSettings {
+  panelDomain: string;
   publicAddress: string;
   lanIp: string;
   publicIpLookup: boolean;
@@ -30,6 +31,7 @@ const ENCRYPTED_FIELDS: readonly (keyof StoredSettings)[] = ['curseforgeApiKey']
 
 export function createSettingsService(db: Db, config: Config, secrets: SecretBox): SettingsService {
   const defaults: StoredSettings = {
+    panelDomain: '',
     publicAddress: config.publicAddress ?? '',
     lanIp: config.lanIp ?? '',
     publicIpLookup: true,
@@ -80,6 +82,7 @@ export function createSettingsService(db: Db, config: Config, secrets: SecretBox
   const publicView = (): PanelSettings => {
     const s = get();
     return {
+      panelDomain: s.panelDomain,
       publicAddress: s.publicAddress,
       lanIp: s.lanIp,
       publicIpLookup: s.publicIpLookup,

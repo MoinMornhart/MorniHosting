@@ -19,6 +19,7 @@ import {
 import { createAuditService } from './audit/service.js';
 import { createAuthHook } from './auth/hook.js';
 import { registerAuditRoutes } from './audit/routes.js';
+import { registerPasskeyRoutes } from './auth/passkey-routes.js';
 import { registerAuthRoutes } from './auth/routes.js';
 import { registerTokenRoutes } from './auth/token-routes.js';
 import { createSessionStore } from './auth/sessions.js';
@@ -210,6 +211,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   });
 
   registerAuthRoutes(app, ctx);
+  registerPasskeyRoutes(app, ctx);
   registerServerRoutes(app, ctx, servers);
   registerImportRoutes(app, ctx, servers);
   registerFileRoutes(app, ctx, servers, files);

@@ -9,7 +9,7 @@ import {
   Moon,
   Plus,
   ScrollText,
-  SlidersHorizontal,
+  ShieldCheck,
   Sun,
   SunMoon,
   UserRound,
@@ -64,7 +64,7 @@ function useNavItems(): { main: NavItem[]; admin: NavItem[] } {
       { to: '/users', label: t('nav.users'), icon: Users, show: admin },
       { to: '/notifications', label: t('nav.notifications'), icon: Bell, show: admin },
       { to: '/api-access', label: t('nav.api'), icon: Code2, show: true },
-      { to: '/settings', label: t('nav.settings'), icon: SlidersHorizontal, show: admin },
+      { to: '/settings', label: t('nav.settings'), icon: ShieldCheck, show: admin },
       { to: '/audit', label: t('nav.audit'), icon: ScrollText, show: admin },
     ],
   };

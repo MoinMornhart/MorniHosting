@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import { createBrowserRouter, createMemoryRouter, RouterProvider } from 'react-router';
 import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/misc';
 import { queryClient } from '@/lib/query';
@@ -11,7 +11,10 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { AppShell } from '@/features/shell/AppShell';
 import { appRoutes } from './routes';
 
-const router = createBrowserRouter([
+/** The demo runs inside a frame where the address bar cannot change, so it keeps its route in memory. */
+const createRouter = import.meta.env.MODE === 'demo' ? createMemoryRouter : createBrowserRouter;
+
+const router = createRouter([
   { path: '/setup', element: <SetupPage /> },
   { path: '/login', element: <LoginPage /> },
   {

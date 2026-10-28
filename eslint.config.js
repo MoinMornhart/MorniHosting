@@ -25,6 +25,7 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      '**/dist-demo/**',
       '**/node_modules/**',
       'apps/server/drizzle/**',
       'docs/**',
@@ -45,7 +46,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/server/**/*.ts', 'packages/**/*.ts', 'e2e/**/*.ts', '*.config.{js,ts}'],
+    files: [
+      'apps/server/**/*.ts',
+      'packages/**/*.ts',
+      'e2e/**/*.ts',
+      '*.config.{js,ts}',
+      'apps/web/scripts/**',
+    ],
     languageOptions: { globals: globals.node },
   },
   {
