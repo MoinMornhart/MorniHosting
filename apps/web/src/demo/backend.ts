@@ -1,7 +1,11 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- demo timings, made-up live values and HTTP status codes */
 import {
+  NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
+  type ConnectionInfo,
   type InstalledContent,
+  type NetbirdServiceInfo,
+  type NetbirdStatus,
   type MeResponse,
   type PanelSettings,
   type PasskeyEntry,
@@ -87,6 +91,8 @@ Array.from(store)
   });
 const NEW_SERVER_FIELDS = {
   publicPort: null,
+  geyserPublicPort: null,
+  netbird: null,
   voiceChat: false,
   voicePort: null,
   voicePublicPort: null,
@@ -390,10 +396,21 @@ function patchServer(id: string, body: Readonly<Record<string, unknown>>): Reply
   if (!server) return error(404, 'not_found');
   const publicPort =
     'publicPort' in body ? ((body['publicPort'] as number | null) ?? null) : server.publicPort;
-  const key = `/api/servers/${templateOf(id)}/connection`;
-  const connection = read<{ port: number } | undefined>(key);
-  if (connection) store.set(key, { ...connection, sharePort: publicPort ?? connection.port });
   return ok(changeServer(id, { ...body, publicPort, address: addressWith(server, publicPort) }));
+}
+
+/** The IP card: recorded IPs, but domain and ports of this very server (NetBird name, public port). */
+function connectionOf(id: string): Reply {
+  const server = state.servers.get(id);
+  const recorded = read<ConnectionInfo | undefined>(`/api/servers/${templateOf(id)}/connection`);
+  if (!server || !recorded) return error(404, 'not_found');
+  const domain = server.domain ?? recorded.domain;
+  return ok({
+    ...recorded,
+    domain,
+    port: server.port,
+    sharePort: domain && server.publicPort ? server.publicPort : server.port,
+  } satisfies ConnectionInfo);
 }
 
 function setContent(id: string, fileName: string, entry: InstalledContent | null, enabled: boolean): void {
@@ -407,6 +424,7 @@ function setContent(id: string, fileName: string, entry: InstalledContent | null
 function setGeyser(id: string, enabled: boolean): Reply {
   const server = changeServer(id, { geyser: enabled, geyserPort: enabled ? GEYSER_PORT : null });
   if (!server) return error(404, 'not_found');
+  followNetbird(id);
   return ok({ enabled, port: server.geyserPort, restartRequired: server.live.state === 'running' });
 }
 
@@ -424,6 +442,7 @@ function setVoiceChat(id: string, body: Readonly<Record<string, unknown>>): Repl
   const reachable = name ? `${name}:${outside}` : outside;
   const voiceHost = enabled ? reachable : null;
   changeServer(id, { voiceChat: enabled, voicePort: port, voicePublicPort, voiceHost });
+  followNetbird(id);
   setContent(
     id,
     VOICE_JAR,
@@ -449,6 +468,58 @@ function setVoiceChat(id: string, body: Readonly<Record<string, unknown>>): Repl
     voiceHost,
     restartRequired: server.live.state === 'running',
   } satisfies VoiceChatResult);
+}
+
+/* ---------- NetBird automation (pretend account with one domain) ---------- */
+
+const DEMO_DOMAIN = 'moinmornhart.de';
+const DEMO_PEER = { id: 'peer-mh', name: 'mornihosting', ip: '100.92.14.7', connected: true };
+const NOT_CONNECTED: NetbirdStatus = {
+  configured: false,
+  apiUrl: NETBIRD_DEFAULT_API,
+  domain: null,
+  peerId: null,
+  peerName: null,
+  panelAddress: null,
+};
+const netbird = { status: NOT_CONNECTED, nextPort: 31000 };
+
+/** Gives a server its NetBird names; outside ports are handed out like NetBird Cloud does. */
+function setNetbirdName(id: string, name: string | null): ServerDetail | undefined {
+  const server = state.servers.get(id);
+  const domain = netbird.status.domain;
+  if (!server) return undefined;
+  if (!name || !domain) {
+    return changeServer(id, { netbird: null, domain: null, publicPort: null, geyserPublicPort: null });
+  }
+  const known = (purpose: string): number | null =>
+    server.netbird?.services.find((s) => s.purpose === purpose)?.port ?? null;
+  const portFor = (purpose: string): number => known(purpose) ?? netbird.nextPort++;
+  const services: NetbirdServiceInfo[] = [
+    { purpose: 'main', domain: `${name}.${domain}`, port: portFor('main') },
+    ...(server.geyser
+      ? [{ purpose: 'geyser', domain: `${name}-bedrock.${domain}`, port: portFor('geyser') } as const]
+      : []),
+    ...(server.voiceChat
+      ? [{ purpose: 'voice', domain: `${name}-voice.${domain}`, port: portFor('voice') } as const]
+      : []),
+  ];
+  const port = (purpose: string): number | null => services.find((s) => s.purpose === purpose)?.port ?? null;
+  return changeServer(id, {
+    netbird: { name, services, error: null },
+    domain: `${name}.${domain}`,
+    publicPort: port('main'),
+    address: `${name}.${domain}:${port('main')}`,
+    geyserPublicPort: port('geyser'),
+    voicePublicPort: port('voice'),
+    voiceHost: server.voiceChat ? `${name}.${domain}:${port('voice')}` : null,
+  });
+}
+
+/** After Geyser or voice chat changed, NetBird follows. */
+function followNetbird(id: string): void {
+  const name = state.servers.get(id)?.netbird?.name;
+  if (name) setNetbirdName(id, name);
 }
 
 /* ---------- Routes ---------- */
@@ -487,6 +558,10 @@ function createServer(body: Readonly<Record<string, unknown>>): Reply {
     port: Number(body['port']) || base.port,
     geyser: false,
     geyserPort: null,
+    netbird: null,
+    domain: null,
+    publicPort: null,
+    address: base.address,
     createdAt: nowIso(),
     live: {
       ...base.live,
@@ -502,7 +577,8 @@ function createServer(body: Readonly<Record<string, unknown>>): Reply {
   state.templates.set(id, template);
   state.consoles.set(id, []);
   if (body['startNow'] !== false) after(300, () => startServer(id));
-  return ok(server);
+  const named = typeof body['netbirdName'] === 'string' ? setNetbirdName(id, body['netbirdName']) : undefined;
+  return ok(named ?? server);
 }
 
 /** Specific behaviour; everything else answers from the recording or is accepted and forgotten. */
@@ -725,12 +801,69 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['PATCH', '/api/servers/:id', ({ params, body }) => patchServer(params['id'] ?? '', body)],
+  ['GET', '/api/servers/:id/connection', ({ params }) => connectionOf(params['id'] ?? '')],
   [
     'PUT',
     '/api/servers/:id/geyser',
     ({ params, body }) => setGeyser(params['id'] ?? '', body['enabled'] === true),
   ],
   ['PUT', '/api/servers/:id/voicechat', ({ params, body }) => setVoiceChat(params['id'] ?? '', body)],
+  [
+    'PUT',
+    '/api/servers/:id/netbird',
+    ({ params, body }) => {
+      const name = typeof body['name'] === 'string' ? body['name'] : null;
+      const server = setNetbirdName(params['id'] ?? '', name);
+      return server ? ok({ netbird: server.netbird }) : error(404, 'not_found');
+    },
+  ],
+  ['GET', '/api/netbird', () => ok(netbird.status)],
+  [
+    'POST',
+    '/api/netbird/discover',
+    ({ body }) =>
+      !body['token'] && !netbird.status.configured
+        ? error(400, 'netbird_token_missing')
+        : ok({
+            domains: [{ domain: DEMO_DOMAIN, validated: true, custom: true }],
+            peers: [DEMO_PEER],
+            suggestedPeerId: DEMO_PEER.id,
+          }),
+  ],
+  [
+    'PUT',
+    '/api/netbird',
+    ({ body }) => {
+      netbird.status = {
+        ...netbird.status,
+        configured: true,
+        apiUrl: String(body['apiUrl'] ?? NETBIRD_DEFAULT_API),
+        domain: String(body['domain'] ?? DEMO_DOMAIN),
+        peerId: DEMO_PEER.id,
+        peerName: DEMO_PEER.name,
+      };
+      return ok(netbird.status);
+    },
+  ],
+  [
+    'DELETE',
+    '/api/netbird',
+    () => {
+      Array.from(state.servers.keys()).forEach((id) => setNetbirdName(id, null));
+      netbird.status = { ...NOT_CONNECTED, panelAddress: netbird.status.panelAddress };
+      return ok(netbird.status);
+    },
+  ],
+  [
+    'POST',
+    '/api/netbird/panel',
+    ({ body }) => {
+      const address = `${String(body['name'] ?? 'panel')}.${netbird.status.domain ?? DEMO_DOMAIN}`;
+      netbird.status = { ...netbird.status, panelAddress: address };
+      state.settings = { ...state.settings, panelDomain: address };
+      return ok(netbird.status);
+    },
+  ],
   [
     'DELETE',
     '/api/servers/:id',

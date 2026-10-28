@@ -26,6 +26,8 @@ import { formatMemoryMb } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
 import { useServerAction } from '@/features/dashboard/ServerCard';
+import { NetbirdServerField } from '@/features/netbird/NetbirdServerField';
+import { useNetbird } from '@/features/netbird/netbird';
 
 const MEMORY_STEP_MB = 512;
 const MEMORY_MIN_MB = 512;
@@ -68,13 +70,15 @@ const publicPortOf = (draft: Draft): number | null =>
 /** Only the fields that changed, in the shape PATCH /api/servers/:id expects. */
 function patchOf(server: ServerDetail, draft: Draft): UpdateServerInput {
   const javaTag = draft.javaTag === AUTO ? null : draft.javaTag;
+  // With NetBird the panel keeps domain and outside port in sync itself.
+  const own = server.netbird === null;
   return {
     ...(draft.name.trim() !== server.name ? { name: draft.name.trim() } : {}),
     ...(draft.memoryMb !== server.memoryMb ? { memoryMb: draft.memoryMb } : {}),
     ...(Number(draft.port) !== server.port ? { port: Number(draft.port) } : {}),
     ...(draft.autoStart !== server.autoStart ? { autoStart: draft.autoStart } : {}),
-    ...(draft.domain.trim() !== (server.domain ?? '') ? { domain: draft.domain.trim() } : {}),
-    ...(publicPortOf(draft) !== server.publicPort ? { publicPort: publicPortOf(draft) } : {}),
+    ...(own && draft.domain.trim() !== (server.domain ?? '') ? { domain: draft.domain.trim() } : {}),
+    ...(own && publicPortOf(draft) !== server.publicPort ? { publicPort: publicPortOf(draft) } : {}),
     ...(javaTag !== server.javaTag ? { javaTag } : {}),
     ...(draft.version !== server.version ? { version: draft.version } : {}),
   };
@@ -87,6 +91,8 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
   const restart = useServerAction(server.id);
   const [draft, setDraft] = useState<Draft>(() => draftOf(server));
   const [pendingRestart, setPendingRestart] = useState(false);
+  const netbird = useNetbird();
+  const managed = server.netbird !== null;
   const { data: host } = useQuery(hostQuery);
   const versions = useQuery({
     queryKey: ['versions', server.software],
@@ -218,10 +224,16 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
         ) : null}
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Field id="s-domain" label={t('settings.general.domain')} hint={t('settings.general.domainHint')}>
+          {netbird?.domain ? <NetbirdServerField server={server} domain={netbird.domain} /> : null}
+          <Field
+            id="s-domain"
+            label={t('settings.general.domain')}
+            hint={managed ? t('netbirdAuto.managed') : t('settings.general.domainHint')}
+          >
             <Input
               id="s-domain"
-              value={draft.domain}
+              value={managed ? (server.domain ?? '') : draft.domain}
+              disabled={managed}
               placeholder="mc.example.de"
               onChange={(e) => set('domain', e.target.value)}
             />
@@ -229,12 +241,13 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
           <Field
             id="s-public-port"
             label={t('settings.general.publicPort')}
-            hint={t('settings.general.publicPortHint')}
+            hint={managed ? t('netbirdAuto.managed') : t('settings.general.publicPortHint')}
           >
             <Input
               id="s-public-port"
               inputMode="numeric"
-              value={draft.publicPort}
+              value={managed ? String(server.publicPort ?? '') : draft.publicPort}
+              disabled={managed}
               placeholder={draft.port}
               onChange={(e) => set('publicPort', e.target.value.trim())}
             />

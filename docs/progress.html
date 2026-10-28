@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:00:01+00:00",
-  "now": "Fehler aus deinem Test behoben (Anmeldung über die NetBird-Domain) – alle Prüfungen laufen, danach main und Update-Anleitung",
+  "updated": "2026-10-28T07:50:11+00:00",
+  "now": "NetBird-Automatik fertig gebaut und im Browser geprüft – jetzt alle Prüfungen, dann Pull Request",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -192,11 +192,21 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Fehler behoben · Anmelden über deine NetBird-Domain",
+      "status": "fertig",
+      "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt. 159 Tests, im Browser über einen nachgestellten NetBird-Proxy geprüft."
+    },
+    {
+      "title": "Phase 10 · Server-Adressen automatisch über NetBird",
       "status": "laeuft",
-      "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt."
+      "detail": "Einmal im Admin-Bereich NetBird-API-Schlüssel und deine Domain (z. B. moinmornhart.de) eintragen. Danach gibst du jedem Server nur einen Namen, und das Panel legt in NetBird alles selbst an: minecraft.moinmornhart.de für Java oder Bedrock, dazu Geyser und Voice-Chat. Den Port nach außen vergibt NetBird; das Panel zeigt die fertige Adresse."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p10-netbird-auto.webp",
+      "caption": "Phase 10 · NetBird einmal verbinden, danach reicht pro Server ein Name",
+      "time": "2026-10-28T08:50:00+01:00"
+    },
     {
       "img": "progress/p9-voice.webp",
       "caption": "Phase 9 · Voice-Chat mit einem Schalter: Plugin, UDP-Port und Adresse richten sich selbst ein",
@@ -251,69 +261,61 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p5-backups.webp",
       "caption": "Phase 5 · Backups: ein Klick zum Sichern, einer zum Wiederherstellen",
       "time": "2026-10-28T01:18:00+01:00"
-    },
-    {
-      "img": "progress/p5-schedules.webp",
-      "caption": "Phase 5 · Zeitpläne mit Schnellvorlagen, ganz ohne Cron",
-      "time": "2026-10-28T01:18:00+01:00"
     }
   ],
   "files": [
     {
-      "tag": "geändert",
-      "path": "proxmox/mornihosting.sh (TUN-Gerät für NetBird, Setup-Key optional), docs/proxmox-quickstart.md"
+      "tag": "neu",
+      "path": "apps/server/src/netbird/ (client.ts, service.ts, routes.ts), drizzle/0003_netbird.sql"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/voicechat/ (Simple Voice Chat mit einem Klick), drizzle/0002_ports_voicechat.sql"
+      "path": "apps/web/src/features/admin/NetbirdAutomationCard.tsx, apps/web/src/features/netbird/"
     },
     {
       "tag": "geändert",
-      "path": "apps/server/src/auth/hook.ts, passkeys.ts (Panel-Domain hinter NetBird gilt als HTTPS)"
-    },
-    {
-      "tag": "geändert",
-      "path": "apps/server/src/servers/service.ts, connectivity.ts (öffentlicher Port)"
+      "path": "Server-Assistent, Server-Einstellungen, Adress-Karte (Adresse über NetBird)"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/admin/NetBirdGuide.tsx, features/servers/settings/VoiceChatCard.tsx"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/server/test/voicechat.test.ts, docs/netbird.md"
+      "path": "apps/server/test/netbird.test.ts (nachgebautes NetBird)"
     },
     {
       "tag": "geändert",
-      "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
+      "path": "README.md, docs/netbird.md, Demo-Website"
     }
   ],
-  "eta": "2026-10-28T07:20:00Z",
+  "eta": "2026-10-28T08:15:00Z",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-28T06:52:00Z",
-      "title": "Ursache gefunden: NetBird gibt ohne „Pass Host Header“ die interne Adresse weiter"
+      "until": "2026-10-28T07:20:00Z",
+      "title": "NetBird-Schnittstelle geprüft (Dienste anlegen, Domains, Rechner)"
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:55:00Z",
-      "title": "Anmeldung erkennt die eigene Seite am Browser-Merkmal (Test grün)"
+      "until": "2026-10-28T07:34:00Z",
+      "title": "Server-Teil: Verbindung, Dienste pro Server anlegen, ändern, löschen; Panel-Adresse"
     },
     {
       "status": "done",
-      "until": "2026-10-28T07:00:00Z",
-      "title": "Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus; im Browser über einen nachgebauten Proxy geprüft"
+      "until": "2026-10-28T07:36:00Z",
+      "title": "Tests mit nachgebautem NetBird (165 grün)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T07:46:00Z",
+      "title": "Oberfläche: Admin-Karte, Name im Assistenten und in den Einstellungen, Adress-Karte (im Browser geprüft)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T07:52:00Z",
+      "title": "Demo-Website, README, docs/netbird.md, Bilder"
     },
     {
       "status": "current",
-      "until": "2026-10-28T07:10:00Z",
-      "title": "Alle Prüfungen, Push, Pull Request"
-    },
-    {
-      "status": "next",
-      "until": "2026-10-28T07:20:00Z",
-      "title": "Nach main übernehmen; dann bei dir: pct enter <ID> und update"
+      "until": "2026-10-28T08:15:00Z",
+      "title": "Alle Prüfungen, Pull Request, nach main übernehmen"
     }
   ]
 }

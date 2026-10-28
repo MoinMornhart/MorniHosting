@@ -8,6 +8,7 @@ import {
   PORT_VOICE_CHAT,
   SOFTWARE,
   type CreateServerInput,
+  type NetbirdServerInfo,
   type ServerDetail,
   type ServerLive,
   type ServerState,
@@ -33,6 +34,10 @@ import {
   serverDir,
   type ServerRow,
 } from './spec.js';
+
+export type TunnelAddress = Partial<
+  Pick<ServerRow, 'domain' | 'publicPort' | 'geyserPublicPort' | 'voicePublicPort' | 'netbirdName'>
+>;
 
 export interface ServerService {
   readonly init: () => Promise<void>;
@@ -68,6 +73,14 @@ export interface ServerService {
   readonly setVoiceChat: (id: string, enabled: boolean, voicePublicPort: number | null) => void;
   /** Runs right before a container starts; the listener must not throw. */
   readonly onBeforeStart: (prepare: (id: string) => void) => () => void;
+  /** Awaited after a server was created, before the answer goes out (e.g. NetBird sets up its address). */
+  readonly onCreated: (listener: (id: string) => Promise<void>) => void;
+  /** Called after a server's host ports changed (server port, Geyser, voice chat). */
+  readonly onPortsChanged: (listener: (id: string) => void) => () => void;
+  /** Address fields a tunnel integration (NetBird) keeps up to date. */
+  readonly setTunnelAddress: (id: string, patch: TunnelAddress) => void;
+  /** Lets the NetBird integration describe a server on its pages. */
+  readonly describeNetbird: (provider: (row: ServerRow) => NetbirdServerInfo | null) => void;
   /** voice_host for Simple Voice Chat: the public name with the outside UDP port, or just the port. */
   readonly voiceHost: (id: string) => string;
   /** The first port from `start` upwards that no other server uses. */
@@ -114,6 +127,7 @@ const DEFAULT_MAX_PLAYERS = 20;
 const ECHO_PREFIX = '\u001b[36m> ';
 /** Extra port entry of Simple Voice Chat (see voicechat/service.ts). */
 export const VOICE_PURPOSE = 'voicechat';
+export const GEYSER_PURPOSE = 'geyser';
 const ANSI_RESET = '\u001b[0m';
 const PANEL_PREFIX = '\u001b[33m[MorniHosting]\u001b[0m ';
 
@@ -237,6 +251,10 @@ export function createServerService(ctx: AppContext): ServerService {
   const withLock = createKeyedLock();
   /** Features that keep files in sync with the panel (e.g. voice chat) refresh them here. */
   const beforeStart = new Set<(id: string) => void>();
+  const portListeners = new Set<(id: string) => void>();
+  const createdListeners = new Set<(id: string) => Promise<void>>();
+  const portsChanged = (id: string): void => portListeners.forEach((listener) => listener(id));
+  const netbird: { describe: (row: ServerRow) => NetbirdServerInfo | null } = { describe: () => null };
 
   const addressOf = (r: ServerRow): string => {
     const s = settings.get();
@@ -574,12 +592,14 @@ export function createServerService(ctx: AppContext): ServerService {
         domain: r.domain,
         image: r.image,
         geyser: r.geyser,
-        geyserPort: r.geyser ? (r.extraPorts.find((p) => p.purpose === 'geyser')?.port ?? null) : null,
+        geyserPort: r.geyser ? (r.extraPorts.find((p) => p.purpose === GEYSER_PURPOSE)?.port ?? null) : null,
+        geyserPublicPort: r.geyser ? r.geyserPublicPort : null,
         publicPort: r.publicPort,
         voiceChat: r.voiceChat,
         voicePort: r.voiceChat ? (r.extraPorts.find((p) => p.purpose === VOICE_PURPOSE)?.port ?? null) : null,
         voicePublicPort: r.voicePublicPort,
         voiceHost: r.voiceChat ? voiceHostOf(r) : null,
+        netbird: netbird.describe(r),
         permissions: ctx.access.permissionsFor(user, id),
       };
     },
@@ -588,6 +608,10 @@ export function createServerService(ctx: AppContext): ServerService {
       if (!CREATABLE_SOFTWARE[input.edition].includes(input.software))
         throw badRequest('software_edition_mismatch');
       assertPortFree(input.port, info.protocol, null);
+      // Only admins may publish a server through the admin's NetBird account.
+      const netbirdName = creator.isAdmin ? (input.netbirdName ?? null) : null;
+      if (netbirdName && db.select().from(servers).where(eq(servers.netbirdName, netbirdName)).get())
+        throw conflict('netbird_name_taken', { name: netbirdName });
       const id = newId();
       const base = {
         id,
@@ -605,6 +629,7 @@ export function createServerService(ctx: AppContext): ServerService {
           ...base,
           rconPassword: secrets.encrypt(randomToken(RCON_PASSWORD_BYTES)),
           image: imageFor(config, base),
+          netbirdName,
         })
         .run();
       fs.mkdirSync(serverDir(config, id), { recursive: true });
@@ -618,6 +643,7 @@ export function createServerService(ctx: AppContext): ServerService {
         rt(id).state = 'starting';
         void withLock(id, () => startInternal(id));
       }
+      await Promise.allSettled(Array.from(createdListeners, (listener) => listener(id)));
       return summaryOf(row(id));
     },
     createFromImport: (input, actor, creator) => {
@@ -665,6 +691,7 @@ export function createServerService(ctx: AppContext): ServerService {
         id,
         Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)),
       );
+      if (next.port !== current.port) portsChanged(id);
       return summaryOf(row(id));
     },
     remove: async (id, deleteFiles, actor) => {
@@ -759,6 +786,7 @@ export function createServerService(ctx: AppContext): ServerService {
     isRunning: (id) => ACTIVE_STATES.includes(rt(id).state),
     setExtraPorts: (id, ports) => {
       db.update(servers).set({ extraPorts: ports }).where(eq(servers.id, id)).run();
+      portsChanged(id);
     },
     freePort: (start, protocol, exceptId) => {
       const isFree = (port: number): boolean => {
@@ -775,14 +803,29 @@ export function createServerService(ctx: AppContext): ServerService {
     },
     setGeyser: (id, enabled) => {
       db.update(servers).set({ geyser: enabled }).where(eq(servers.id, id)).run();
+      portsChanged(id);
     },
     setVoiceChat: (id, enabled, voicePublicPort) => {
       db.update(servers).set({ voiceChat: enabled, voicePublicPort }).where(eq(servers.id, id)).run();
+      portsChanged(id);
     },
     voiceHost: (id) => voiceHostOf(row(id)),
     onBeforeStart: (prepare) => {
       beforeStart.add(prepare);
       return () => beforeStart.delete(prepare);
+    },
+    onCreated: (listener) => {
+      createdListeners.add(listener);
+    },
+    onPortsChanged: (listener) => {
+      portListeners.add(listener);
+      return () => portListeners.delete(listener);
+    },
+    setTunnelAddress: (id, patch) => {
+      db.update(servers).set(patch).where(eq(servers.id, id)).run();
+    },
+    describeNetbird: (provider) => {
+      netbird.describe = provider;
     },
     newId,
   };

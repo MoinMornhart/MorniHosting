@@ -26,6 +26,8 @@ import { blockForServer, blockIcon } from '@/lib/pixel';
 import { errorText } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
+import { NetbirdNameInput } from '@/features/netbird/NetbirdNameInput';
+import { toNetbirdName, useNetbird } from '@/features/netbird/netbird';
 import { serversQuery } from '../live';
 
 const STEPS = ['stepEdition', 'stepSoftware', 'stepVersion', 'stepSize', 'stepName'] as const;
@@ -103,6 +105,10 @@ export function CreateServerPage(): ReactElement {
   const [port, setPort] = useState<number | null>(null);
   const [startNow, setStartNow] = useState(true);
   const [eula, setEula] = useState(false);
+  const netbird = useNetbird();
+  /** null while the address simply follows the server name. */
+  const [netbirdName, setNetbirdName] = useState<string | null>(null);
+  const chosenNetbirdName = (netbirdName ?? toNetbirdName(name)).trim();
 
   const versions = useQuery({
     queryKey: ['versions', software],
@@ -139,6 +145,7 @@ export function CreateServerPage(): ReactElement {
         eula: true,
         autoStart: true,
         startNow,
+        ...(netbird && chosenNetbirdName ? { netbirdName: chosenNetbirdName } : {}),
       };
       return api<ServerSummary>('/api/servers', { method: 'POST', body });
     },
@@ -380,6 +387,20 @@ export function CreateServerPage(): ReactElement {
                 />
               </Field>
             </div>
+            {netbird?.domain ? (
+              <Field
+                id="server-netbird"
+                label={t('netbirdAuto.fieldLabel')}
+                hint={t('netbirdAuto.createHint')}
+              >
+                <NetbirdNameInput
+                  id="server-netbird"
+                  value={netbirdName ?? toNetbirdName(name)}
+                  domain={netbird.domain}
+                  onChange={setNetbirdName}
+                />
+              </Field>
+            ) : null}
             <div className="grid gap-2 rounded-[12px] bg-secondary p-4 text-sm">
               <b>{t('create.summary')}</b>
               <span className="text-muted-foreground">
