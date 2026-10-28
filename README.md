@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml"><img src="https://github.com/MoinMornhart/MorniHosting/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/pmornhart/MorniHosting/actions/workflows/ci.yml"><img src="https://github.com/pmornhart/MorniHosting/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Lizenz-MIT-10b981" alt="Lizenz: MIT">
   <img src="https://img.shields.io/badge/Sprachen-DE%20%7C%20EN-10b981" alt="Sprachen: Deutsch und Englisch">
   <img src="https://img.shields.io/badge/Plattform-Proxmox%20%7C%20Linux%20%7C%20Docker-10b981" alt="Plattform: Proxmox, Linux, Docker">
@@ -78,7 +78,7 @@ für deine Freunde zum Kopieren.
     <td><img src="docs/screenshots/geyser.webp" alt="Bedrock-Spieler erlauben"></td>
   </tr>
   <tr>
-    <td><b>Spieler</b><br>Online-Liste mit Köpfen, OP, Kick, Bann und Whitelist per Klick.</td>
+    <td><b>Spieler</b><br>Online-Liste mit Köpfen, OP, Kick, Bann und Whitelist per Klick. Mit verbundenem Minecraft-Konto bist du auf deinen Servern automatisch OP.</td>
     <td><b>Bedrock-Spieler erlauben</b><br>Geyser und Floodgate mit einem Schalter: Freunde auf Handy, Konsole oder Windows spielen mit.</td>
   </tr>
   <tr>
@@ -153,7 +153,7 @@ Proxmox-Server, einen Mini-PC oder eine VM. Wähle **einen** der drei Wege:
 In Proxmox den Host öffnen (z. B. `pve`) → **Shell** → diese Zeile einfügen:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 ```
 
 | CPU     | RAM  | Platte | System    | Adresse danach             |
@@ -168,7 +168,7 @@ es nach deinem Setup-Key und nimmt den Container gleich in dein NetBird-Netz auf
 ### B) Debian oder Ubuntu (Server, VM, Mini-PC)
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/install.sh)"
 ```
 
 Installiert Docker (falls nötig), legt das Panel nach `/opt/mornihosting`, erzeugt eine `.env` mit zufälligem
@@ -177,7 +177,7 @@ Geheimnis und richtet den Update-Knopf ein.
 ### C) Von Hand mit Docker Compose (auch Windows mit Docker Desktop)
 
 ```bash
-git clone https://github.com/MoinMornhart/MorniHosting.git
+git clone https://github.com/pmornhart/MorniHosting.git
 cd MorniHosting
 cp .env.example .env
 # In der .env bei MH_SECRET einen langen Zufallswert eintragen, z. B. aus: openssl rand -hex 32
@@ -286,6 +286,10 @@ deine Minecraft-Server, ohne im Router etwas freizugeben.
 Den Port nach außen vergibt NetBird Cloud selbst, die Adresse sieht also so aus:
 `minecraft.deine-domain.de:31234`. MorniHosting zeigt sie überall fertig zum Kopieren an.
 
+Betreibst du NetBird selbst, trägst du beim Verbinden unter **Eigener NetBird-Server?** die Adresse deines
+NetBird-Dashboards ein. Läuft NetBird auf dem Rechner mit MorniHosting, übernimmt das Panel sie bei jedem
+`update` selbst.
+
 ### Von Hand
 
 Die komplette Anleitung steht im Panel unter **Admin-Bereich → Domain → Reiter „NetBird“** – dort sind alle
@@ -340,7 +344,7 @@ Das Panel selbst (Port 8080) gehört **nicht** ungeschützt ins Internet. Für u
 Tailscale) oder einen Reverse-Proxy mit HTTPS wie oben beschrieben.
 
 Eine Sicherheitslücke gefunden? Bitte nicht als öffentliches Issue, sondern über
-[GitHub Security Advisories](https://github.com/MoinMornhart/MorniHosting/security/advisories/new) melden.
+[GitHub Security Advisories](https://github.com/pmornhart/MorniHosting/security/advisories/new) melden.
 
 ## Häufige Fragen
 
@@ -376,6 +380,18 @@ In den Server-Einstellungen bei **Voice-Chat (Simple Voice Chat)** den Schalter 
 installiert das Plugin bzw. die Mod von Modrinth, öffnet einen UDP-Port (meist 24454) und trägt die Adresse
 für die Spieler ein. Das geht bei Paper, Purpur, Fabric, Forge und NeoForge. Jeder Spieler braucht die Mod
 [Simple Voice Chat](https://modrinth.com/plugin/simple-voice-chat) im eigenen Minecraft.
+
+</details>
+
+<details>
+<summary><b>Wie werde ich auf meinen Servern automatisch OP?</b></summary>
+
+Unter **Mein Konto → Minecraft-Konto** deinen Minecraft-Namen (Java) eintragen und **Verbinden**. MorniHosting
+holt die UUID bei Mojang und macht dich auf allen Java-Servern zum Operator, auf denen du Besitzer bist (Admins
+sind überall Besitzer, sonst zählt die Rolle „Besitzer“ unter **Benutzer und Rollen**). Läuft ein Server,
+passiert das sofort über die Konsole, sonst beim nächsten Start. Verlierst du die Rolle oder trennst du das
+Konto, nimmt MorniHosting nur die OP-Rechte zurück, die es selbst vergeben hat. Unten links siehst du dann auch
+deinen eigenen Kopf.
 
 </details>
 
@@ -465,7 +481,7 @@ Tailwind, Radix, TanStack Query), `packages/shared` (Typen, Schemas, Software-Ka
 ist ein eigener Container auf Basis der [itzg-Images](https://github.com/itzg/docker-minecraft-server).
 
 GitHub Actions prüft jeden Push (Lint, Typen, Tests, Playwright). Eine neue Version entsteht mit einem Tag
-`v1.2.3`: Dann wird das Image `ghcr.io/moinmornhart/mornihosting` für amd64 und arm64 gebaut und danach das
+`v1.2.3`: Dann wird das Image `ghcr.io/pmornhart/mornihosting` für amd64 und arm64 gebaut und danach das
 GitHub-Release angelegt – mit den Hinweisen aus `docs/releases/v1.2.3.md`, falls es die Datei gibt. Sobald das
 Release da ist, bieten alle Panels das Update an. Den Weg dorthin zeigt die
 [Fortschrittsseite](docs/progress.html).

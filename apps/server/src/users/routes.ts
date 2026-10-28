@@ -128,6 +128,8 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
         username: target.username,
         changed: Object.keys(input).filter((k) => k !== 'password' || passwordHash),
       });
+      if (input.isAdmin !== undefined || input.disabled !== undefined)
+        ctx.events.emit('access.changed', { userId: target.id });
       return listEntry(userOf(target.id));
     },
   );
@@ -167,6 +169,7 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
     ctx.sessions.destroyAllFor(target.id);
     db.delete(users).where(eq(users.id, target.id)).run();
     ctx.audit.record(actorOf(request), 'user.delete', null, { username: target.username });
+    ctx.events.emit('access.changed', { userId: target.id });
     return reply.code(HTTP_NO_CONTENT).send();
   });
 
@@ -195,6 +198,7 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
         username: target.username,
         servers: entries.length,
       });
+      ctx.events.emit('access.changed', { userId: target.id });
       return listEntry(target);
     },
   );

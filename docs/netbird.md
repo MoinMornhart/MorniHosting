@@ -31,6 +31,12 @@ Den Port nach außen vergibt NetBird Cloud automatisch (z. B. `31234`). MorniHos
 schaltest du Geyser oder Voice-Chat an oder aus, benennst du den Server um oder löschst ihn, zieht
 MorniHosting NetBird automatisch nach – der Port nach außen bleibt dabei gleich.
 
+**NetBird selbst betrieben?** Dann gehört der Schlüssel zu deinem NetBird-Server, nicht zu NetBird Cloud. Trag
+beim Verbinden unter **Eigener NetBird-Server?** die Adresse ein, unter der du dein NetBird-Dashboard öffnest
+(z. B. `https://netbird.deine-domain.de`). Läuft NetBird auf dem Rechner mit MorniHosting, übernimmt das Panel
+die Adresse bei der Installation und bei jedem `update` selbst (aus `netbird status`). Meldet das Panel
+„… kennt diesen Schlüssel nicht“, ist genau das der Grund – oder der Schlüssel wurde in NetBird gelöscht.
+
 **Trennen** (Admin-Bereich → NetBird) löscht die Dienste der Server in NetBird wieder; die Panel-Adresse bleibt,
 damit du dich nicht aussperrst.
 

@@ -49,10 +49,16 @@ trap 'write_status "failed"; msg_error "Update fehlgeschlagen in Zeile ${LINENO}
 write_status "running"
 cd "${INSTALL_DIR}"
 
-if [[ -d .git ]]; then
+if [[ -d .git && -z "${MH_UPDATE_PULLED:-}" ]]; then
   msg_info "Neuer Code wird geholt"
   git pull --ff-only --quiet
   msg_ok "Code aktuell ($(git describe --tags --always 2>/dev/null || echo dev))"
+  # Weiter mit der eben geholten Fassung dieses Skripts, damit neue Schritte schon bei diesem Update laufen.
+  MH_UPDATE_PULLED=1 exec bash "${INSTALL_DIR}/update.sh" "$@"
+fi
+
+if NB_API="$(bash scripts/netbird-env.sh)" && [[ -n "${NB_API}" ]]; then
+  msg_ok "NetBird-Server dieses Rechners: ${NB_API}"
 fi
 
 msg_info "Neues Panel-Image wird geladen"

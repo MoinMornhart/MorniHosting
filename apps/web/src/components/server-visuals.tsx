@@ -66,15 +66,36 @@ export function ServerIcon({ id, software, hasIcon, className }: ServerIconProps
 }
 
 const DEMO = import.meta.env.MODE === 'demo';
+// Java account names: "Lena_Baut" has a skin to show, "Finn 2015" (a Bedrock gamertag) does not.
+// https://regex101.com/?flavor=javascript&regex=%5E%5BA-Za-z0-9_%5D%7B3%2C16%7D%24&flags=gm&testString=Lena_Baut%0AFinn%202015
+const JAVA_NAME = /^[A-Za-z0-9_]{3,16}$/;
 
-/** A player's face from mc-heads.net; falls back to a drawn face offline or for Bedrock names. */
-export function PlayerHead({ name, className }: { name: string; className?: string }): ReactElement {
+/** What mc-heads.net should look up: the given skin (a name or uuid), by default the name if it is a Java name. */
+function skinOf(name: string, skin: string | null | undefined): string | null {
+  if (skin !== undefined) return skin;
+  return JAVA_NAME.test(name) ? name : null;
+}
+
+/**
+ * A player's face from mc-heads.net; falls back to a drawn face offline or for Bedrock names.
+ * `skin` picks the account explicitly (null: always draw), e.g. the user's linked Minecraft account.
+ */
+export function PlayerHead({
+  name,
+  skin,
+  className,
+}: {
+  name: string;
+  skin?: string | null;
+  className?: string;
+}): ReactElement {
   const [failed, setFailed] = useState(false);
+  const lookup = skinOf(name, skin);
   // The demo cannot load pictures from other sites, so it draws the faces itself.
-  const usable = !failed && !DEMO && /^[A-Za-z0-9_]{3,16}$/.test(name); // eslint-disable-line ts-patterns/require-regex-example -- Java names: "Lena_Baut" has a skin, "Finn 2015" (Bedrock) does not
+  const usable = !failed && !DEMO && lookup !== null;
   return (
     <img
-      src={usable ? `https://mc-heads.net/avatar/${encodeURIComponent(name)}/32` : playerFace(name)}
+      src={usable ? `https://mc-heads.net/avatar/${encodeURIComponent(lookup)}/32` : playerFace(name)}
       alt=""
       loading="lazy"
       referrerPolicy="no-referrer"

@@ -13,6 +13,7 @@ import { Field } from '@/components/ui/label';
 import { Pill } from '@/components/ui/pill';
 import { api } from '@/lib/api';
 import { adoptMe, useSession } from '@/features/auth/session';
+import { MinecraftAccountCard } from './MinecraftAccountCard';
 import { PasskeysCard } from './PasskeysCard';
 
 interface TwoFactorSetup {
@@ -276,6 +277,7 @@ export function AccountPage(): ReactElement {
     <div className="grid max-w-3xl gap-5">
       <PageHeader title={t('nav.account')} subtitle={t('account.subtitle')} />
       <ProfileCard />
+      <MinecraftAccountCard />
       <PasswordCard />
       <PasskeysCard />
       <TwoFactorCard />

@@ -62,6 +62,8 @@ import { createWebhookService } from './webhooks/service.js';
 import { registerWebSocket } from './ws.js';
 import { createNetbirdAutomation } from './netbird/service.js';
 import { registerNetbirdRoutes } from './netbird/routes.js';
+import { createMinecraftLinkService } from './minecraft/service.js';
+import { registerMinecraftRoutes } from './minecraft/routes.js';
 import type { Resolver } from './lib/net-guard.js';
 
 export interface BuildOptions {
@@ -145,6 +147,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const schedules = createScheduleService(ctx, servers, backups);
   const webhooks = createWebhookService(ctx, options.resolver);
   const netbird = createNetbirdAutomation(ctx, servers);
+  const minecraftLink = createMinecraftLinkService(ctx, servers);
 
   await app.register(helmet, {
     contentSecurityPolicy: {
@@ -225,6 +228,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerGeyserRoutes(app, ctx, createGeyserService(ctx, servers, market));
   registerVoiceChatRoutes(app, ctx, createVoiceChatService(ctx, servers, market));
   registerNetbirdRoutes(app, netbird);
+  registerMinecraftRoutes(app, minecraftLink);
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
   registerWebhookRoutes(app, webhooks);

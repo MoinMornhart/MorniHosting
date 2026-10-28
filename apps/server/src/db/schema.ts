@@ -48,8 +48,14 @@ export const users = sqliteTable(
     disabled: integer('disabled', { mode: 'boolean' }).notNull().default(false),
     createdAt: createdAt(),
     lastLoginAt: text('last_login_at'),
+    /** The user's own Minecraft account (Java), for the head and automatic OP on their servers. */
+    minecraftName: text('minecraft_name'),
+    minecraftUuid: text('minecraft_uuid'),
   },
-  (t) => [uniqueIndex('users_username_nocase').on(sql`lower(${t.username})`)],
+  (t) => [
+    uniqueIndex('users_username_nocase').on(sql`lower(${t.username})`),
+    uniqueIndex('users_minecraft_uuid').on(t.minecraftUuid),
+  ],
 );
 
 export const sessions = sqliteTable(
@@ -282,3 +288,17 @@ export const netbirdServices = sqliteTable('netbird_services', {
   listenPort: integer('listen_port'),
   createdAt: createdAt(),
 });
+
+/**
+ * Operators the panel added because a user with a linked Minecraft account owns the server. Only these are
+ * taken away again; operators added by hand stay.
+ */
+export const panelOps = sqliteTable(
+  'panel_ops',
+  {
+    serverId: text('server_id').notNull(),
+    uuid: text('uuid').notNull(),
+    name: text('name').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.serverId, t.uuid] })],
+);

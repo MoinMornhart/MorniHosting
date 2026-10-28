@@ -494,7 +494,9 @@
     "netbird_not_configured": "NetBird is not connected yet (admin area → NetBird).",
     "netbird_token_missing": "Please enter the NetBird API key.",
     "netbird_name_taken": "Another server already uses the name {{name}}.",
-    "netbird_failed": "NetBird could not be set up."
+    "netbird_failed": "NetBird could not be set up.",
+    "minecraft_taken": "{{name}} is already linked to another account in the panel.",
+    "netbird_token_unknown": "{{host}} does not know this key. It is well-formed but was created on another NetBird server – or has been deleted since. If you run NetBird yourself, enter its address under “Your own NetBird server?” (the address where you open the NetBird dashboard)."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1387,7 +1389,9 @@
       "netbird_configure": "NetBird connected",
       "netbird_disconnect": "NetBird disconnected",
       "netbird_server": "Address through NetBird changed",
-      "netbird_panel": "Panel address set up in NetBird"
+      "netbird_panel": "Panel address set up in NetBird",
+      "account_minecraft_link": "Minecraft account linked",
+      "account_minecraft_unlink": "Minecraft account unlinked"
     }
   },
   "account": {
@@ -1558,7 +1562,7 @@
     "tokenKeep": "Leave empty to keep the stored key.",
     "ownServer": "Your own NetBird server?",
     "apiUrl": "NetBird API address",
-    "apiUrlHint": "Only change this if you run NetBird yourself, e.g. https://netbird.your-domain.com.",
+    "apiUrlHint": "For NetBird Cloud, keep https://api.netbird.io. If you run NetBird yourself, enter the address of your NetBird dashboard, e.g. https://netbird.your-domain.com. If NetBird is installed on the machine running MorniHosting, the panel picks the address up by itself on the next update.",
     "connect": "Connect",
     "connecting": "Connecting …",
     "noDomains": "Your NetBird has no domain yet. How to add one is explained in the “NetBird” tab above (step 2).",
@@ -1597,5 +1601,17 @@
       "voice": "Voice chat:",
       "panel": "Panel:"
     }
+  },
+  "minecraftAccount": {
+    "title": "Minecraft account",
+    "connected": "Connected",
+    "text": "Link your Minecraft account (Java). Then you see your own head at the bottom left, and on every server you own you are an operator (OP) automatically.",
+    "name": "Your Minecraft name",
+    "link": "Link",
+    "linking": "Looking up …",
+    "unlink": "Unlink",
+    "linked": "{{name}} is linked – you are now OP on your servers.",
+    "unlinked": "Minecraft account unlinked",
+    "note": "For Java servers. A running server gets it right away, otherwise at the next start. Operators you added yourself stay when you unlink."
   }
 }

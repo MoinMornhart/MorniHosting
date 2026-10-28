@@ -494,7 +494,9 @@
     "netbird_not_configured": "NetBird ist noch nicht verbunden (Admin-Bereich → NetBird).",
     "netbird_token_missing": "Bitte trag den API-Schlüssel von NetBird ein.",
     "netbird_name_taken": "Den Namen {{name}} hat schon ein anderer Server.",
-    "netbird_failed": "NetBird konnte nicht eingerichtet werden."
+    "netbird_failed": "NetBird konnte nicht eingerichtet werden.",
+    "minecraft_taken": "{{name}} ist schon mit einem anderen Konto im Panel verbunden.",
+    "netbird_token_unknown": "{{host}} kennt diesen Schlüssel nicht. Er ist richtig aufgebaut, wurde aber auf einem anderen NetBird-Server angelegt – oder inzwischen gelöscht. Betreibst du NetBird selbst, trag bei „Eigener NetBird-Server?“ dessen Adresse ein (die Adresse, unter der du das NetBird-Dashboard öffnest)."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -1387,7 +1389,9 @@
       "netbird_configure": "NetBird verbunden",
       "netbird_disconnect": "NetBird getrennt",
       "netbird_server": "Adresse über NetBird geändert",
-      "netbird_panel": "Panel-Adresse in NetBird eingerichtet"
+      "netbird_panel": "Panel-Adresse in NetBird eingerichtet",
+      "account_minecraft_link": "Minecraft-Konto verbunden",
+      "account_minecraft_unlink": "Minecraft-Konto getrennt"
     }
   },
   "account": {
@@ -1558,7 +1562,7 @@
     "tokenKeep": "Leer lassen, um den gespeicherten Schlüssel zu behalten.",
     "ownServer": "Eigener NetBird-Server?",
     "apiUrl": "Adresse der NetBird-API",
-    "apiUrlHint": "Nur ändern, wenn du NetBird selbst betreibst, z. B. https://netbird.deine-domain.de.",
+    "apiUrlHint": "Für NetBird Cloud bleibt hier https://api.netbird.io. Betreibst du NetBird selbst, trag die Adresse deines NetBird-Dashboards ein, z. B. https://netbird.deine-domain.de. Ist NetBird auf dem Rechner mit MorniHosting installiert, übernimmt das Panel die Adresse beim nächsten Update selbst.",
     "connect": "Verbinden",
     "connecting": "Verbinde …",
     "noDomains": "In deinem NetBird ist noch keine Domain eingetragen. Wie das geht, steht oben im Reiter „NetBird“ (Schritt 2).",
@@ -1597,5 +1601,17 @@
       "voice": "Voice-Chat:",
       "panel": "Panel:"
     }
+  },
+  "minecraftAccount": {
+    "title": "Minecraft-Konto",
+    "connected": "Verbunden",
+    "text": "Verbinde dein Minecraft-Konto (Java). Dann siehst du unten links deinen eigenen Kopf, und auf allen Servern, auf denen du Besitzer bist, bist du automatisch OP.",
+    "name": "Dein Minecraft-Name",
+    "link": "Verbinden",
+    "linking": "Wird gesucht …",
+    "unlink": "Trennen",
+    "linked": "{{name}} ist verbunden – auf deinen Servern bist du jetzt OP.",
+    "unlinked": "Minecraft-Konto getrennt",
+    "note": "Gilt für Java-Server. Läuft ein Server, passiert es sofort, sonst beim nächsten Start. OPs, die du selbst vergeben hast, bleiben beim Trennen bestehen."
   }
 }

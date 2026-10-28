@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MorniHosting – Installation auf Debian/Ubuntu (auch im Proxmox-LXC oder in einer VM).
 #
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/install.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/install.sh)"
 #
 # Was passiert: Docker wird installiert (falls nötig), das Panel landet in /opt/mornihosting,
 # eine .env mit zufälligem Geheimnis wird angelegt, das Panel startet, und der Host-Updater
@@ -12,7 +12,7 @@
 set -Eeuo pipefail
 
 INSTALL_DIR="${MH_INSTALL_DIR:-/opt/mornihosting}"
-REPO_URL="${MH_REPO_URL:-https://github.com/MoinMornhart/MorniHosting.git}"
+REPO_URL="${MH_REPO_URL:-https://github.com/pmornhart/MorniHosting.git}"
 BRANCH="${MH_BRANCH:-main}"
 VOLUME_NAME="mornihosting-data"
 PANEL_UID=1000
@@ -82,6 +82,9 @@ if [[ ! -f .env ]]; then
   msg_ok ".env angelegt (mit zufälligem Geheimnis)"
 else
   msg_ok ".env ist schon da und bleibt unverändert"
+fi
+if NB_API="$(bash scripts/netbird-env.sh)" && [[ -n "${NB_API}" ]]; then
+  msg_ok "NetBird-Server dieses Rechners: ${NB_API}"
 fi
 
 msg_info "Panel wird gestartet (das erste Mal dauert es etwas)"

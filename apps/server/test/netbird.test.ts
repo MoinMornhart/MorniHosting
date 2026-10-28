@@ -8,6 +8,7 @@ import type {
   ServerDetail,
   ServerSummary,
 } from '@mornihosting/shared';
+import { loadConfig } from '../src/config.js';
 import { settings } from '../src/db/schema.js';
 import {
   authHeaders,
@@ -20,6 +21,8 @@ import {
 } from './helpers.js';
 
 const TOKEN = 'nbp_test_token_1234';
+/** A key from another (self-hosted) NetBird server. */
+const OTHER_SERVER_TOKEN = 'nbp_from_my_own_netbird';
 const PEER = {
   id: 'peer-mh',
   name: 'mornihosting',
@@ -28,6 +31,8 @@ const PEER = {
   hostname: 'mornihosting',
 };
 const BASE = 'moinmornhart.de';
+/** A self-hosted NetBird that the panel's machine is connected to. */
+const OWN_NETBIRD = 'netbird.moinmornhart.de';
 
 interface FakeService {
   id: string;
@@ -41,12 +46,18 @@ interface FakeService {
 /** A tiny NetBird management API: domains, peers and reverse-proxy services, ports from 31000 up. */
 function createFakeNetbird() {
   const services = new Map<string, FakeService>();
-  const calls: { method: string; path: string; auth: string | null }[] = [];
+  const calls: { method: string; host: string; path: string; auth: string | null }[] = [];
   const next = { port: 31000, id: 1 };
   const handle = async (url: URL, init: RequestInit | undefined): Promise<Response> => {
     const method = init?.method ?? 'GET';
     const auth = new Headers(init?.headers).get('authorization');
-    calls.push({ method, path: url.pathname, auth });
+    calls.push({ method, host: url.host, path: url.pathname, auth });
+    // Real NetBird: a key with a valid checksum that it does not know is a 404 naming the key's hash.
+    if (auth === `Token ${OTHER_SERVER_TOKEN}`)
+      return Response.json(
+        { message: 'invalid token: pat: aq4ynzhuukow+vnasy= not found', code: 404 },
+        { status: 404 },
+      );
     if (auth !== `Token ${TOKEN}`) return Response.json({ message: 'token invalid' }, { status: 401 });
     const body = init?.body ? (JSON.parse(String(init.body)) as Omit<FakeService, 'id'>) : null;
     const id = url.pathname.split('/')[4] ?? '';
@@ -188,7 +199,8 @@ describe('NetBird automation', () => {
     netbird = createFakeNetbird();
     vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
       const url = new URL(urlOf(input));
-      return url.hostname === 'api.netbird.io' ? netbird.handle(url, init) : fakePluginSites(url);
+      const isNetbird = ['api.netbird.io', OWN_NETBIRD].includes(url.hostname);
+      return isNetbird ? netbird.handle(url, init) : fakePluginSites(url);
     });
     t = await createTestApp();
     s = await setupAdmin(t);
@@ -201,6 +213,11 @@ describe('NetBird automation', () => {
   test('set up once: domains and machines are offered, the token never leaves the server', async () => {
     const wrong = await call('POST', '/api/netbird/discover', { token: 'nbp_wrong' });
     expect(wrong.json()).toMatchObject({ error: 'netbird_unauthorized' });
+    const elsewhereMade = await call('POST', '/api/netbird/discover', { token: OTHER_SERVER_TOKEN });
+    expect(elsewhereMade.json()).toMatchObject({
+      error: 'netbird_token_unknown',
+      params: { host: 'api.netbird.io' },
+    });
     const found = (await call('POST', '/api/netbird/discover', { token: TOKEN })).json<NetbirdDiscovery>();
     expect(found.domains.map((d) => d.domain)).toEqual([BASE, 'abc.netbird.app']);
     expect(found.suggestedPeerId).toBe('peer-mh');
@@ -216,9 +233,11 @@ describe('NetBird automation', () => {
     expect(status).toMatchObject({ configured: true, domain: BASE, peerName: 'mornihosting' });
     expect(JSON.stringify(status)).not.toContain(TOKEN);
     expect(JSON.stringify(t.ctx.db.select().from(settings).all())).not.toContain(TOKEN);
-    expect(netbird.calls.every((c) => c.auth === `Token ${TOKEN}` || c.auth === 'Token nbp_wrong')).toBe(
-      true,
-    );
+    expect(
+      netbird.calls.every((c) =>
+        [TOKEN, 'nbp_wrong', OTHER_SERVER_TOKEN].some((token) => c.auth === `Token ${token}`),
+      ),
+    ).toBe(true);
     // The stored token is never sent to another address: changing it needs the token again.
     const elsewhere = await call('POST', '/api/netbird/discover', { apiUrl: 'https://evil.example' });
     expect(elsewhere.json()).toMatchObject({ error: 'netbird_token_missing' });
@@ -229,6 +248,26 @@ describe('NetBird automation', () => {
     });
     expect(moved.json()).toMatchObject({ error: 'netbird_token_missing' });
     expect((await call('POST', '/api/netbird/discover', {})).json<NetbirdDiscovery>().peers).toHaveLength(2);
+  });
+
+  test('the NetBird server this machine is connected to is the default address', async () => {
+    const own = await createTestApp({ MH_NETBIRD_API: `https://${OWN_NETBIRD}` });
+    try {
+      const admin = await setupAdmin(own);
+      const ownCall = (method: 'GET' | 'POST', url: string, payload?: object) =>
+        own.app.inject({ method, url, payload, headers: authHeaders(admin) });
+      expect((await ownCall('GET', '/api/netbird')).json<NetbirdStatus>().apiUrl).toBe(
+        `https://${OWN_NETBIRD}`,
+      );
+      const found = await ownCall('POST', '/api/netbird/discover', { token: TOKEN });
+      expect(found.json<NetbirdDiscovery>().suggestedPeerId).toBe('peer-mh');
+      expect(netbird.calls.map((c) => c.host)).toEqual([OWN_NETBIRD, OWN_NETBIRD]);
+    } finally {
+      await own.cleanup();
+    }
+    // Anything but an HTTPS address is ignored and NetBird Cloud stays the default.
+    const plain = loadConfig({ MH_SECRET: 'x'.repeat(40), MH_NETBIRD_API: 'http://10.0.0.5' }, '0.0.0-test');
+    expect(plain.netbirdApi).toBe('https://api.netbird.io');
   });
 
   test('a new server with a name gets its address in NetBird right away', async () => {

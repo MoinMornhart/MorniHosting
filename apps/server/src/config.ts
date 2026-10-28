@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import { NETBIRD_DEFAULT_API, netbirdApiUrlSchema } from '@mornihosting/shared';
 
 const DEFAULT_PORT = 8080;
 const MIN_SECRET_LENGTH = 32;
@@ -33,7 +34,9 @@ const envSchema = z.object({
   TZ: z.string().optional(),
   MH_LAN_IP: z.string().optional(),
   MH_PUBLIC_ADDRESS: z.string().optional(),
-  MH_UPDATE_REPO: z.string().default('MoinMornhart/MorniHosting'),
+  MH_UPDATE_REPO: z.string().default('pmornhart/MorniHosting'),
+  /** NetBird server this machine is connected to; install.sh and update.sh read it from `netbird status`. */
+  MH_NETBIRD_API: netbirdApiUrlSchema.optional().catch(undefined),
   MH_DEMO: booleanFromEnv.default(false),
   MH_WEB_DIR: z.string().optional(),
   MH_MAX_UPLOAD_MB: z.coerce.number().int().positive().default(DEFAULT_MAX_UPLOAD_MB),
@@ -61,6 +64,8 @@ export interface Config {
   readonly lanIp: string | null;
   readonly publicAddress: string | null;
   readonly updateRepo: string;
+  /** Default NetBird API address: the server this machine is connected to, else NetBird Cloud. */
+  readonly netbirdApi: string;
   readonly demo: boolean;
   readonly webDir: string;
   readonly maxUploadBytes: number;
@@ -102,6 +107,7 @@ export function loadConfig(env: NodeJS.ProcessEnv, version: string): Config {
     lanIp: e.MH_LAN_IP || null,
     publicAddress: e.MH_PUBLIC_ADDRESS || null,
     updateRepo: e.MH_UPDATE_REPO,
+    netbirdApi: e.MH_NETBIRD_API ?? NETBIRD_DEFAULT_API,
     demo: e.MH_DEMO,
     webDir: e.MH_WEB_DIR ? path.resolve(e.MH_WEB_DIR) : path.resolve(here, '../../web/dist'),
     maxUploadBytes: e.MH_MAX_UPLOAD_MB * BYTES_PER_MB,

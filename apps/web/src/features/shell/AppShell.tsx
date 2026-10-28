@@ -200,7 +200,12 @@ function UserMenu({ me }: { me: MeResponse }): ReactElement {
           type="button"
           className="flex w-full items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left hover:bg-secondary"
         >
-          <PlayerHead name={me.user.username} className="size-8 rounded-[8px]" />
+          {/* The linked Minecraft account's head; without one a drawn face, never a stranger's skin. */}
+          <PlayerHead
+            name={me.user.minecraft?.name ?? me.user.username}
+            skin={me.user.minecraft?.uuid ?? null}
+            className="size-8 rounded-[8px]"
+          />
           <span className="min-w-0 flex-1 text-[13px] leading-tight">
             <b className="block truncate">{me.user.displayName}</b>
             <span className="text-muted-foreground">

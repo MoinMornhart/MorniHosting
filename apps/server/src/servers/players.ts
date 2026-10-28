@@ -10,7 +10,7 @@ import type { ServerService } from './service.js';
 
 /** Operators, whitelist and bans: by console command while running, by editing the JSON files while stopped. */
 
-const OP_LEVEL = 4;
+export const OP_LEVEL = 4;
 const JSON_INDENT = 2;
 const listSchema = z.array(
   z.object({ name: z.string(), uuid: z.string().optional(), reason: z.string().optional() }).loose(),
@@ -18,7 +18,7 @@ const listSchema = z.array(
 const permissionsSchema = z.array(z.object({ permission: z.string(), xuid: z.string() }).loose());
 const mojangSchema = z.object({ id: z.string(), name: z.string() });
 
-function readList(file: string): z.infer<typeof listSchema> {
+export function readList(file: string): z.infer<typeof listSchema> {
   try {
     return listSchema.parse(JSON.parse(fs.readFileSync(file, 'utf8')));
   } catch {
@@ -26,7 +26,7 @@ function readList(file: string): z.infer<typeof listSchema> {
   }
 }
 
-function writeList(file: string, list: readonly unknown[]): void {
+export function writeList(file: string, list: readonly unknown[]): void {
   fs.writeFileSync(file, `${JSON.stringify(list, null, JSON_INDENT)}\n`);
 }
 
@@ -38,16 +38,21 @@ function toEntry(e: { name: string; uuid?: string }): PlayerEntry {
 // https://regex101.com/?regex=%5E(.%7B8%7D)(.%7B4%7D)(.%7B4%7D)(.%7B4%7D)(.%7B12%7D)%24&testString=069a79f444e94726a5befca90e38aaf5
 const UUID_PARTS = /^(.{8})(.{4})(.{4})(.{4})(.{12})$/;
 
-/** Mojang uuid in dashed form, e.g. for ops.json while the server is off. */
-async function lookupUuid(name: string): Promise<string> {
+/** A Java account as Mojang knows it: the name in its real spelling and the uuid in dashed form. */
+export async function lookupProfile(name: string): Promise<{ name: string; uuid: string }> {
   try {
     const data = mojangSchema.parse(
       await fetchJson(`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(name)}`),
     );
-    return data.id.replace(UUID_PARTS, '$1-$2-$3-$4-$5');
+    return { name: data.name, uuid: data.id.replace(UUID_PARTS, '$1-$2-$3-$4-$5') };
   } catch {
     throw notFound('player_unknown');
   }
+}
+
+/** Mojang uuid in dashed form, e.g. for ops.json while the server is off. */
+async function lookupUuid(name: string): Promise<string> {
+  return (await lookupProfile(name)).uuid;
 }
 
 const JAVA_COMMANDS: Readonly<Record<PlayerAction, (name: string, reason: string) => string>> = {

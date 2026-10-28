@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:56:42+00:00",
-  "now": "NetBird-Automatik ist fertig und in main. Bei dir: Update einspielen und NetBird im Admin-Bereich verbinden.",
+  "updated": "2026-10-28T08:32:57+00:00",
+  "now": "Minecraft-Konto und NetBird-Schlüssel-Hilfe sind fertig und geprüft. Jetzt: Commit, PR und Merge nach main.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -199,9 +199,29 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Phase 10 · Server-Adressen automatisch über NetBird",
       "status": "fertig",
       "detail": "Einmal im Admin-Bereich NetBird-API-Schlüssel und deine Domain (z. B. moinmornhart.de) eintragen. Danach gibst du jedem Server nur einen Namen, und das Panel legt in NetBird alles selbst an: minecraft.moinmornhart.de für Java oder Bedrock, dazu Geyser und Voice-Chat. Den Port nach außen vergibt NetBird; das Panel zeigt die fertige Adresse. 165 Tests, im Browser gegen ein nachgebautes NetBird geprüft; mit echtem NetBird noch nicht getestet."
+    },
+    {
+      "title": "Fehler behoben · Passkeys über hosting.moinmornhart.de",
+      "status": "fertig",
+      "detail": "Hinter NetBird ohne „Pass Host Header“ gingen Passkeys nicht. Jetzt gilt für Passkeys die Panel-Domain, wenn der Browser von dort kommt; die Passkey-Karte bietet an, die aktuelle Adresse als Domain einzutragen. NetBird-Reiter zeigt deine echte Domain statt „panel.“."
+    },
+    {
+      "title": "Phase 11 · Minecraft-Konto verbinden",
+      "status": "fertig",
+      "detail": "Unter „Mein Konto“ deinen Minecraft-Namen eintragen: unten links erscheint dein eigener Kopf (vorher lud der Kopf zum Panel-Namen „morni“, ein fremder Skin), und auf allen Java-Servern, auf denen du Besitzer bist, wirst du automatisch OP – sofort, wenn der Server läuft, sonst beim nächsten Start. Rolle weg oder Konto getrennt: nur die OPs, die das Panel vergeben hat, werden wieder entfernt. 171 Tests, im Browser geprüft. Links auf das neue GitHub-Konto pmornhart umgestellt."
+    },
+    {
+      "title": "Fehler behoben · NetBird-Schlüssel „not found“",
+      "status": "fertig",
+      "detail": "Dein Schlüssel ist richtig aufgebaut, aber NetBird Cloud (api.netbird.io) kennt ihn nicht – das passiert, wenn er auf einem selbst betriebenen NetBird angelegt wurde oder gelöscht ist. Das Panel erklärt das jetzt und öffnet das Feld für die eigene NetBird-Adresse. Läuft NetBird auf dem Rechner mit MorniHosting, übernimmt das Panel dessen Adresse bei jedem Update selbst. Gegen das echte NetBird geprüft, 172 Tests."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p11-minecraft.webp",
+      "caption": "Phase 11 · Minecraft-Konto verbunden: eigener Kopf und automatisch OP als Besitzer",
+      "time": "2026-10-28T09:25:00+01:00"
+    },
     {
       "img": "progress/p10-netbird-auto.webp",
       "caption": "Phase 10 · NetBird einmal verbinden, danach reicht pro Server ein Name",
@@ -256,71 +276,64 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p6-users.webp",
       "caption": "Phase 6 · Benutzer mit ihren Rollen pro Server",
       "time": "2026-10-28T01:29:00+01:00"
-    },
-    {
-      "img": "progress/p5-backups.webp",
-      "caption": "Phase 5 · Backups: ein Klick zum Sichern, einer zum Wiederherstellen",
-      "time": "2026-10-28T01:18:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/netbird/ (client.ts, service.ts, routes.ts), drizzle/0003_netbird.sql"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/web/src/features/admin/NetbirdAutomationCard.tsx, apps/web/src/features/netbird/"
+      "path": "scripts/netbird-env.sh (NetBird-Adresse des Rechners → .env)"
     },
     {
       "tag": "geändert",
-      "path": "Server-Assistent, Server-Einstellungen, Adress-Karte (Adresse über NetBird)"
+      "path": "apps/server/src/netbird/client.ts, NetbirdAutomationCard.tsx, update.sh, install.sh, Proxmox-Skript"
     },
     {
       "tag": "neu",
-      "path": "apps/server/test/netbird.test.ts (nachgebautes NetBird)"
+      "path": "apps/server/src/minecraft/ (service.ts, routes.ts), drizzle/0004_minecraft_link.sql"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/web/src/features/admin/MinecraftAccountCard.tsx"
     },
     {
       "tag": "geändert",
-      "path": "README.md, docs/netbird.md, Demo-Website"
+      "path": "Kopf unten links (components/server-visuals.tsx, AppShell.tsx), Benutzer-Routen (access.changed)"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/server/test/minecraft.test.ts"
+    },
+    {
+      "tag": "geändert",
+      "path": "README.md, STAND.md, Links und Image auf pmornhart"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-28T10:05:00+01:00",
   "plan": [
     {
-      "status": "done",
-      "until": "2026-10-28T07:34:00Z",
-      "title": "Server-Teil: Dienste in NetBird pro Server anlegen, ändern, löschen; Panel-Adresse"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-28T07:46:00Z",
-      "title": "Oberfläche: Admin-Karte, Name im Assistenten und in den Einstellungen"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-28T07:52:00Z",
-      "title": "Demo-Website, README, docs/netbird.md"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-28T07:56:00Z",
-      "title": "Alle Prüfungen grün, nach main übernommen"
-    },
-    {
-      "status": "next",
+      "status": "fertig",
       "until": "",
-      "title": "Update im Container: pct enter <ID>, dann update"
+      "title": "Minecraft-Konto verbinden, Kopf unten links reparieren"
     },
     {
-      "status": "next",
+      "status": "fertig",
       "until": "",
-      "title": "NetBird: Team → Service Users → Create Token, dann Admin-Bereich → NetBird → Verbinden"
+      "title": "NetBird: unbekannten Schlüssel erklären, Adresse vom Rechner übernehmen"
     },
     {
-      "status": "next",
+      "status": "fertig",
       "until": "",
-      "title": "Release v1.0.0 auf GitHub: „Draft a new release“ → Tag v1.0.0 → „Publish release“"
+      "title": "Alle Prüfungen: 172 Tests, 4 Browser-Abläufe, Lint, Typen, Build"
+    },
+    {
+      "status": "läuft",
+      "until": "2026-10-28T09:45:00+01:00",
+      "title": "Commit und PR"
+    },
+    {
+      "status": "offen",
+      "until": "2026-10-28T10:05:00+01:00",
+      "title": "CI abwarten und nach main mergen"
     }
   ]
 }
