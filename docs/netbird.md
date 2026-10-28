@@ -23,8 +23,11 @@ curl -fsSL https://pkgs.netbird.io/install.sh | sh
 netbird up --setup-key <DEIN-SETUP-KEY>
 ```
 
-**Proxmox-Container (LXC):** NetBird braucht dort ein Netzwerk-Gerät (TUN). Trag auf dem Proxmox-Host in
-`/etc/pve/lxc/<ID>.conf` diese zwei Zeilen ein und starte den Container neu:
+**Proxmox-Container (LXC):** Hast du MorniHosting mit dem
+[Proxmox-Einzeiler](proxmox-quickstart.md) installiert, ist alles vorbereitet – das Skript fragt sogar nach
+deinem Setup-Key und erledigt diesen Schritt für dich. Hast du den Container selbst angelegt, braucht NetBird
+dort ein Netzwerk-Gerät (TUN). Trag auf dem Proxmox-Host in `/etc/pve/lxc/<ID>.conf` diese zwei Zeilen ein und
+starte den Container neu:
 
 ```text
 lxc.cgroup2.devices.allow: c 10:200 rwm

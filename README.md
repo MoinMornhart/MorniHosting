@@ -161,7 +161,9 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHostin
 | 4 Kerne | 8 GB | 32 GB  | Debian 12 | `http://<IP des LXC>:8080` |
 
 Das Skript legt einen eigenen Container an, installiert Docker und MorniHosting und zeigt dir am Ende die
-Adresse. Alle Werte kannst du vorher ändern. Mehr dazu: [Proxmox-Anleitung](docs/proxmox-quickstart.md).
+Adresse. Alle Werte kannst du vorher ändern. Nutzt du [NetBird](#netbird-eigene-domain-ohne-portfreigabe), fragt
+es nach deinem Setup-Key und nimmt den Container gleich in dein NetBird-Netz auf. Mehr dazu:
+[Proxmox-Anleitung](docs/proxmox-quickstart.md).
 
 ### B) Debian oder Ubuntu (Server, VM, Mini-PC)
 

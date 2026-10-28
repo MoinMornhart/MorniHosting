@@ -1483,7 +1483,7 @@
     "thisMachine": "IP-of-this-machine",
     "step1Title": "Put NetBird on the machine running MorniHosting",
     "step1Text": "Install the NetBird client where MorniHosting runs (e.g. in the Proxmox container) and sign it in with a setup key. You get the key in the NetBird dashboard under “Setup Keys” → “Create Setup Key”.",
-    "step1Lxc": "Does MorniHosting run in a Proxmox container (LXC)? Then NetBird needs a network device there. Add these two lines on the Proxmox host to /etc/pve/lxc/<ID>.conf and restart the container:",
+    "step1Lxc": "Does MorniHosting run in a Proxmox container (LXC)? With MorniHosting's Proxmox one-liner it is already prepared. If you created the container yourself, NetBird needs a network device there: add these two lines on the Proxmox host to /etc/pve/lxc/<ID>.conf and restart the container:",
     "step1Router": "Does NetBird already run on another device in your home network (as a router)? Then a resource for <b>{{ip}}</b> under <b>Networks</b> is enough – you pick it as the target later.",
     "step2Title": "Add your domain at NetBird",
     "step2Add": "In the NetBird dashboard: <b>Reverse Proxy</b> → <b>Custom Domains</b> → <b>Add Domain</b>. Enter this domain (without *) and save:",

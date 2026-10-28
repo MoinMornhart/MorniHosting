@@ -4,9 +4,10 @@
 #
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 #
-# Legt einen Debian-12-LXC-Container an (unprivilegiert, Nesting für Docker), installiert darin
-# MorniHosting mit install.sh und zeigt am Ende die Adresse des Panels.
+# Legt einen Debian-12-LXC-Container an (unprivilegiert, Nesting für Docker, Netzwerk-Gerät für
+# NetBird), installiert darin MorniHosting mit install.sh und zeigt am Ende die Adresse des Panels.
 # Alle Werte lassen sich vorher per Umgebungsvariable setzen, z. B. RAM=12288 CORES=6.
+# Mit NETBIRD_SETUP_KEY=… wird der Container gleich in dein NetBird-Netz aufgenommen.
 #
 # Verfasst mit Claude 🤖
 
@@ -48,6 +49,8 @@ DISK="${DISK:-32}"
 STORAGE="${STORAGE:-$(default_storage)}"
 TEMPLATE_STORAGE="${TEMPLATE_STORAGE:-local}"
 BRIDGE="${BRIDGE:-vmbr0}"
+NETBIRD_SETUP_KEY="${NETBIRD_SETUP_KEY:-}"
+NETBIRD_INSTALL_URL="https://pkgs.netbird.io/install.sh"
 
 ask() {
   local title="$1" text="$2" value="$3"
@@ -74,6 +77,14 @@ if command -v whiptail >/dev/null 2>&1; then
   fi
 else
   printf "%b\n\n" "${SUMMARY}"
+fi
+
+if [[ -z "${NETBIRD_SETUP_KEY}" ]] && command -v whiptail >/dev/null 2>&1; then
+  if whiptail --backtitle "${APP}" --title "NetBird" --defaultno --yesno \
+    "NetBird gleich mit einrichten?\n\nDann erreichst du das Panel und deine Minecraft-Server über deine eigene Domain, ohne Portfreigabe im Router.\n\nDu brauchst dafür einen Setup-Key aus dem NetBird-Dashboard (Setup Keys → Create Setup Key). Das geht auch später." 16 70; then
+    NETBIRD_SETUP_KEY="$(whiptail --backtitle "${APP}" --title "NetBird" --passwordbox \
+      "Setup-Key aus dem NetBird-Dashboard:" 10 70 3>&1 1>&2 2>&3 || true)"
+  fi
 fi
 
 if [[ -z "${STORAGE}" ]]; then
@@ -106,6 +117,14 @@ pct create "${CTID}" "${TEMPLATE_STORAGE}:vztmpl/${TEMPLATE}" \
   --onboot 1 \
   --tags "minecraft;mornihosting" \
   --description "MorniHosting – Minecraft-Server-Panel. Update im Container: update" >/dev/null
+# Netzwerk-Gerät (TUN) für NetBird oder andere VPNs im Container, damit es später ohne Umbau geht.
+modprobe tun 2>/dev/null || true
+if [[ -c /dev/net/tun ]]; then
+  cat >>"/etc/pve/lxc/${CTID}.conf" <<'CONF'
+lxc.cgroup2.devices.allow: c 10:200 rwm
+lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+CONF
+fi
 pct start "${CTID}"
 msg_ok "Container ${CTID} läuft"
 
@@ -128,5 +147,21 @@ msg_info "MorniHosting wird im Container installiert (ein paar Minuten)"
 pct exec "${CTID}" -- bash -c "apt-get update -qq && apt-get install -y -qq curl >/dev/null && bash -c \"\$(curl -fsSL ${INSTALL_URL})\""
 msg_ok "Installation abgeschlossen"
 
+NETBIRD_OK=""
+if [[ -n "${NETBIRD_SETUP_KEY}" ]]; then
+  msg_info "NetBird wird im Container eingerichtet"
+  if pct exec "${CTID}" -- bash -c "curl -fsSL ${NETBIRD_INSTALL_URL} | sh" >/dev/null 2>&1 &&
+    pct exec "${CTID}" -- netbird up --setup-key "${NETBIRD_SETUP_KEY}" >/dev/null 2>&1; then
+    NETBIRD_OK="yes"
+    msg_ok "NetBird verbunden – im NetBird-Dashboard heißt dieser Rechner ${CT_HOSTNAME}"
+  else
+    msg_error "NetBird ließ sich nicht einrichten. Später im Container: netbird up --setup-key <KEY>"
+  fi
+fi
+
 printf '\n %s🎉 %s ist bereit:%s %shttp://%s:8080%s\n' "${GN}" "${APP}" "${CL}" "${BL}" "${IP}" "${CL}"
-printf '    Update später im Container: %spct enter %s%s und dann %supdate%s\n\n' "${YW}" "${CTID}" "${CL}" "${YW}" "${CL}"
+printf '    Update später im Container: %spct enter %s%s und dann %supdate%s\n' "${YW}" "${CTID}" "${CL}" "${YW}" "${CL}"
+if [[ -n "${NETBIRD_OK}" ]]; then
+  printf '    Eigene Domain: im Panel %sAdmin-Bereich → Domain → Reiter „NetBird“%s\n' "${YW}" "${CL}"
+fi
+printf '\n'
