@@ -219,6 +219,16 @@ describe('NetBird automation', () => {
     expect(netbird.calls.every((c) => c.auth === `Token ${TOKEN}` || c.auth === 'Token nbp_wrong')).toBe(
       true,
     );
+    // The stored token is never sent to another address: changing it needs the token again.
+    const elsewhere = await call('POST', '/api/netbird/discover', { apiUrl: 'https://evil.example' });
+    expect(elsewhere.json()).toMatchObject({ error: 'netbird_token_missing' });
+    const moved = await call('PUT', '/api/netbird', {
+      apiUrl: 'https://evil.example',
+      domain: BASE,
+      peerId: 'peer-mh',
+    });
+    expect(moved.json()).toMatchObject({ error: 'netbird_token_missing' });
+    expect((await call('POST', '/api/netbird/discover', {})).json<NetbirdDiscovery>().peers).toHaveLength(2);
   });
 
   test('a new server with a name gets its address in NetBird right away', async () => {

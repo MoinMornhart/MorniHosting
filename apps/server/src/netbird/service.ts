@@ -73,7 +73,7 @@ export function createNetbirdAutomation(
 ): NetbirdAutomation {
   const lock = createKeyedLock();
   /** Last failed sync per server, as an error code for its pages. */
-  const failures = new Map<string, string>();
+  const failures = new Map<string, NonNullable<NetbirdServerInfo['error']>>();
 
   const config = (): StoredConfig | null => ctx.settings.getValue<StoredConfig>(SETTINGS_KEY) ?? null;
   const clientFor = (cfg: StoredConfig): NetbirdClient =>
@@ -219,7 +219,12 @@ export function createNetbirdAutomation(
     try {
       await lock(serverId, () => syncNow(serverId, force));
     } catch (err) {
-      failures.set(serverId, err instanceof AppError ? err.code : 'netbird_failed');
+      failures.set(
+        serverId,
+        err instanceof AppError
+          ? { code: err.code, params: err.params }
+          : { code: 'netbird_failed', params: {} },
+      );
       throw err;
     }
   };
@@ -250,12 +255,16 @@ export function createNetbirdAutomation(
     };
   };
 
-  const clientFromInput = (input: { apiUrl?: string; token?: string }): NetbirdClient => {
+  /** The stored token only ever goes to the stored API address; a new address needs the token typed again. */
+  const tokenFor = (input: { apiUrl?: string; token?: string }): string => {
     const cfg = config();
-    const token = input.token ?? (cfg ? ctx.secrets.decrypt(cfg.token) : null);
+    const sameApi = !input.apiUrl || input.apiUrl === cfg?.apiUrl;
+    const token = input.token ?? (cfg && sameApi ? ctx.secrets.decrypt(cfg.token) : null);
     if (!token) throw badRequest('netbird_token_missing');
-    return clientFactory(input.apiUrl ?? cfg?.apiUrl ?? NETBIRD_DEFAULT_API, token);
+    return token;
   };
+  const clientFromInput = (input: { apiUrl?: string; token?: string }): NetbirdClient =>
+    clientFactory(input.apiUrl ?? config()?.apiUrl ?? NETBIRD_DEFAULT_API, tokenFor(input));
 
   // A server gets its address before the answer to "create" goes out, later changes follow on their own.
   servers.onCreated((id) => (serverRow(id)?.netbirdName ? syncQuietly(id) : Promise.resolve()));
@@ -299,7 +308,7 @@ export function createNetbirdAutomation(
     },
     configure: async (input, actor) => {
       const client = clientFromInput(input);
-      const token = input.token ?? ctx.secrets.decrypt(requireConfig().token);
+      const token = tokenFor(input);
       const [domains, peers] = await Promise.all([client.domains(), client.peers()]);
       const domain = input.domain.toLowerCase();
       if (!domains.some((d) => d.domain.toLowerCase() === domain))

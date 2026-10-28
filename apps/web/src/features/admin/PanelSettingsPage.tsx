@@ -18,11 +18,12 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/features/auth/session';
 import { NetBirdGuide } from './NetBirdGuide';
+import { NetbirdAutomationCard } from './NetbirdAutomationCard';
 import { PasswordResetCard } from './PasswordResetCard';
 import { UpdateSection } from './UpdateSection';
 
 const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = { de: 'Deutsch', en: 'English' };
-const SECTIONS = ['domain', 'update', 'passwords', 'settings'] as const;
+const SECTIONS = ['domain', 'netbird', 'update', 'passwords', 'settings'] as const;
 const GUIDES = ['proxy', 'netbird'] as const;
 const URL_MARK = '://';
 
@@ -237,6 +238,7 @@ export function PanelSettingsPage(): ReactElement {
         </Card>
       </form>
 
+      <NetbirdAutomationCard />
       <UpdateSection />
       <PasswordResetCard />
 

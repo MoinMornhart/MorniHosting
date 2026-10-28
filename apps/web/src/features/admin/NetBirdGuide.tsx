@@ -7,6 +7,7 @@ import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
+import { toNetbirdName } from '@/features/netbird/netbird';
 import { serverQuery, serversQuery } from '@/features/servers/live';
 
 /**
@@ -23,17 +24,6 @@ const DEFAULT_PANEL_PORT = '8080';
 const FALLBACK_BASE = 'mc.deine-domain.de';
 const PANEL_SUB = 'panel';
 const SRV_EXAMPLE = 'survival';
-const MAX_SLUG = 30;
-// Everything that is not a letter or digit becomes a dash: "Survival mit Freunden!" → "survival-mit-freunden-".
-// https://regex101.com/?flavor=javascript&regex=%5B%5Ea-z0-9%5D%2B&flags=g&testString=survival%20mit%20freunden!
-const NOT_SLUG = /[^a-z0-9]+/g;
-// Dashes at the start or end: "-survival-" loses both, "sur-vival" keeps its dash.
-// https://regex101.com/?flavor=javascript&regex=%5E-%2B%7C-%2B%24&flags=g&testString=-survival-%0Asur-vival
-const EDGE_DASHES = /^-+|-+$/g;
-
-const slug = (name: string): string =>
-  name.toLowerCase().replace(NOT_SLUG, '-').replace(EDGE_DASHES, '').slice(0, MAX_SLUG) || 'minecraft';
-
 interface Row {
   readonly key: string;
   readonly label: string;
@@ -45,7 +35,7 @@ interface Row {
 function rowsFor(servers: readonly ServerSummary[], details: readonly (ServerDetail | undefined)[]): Row[] {
   return servers.flatMap((s, i) => {
     const detail = details[i];
-    const base = slug(s.name);
+    const base = toNetbirdName(s.name);
     const main: Row = {
       key: s.id,
       label: s.name,
@@ -135,6 +125,12 @@ export function NetBirdGuide({
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <p className="text-sm text-muted-foreground">{t('netbird.intro')}</p>
+      <p className="rounded-[12px] bg-accent px-3 py-2.5 text-sm">
+        <Trans
+          i18nKey="netbird.autoHint"
+          components={{ a: <a href="#netbird" className="font-semibold text-primary hover:underline" /> }}
+        />
+      </p>
       <Field id="nb-base" label={t('netbird.base')} hint={t('netbird.baseHint')}>
         <Input
           id="nb-base"

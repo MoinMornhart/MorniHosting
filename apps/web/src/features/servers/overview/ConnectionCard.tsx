@@ -63,6 +63,11 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
   const sharePort = data.domain ? data.sharePort : data.port;
   const shareAddress = host ? withPort(host, sharePort, defaultPort) : null;
   const voicePort = server.voicePublicPort ?? server.voicePort;
+  // Through NetBird, Bedrock players have their own name and the port NetBird assigned.
+  const bedrock = server.netbird?.services.find((s) => s.purpose === 'geyser');
+  const bedrockHost = bedrock?.domain ?? host;
+  const bedrockPort = bedrock?.port ?? server.geyserPort;
+  const netbirdError = server.netbird?.error;
   const running = server.live.state === 'running';
   const reach = data.reachable;
   const status = reach?.status ?? 'unknown';
@@ -114,15 +119,21 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
             </Button>
           </div>
         )}
-        {server.geyser && server.geyserPort && host ? (
+        {server.geyser && bedrockPort && bedrockHost ? (
           <div className="flex flex-wrap items-center gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px]">
             <Smartphone className="size-4 text-primary" aria-hidden />
             <span className="text-muted-foreground">{t('connection.bedrock')}</span>
-            <span className="font-mono font-semibold">{host}</span>
+            <span className="font-mono font-semibold">{bedrockHost}</span>
             <span className="text-muted-foreground">{t('connection.bedrockPort')}</span>
-            <span className="font-mono font-semibold">{server.geyserPort}</span>
-            <CopyButton text={host} className="size-7" toastText={t('card.addressCopied')} />
+            <span className="font-mono font-semibold">{bedrockPort}</span>
+            <CopyButton text={bedrockHost} className="size-7" toastText={t('card.addressCopied')} />
           </div>
+        ) : null}
+        {netbirdError ? (
+          <p className="flex items-start gap-2 rounded-[12px] bg-warning-soft px-3 py-2 text-[13px] text-warning">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+            {t('connection.netbirdError', { reason: t(`errors.${netbirdError.code}`, netbirdError.params) })}
+          </p>
         ) : null}
         {server.voiceChat && voicePort ? (
           <div className="flex flex-wrap items-center gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px]">

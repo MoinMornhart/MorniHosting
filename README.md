@@ -95,7 +95,7 @@ für deine Freunde zum Kopieren.
   </tr>
   <tr>
     <td><b>Voice-Chat</b><br>Simple Voice Chat mit einem Schalter: Plugin, UDP-Port und Adresse für die Spieler richten sich selbst ein.</td>
-    <td><b>Eigene Domain mit NetBird</b><br>Schritt für Schritt im Admin-Bereich, mit deinen echten Adressen und Ports zum Kopieren.</td>
+    <td><b>Eigene Domain mit NetBird</b><br>Einmal verbinden, dann reicht pro Server ein Name: MorniHosting legt <code>minecraft.deine-domain.de</code> selbst in NetBird an.</td>
   </tr>
 </table>
 
@@ -260,9 +260,36 @@ Passwörter** mit zwei Klicks ein neues.
 ## NetBird: eigene Domain ohne Portfreigabe
 
 Deine Domain liegt bei [NetBird](https://netbird.io)? Dann bekommst du HTTPS für das Panel und Adressen für
-deine Minecraft-Server, ohne im Router etwas freizugeben. Die komplette Anleitung steht im Panel unter
-**Admin-Bereich → Domain → Reiter „NetBird“** – dort sind alle Werte schon mit deinen Adressen und Ports
-ausgefüllt, du musst nur noch kopieren.
+deine Minecraft-Server, ohne im Router etwas freizugeben.
+
+### Automatisch: einmal verbinden, dann nur noch Namen vergeben
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/netbird-auto.webp" alt="NetBird im Admin-Bereich verbunden"></td>
+    <td width="50%"><img src="docs/screenshots/netbird-server.webp" alt="Server-Adressen, die MorniHosting in NetBird angelegt hat"></td>
+  </tr>
+</table>
+
+1. In NetBird einen API-Schlüssel anlegen: **Team → Service Users** → Service-User mit Rolle „Admin“ →
+   **Create Token**.
+2. Im Panel unter **Admin-Bereich → NetBird** den Schlüssel einfügen, **Verbinden**, deine Domain und den
+   Rechner wählen (beim Proxmox-Einzeiler heißt er `mornihosting`), **Speichern**.
+3. Optional **Adresse fürs Panel → Einrichten**: Das Panel ist dann unter `https://panel.deine-domain.de`
+   erreichbar, mit „Pass Host Header“, damit Passkeys gehen.
+4. Beim **Server anlegen** steht schon ein Name, z. B. `minecraft` – fertig. MorniHosting legt in NetBird
+   `minecraft.deine-domain.de` an, bei Bedrock-Spielern (Geyser) `minecraft-bedrock…` und beim Voice-Chat
+   `minecraft-voice…`. Ändern oder entfernen kannst du den Namen in den Server-Einstellungen.
+
+<img src="docs/screenshots/netbird-wizard.webp" alt="Beim Anlegen nur noch den Namen eingeben" width="100%">
+
+Den Port nach außen vergibt NetBird Cloud selbst, die Adresse sieht also so aus:
+`minecraft.deine-domain.de:31234`. MorniHosting zeigt sie überall fertig zum Kopieren an.
+
+### Von Hand
+
+Die komplette Anleitung steht im Panel unter **Admin-Bereich → Domain → Reiter „NetBird“** – dort sind alle
+Werte schon mit deinen Adressen und Ports ausgefüllt, du musst nur noch kopieren.
 
 <img src="docs/screenshots/netbird-ports.webp" alt="NetBird-Anleitung: Panel und Minecraft-Server freigeben" width="100%">
 

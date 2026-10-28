@@ -4,9 +4,41 @@ Mit dem Reverse Proxy von [NetBird](https://netbird.io) erreichen deine Freunde 
 Minecraft-Server über deine eigene Domain, ohne dass du im Router etwas freigibst. Das Panel bekommt
 automatisch HTTPS, damit funktionieren auch **Passkeys**.
 
-> **Am einfachsten:** Öffne im Panel **Admin-Bereich → Domain → Reiter „NetBird“** und trag deine Domain ein.
-> Dort stehen alle Werte schon mit deiner IP, deinen Ports und Vorschlägen für die Subdomains – du kopierst
-> nur noch. Diese Seite erklärt dasselbe zum Nachlesen.
+## Am einfachsten: MorniHosting richtet NetBird selbst ein
+
+Hast du in NetBird schon eine eigene Domain (Schritt 2 unten) und läuft NetBird auf dem Rechner mit
+MorniHosting (Schritt 1, beim Proxmox-Einzeiler per Setup-Key automatisch), dann musst du in NetBird sonst
+nichts mehr anlegen:
+
+1. **API-Schlüssel anlegen:** NetBird-Dashboard → **Team → Service Users** → **Create Service User** (Rolle
+   „Admin“) → beim neuen Service-User **Create Token**. Den Schlüssel (`nbp_…`) kopieren.
+2. **Im Panel verbinden:** **Admin-Bereich → NetBird** → Schlüssel einfügen → **Verbinden** → deine Domain und
+   den Rechner wählen → **Speichern**. Der Schlüssel wird verschlüsselt gespeichert und nie angezeigt.
+3. **Panel-Adresse (optional):** Unter **Adresse fürs Panel** z. B. `panel` eintragen → **Einrichten**. Das Panel
+   ist dann unter `https://panel.deine-domain.de` erreichbar, mit „Pass Host Header“. Gibt es den Dienst schon,
+   übernimmt MorniHosting ihn und stellt ihn richtig ein.
+4. **Server:** Beim Anlegen nur noch den Namen eingeben (wird aus dem Server-Namen vorgeschlagen). Später
+   änderst oder entfernst du ihn unter **Einstellungen → Allgemein → Adresse im Internet (NetBird)**.
+
+| Was                       | Adresse in NetBird               | Modus     |
+| ------------------------- | -------------------------------- | --------- |
+| Java- oder Bedrock-Server | `<name>.deine-domain.de`         | TCP / UDP |
+| Bedrock-Spieler (Geyser)  | `<name>-bedrock.deine-domain.de` | UDP       |
+| Voice-Chat                | `<name>-voice.deine-domain.de`   | UDP       |
+
+Den Port nach außen vergibt NetBird Cloud automatisch (z. B. `31234`). MorniHosting trägt ihn als
+öffentlichen Port ein und zeigt die fertige Adresse auf der Server-Seite. Ändert sich ein Port im Panel,
+schaltest du Geyser oder Voice-Chat an oder aus, benennst du den Server um oder löschst ihn, zieht
+MorniHosting NetBird automatisch nach – der Port nach außen bleibt dabei gleich.
+
+**Trennen** (Admin-Bereich → NetBird) löscht die Dienste der Server in NetBird wieder; die Panel-Adresse bleibt,
+damit du dich nicht aussperrst.
+
+## Von Hand
+
+Lieber alles selbst eintragen? Öffne im Panel **Admin-Bereich → Domain → Reiter „NetBird“** und trag deine
+Domain ein. Dort stehen alle Werte schon mit deiner IP, deinen Ports und Vorschlägen für die Subdomains – du
+kopierst nur noch. Die Abschnitte unten erklären dasselbe zum Nachlesen.
 
 <img src="screenshots/netbird-ports.webp" alt="NetBird-Anleitung im Admin-Bereich" width="100%">
 

@@ -230,7 +230,8 @@
     "bedrock": "Bedrock (phone, console):",
     "bedrockPort": "port",
     "voiceChat": "Voice chat:",
-    "voicePort": "UDP port {{port}}"
+    "voicePort": "UDP port {{port}}",
+    "netbirdError": "NetBird could not set up the address: {{reason}}"
   },
   "stats": {
     "players": "Players",
@@ -484,7 +485,16 @@
     "cannot_reset_self": "Change your own password under “My account”.",
     "demo_readonly": "Uploading files is not possible in the demo. In the real panel it works by drag and drop.",
     "voicechat_java_only": "Voice chat is only available for Java servers.",
-    "voicechat_unsupported": "Simple Voice Chat does not exist for this server software. It works with Paper, Purpur, Fabric, Forge and NeoForge."
+    "voicechat_unsupported": "Simple Voice Chat does not exist for this server software. It works with Paper, Purpur, Fabric, Forge and NeoForge.",
+    "netbird_unauthorized": "NetBird rejected the API key. Check it in the NetBird dashboard.",
+    "netbird_unreachable": "NetBird cannot be reached right now ({{host}}).",
+    "netbird_rejected": "NetBird says: {{message}}",
+    "netbird_domain_unknown": "The domain {{domain}} does not exist in your NetBird.",
+    "netbird_peer_unknown": "This machine does not exist in your NetBird (any more).",
+    "netbird_not_configured": "NetBird is not connected yet (admin area → NetBird).",
+    "netbird_token_missing": "Please enter the NetBird API key.",
+    "netbird_name_taken": "Another server already uses the name {{name}}.",
+    "netbird_failed": "NetBird could not be set up."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1373,7 +1383,11 @@
       "account_passkey_removed": "Passkey removed",
       "user_password_reset": "Password reset",
       "voicechat_enable": "Voice chat turned on",
-      "voicechat_disable": "Voice chat turned off"
+      "voicechat_disable": "Voice chat turned off",
+      "netbird_configure": "NetBird connected",
+      "netbird_disconnect": "NetBird disconnected",
+      "netbird_server": "Address through NetBird changed",
+      "netbird_panel": "Panel address set up in NetBird"
     }
   },
   "account": {
@@ -1440,7 +1454,8 @@
       "domain": "Domain",
       "update": "Updates",
       "passwords": "Passwords",
-      "settings": "Settings"
+      "settings": "Settings",
+      "netbird": "NetBird"
     },
     "domainTitle": "Domain",
     "domainSet": "Set",
@@ -1512,7 +1527,8 @@
     "step4Port": "After saving, NetBird shows the port your friends come in on (NetBird Cloud assigns it automatically). Enter it at the server under <b>Settings → Public port</b>, for voice chat in the voice chat box. Then MorniHosting shows the right address everywhere.",
     "step4Srv": "Tip for Java: with an SRV record at your domain provider (<b>_minecraft._tcp.{{name}}</b> → target {{name}}, NetBird's port) friends type just the name, no port.",
     "step5Title": "Done – set up a passkey",
-    "step5Text": "Open <b>https://{{address}}</b>, sign in and add a passkey under <b>My account</b>. From then on your fingerprint is enough."
+    "step5Text": "Open <b>https://{{address}}</b>, sign in and add a passkey under <b>My account</b>. From then on your fingerprint is enough.",
+    "autoHint": "Rather not type anything? Connect NetBird once under <a>Server addresses automatically</a>, then MorniHosting sets up every server itself."
   },
   "voiceChat": {
     "title": "Voice chat (Simple Voice Chat)",
@@ -1527,5 +1543,55 @@
     "playersHint": "Every player needs the “Simple Voice Chat” mod in their own Minecraft (Fabric, Forge or NeoForge). Without it they can still play but hear nothing.",
     "modLink": "Simple Voice Chat on Modrinth",
     "routerHint": "For friends outside your Wi-Fi, forward UDP port {{port}} on your router – or use NetBird (guide in the admin area)."
+  },
+  "netbirdAuto": {
+    "title": "Server addresses automatically (NetBird)",
+    "text": "Connect NetBird once and pick your domain. After that you only give each server a name, and MorniHosting creates everything in NetBird itself, e.g. minecraft.your-domain.com.",
+    "connectedPill": "Connected",
+    "notConnected": "Not connected",
+    "tokenLabel": "NetBird API key",
+    "tokenHint": "In the NetBird dashboard, create a service user with the “Admin” role under Team → Service Users and choose “Create Token”. The key starts with nbp_ and is stored encrypted.",
+    "tokenKeep": "Leave empty to keep the stored key.",
+    "ownServer": "Your own NetBird server?",
+    "apiUrl": "NetBird API address",
+    "apiUrlHint": "Only change this if you run NetBird yourself, e.g. https://netbird.your-domain.com.",
+    "connect": "Connect",
+    "connecting": "Connecting …",
+    "noDomains": "Your NetBird has no domain yet. How to add one is explained in the “NetBird” tab above (step 2).",
+    "domain": "Your domain",
+    "domainHint": "From “Reverse Proxy → Custom Domains”. Only confirmed domains can be chosen.",
+    "domainPending": "(not confirmed yet)",
+    "machine": "Machine running MorniHosting",
+    "machineHint": "The machine in your NetBird network that MorniHosting runs on. With the Proxmox one-liner it is called “mornihosting”.",
+    "online": "online",
+    "offline": "offline",
+    "connected": "NetBird connected",
+    "summary": "Server names become <b>name.{{domain}}</b> · Machine: <b>{{machine}}</b>",
+    "portNote": "NetBird assigns the outside port itself. MorniHosting shows your friends the full address, e.g. minecraft.{{domain}}:31234.",
+    "change": "Change",
+    "disconnect": "Disconnect",
+    "disconnectTitle": "Disconnect NetBird?",
+    "disconnectText": "MorniHosting deletes the servers' services in NetBird again; the servers no longer have an address through NetBird. The panel's address stays.",
+    "disconnected": "NetBird disconnected",
+    "panelTitle": "Address for the panel",
+    "panelText": "Makes the panel reachable under your domain with HTTPS – with “Pass Host Header”, so passkeys work. If the service already exists in NetBird, it is taken over and set up correctly.",
+    "panelName": "Name",
+    "panelPort": "Panel port",
+    "panelButton": "Set up",
+    "panelDone": "The panel is reachable at {{address}}",
+    "fieldLabel": "Address on the internet (NetBird)",
+    "fieldHint": "Just the name – MorniHosting sets up the rest in NetBird. Remove takes the address away again.",
+    "createHint": "Suggested from the name. Leave empty if the server should not get an address through NetBird.",
+    "saving": "Setting up …",
+    "serverSaved": "Address set up in NetBird",
+    "serverRemoved": "Address removed in NetBird",
+    "remove": "Remove",
+    "managed": "Set up through NetBird.",
+    "purpose": {
+      "main": "Server:",
+      "geyser": "Bedrock (Geyser):",
+      "voice": "Voice chat:",
+      "panel": "Panel:"
+    }
   }
 }

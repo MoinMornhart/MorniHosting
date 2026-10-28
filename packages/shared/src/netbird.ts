@@ -80,6 +80,9 @@ export interface NetbirdServiceInfo {
 export interface NetbirdServerInfo {
   readonly name: string;
   readonly services: readonly NetbirdServiceInfo[];
-  /** Why the last sync with NetBird failed, as an error code; null when everything is in place. */
-  readonly error: string | null;
+  /** Why the last sync with NetBird failed (an error code with its details); null when all is in place. */
+  readonly error: {
+    readonly code: string;
+    readonly params: Readonly<Record<string, string | number>>;
+  } | null;
 }
