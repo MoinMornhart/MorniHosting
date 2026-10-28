@@ -34,5 +34,3 @@ export function openDatabase(file: string): DbHandle {
   migrate(db, { migrationsFolder: migrationsFolder() });
   return { db, close: () => sqlite.close() };
 }
-
-export { schema };

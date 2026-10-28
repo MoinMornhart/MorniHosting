@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { PROPERTY_FIELDS, type Edition } from '@mornihosting/shared';
-import { BYTES_PER_MB, MS_PER_SECOND, PERCENT } from '../lib/units.js';
+import { BYTES_PER_MB, PERCENT } from '../lib/units.js';
 import type {
   CommandChannel,
   ContainerEvent,
@@ -570,4 +570,3 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
 
 export const FAKE_STEP_MS_DEFAULT = 400;
 export const FAKE_STEP_MS_FAST = 5;
-export const FAKE_SECOND = MS_PER_SECOND;

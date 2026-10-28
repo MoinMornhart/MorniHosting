@@ -14,7 +14,7 @@ const FAILED_AUTH_ID = -1;
 const TIMEOUT_SECONDS = 5;
 const TIMEOUT_MS = TIMEOUT_SECONDS * MS_PER_SECOND;
 
-export class RconError extends Error {
+class RconError extends Error {
   override readonly name = 'RconError';
 }
 

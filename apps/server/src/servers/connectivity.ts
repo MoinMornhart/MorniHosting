@@ -16,7 +16,7 @@ const statusSchema = z.object({ online: z.boolean() });
 // https://regex101.com/?flavor=javascript&regex=%5E(%5Cd%7B1%2C3%7D%5C.)%7B3%7D%5Cd%7B1%2C3%7D%24&flags=gm&testString=203.0.113.42%0A203.0.113%0Aa.b.c.d
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/;
 
-export async function publicIp(settings: SettingsService): Promise<string | null> {
+async function publicIp(settings: SettingsService): Promise<string | null> {
   if (!settings.get().publicIpLookup) return null;
   try {
     return await publicIpCache.wrap('ip', async () => {
