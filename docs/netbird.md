@@ -99,8 +99,9 @@ Dann **Add Target**: Als Ziel **Peer** und deinen MorniHosting-Rechner wählen �
 `192.168.178.40`, wenn NetBird auf einem anderen Gerät läuft. **Protokoll** `HTTP`, **Port** `8080` (bzw. der
 Port, unter dem du das Panel sonst öffnest).
 
-- Unter **Settings** unbedingt **Pass Host Header** einschalten. Sonst sieht das Panel die falsche Adresse und
-  Passkeys funktionieren nicht.
+- Unter **Settings** am besten **Pass Host Header** einschalten. Dann sieht das Panel deine Domain direkt.
+  Anmelden und Passkeys gehen aber auch ohne – wichtig ist nur, dass die Adresse im **Admin-Bereich → Domain**
+  eingetragen ist.
 - **Authentication** kannst du leer lassen, MorniHosting hat eine eigene Anmeldung. Sollen nur Leute aus deinem
   NetBird-Netz das Panel sehen, wähle **NetBird-Only Access**.
 
@@ -164,12 +165,13 @@ Du hast das Panel über eine andere Adresse geöffnet als die eingetragene. Öff
 <details>
 <summary><b>Anmelden geht, aber Passkeys nicht / „Anfrage von einer fremden Seite abgelehnt“</b></summary>
 
-Meist fehlt **Pass Host Header** beim Panel-Service in NetBird. Dann sieht das Panel statt deiner Domain nur die
-interne Adresse, an die NetBird weiterleitet. Anmelden mit Passwort und die Live-Anzeige gehen trotzdem (ab
-der Version vom 28.10.), Passkeys aber nicht – die Anmeldeseite sagt dir das dann auch. Einschalten, speichern,
-Seite neu laden.
+Passkeys gehören zu genau einer Domain. Trag sie im Panel ein: **Admin-Bereich → Domain → Adresse des Panels**
+(z. B. `hosting.deine-domain.de`) – oder unter **Mein Konto → Passkeys** auf **… als Domain des Panels
+eintragen** klicken, wenn du das Panel schon über die Domain geöffnet hast. Danach gehen Passkeys auf dieser
+Domain, auch wenn **Pass Host Header** in NetBird aus ist.
 
-Ältere Version im Container? Auf dem Proxmox-Host `pct enter <ID>` und dann `update` eingeben.
+„Anfrage von einer fremden Seite abgelehnt“ und Passkeys ohne „Pass Host Header“ gibt es erst ab der Version vom
+28.10. Ältere Version im Container? Auf dem Proxmox-Host `pct enter <ID>` und dann `update` eingeben.
 
 </details>
 

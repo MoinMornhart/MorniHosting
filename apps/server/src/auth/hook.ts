@@ -23,6 +23,7 @@ const CSRF_EXEMPT: readonly string[] = [
   '/api/auth/passkey/login',
 ];
 const TOKEN_TOUCH_MS = MS_PER_MINUTE;
+const HTTPS = 'https:';
 
 /** Sessions waiting for their second factor, by request. */
 const pendingByRequest = new WeakMap<FastifyRequest, SessionRow>();
@@ -38,12 +39,26 @@ export function onPanelDomain(ctx: AppContext, hostname: string): boolean {
 }
 
 /**
+ * The page the request comes from, as the browser reports it (Origin; pages cannot fake it), when that page
+ * is the panel domain over HTTPS. A proxy may pass on its own target address as Host (NetBird without
+ * "Pass Host Header"); the Origin still names the real address.
+ */
+export function panelOrigin(ctx: AppContext, request: FastifyRequest): URL | null {
+  const origin = request.headers.origin;
+  if (!origin || !URL.canParse(origin)) return null;
+  const url = new URL(origin);
+  return url.protocol === HTTPS && onPanelDomain(ctx, url.hostname) ? url : null;
+}
+
+/**
  * HTTPS as the browser sees it. Behind a proxy that says so (MH_TRUST_PROXY) the protocol is known;
  * some proxies (e.g. NetBird's) do not send X-Forwarded-Proto, so the admin's panel domain counts too:
  * it is the address that is meant to be served over HTTPS.
  */
 export function servedOverHttps(ctx: AppContext, request: FastifyRequest): boolean {
-  return request.protocol === 'https' || onPanelDomain(ctx, request.hostname);
+  return (
+    request.protocol === 'https' || onPanelDomain(ctx, request.hostname) || panelOrigin(ctx, request) !== null
+  );
 }
 
 export function cookieSecure(ctx: AppContext, request: FastifyRequest): boolean {
@@ -86,8 +101,7 @@ export function originAllowed(ctx: AppContext, request: FastifyRequest): boolean
   const origin = request.headers.origin;
   if (!origin) return true;
   if (!URL.canParse(origin)) return false;
-  const url = new URL(origin);
-  return url.host === request.host || (url.protocol === 'https:' && onPanelDomain(ctx, url.hostname));
+  return new URL(origin).host === request.host || panelOrigin(ctx, request) !== null;
 }
 
 function resolveApiToken(ctx: AppContext, request: FastifyRequest, raw: string): boolean {

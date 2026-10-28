@@ -1445,7 +1445,9 @@
     "removeConfirm": "Remove",
     "needsHttps": "Passkeys only work when the panel runs over HTTPS with a domain (e.g. https://panel.your-domain.com). An admin enters the domain in the admin area.",
     "wrongHost": "Passkeys belong to {{domain}}. Open the panel at https://{{domain}} to add or use them.",
-    "proxyHint": "Passkeys are off right now: the panel cannot see that you are here via {{host}}. Enter the address in the admin area under “Domain” and turn on “Pass Host Header” in NetBird (or your proxy)."
+    "proxyHint": "Passkeys work here as soon as {{host}} is entered as the panel address in the admin area under “Domain”.",
+    "adoptDomain": "Use {{host}} as the panel domain",
+    "domainAdopted": "{{host}} is now the panel domain – passkeys work here."
   },
   "admin": {
     "title": "Admin area",
@@ -1516,7 +1518,7 @@
     "target": "Target",
     "protocol": "Protocol",
     "port": "Port",
-    "step3Host": "Under <b>Settings</b>, make sure to turn on <b>Pass Host Header</b> – otherwise passkeys will not work.",
+    "step3Host": "Under <b>Settings</b>, best turn on <b>Pass Host Header</b>. Then the panel sees your domain directly (signing in and passkeys also work without it).",
     "step3Auth": "You can leave <b>Authentication</b> empty, MorniHosting has its own sign-in. If only people in your NetBird should see the panel, choose <b>NetBird-Only Access</b>.",
     "step3Result": "Your panel will then be here:",
     "usePanelDomain": "Use as panel address",
@@ -1528,7 +1530,9 @@
     "step4Srv": "Tip for Java: with an SRV record at your domain provider (<b>_minecraft._tcp.{{name}}</b> → target {{name}}, NetBird's port) friends type just the name, no port.",
     "step5Title": "Done – set up a passkey",
     "step5Text": "Open <b>https://{{address}}</b>, sign in and add a passkey under <b>My account</b>. From then on your fingerprint is enough.",
-    "autoHint": "Rather not type anything? Connect NetBird once under <a>Server addresses automatically</a>, then MorniHosting sets up every server itself."
+    "autoHint": "Rather not type anything? Connect NetBird once under <a>Server addresses automatically</a>, then MorniHosting sets up every server itself.",
+    "panelName": "Name for the panel",
+    "panelNameHint": "The part in front of your domain the panel should be reachable at – e.g. hosting for hosting.example.com."
   },
   "voiceChat": {
     "title": "Voice chat (Simple Voice Chat)",

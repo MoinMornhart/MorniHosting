@@ -10,7 +10,7 @@ import { Field } from '@/components/ui/label';
 import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { AuthLayout } from './AuthLayout';
-import { passkeysInBrowser, proxyHidesAddress, signInWithPasskey } from './passkey';
+import { panelDomainMissing, passkeysUsable, signInWithPasskey } from './passkey';
 import { adoptMe, meQuery, statusQuery } from './session';
 
 export function LoginPage(): ReactElement {
@@ -60,9 +60,10 @@ export function LoginPage(): ReactElement {
     else verify.mutate();
   };
   const error = step === 'password' ? (login.error ?? passkey.error) : verify.error;
-  const passkeyReady = step === 'password' && status.data?.passkeys === 'ok' && passkeysInBrowser();
-  const proxyHint = step === 'password' && status.data ? proxyHidesAddress(status.data) : false;
-  const passkeyDomain = status.data?.passkeys === 'wrong_host' && !proxyHint ? status.data.panelDomain : null;
+  const passkeyReady = step === 'password' && status.data !== undefined && passkeysUsable(status.data);
+  const proxyHint = step === 'password' && status.data ? panelDomainMissing(status.data) : false;
+  const passkeyDomain =
+    status.data?.passkeys === 'wrong_host' && !passkeyReady ? status.data.panelDomain : null;
   const busy = login.isPending || verify.isPending || passkey.isPending;
 
   return (

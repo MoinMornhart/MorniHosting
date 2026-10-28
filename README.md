@@ -275,8 +275,8 @@ deine Minecraft-Server, ohne im Router etwas freizugeben.
    **Create Token**.
 2. Im Panel unter **Admin-Bereich → NetBird** den Schlüssel einfügen, **Verbinden**, deine Domain und den
    Rechner wählen (beim Proxmox-Einzeiler heißt er `mornihosting`), **Speichern**.
-3. Optional **Adresse fürs Panel → Einrichten**: Das Panel ist dann unter `https://panel.deine-domain.de`
-   erreichbar, mit „Pass Host Header“, damit Passkeys gehen.
+3. Optional **Adresse fürs Panel → Einrichten** (Name frei wählbar, z. B. `hosting`): Das Panel ist dann
+   unter `https://hosting.deine-domain.de` erreichbar und die Domain für Passkeys ist gleich eingetragen.
 4. Beim **Server anlegen** steht schon ein Name, z. B. `minecraft` – fertig. MorniHosting legt in NetBird
    `minecraft.deine-domain.de` an, bei Bedrock-Spielern (Geyser) `minecraft-bedrock…` und beim Voice-Chat
    `minecraft-voice…`. Ändern oder entfernen kannst du den Namen in den Server-Einstellungen.

@@ -16,13 +16,21 @@ export function passkeysInBrowser(): boolean {
 }
 
 /**
- * The page is open over HTTPS on its domain, but the panel cannot see that address: a proxy (e.g. NetBird
- * without "Pass Host Header") hands on its own target address instead, so passkeys stay off.
+ * The page is the panel domain over HTTPS. Passkeys work here even when a proxy (NetBird without
+ * "Pass Host Header") hides the address from the panel: the ceremony goes by the browser's origin.
  */
-export function proxyHidesAddress(status: SystemStatus): boolean {
-  const onDomain = status.passkeys === 'wrong_host' && status.panelDomain === window.location.hostname;
-  const httpsHidden = status.passkeys === 'needs_https' && window.location.protocol === HTTPS;
-  return onDomain || httpsHidden;
+function onPanelDomain(status: SystemStatus): boolean {
+  return status.panelDomain === window.location.hostname && window.location.protocol === HTTPS;
+}
+
+/** Whether this page can add and use passkeys. */
+export function passkeysUsable(status: SystemStatus): boolean {
+  return (status.passkeys === 'ok' || onPanelDomain(status)) && passkeysInBrowser();
+}
+
+/** HTTPS page, but no panel domain entered yet: once this address is entered, passkeys work here. */
+export function panelDomainMissing(status: SystemStatus): boolean {
+  return !status.panelDomain && status.passkeys !== 'ok' && window.location.protocol === HTTPS;
 }
 
 export async function signInWithPasskey(): Promise<LoginResponse> {

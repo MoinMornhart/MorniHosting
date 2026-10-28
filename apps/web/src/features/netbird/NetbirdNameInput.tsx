@@ -8,10 +8,12 @@ export function NetbirdNameInput({
   domain,
   onChange,
   onEnter,
+  placeholder,
 }: {
   id: string;
   value: string;
   domain: string;
+  placeholder?: string;
   onChange: (value: string) => void;
   onEnter?: () => void;
 }): ReactElement {
@@ -25,6 +27,7 @@ export function NetbirdNameInput({
       <Input
         id={id}
         value={value}
+        placeholder={placeholder}
         autoComplete="off"
         spellCheck={false}
         maxLength={40}

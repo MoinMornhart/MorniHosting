@@ -168,11 +168,20 @@ function ConnectForm({
   );
 }
 
-function PanelAddress({ status, domain }: { status: NetbirdStatus; domain: string }): ReactElement {
+function PanelAddress({
+  status,
+  domain,
+  panelDomain,
+}: {
+  status: NetbirdStatus;
+  domain: string;
+  panelDomain: string;
+}): ReactElement {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const current = status.panelAddress?.slice(0, -(domain.length + 1));
-  const [name, setName] = useState(current ?? PANEL_NAME);
+  // The address the panel already has (e.g. hosting.moinmornhart.de) gives the name, otherwise "panel".
+  const known = status.panelAddress ?? (panelDomain.endsWith(`.${domain}`) ? panelDomain : null);
+  const [name, setName] = useState(known?.slice(0, -(domain.length + 1)) ?? PANEL_NAME);
   const [port, setPort] = useState(String(Number(window.location.port) || DEFAULT_PANEL_PORT));
   const setup = useMutation({
     mutationFn: () =>
@@ -238,7 +247,7 @@ function PanelAddress({ status, domain }: { status: NetbirdStatus; domain: strin
 }
 
 /** Admin area: connect NetBird once, then every server only needs a name to get its address. */
-export function NetbirdAutomationCard(): ReactElement | null {
+export function NetbirdAutomationCard({ panelDomain }: { panelDomain: string }): ReactElement | null {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: status } = useQuery(netbirdStatusQuery);
@@ -284,7 +293,7 @@ export function NetbirdAutomationCard(): ReactElement | null {
             />
           </p>
           <p className="text-[13px] text-muted-foreground">{t('netbirdAuto.portNote', { domain })}</p>
-          <PanelAddress status={status} domain={domain} />
+          <PanelAddress status={status} domain={domain} panelDomain={panelDomain} />
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="secondary" onClick={() => setEditing(true)}>
               {t('netbirdAuto.change')}
