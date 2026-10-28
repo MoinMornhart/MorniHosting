@@ -252,6 +252,10 @@ function PanelAddress({
   );
 }
 
+/** Run once on the NetBird server: opens the Minecraft port ranges on its proxy and firewall. */
+const PORTS_SCRIPT =
+  'curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/scripts/netbird-proxy-ports.sh | sudo bash';
+
 /** Self-hosted NetBird: its proxy only lets port 443 through until each server port is opened. */
 function SelfHostedPorts({ status }: { status: NetbirdStatus }): ReactElement {
   const { t } = useTranslation();
@@ -281,6 +285,13 @@ function SelfHostedPorts({ status }: { status: NetbirdStatus }): ReactElement {
           </div>
         </>
       ) : null}
+      <p className="font-semibold">{t('netbirdAuto.selfHosted.auto')}</p>
+      <div className="flex items-start gap-2 rounded-[10px] bg-background/60 px-3 py-2">
+        <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre font-mono text-[13px]">
+          {PORTS_SCRIPT}
+        </pre>
+        <CopyButton text={PORTS_SCRIPT} className="size-7" />
+      </div>
       <p className="text-[13px] text-muted-foreground">{t('netbirdAuto.selfHosted.firewall')}</p>
     </div>
   );
