@@ -24,7 +24,8 @@
 - Phase 1 fertig: Compose + Socket-Proxy (getestet mit echtem Docker), Auth, Setup, Dashboard live, 61 Vitest-Tests.
 - Phase 2 fertig: Server-Assistent (Live-Versionen), Import per ZIP (Erkennung, Zip-Slip-Schutz), Server-Seite (Status, IP-Karte, Kennzahlen, Verlauf), Live-Konsole (xterm, Verlauf, Tab), Absturz-Helfer. 69 Tests.
 - Phase 3 fertig: Datei-Manager (Baum, Drag & Drop, CodeMirror-Editor, ZIP, Papierkorb 7 Tage unter `data/trash/`), server.properties als Formular mit Erklärungen (Feld-Liste in `packages/shared/src/properties.ts`, Texte unter `props.*` in i18n) und MOTD-Vorschau, Spieler (online per RCON, offline über die JSON-Dateien, UUID von Mojang), Welten (Upload, Wechsel, Neu mit Seed), Server-Bild (64×64, wird im Browser zugeschnitten), Server löschen. 93 Tests.
-- Phase 4 läuft: Marktplatz (Modrinth, Hangar, Spiget, CurseForge optional).
+- Phase 4 fertig: Marktplatz (`apps/server/src/market/`): Modrinth, Hangar, Spiget, CurseForge (Schlüssel in den Panel-Einstellungen). Downloads nur über HTTPS von erlaubten Hosts (`market/download.ts`, jede Weiterleitung geprüft), Prüfsumme wenn vorhanden, Größenlimit. Abhängigkeiten automatisch, gleiches Plugin aus zwei Quellen wird abgelehnt. Updates nur bei wirklich neuerer Version; unbekannte .jar werden per sha1 bei Modrinth erkannt. An/Aus = `.jar.disabled`. 105 Tests.
+- Phase 5 läuft: Backups, Zeitpläne, Webhooks.
 
 ## Lokal testen (Sandbox)
 
@@ -34,6 +35,6 @@
 
 ## Nächste Schritte
 
-1. Phase 4: Marktplatz (Suche, Kompatibilität, Abhängigkeiten, Hash-Prüfung, nur erlaubte Download-Hosts, Updates, .jar an/aus)
-2. Phase 5–7 laut Prompt
+1. Phase 5: Backups (Aufbewahrung, Ausschlüsse, Wiederherstellen, Download), Zeitpläne ohne Cron, Webhooks (Discord zuerst)
+2. Phase 6–7 laut Prompt
 3. Phase 7 merken: nach Updates alte Browser-Chunks abfangen (Seite neu laden, wenn ein Lazy-Import fehlschlägt)

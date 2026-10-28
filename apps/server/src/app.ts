@@ -34,6 +34,8 @@ import { HTTP_BAD_REQUEST, HTTP_INTERNAL, HTTP_NOT_FOUND, HTTP_TOO_MANY } from '
 import { BYTES_PER_MB, MS_PER_HOUR, MS_PER_SECOND } from './lib/units.js';
 import { registerFileRoutes } from './files/routes.js';
 import { createFileService } from './files/service.js';
+import { registerMarketRoutes } from './market/routes.js';
+import { createMarketService } from './market/service.js';
 import { registerImportRoutes } from './servers/import-routes.js';
 import { registerServerRoutes } from './servers/routes.js';
 import { createServerService, type ServerService } from './servers/service.js';
@@ -191,6 +193,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerServerRoutes(app, ctx, servers);
   registerImportRoutes(app, ctx, servers);
   registerFileRoutes(app, ctx, servers, files);
+  registerMarketRoutes(app, ctx, servers, createMarketService(ctx, servers, files));
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));

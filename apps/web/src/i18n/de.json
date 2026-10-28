@@ -457,7 +457,9 @@
     "not_supported_on_bedrock": "Das geht bei Bedrock-Servern leider nicht.",
     "player_unknown": "Diesen Minecraft-Namen gibt es nicht. Prüfe die Schreibweise.",
     "world_invalid": "In der ZIP-Datei ist keine Minecraft-Welt (es fehlt level.dat).",
-    "missing_permission": "Dafür fehlt dir auf diesem Server das Recht „{{permission}}“."
+    "missing_permission": "Dafür fehlt dir auf diesem Server das Recht „{{permission}}“.",
+    "content_already_installed": "„{{name}}“ ist schon installiert (Datei {{file}}). Zweimal dasselbe Plugin führt zu Fehlern.",
+    "content_up_to_date": "Das ist schon die neueste passende Version."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -883,5 +885,95 @@
     "config": "Einstellungen",
     "players": "Spieler verwalten",
     "plugins": "Plugins und Mods"
+  },
+  "content": {
+    "kind": {
+      "plugins": "Plugins",
+      "mods": "Mods"
+    },
+    "installed_one": "Installiert ({{count}})",
+    "installed_other": "Installiert ({{count}})",
+    "discover": {
+      "plugins": "Plugins entdecken",
+      "mods": "Mods entdecken"
+    },
+    "restartHint": {
+      "plugins": "Neue oder geänderte Plugins werden erst nach einem Neustart geladen.",
+      "mods": "Neue oder geänderte Mods werden erst nach einem Neustart geladen."
+    },
+    "checkUpdates": "Nach Updates suchen",
+    "updatesFound_one": "1 Update gefunden",
+    "updatesFound_other": "{{count}} Updates gefunden",
+    "allUpToDate": "Alles ist aktuell",
+    "updateAll_one": "Update installieren",
+    "updateAll_other": "Alle {{count}} aktualisieren",
+    "updateTo": "Auf {{version}} aktualisieren",
+    "updated": "{{name}} ist jetzt auf {{version}}",
+    "uploadJar": "Eigene .jar hochladen",
+    "uploaded_one": "Datei hochgeladen",
+    "uploaded_other": "{{count}} Dateien hochgeladen",
+    "onlyJar": "Hier gehen nur .jar-Dateien.",
+    "emptyTitle": "Noch keine {{kind}}",
+    "emptyText": "Such dir etwas im Marktplatz aus oder zieh eine .jar-Datei hierher.",
+    "browse": "Marktplatz öffnen",
+    "ownFile": "Eigene Datei",
+    "off": "Aus",
+    "neededBy": "benötigt von {{name}}",
+    "enabledFor": "{{name}} an oder aus",
+    "projectPage": "Projektseite öffnen",
+    "dropHint": "Tipp: .jar-Dateien einfach auf diese Seite ziehen. Ausschalten benennt die Datei in .jar.disabled um.",
+    "dropHere": "Loslassen zum Hochladen",
+    "removed": "{{name}} liegt im Papierkorb",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteText": "Die Datei kommt 7 Tage in den Papierkorb. Der Einstellungs-Ordner des Plugins bleibt erhalten."
+  },
+  "market": {
+    "sources": "Quelle",
+    "searchPlaceholder": {
+      "plugins": "Plugins suchen, z. B. LuckPerms",
+      "mods": "Mods suchen, z. B. Create"
+    },
+    "sort": "Sortierung",
+    "sorts": {
+      "downloads": "Beliebteste",
+      "updated": "Zuletzt aktualisiert",
+      "relevance": "Beste Treffer"
+    },
+    "onlyCompatible": "Nur passend zu {{target}}",
+    "sourceNote": {
+      "modrinth": "Modrinth: geprüfte Dateien mit Prüfsumme.",
+      "hangar": "Hangar: der Plugin-Marktplatz von PaperMC, mit Prüfsumme.",
+      "spiget": "SpigotMC: nur kostenlose Plugins, die direkt dort liegen. Ohne Prüfsumme.",
+      "curseforge": "CurseForge: mit deinem eigenen API-Schlüssel."
+    },
+    "compat": {
+      "yes": "Passt zu {{target}}",
+      "unknown": "Nicht geprüft",
+      "no": "Andere Version"
+    },
+    "by": "von {{author}}",
+    "downloads": "{{count}} Downloads",
+    "install": "Installieren",
+    "installing": "Wird installiert …",
+    "installed": "Installiert",
+    "installVersion": "{{version}} installieren",
+    "installedToast": "{{name}} ist installiert",
+    "withDependencies": "Dazu automatisch: {{names}}",
+    "manualTitle": "Bitte noch selbst installieren (nur auf externer Seite):",
+    "external": "Nur auf Website",
+    "externalHint": "Dieses Plugin gibt es nur auf einer externen Seite. Lade es dort herunter und zieh die .jar in den Tab „Installiert“.",
+    "noResults": "Nichts gefunden",
+    "noResultsText": "Probier einen anderen Suchbegriff oder schalte „Nur passend“ aus.",
+    "keyMissingTitle": "CurseForge braucht einen API-Schlüssel",
+    "keyMissingText": "Ein Administrator kann in den Panel-Einstellungen einen kostenlosen Schlüssel von console.curseforge.com eintragen.",
+    "page": "Seite {{page}} von {{pages}}",
+    "versions": "Versionen",
+    "noVersions": "Keine Versionen gefunden.",
+    "fits": "Passt",
+    "channel": {
+      "beta": "Beta",
+      "alpha": "Alpha"
+    },
+    "notFitWarning": "Diese Version ist nicht für deine Minecraft-Version gemacht. Sie kann Fehler oder Abstürze verursachen."
   }
 }

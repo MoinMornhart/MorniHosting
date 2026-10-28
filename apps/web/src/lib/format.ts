@@ -72,3 +72,8 @@ export function formatDateTime(iso: string): string {
 export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat(locale(), { timeStyle: 'short' }).format(new Date(iso));
 }
+
+/** "1,2 Mio." / "12K" */
+export function formatCompact(value: number): string {
+  return new Intl.NumberFormat(locale(), { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+}

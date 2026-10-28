@@ -457,7 +457,9 @@
     "not_supported_on_bedrock": "Unfortunately that doesn't work on Bedrock servers.",
     "player_unknown": "This Minecraft name doesn't exist. Check the spelling.",
     "world_invalid": "The ZIP file contains no Minecraft world (level.dat is missing).",
-    "missing_permission": "You are missing the “{{permission}}” right on this server."
+    "missing_permission": "You are missing the “{{permission}}” right on this server.",
+    "content_already_installed": "“{{name}}” is already installed (file {{file}}). The same plugin twice leads to errors.",
+    "content_up_to_date": "This is already the newest fitting version."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -883,5 +885,95 @@
     "config": "Settings",
     "players": "Manage players",
     "plugins": "Plugins and mods"
+  },
+  "content": {
+    "kind": {
+      "plugins": "plugins",
+      "mods": "mods"
+    },
+    "installed_one": "Installed ({{count}})",
+    "installed_other": "Installed ({{count}})",
+    "discover": {
+      "plugins": "Find plugins",
+      "mods": "Find mods"
+    },
+    "restartHint": {
+      "plugins": "New or changed plugins are only loaded after a restart.",
+      "mods": "New or changed mods are only loaded after a restart."
+    },
+    "checkUpdates": "Check for updates",
+    "updatesFound_one": "1 update found",
+    "updatesFound_other": "{{count}} updates found",
+    "allUpToDate": "Everything is up to date",
+    "updateAll_one": "Install update",
+    "updateAll_other": "Update all {{count}}",
+    "updateTo": "Update to {{version}}",
+    "updated": "{{name}} is now on {{version}}",
+    "uploadJar": "Upload own .jar",
+    "uploaded_one": "File uploaded",
+    "uploaded_other": "{{count}} files uploaded",
+    "onlyJar": "Only .jar files work here.",
+    "emptyTitle": "No {{kind}} yet",
+    "emptyText": "Pick something from the marketplace or drag a .jar file here.",
+    "browse": "Open marketplace",
+    "ownFile": "Own file",
+    "off": "Off",
+    "neededBy": "needed by {{name}}",
+    "enabledFor": "{{name}} on or off",
+    "projectPage": "Open project page",
+    "dropHint": "Tip: just drag .jar files onto this page. Switching off renames the file to .jar.disabled.",
+    "dropHere": "Drop to upload",
+    "removed": "{{name}} is in the trash",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteText": "The file stays in the trash for 7 days. The plugin's settings folder is kept."
+  },
+  "market": {
+    "sources": "Source",
+    "searchPlaceholder": {
+      "plugins": "Search plugins, e.g. LuckPerms",
+      "mods": "Search mods, e.g. Create"
+    },
+    "sort": "Sort",
+    "sorts": {
+      "downloads": "Most popular",
+      "updated": "Recently updated",
+      "relevance": "Best match"
+    },
+    "onlyCompatible": "Only fitting {{target}}",
+    "sourceNote": {
+      "modrinth": "Modrinth: checked files with a checksum.",
+      "hangar": "Hangar: PaperMC's plugin marketplace, with a checksum.",
+      "spiget": "SpigotMC: only free plugins hosted there directly. No checksum.",
+      "curseforge": "CurseForge: with your own API key."
+    },
+    "compat": {
+      "yes": "Fits {{target}}",
+      "unknown": "Not checked",
+      "no": "Other version"
+    },
+    "by": "by {{author}}",
+    "downloads": "{{count}} downloads",
+    "install": "Install",
+    "installing": "Installing …",
+    "installed": "Installed",
+    "installVersion": "Install {{version}}",
+    "installedToast": "{{name}} is installed",
+    "withDependencies": "Added automatically: {{names}}",
+    "manualTitle": "Please install these yourself (external site only):",
+    "external": "Website only",
+    "externalHint": "This plugin is only offered on an external site. Download it there and drag the .jar into the “Installed” tab.",
+    "noResults": "Nothing found",
+    "noResultsText": "Try another search term or switch off “Only fitting”.",
+    "keyMissingTitle": "CurseForge needs an API key",
+    "keyMissingText": "An administrator can enter a free key from console.curseforge.com in the panel settings.",
+    "page": "Page {{page}} of {{pages}}",
+    "versions": "Versions",
+    "noVersions": "No versions found.",
+    "fits": "Fits",
+    "channel": {
+      "beta": "Beta",
+      "alpha": "Alpha"
+    },
+    "notFitWarning": "This version is not made for your Minecraft version. It can cause errors or crashes."
   }
 }

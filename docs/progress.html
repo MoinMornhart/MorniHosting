@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T00:45:00+01:00",
-  "now": "Phase 3 ist fertig: Datei-Manager mit Editor und Papierkorb, Spiel-Einstellungen als Formular mit MOTD-Vorschau, Spieler und Welten. Weiter mit Phase 4: Marktplatz für Plugins und Mods.",
+  "updated": "2026-10-28T01:02:00+01:00",
+  "now": "Phase 4 ist fertig: Marktplatz mit Modrinth, Hangar, SpigotMC und CurseForge (eigener Schlüssel), Abhängigkeiten, Prüfsummen, Updates und An/Aus. Weiter mit Phase 5: Backups, Zeitpläne und Webhooks.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -152,12 +152,12 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 4 · Marktplatz",
-      "status": "laeuft",
-      "detail": "Modrinth, Hangar, Spiget, CurseForge optional, eigene .jar-Dateien."
+      "status": "fertig",
+      "detail": "Suche in Modrinth, Hangar, SpigotMC (Spiget) und CurseForge (eigener Schlüssel), nur passende Versionen, Abhängigkeiten automatisch, Prüfsumme und erlaubte Download-Adressen, doppelte Plugins verhindert, Updates (auch für von Hand hochgeladene .jar per Hash-Erkennung), An/Aus über .jar.disabled, eigene .jar per Drag & Drop. 105 Tests."
     },
     {
       "title": "Phase 5 · Backups, Zeitpläne, Webhooks",
-      "status": "offen",
+      "status": "laeuft",
       "detail": "Backups mit Aufbewahrung, Zeitpläne ohne Cron, Discord zuerst."
     },
     {
@@ -172,6 +172,21 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p4-installed.webp",
+      "caption": "Phase 4 · Installierte Plugins: Quelle, Abhängigkeit, An/Aus, Updates",
+      "time": "2026-10-28T01:02:00+01:00"
+    },
+    {
+      "img": "progress/p4-market.webp",
+      "caption": "Phase 4 · Marktplatz: nur passende Plugins, Installieren mit einem Klick",
+      "time": "2026-10-28T01:02:00+01:00"
+    },
+    {
+      "img": "progress/p4-versions.webp",
+      "caption": "Phase 4 · Versionen eines Plugins, die passende ist vorausgewählt",
+      "time": "2026-10-28T01:02:00+01:00"
+    },
     {
       "img": "progress/p3-files.webp",
       "caption": "Phase 3 · Datei-Manager mit Ordnerbaum, Upload per Drag & Drop und Papierkorb",
@@ -216,47 +231,28 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p2-import.webp",
       "caption": "Phase 2 · Import: Paper 1.21.4 mit Welt und 2 Plugins erkannt",
       "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
-      "img": "progress/p1-dashboard-light.webp",
-      "caption": "Phase 1 · Dashboard hell: Live-Status, Absturz-Helfer beim Modpack mit zu wenig RAM",
-      "time": "2026-10-27T23:55:00+01:00"
-    },
-    {
-      "text": "Echter Docker-Test (Paper 1.21.4 über Socket-Proxy):\n  starting → running nach 35 s\n  RCON: op Juna → \"Made Juna a server operator\"\n  RCON: tps → 20.0 · RAM 2,3 GB · CPU 23 %\n  Stoppen → save-all, stop → Exited (0)",
-      "caption": "Phase 1 · Ende-zu-Ende mit echtem Minecraft-Server",
-      "time": "2026-10-27T23:50:00+01:00"
-    },
-    {
-      "img": "progress/mockup-a-server.webp",
-      "caption": "Mockup A · Smaragd (gewählt): Server-Übersicht mit IP-Karte",
-      "time": "2026-10-27T21:50:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/files/ (Datei-Manager, Editor, Papierkorb)"
+      "path": "apps/server/src/market/ (Modrinth, Hangar, Spiget, CurseForge, sicherer Download, Dienst, Routen)"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/settings/ (Allgemein, Spiel-Einstellungen, MOTD, Welten, Bild)"
+      "path": "apps/web/src/features/servers/content/ (Installiert, Marktplatz, Versionen)"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/players/PlayersTab.tsx"
+      "path": "apps/server/src/lib/locks.ts, lib/multipart.ts"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/files/ (Dateidienst und Routen)"
+      "path": "apps/server/test/market.test.ts"
     },
     {
-      "tag": "neu",
-      "path": "apps/server/src/servers/properties-file.ts, players.ts, worlds.ts"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/server/test/files.test.ts, properties.test.ts"
+      "tag": "geändert",
+      "path": "packages/shared/src/api.ts (Marktplatz-Typen)"
     }
   ]
 }

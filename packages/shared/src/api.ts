@@ -311,6 +311,92 @@ export interface WorldInfo {
 export const resetWorldSchema = z.object({ seed: z.string().trim().max(SEED_MAX).optional() });
 export const switchWorldSchema = z.object({ name: z.string().trim().min(1).max(NAME_MAX) });
 
+/* ---------- Marketplace ---------- */
+
+export const MARKET_SOURCES = ['modrinth', 'hangar', 'spiget', 'curseforge'] as const;
+export type MarketSource = (typeof MARKET_SOURCES)[number];
+export const MARKET_SORTS = ['relevance', 'downloads', 'updated'] as const;
+export type MarketSort = (typeof MARKET_SORTS)[number];
+export type Compatibility = 'yes' | 'no' | 'unknown';
+
+const QUERY_MAX = 100;
+const PAGE_MAX = 100;
+const PROJECT_ID_MAX = 100;
+const FILE_NAME_MAX = 200;
+
+export const marketSearchSchema = z.object({
+  source: z.enum(MARKET_SOURCES).default('modrinth'),
+  q: z.string().trim().max(QUERY_MAX).default(''),
+  sort: z.enum(MARKET_SORTS).default('downloads'),
+  page: z.coerce.number().int().min(0).max(PAGE_MAX).default(0),
+  compatibleOnly: z.enum(['true', 'false']).default('true'),
+});
+
+export interface MarketProject {
+  readonly source: MarketSource;
+  readonly id: string;
+  readonly name: string;
+  readonly summary: string;
+  readonly author: string;
+  readonly downloads: number;
+  readonly iconUrl: string | null;
+  readonly updatedAt: string | null;
+  readonly url: string;
+  readonly compatible: Compatibility;
+  /** False when the file is only offered on an external website or behind a paywall. */
+  readonly installable: boolean;
+  readonly installed: boolean;
+}
+
+export interface MarketSearchResult {
+  readonly hits: readonly MarketProject[];
+  readonly total: number;
+  readonly pageSize: number;
+}
+
+export interface MarketVersion {
+  readonly id: string;
+  readonly name: string;
+  readonly gameVersions: readonly string[];
+  readonly publishedAt: string | null;
+  readonly channel: 'release' | 'beta' | 'alpha';
+  readonly compatible: boolean;
+}
+
+export const marketInstallSchema = z.object({
+  source: z.enum(MARKET_SOURCES),
+  projectId: z.string().trim().min(1).max(PROJECT_ID_MAX),
+  versionId: z.string().trim().min(1).max(PROJECT_ID_MAX).optional(),
+});
+export type MarketInstallInput = z.infer<typeof marketInstallSchema>;
+
+export interface InstalledContent {
+  readonly fileName: string;
+  readonly enabled: boolean;
+  readonly size: number;
+  readonly modifiedAt: string;
+  readonly source: MarketSource | 'upload';
+  readonly projectId: string | null;
+  readonly name: string;
+  readonly versionName: string | null;
+  readonly iconUrl: string | null;
+  readonly url: string | null;
+  readonly dependencyOf: string | null;
+  readonly update: { readonly versionId: string; readonly versionName: string } | null;
+}
+
+export interface InstallResult {
+  readonly installed: readonly {
+    readonly name: string;
+    readonly fileName: string;
+    readonly dependency: boolean;
+  }[];
+  /** Required dependencies the panel could not fetch itself (only on an external website). */
+  readonly manual: readonly { readonly name: string; readonly url: string | null }[];
+}
+
+export const contentFileSchema = z.object({ fileName: z.string().trim().min(1).max(FILE_NAME_MAX) });
+
 /* ---------- Backups ---------- */
 
 export const backupSettingsSchema = z.object({

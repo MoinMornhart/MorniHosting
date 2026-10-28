@@ -9,6 +9,8 @@ export interface FetchOptions {
   readonly headers?: Record<string, string>;
   readonly method?: string;
   readonly body?: string;
+  /** "manual" lets the caller check every redirect target itself. */
+  readonly redirect?: 'follow' | 'manual';
 }
 
 export class UpstreamError extends Error {
@@ -35,7 +37,7 @@ export async function fetchResponse(url: string, options: FetchOptions = {}): Pr
       method: options.method ?? 'GET',
       headers: { 'user-agent': state.userAgent, accept: 'application/json', ...options.headers },
       body: options.body,
-      redirect: 'follow',
+      redirect: options.redirect ?? 'follow',
       signal: AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_SECONDS * MS_PER_SECOND),
     });
     return response;

@@ -7,6 +7,7 @@ import { OverviewTab } from '@/features/servers/OverviewTab';
 import { ServerLayout } from '@/features/servers/ServerLayout';
 
 const ConsoleTab = lazy(() => import('@/features/servers/ConsoleTab'));
+const ContentTab = lazy(() => import('@/features/servers/content/ContentTab'));
 const FilesTab = lazy(() => import('@/features/servers/files/FilesTab'));
 const PlayersTab = lazy(() => import('@/features/servers/players/PlayersTab'));
 const SettingsTab = lazy(() => import('@/features/servers/settings/SettingsTab'));
@@ -29,6 +30,14 @@ export const appRoutes: RouteObject[] = [
         element: (
           <Lazy>
             <ConsoleTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'content',
+        element: (
+          <Lazy>
+            <ContentTab />
           </Lazy>
         ),
       },

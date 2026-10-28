@@ -21,6 +21,7 @@ import { randomToken } from '../lib/crypto.js';
 import { AppError, badRequest, conflict, errorMessage, notFound } from '../lib/errors.js';
 import { HTTP_CONFLICT } from '../lib/http-status.js';
 import { BYTES_PER_MB, MS_PER_DAY, MS_PER_SECOND, nowIso, sleep } from '../lib/units.js';
+import { createKeyedLock } from '../lib/locks.js';
 import { analyseCrash } from './crash.js';
 import { isPanelNoise, isStartFinished, parseListAnswer, parseTps, playerEventOf } from './log-parse.js';
 import {
@@ -126,7 +127,6 @@ function emptyRuntime(): Runtime {
 export function createServerService(ctx: AppContext): ServerService {
   const { db, config, docker, events, settings, audit, secrets, log } = ctx;
   const runtimes = new Map<string, Runtime>();
-  const locks = new Map<string, Promise<unknown>>();
   const timers: { stats: NodeJS.Timeout | null; tick: number } = { stats: null, tick: 0 };
   const unsubscribers: (() => void)[] = [];
 
@@ -222,23 +222,7 @@ export function createServerService(ctx: AppContext): ServerService {
     rt(id).stopLogs = stop;
   };
 
-  const withLock = async <TResult>(id: string, fn: () => Promise<TResult>): Promise<TResult> => {
-    const previous = locks.get(id) ?? Promise.resolve();
-    const run = (async () => {
-      try {
-        await previous;
-      } catch {
-        // The earlier operation already reported its own failure to its caller.
-      }
-      return fn();
-    })();
-    locks.set(id, run);
-    try {
-      return await run;
-    } finally {
-      if (locks.get(id) === run) locks.delete(id);
-    }
-  };
+  const withLock = createKeyedLock();
 
   const addressOf = (r: ServerRow): string => {
     const s = settings.get();

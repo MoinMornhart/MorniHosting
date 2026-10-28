@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import archiver from 'archiver';
-import type { MultipartFile } from '@fastify/multipart';
 import { z } from 'zod';
 import {
   mkdirSchema,
@@ -14,7 +13,6 @@ import {
   unzipSchema,
   writeFileSchema,
   zipSchema,
-  type FileEntry,
   type ServerPermission,
 } from '@mornihosting/shared';
 import { actorOf, requireAuth } from '../auth/context.js';
@@ -26,6 +24,7 @@ import { readPropertiesFile, validateUpdates, writePropertiesFile } from '../ser
 import type { ServerService } from '../servers/service.js';
 import { createWorldService } from '../servers/worlds.js';
 import { BYTES_PER_KB } from '../lib/units.js';
+import { eachFile } from '../lib/multipart.js';
 import { UNPACK_FACTOR, type FileService } from './service.js';
 
 const idParams = z.object({ id: z.string().min(1) });
@@ -37,17 +36,6 @@ const PNG_WIDTH_OFFSET = 16;
 const PNG_HEIGHT_OFFSET = 20;
 const PNG_HEADER_BYTES = 24;
 const ZIP_LEVEL = 6;
-
-/** Reads every uploaded file of a multipart request one after another (a recursive walk instead of a loop). */
-async function eachFile(
-  iterator: AsyncIterator<MultipartFile>,
-  handle: (file: MultipartFile) => Promise<FileEntry>,
-  done: readonly FileEntry[] = [],
-): Promise<FileEntry[]> {
-  const next = await iterator.next();
-  if (next.done) return [...done];
-  return eachFile(iterator, handle, [...done, await handle(next.value)]);
-}
 
 export function registerFileRoutes(
   app: Api,
