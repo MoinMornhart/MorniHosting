@@ -18,7 +18,9 @@ import {
 } from 'fastify-type-provider-zod';
 import { createAuditService } from './audit/service.js';
 import { createAuthHook } from './auth/hook.js';
+import { registerAuditRoutes } from './audit/routes.js';
 import { registerAuthRoutes } from './auth/routes.js';
+import { registerTokenRoutes } from './auth/token-routes.js';
 import { createSessionStore } from './auth/sessions.js';
 import type { Config } from './config.js';
 import type { Api, AppContext } from './context.js';
@@ -43,9 +45,11 @@ import { registerServerRoutes } from './servers/routes.js';
 import { createServerService, type ServerService } from './servers/service.js';
 import { registerScheduleRoutes } from './schedules/routes.js';
 import { createScheduleService } from './schedules/service.js';
+import { registerSettingsRoutes } from './settings/routes.js';
 import { createSettingsService } from './settings/service.js';
 import { sampleHostCpu } from './system/host.js';
 import { createAccessService } from './users/access.js';
+import { registerUserRoutes } from './users/routes.js';
 import { registerWebhookRoutes } from './webhooks/routes.js';
 import { createWebhookService } from './webhooks/service.js';
 import { registerWebSocket } from './ws.js';
@@ -209,6 +213,10 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
   registerWebhookRoutes(app, webhooks);
+  registerUserRoutes(app, ctx);
+  registerTokenRoutes(app, ctx);
+  registerAuditRoutes(app, ctx);
+  registerSettingsRoutes(app, ctx);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));

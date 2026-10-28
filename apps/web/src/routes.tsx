@@ -1,7 +1,12 @@
 import { lazy, Suspense, type ReactElement } from 'react';
 import type { RouteObject } from 'react-router';
 import { Skeleton } from '@/components/ui/misc';
+import { AccountPage } from '@/features/admin/AccountPage';
+import { ApiAccessPage } from '@/features/admin/ApiAccessPage';
+import { AuditPage } from '@/features/admin/AuditPage';
 import { NotificationsPage } from '@/features/admin/NotificationsPage';
+import { PanelSettingsPage } from '@/features/admin/PanelSettingsPage';
+import { UsersPage } from '@/features/admin/UsersPage';
 import { CreateServerPage } from '@/features/servers/create/CreateServerPage';
 import { ImportServerPage } from '@/features/servers/create/ImportServerPage';
 import { OverviewTab } from '@/features/servers/OverviewTab';
@@ -23,6 +28,11 @@ function Lazy({ children }: { children: ReactElement }): ReactElement {
 export const appRoutes: RouteObject[] = [
   { path: 'servers/new', element: <CreateServerPage /> },
   { path: 'notifications', element: <NotificationsPage /> },
+  { path: 'users', element: <UsersPage /> },
+  { path: 'api-access', element: <ApiAccessPage /> },
+  { path: 'settings', element: <PanelSettingsPage /> },
+  { path: 'audit', element: <AuditPage /> },
+  { path: 'account', element: <AccountPage /> },
   { path: 'servers/import', element: <ImportServerPage /> },
   {
     path: 'servers/:serverId',

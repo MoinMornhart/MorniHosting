@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T01:18:00+01:00",
-  "now": "Phase 5 ist fertig: Backups mit Aufbewahrung und Ein-Klick-Wiederherstellung, Zeitpläne ohne Cron mit Vorwarnung, Benachrichtigungen an Discord, Slack und Teams. Dabei einen echten Fehler beim Neustart behoben. Weiter mit Phase 6: Benutzer, Rollen, API-Zugänge und Protokoll.",
+  "updated": "2026-10-28T01:29:00+01:00",
+  "now": "Phase 6 ist fertig: Benutzer mit Rollen pro Server, eigene Rollen, API-Schlüssel mit Doku, Protokoll, Panel-Einstellungen und Konto mit 2FA. Weiter mit Phase 7: Geyser, Update-Funktion, Proxmox-Skript, CI, README.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -162,16 +162,36 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 6 · Benutzer, Rollen, API",
-      "status": "laeuft",
-      "detail": "Rechte pro Server, Audit-Log, API-Tokens, OpenAPI."
+      "status": "fertig",
+      "detail": "Benutzer anlegen, sperren, löschen (letzter Admin geschützt), Rollen pro Server (Besitzer, Moderator, Zuschauer und eigene), API-Schlüssel (nur einmal sichtbar, Ablaufdatum, OpenAPI-Doku unter /api/docs), Protokoll aller Aktionen, Panel-Einstellungen (Adresse, CurseForge, Zeitzone), Konto mit Passwort und 2FA per QR-Code. 132 Tests."
     },
     {
       "title": "Phase 7 · Feinschliff",
-      "status": "offen",
+      "status": "laeuft",
       "detail": "Geyser, Statistiken, Update-Funktion, Proxmox-Guide, README, CI."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p6-users.webp",
+      "caption": "Phase 6 · Benutzer mit ihren Rollen pro Server",
+      "time": "2026-10-28T01:29:00+01:00"
+    },
+    {
+      "img": "progress/p6-access.webp",
+      "caption": "Phase 6 · Zugriff vergeben: pro Server eine Rolle",
+      "time": "2026-10-28T01:29:00+01:00"
+    },
+    {
+      "img": "progress/p6-api.webp",
+      "caption": "Phase 6 · API-Schlüssel: wird nur einmal angezeigt",
+      "time": "2026-10-28T01:29:00+01:00"
+    },
+    {
+      "img": "progress/p6-account.webp",
+      "caption": "Phase 6 · Mein Konto: Passwort und 2FA per QR-Code",
+      "time": "2026-10-28T01:29:00+01:00"
+    },
     {
       "img": "progress/p5-backups.webp",
       "caption": "Phase 5 · Backups: ein Klick zum Sichern, einer zum Wiederherstellen",
@@ -211,48 +231,24 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p3-files.webp",
       "caption": "Phase 3 · Datei-Manager mit Ordnerbaum, Upload per Drag & Drop und Papierkorb",
       "time": "2026-10-28T00:45:00+01:00"
-    },
-    {
-      "img": "progress/p3-editor.webp",
-      "caption": "Phase 3 · Editor mit Syntaxfarben, Strg+S speichert",
-      "time": "2026-10-28T00:45:00+01:00"
-    },
-    {
-      "img": "progress/p3-settings-properties.webp",
-      "caption": "Phase 3 · Spiel-Einstellungen mit Erklärungen und MOTD-Vorschau wie im Spiel",
-      "time": "2026-10-28T00:45:00+01:00"
-    },
-    {
-      "img": "progress/p3-players.webp",
-      "caption": "Phase 3 · Spieler: Operatoren, Whitelist und Sperren ohne Befehle",
-      "time": "2026-10-28T00:45:00+01:00"
-    },
-    {
-      "img": "progress/p3-settings-phone.webp",
-      "caption": "Phase 3 · Einstellungen auf dem Handy",
-      "time": "2026-10-28T00:45:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/backups/, schedules/, webhooks/"
+      "path": "apps/server/src/users/routes.ts (Benutzer, Rollen, Zugriff)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/lib/net-guard.ts (Schutz vor Anfragen ins Heimnetz)"
+      "path": "apps/server/src/auth/token-routes.ts, audit/routes.ts, settings/routes.ts"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/backups/, schedules/, features/admin/NotificationsPage.tsx"
-    },
-    {
-      "tag": "geändert",
-      "path": "apps/server/src/servers/service.ts (Neustart wurde als Absturz gewertet)"
+      "path": "apps/web/src/features/admin/ (Benutzer, API, Einstellungen, Protokoll, Konto)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/test/backups.test.ts"
+      "path": "apps/server/test/users.test.ts"
     }
   ]
 }
