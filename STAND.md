@@ -44,6 +44,7 @@
 
 ## Nächste Schritte
 
-1. Philip: GHCR-Paket `mornihosting` auf „Public“ stellen (GitHub → Profil → Packages → mornihosting → Package settings → Change visibility). Geht nur im Browser; bis dahin baut `install.sh` das Image selbst.
-2. Philip: Proxmox-Skript einmal auf dem echten Proxmox-Host laufen lassen.
-3. Optional: In den Repo-Einstellungen `main` als Standard-Branch setzen.
+1. Philip: Release v1.0.0 anlegen (GitHub → Releases → „Draft a new release“ → Tag `v1.0.0`, Ziel `main` → „Publish release“). Aus der Cloud-Sitzung blockiert die Sicherheitsprüfung den Tag-Push. CI baut danach das Image und setzt Titel und Text des Releases.
+2. Philip: GHCR-Paket `mornihosting` auf „Public“ stellen (GitHub → Profil → Packages → mornihosting → Package settings → Change visibility). Geht nur im Browser; bis dahin baut `install.sh` das Image selbst.
+3. Philip: Proxmox-Skript einmal auf dem echten Proxmox-Host laufen lassen.
+4. Optional: In den Repo-Einstellungen `main` als Standard-Branch setzen.
