@@ -97,3 +97,33 @@ jobs:
             MH_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  release:
+    name: GitHub-Release
+    # Erst wenn das Image da ist: Das Panel bietet ein Update an, sobald es das Release sieht.
+    needs: image
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Release mit Versionshinweisen anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Eigene Hinweise aus docs/releases/<tag>.md, sonst die Liste der Änderungen von GitHub.
+          if [[ -f "docs/releases/${TAG}.md" ]]; then
+            cp "docs/releases/${TAG}.md" notes.md
+          else
+            gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" -f tag_name="${TAG}" --jq .body > notes.md
+          fi
+          printf '\n\nVerfasst mit Claude 🤖\n' >> notes.md
+          args=()
+          if [[ "${TAG}" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "MorniHosting ${TAG#v}" \
+            --notes-file notes.md --verify-tag "${args[@]}"

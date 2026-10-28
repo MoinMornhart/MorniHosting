@@ -37,8 +37,13 @@
 - Web: `pnpm --filter @mornihosting/web dev` (Proxy auf :8099, `MH_DEV_BACKEND`)
 - Tests: `pnpm --filter @mornihosting/server test`
 
+## Releases
+
+- Neue Version: Tag `vX.Y.Z` auf `main` pushen. CI baut das Image (ghcr.io, amd64+arm64) und legt danach das GitHub-Release an; Hinweise aus `docs/releases/vX.Y.Z.md`, sonst automatisch. Das Panel bietet ein Update an, sobald das Release da ist.
+- `main` ist der stabile Stand (die Einzeiler laden von dort), entwickelt wird auf `claude/gallant-clarke-bipv7b`.
+
 ## Nächste Schritte
 
-1. Branch `claude/gallant-clarke-bipv7b` nach `main` übernehmen – die Einzeiler (Proxmox, install.sh) laden von `main`.
-2. Erste Version taggen (`v1.0.0`); danach das GHCR-Paket `mornihosting` auf „Public“ stellen, sonst baut `install.sh` das Image selbst.
-3. Proxmox-Skript einmal auf einem echten Proxmox-Host laufen lassen.
+1. Philip: GHCR-Paket `mornihosting` auf „Public“ stellen (GitHub → Profil → Packages → mornihosting → Package settings → Change visibility). Geht nur im Browser; bis dahin baut `install.sh` das Image selbst.
+2. Philip: Proxmox-Skript einmal auf dem echten Proxmox-Host laufen lassen.
+3. Optional: In den Repo-Einstellungen `main` als Standard-Branch setzen.

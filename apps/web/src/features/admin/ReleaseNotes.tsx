@@ -9,13 +9,18 @@ const LIST_ITEM = /^[-*]\s+/;
 // Bold and code marks inside a line: "**neu**" and "`update`" match, "Text" does not.
 // https://regex101.com/?flavor=javascript&regex=%5C*%5C*%7C%60&flags=gm&testString=**neu**%0A%60update%60%0AText
 const INLINE_MARKS = /\*\*|`/g;
+// A Markdown link, keeping its text: "[README](https://x.y)" gives "README"; "[Klammer]" alone does not match.
+// https://regex101.com/?flavor=javascript&regex=%5C%5B(%5B%5E%5C%5D%5D%2B)%5C%5D%5C(%5B%5E)%5D%2B%5C)&flags=g&testString=%5BREADME%5D(https%3A%2F%2Fx.y)%0A%5BKlammer%5D
+const LINK = /\[([^\]]+)\]\([^)]+\)/g;
+const CODE_FENCE = '```';
 
 /** GitHub release notes are Markdown; this shows headings and lists without a Markdown library. */
 export function ReleaseNotes({ text }: { text: string }): ReactElement {
   const lines = text
     .split('\n')
-    .map((line) => line.trim().replaceAll(INLINE_MARKS, ''))
-    .filter(Boolean);
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith(CODE_FENCE))
+    .map((line) => line.replaceAll(LINK, '$1').replaceAll(INLINE_MARKS, ''));
   return (
     <div className="grid max-h-56 gap-1 overflow-y-auto rounded-[12px] bg-secondary p-3 text-[13px] text-muted-foreground">
       {lines.map((line, i) => {

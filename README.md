@@ -271,8 +271,10 @@ Aufbau: `apps/server` (Fastify, SQLite/Drizzle, Docker über den Socket-Proxy), 
 Tailwind, Radix, TanStack Query), `packages/shared` (Typen, Schemas, Software-Katalog). Jeder Minecraft-Server
 ist ein eigener Container auf Basis der [itzg-Images](https://github.com/itzg/docker-minecraft-server).
 
-GitHub Actions prüft jeden Push (Lint, Typen, Tests, Playwright). Bei einem Tag `v1.2.3` wird das Image
-`ghcr.io/moinmornhart/mornihosting` für amd64 und arm64 gebaut und veröffentlicht.
+GitHub Actions prüft jeden Push (Lint, Typen, Tests, Playwright). Eine neue Version entsteht mit einem Tag
+`v1.2.3`: Dann wird das Image `ghcr.io/moinmornhart/mornihosting` für amd64 und arm64 gebaut und danach das
+GitHub-Release angelegt – mit den Hinweisen aus `docs/releases/v1.2.3.md`, falls es die Datei gibt. Sobald das
+Release da ist, bieten alle Panels das Update an.
 
 ## Lizenz
 
