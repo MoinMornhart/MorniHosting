@@ -228,7 +228,9 @@
     "playitText": "Kein Zugriff auf den Router? playit.gg macht deinen Server ohne Portfreigabe erreichbar.",
     "lanUnknown": "die IP dieses Geräts",
     "bedrock": "Bedrock (Handy, Konsole):",
-    "bedrockPort": "Port"
+    "bedrockPort": "Port",
+    "voiceChat": "Voice-Chat:",
+    "voicePort": "UDP-Port {{port}}"
   },
   "stats": {
     "players": "Spieler",
@@ -480,7 +482,9 @@
     "passkey_expired": "Das hat zu lange gedauert. Bitte noch einmal versuchen.",
     "passkey_not_found": "Diesen Passkey gibt es nicht mehr.",
     "cannot_reset_self": "Dein eigenes Passwort änderst du unter „Mein Konto“.",
-    "demo_readonly": "In der Demo kann man keine Dateien hochladen. Im echten Panel geht das per Drag & Drop."
+    "demo_readonly": "In der Demo kann man keine Dateien hochladen. Im echten Panel geht das per Drag & Drop.",
+    "voicechat_java_only": "Voice-Chat gibt es nur für Java-Server.",
+    "voicechat_unsupported": "Für diese Server-Software gibt es Simple Voice Chat nicht. Es geht mit Paper, Purpur, Fabric, Forge und NeoForge."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -613,7 +617,8 @@
       "worlds": "Welten",
       "icon": "Server-Bild",
       "danger": "Gefahrenzone",
-      "bedrock": "Bedrock-Spieler"
+      "bedrock": "Bedrock-Spieler",
+      "voice": "Voice-Chat"
     },
     "restartToApply": "Gilt nach einem Neustart.",
     "general": {
@@ -631,7 +636,9 @@
       "domain": "Eigene Adresse (Domain)",
       "domainHint": "Optional. Wird statt der IP angezeigt, z. B. mc.meinname.de.",
       "autoStart": "Automatisch starten",
-      "autoStartHint": "Startet den Server mit, wenn der Rechner oder das Panel neu startet."
+      "autoStartHint": "Startet den Server mit, wenn der Rechner oder das Panel neu startet.",
+      "publicPort": "Öffentlicher Port (optional)",
+      "publicPortHint": "Wenn NetBird, playit.gg oder dein Router nach außen einen anderen Port nutzt. Die Adress-Karte zeigt dann diesen."
     },
     "properties": {
       "title": "Spiel-Einstellungen",
@@ -1364,7 +1371,9 @@
       "account_two_factor_reset": "2FA auf dem Host ausgeschaltet",
       "account_passkey_added": "Passkey hinzugefügt",
       "account_passkey_removed": "Passkey entfernt",
-      "user_password_reset": "Passwort zurückgesetzt"
+      "user_password_reset": "Passwort zurückgesetzt",
+      "voicechat_enable": "Voice-Chat eingeschaltet",
+      "voicechat_disable": "Voice-Chat ausgeschaltet"
     }
   },
   "account": {
@@ -1443,7 +1452,11 @@
     "httpsGuideTitle": "So bekommt deine Domain HTTPS",
     "httpsStep1": "Beim Domain-Anbieter einen Eintrag (A-Record) auf deine öffentliche IP setzen – oder eine DynDNS-Adresse nutzen.",
     "httpsStep2": "Einen Reverse-Proxy mit HTTPS davorsetzen, z. B. Nginx Proxy Manager oder Caddy. Ziel: http://<IP des Panels>:8080.",
-    "httpsStep3": "In der .env MH_TRUST_PROXY=true setzen und das Panel neu starten (Befehl: update)."
+    "httpsStep3": "In der .env MH_TRUST_PROXY=true setzen und das Panel neu starten (Befehl: update).",
+    "guides": {
+      "proxy": "Eigener Reverse-Proxy",
+      "netbird": "NetBird"
+    }
   },
   "passwordReset": {
     "cardTitle": "Passwörter zurücksetzen",
@@ -1462,5 +1475,56 @@
     "ownHint": "Dein eigenes Passwort und deine Passkeys änderst du unter",
     "has2fa": "2FA",
     "locked": "Gesperrt"
+  },
+  "netbird": {
+    "intro": "Mit NetBird bekommst du HTTPS und deine eigene Domain, ohne einen Port im Router zu öffnen. Alle Werte unten passen zu deinem Panel – einfach kopieren.",
+    "base": "Deine Domain bei NetBird",
+    "baseHint": "Der Teil, den du bei NetBird unter „Custom Domains“ einträgst, z. B. mc.deine-domain.de. Jeder Dienst bekommt davor einen eigenen Namen wie panel.mc.deine-domain.de.",
+    "thisMachine": "IP-dieses-Rechners",
+    "step1Title": "NetBird auf den Rechner mit MorniHosting",
+    "step1Text": "Installiere den NetBird-Client dort, wo MorniHosting läuft (z. B. im Proxmox-Container), und melde ihn mit einem Setup-Key an. Den Key bekommst du im NetBird-Dashboard unter „Setup Keys“ → „Create Setup Key“.",
+    "step1Lxc": "Läuft MorniHosting in einem Proxmox-Container (LXC)? Dann braucht NetBird dort ein Netzwerk-Gerät. Trag diese zwei Zeilen auf dem Proxmox-Host in /etc/pve/lxc/<ID>.conf ein und starte den Container neu:",
+    "step1Router": "Läuft NetBird schon auf einem anderen Gerät in deinem Heimnetz (als Router)? Dann reicht unter <b>Networks</b> eine Ressource für <b>{{ip}}</b> – die wählst du später als Ziel.",
+    "step2Title": "Deine Domain bei NetBird eintragen",
+    "step2Add": "Im NetBird-Dashboard: <b>Reverse Proxy</b> → <b>Custom Domains</b> → <b>Add Domain</b>. Trag diese Domain ein (ohne *) und speichere:",
+    "step2Dns": "Dann bei deinem Domain-Anbieter diesen Eintrag anlegen (den genauen Wert zeigt NetBird nach dem Speichern an):",
+    "dnsType": "Typ",
+    "dnsName": "Name",
+    "dnsValue": "Wert",
+    "step2Verify": "Zurück bei NetBird: <b>Verify Domain</b> → <b>Start Verification</b>. Steht dort <b>Active</b>, geht es weiter. Meist dauert das ein paar Minuten, höchstens 24 Stunden.",
+    "step3Title": "Das Panel mit HTTPS erreichbar machen",
+    "step3Add": "<b>Reverse Proxy</b> → <b>Services</b> → <b>Add Service</b>, dann <b>Add Target</b>. Als Ziel wählst du <b>Peer</b> und deinen Rechner mit MorniHosting – oder <b>Host</b> mit der IP unten, wenn NetBird auf einem anderen Gerät im Heimnetz läuft:",
+    "mode": "Modus",
+    "subdomain": "Subdomain",
+    "baseDomain": "Base Domain",
+    "target": "Ziel",
+    "protocol": "Protokoll",
+    "port": "Port",
+    "step3Host": "Unter <b>Settings</b> unbedingt <b>Pass Host Header</b> einschalten – sonst klappen Passkeys nicht.",
+    "step3Auth": "<b>Authentication</b> kannst du leer lassen, MorniHosting hat eine eigene Anmeldung. Sollen nur Leute aus deinem NetBird das Panel sehen, wähle <b>NetBird-Only Access</b>.",
+    "step3Result": "Dein Panel ist dann hier:",
+    "usePanelDomain": "Als Adresse des Panels übernehmen",
+    "step4Title": "Die Minecraft-Server freigeben",
+    "step4Text": "Für jeden Eintrag unten einen eigenen Service anlegen: Modus wie angegeben (TCP oder UDP), Subdomain frei wählbar, Ziel wie in Schritt 3 (Peer oder Host) mit dem angegebenen Port. TCP und UDP brauchen kein HTTPS und keine Anmeldung.",
+    "colTarget": "Ziel (IP:Port)",
+    "noServers": "Lege zuerst einen Server an, dann erscheinen hier seine Ports.",
+    "step4Port": "NetBird zeigt nach dem Speichern den Port, über den deine Freunde kommen (in der NetBird-Cloud wird er automatisch vergeben). Trag ihn beim Server unter <b>Einstellungen → Öffentlicher Port</b> ein, beim Voice-Chat im Voice-Chat-Kasten. Dann zeigt MorniHosting überall die richtige Adresse.",
+    "step4Srv": "Tipp für Java: Mit einem SRV-Eintrag bei deinem Domain-Anbieter (<b>_minecraft._tcp.{{name}}</b> → Ziel {{name}}, Port von NetBird) tippen Freunde nur den Namen, ohne Port.",
+    "step5Title": "Fertig – Passkey einrichten",
+    "step5Text": "Öffne <b>https://{{address}}</b>, melde dich an und lege unter <b>Mein Konto</b> einen Passkey an. Ab dann reicht der Fingerabdruck."
+  },
+  "voiceChat": {
+    "title": "Voice-Chat (Simple Voice Chat)",
+    "text": "Sprechen wie im echten Leben: Wer nah beieinander steht, hört sich. Ein Klick installiert Simple Voice Chat, öffnet einen UDP-Port und trägt die Adresse für die Spieler ein.",
+    "installing": "Simple Voice Chat wird installiert und eingerichtet …",
+    "enabled": "Voice-Chat ist an (UDP-Port {{port}})",
+    "disabled": "Voice-Chat ist aus",
+    "portInfo": "Läuft über UDP-Port {{port}}.",
+    "hostLabel": "Die Mods der Spieler verbinden sich mit",
+    "publicPort": "Öffentlicher Voice-Port (optional)",
+    "publicPortHint": "Nur nötig, wenn NetBird, playit.gg oder dein Router nach außen einen anderen Port nutzt.",
+    "playersHint": "Jeder Spieler braucht die Mod „Simple Voice Chat“ im eigenen Minecraft (Fabric, Forge oder NeoForge). Wer sie nicht hat, kann trotzdem mitspielen, hört aber nichts.",
+    "modLink": "Simple Voice Chat bei Modrinth",
+    "routerHint": "Für Freunde außerhalb deines WLANs den UDP-Port {{port}} im Router freigeben – oder über NetBird (Anleitung im Admin-Bereich)."
   }
 }

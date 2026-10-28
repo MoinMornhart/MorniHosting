@@ -27,7 +27,7 @@ const MAX_MESSAGE_BYTES = 4096;
 export function registerWebSocket(app: Api, ctx: AppContext, servers: ServerService): void {
   app.get('/api/ws', { websocket: true }, (socket: WebSocket, request) => {
     const auth = getAuth(request);
-    if (!auth || !originAllowed(request)) {
+    if (!auth || !originAllowed(ctx, request)) {
       socket.close(POLICY_VIOLATION, 'unauthorized');
       return;
     }

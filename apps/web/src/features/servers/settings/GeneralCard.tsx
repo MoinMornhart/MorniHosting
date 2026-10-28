@@ -44,6 +44,7 @@ interface Draft {
   readonly port: string;
   readonly autoStart: boolean;
   readonly domain: string;
+  readonly publicPort: string;
   readonly javaTag: JavaTag | typeof AUTO;
   readonly version: string;
 }
@@ -55,10 +56,14 @@ function draftOf(server: ServerDetail): Draft {
     port: String(server.port),
     autoStart: server.autoStart,
     domain: server.domain ?? '',
+    publicPort: server.publicPort ? String(server.publicPort) : '',
     javaTag: server.javaTag ?? AUTO,
     version: server.version,
   };
 }
+
+const publicPortOf = (draft: Draft): number | null =>
+  draft.publicPort.trim() ? Number(draft.publicPort) : null;
 
 /** Only the fields that changed, in the shape PATCH /api/servers/:id expects. */
 function patchOf(server: ServerDetail, draft: Draft): UpdateServerInput {
@@ -69,6 +74,7 @@ function patchOf(server: ServerDetail, draft: Draft): UpdateServerInput {
     ...(Number(draft.port) !== server.port ? { port: Number(draft.port) } : {}),
     ...(draft.autoStart !== server.autoStart ? { autoStart: draft.autoStart } : {}),
     ...(draft.domain.trim() !== (server.domain ?? '') ? { domain: draft.domain.trim() } : {}),
+    ...(publicPortOf(draft) !== server.publicPort ? { publicPort: publicPortOf(draft) } : {}),
     ...(javaTag !== server.javaTag ? { javaTag } : {}),
     ...(draft.version !== server.version ? { version: draft.version } : {}),
   };
@@ -218,6 +224,19 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
               value={draft.domain}
               placeholder="mc.example.de"
               onChange={(e) => set('domain', e.target.value)}
+            />
+          </Field>
+          <Field
+            id="s-public-port"
+            label={t('settings.general.publicPort')}
+            hint={t('settings.general.publicPortHint')}
+          >
+            <Input
+              id="s-public-port"
+              inputMode="numeric"
+              value={draft.publicPort}
+              placeholder={draft.port}
+              onChange={(e) => set('publicPort', e.target.value.trim())}
             />
           </Field>
           <label className="flex items-start gap-3 rounded-[12px] border border-border p-3 md:self-end">

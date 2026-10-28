@@ -6,6 +6,7 @@ import {
   ExternalLink,
   Link2,
   RefreshCw,
+  Mic,
   Smartphone,
   TriangleAlert,
 } from 'lucide-react';
@@ -58,7 +59,10 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
 
   const defaultPort = SOFTWARE[server.software].defaultPort;
   const host = data.domain ?? data.publicIp ?? data.lanIp;
-  const shareAddress = host ? withPort(host, data.port, defaultPort) : null;
+  // With a domain friends use the tunnel's port (NetBird, playit.gg) if one is set; via the IP the server port.
+  const sharePort = data.domain ? data.sharePort : data.port;
+  const shareAddress = host ? withPort(host, sharePort, defaultPort) : null;
+  const voicePort = server.voicePublicPort ?? server.voicePort;
   const running = server.live.state === 'running';
   const reach = data.reachable;
   const status = reach?.status ?? 'unknown';
@@ -118,6 +122,13 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
             <span className="text-muted-foreground">{t('connection.bedrockPort')}</span>
             <span className="font-mono font-semibold">{server.geyserPort}</span>
             <CopyButton text={host} className="size-7" toastText={t('card.addressCopied')} />
+          </div>
+        ) : null}
+        {server.voiceChat && voicePort ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px]">
+            <Mic className="size-4 text-primary" aria-hidden />
+            <span className="text-muted-foreground">{t('connection.voiceChat')}</span>
+            <span className="font-mono font-semibold">{t('connection.voicePort', { port: voicePort })}</span>
           </div>
         ) : null}
       </div>

@@ -50,6 +50,8 @@ export interface SoftwareInfo {
 export const PORT_JAVA = 25565;
 export const PORT_VELOCITY = 25577;
 export const PORT_BEDROCK = 19132;
+/** Simple Voice Chat's default UDP port. */
+export const PORT_VOICE_CHAT = 24454;
 export const PORT_RCON = 25575;
 
 // CurseForge API ids: class 5 = Bukkit plugins, class 6 = mods; loader 1 = Forge, 4 = Fabric, 6 = NeoForge.

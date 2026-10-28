@@ -156,10 +156,25 @@ export const updateServerSchema = z.object({
   port: portSchema.optional(),
   autoStart: z.boolean().optional(),
   domain: z.union([hostnameSchema, z.literal('')]).optional(),
+  /** Port friends use from outside, e.g. the one NetBird or playit.gg assigned; null = same as port. */
+  publicPort: portSchema.nullable().optional(),
   javaTag: z.enum(JAVA_TAGS).nullable().optional(),
   version: z.string().trim().min(1).max(VERSION_MAX).optional(),
 });
 export type UpdateServerInput = z.infer<typeof updateServerSchema>;
+
+export const voiceChatInputSchema = z.object({
+  enabled: z.boolean(),
+  /** Outside UDP port when NetBird, playit.gg or the router use another one; null = host port. */
+  publicPort: portSchema.nullable().optional(),
+});
+
+export interface VoiceChatResult {
+  readonly enabled: boolean;
+  readonly port: number | null;
+  readonly voiceHost: string | null;
+  readonly restartRequired: boolean;
+}
 
 export const commandInputSchema = z.object({ command: z.string().trim().min(1).max(COMMAND_MAX) });
 
@@ -210,6 +225,13 @@ export interface ServerDetail extends ServerSummary {
   readonly geyser: boolean;
   /** Host UDP port Bedrock players use when Geyser is on. */
   readonly geyserPort: number | null;
+  readonly publicPort: number | null;
+  readonly voiceChat: boolean;
+  /** Host UDP port of Simple Voice Chat when it is on. */
+  readonly voicePort: number | null;
+  readonly voicePublicPort: number | null;
+  /** What players' voice chat mods connect to (voice_host), e.g. "mc.example.de:24454". */
+  readonly voiceHost: string | null;
   readonly permissions: readonly ServerPermission[];
 }
 
@@ -223,6 +245,8 @@ export interface ConnectionInfo {
   readonly publicIp: string | null;
   readonly lanIp: string | null;
   readonly port: number;
+  /** Port to share together with the domain (a tunnel's port, or the server port). */
+  readonly sharePort: number;
   readonly protocol: 'tcp' | 'udp';
   readonly reachable: ReachabilityResult | null;
 }

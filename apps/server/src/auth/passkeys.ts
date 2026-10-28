@@ -2,6 +2,7 @@ import type { FastifyRequest } from 'fastify';
 import type { PasskeySupport } from '@mornihosting/shared';
 import type { AppContext } from '../context.js';
 import { badRequest } from '../lib/errors.js';
+import { onPanelDomain, servedOverHttps } from './hook.js';
 import { MS_PER_MINUTE } from '../lib/units.js';
 
 /**
@@ -28,10 +29,8 @@ const isLocal = (host: string): boolean => host === LOCALHOST || host.endsWith(L
 
 export function passkeySupport(ctx: AppContext, request: FastifyRequest): PasskeySupport {
   const host = request.hostname;
-  if (request.protocol !== 'https' && !isLocal(host)) return 'needs_https';
-  const domain = ctx.settings.get().panelDomain;
-  if (domain && host !== domain) return 'wrong_host';
-  return 'ok';
+  if (ctx.settings.get().panelDomain) return onPanelDomain(ctx, host) ? 'ok' : 'wrong_host';
+  return servedOverHttps(ctx, request) || isLocal(host) ? 'ok' : 'needs_https';
 }
 
 /** The domain and origin for a passkey ceremony, or an error the page can explain. */

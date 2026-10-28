@@ -60,6 +60,14 @@ h1 { font: 700 clamp(28px, 5vw, 40px)/1.1 var(--display); margin: 0; text-wrap: 
 .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .6s ease; }
 .now { font-size: 14px; color: var(--fg); }
 .now b { color: var(--run); font-weight: 600; }
+.eta { font-size: 14px; color: var(--muted); }
+.eta b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.plan { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.plan:empty { display: none; }
+.plan li { display: grid; grid-template-columns: 74px 1fr; gap: 10px; font-size: 14px; align-items: baseline; }
+.plan time { font: 12px/1.6 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.plan li.done span { color: var(--muted); text-decoration: line-through; }
+.plan li.current span { font-weight: 600; color: var(--run); }
 h2 { font: 600 20px/1.2 var(--display); margin: 0 0 12px; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .step { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
@@ -98,6 +106,8 @@ footer { color: var(--muted); font-size: 13px; }
       </div>
       <div class="bar" role="progressbar" aria-label="Gesamtfortschritt" id="bar" aria-valuemin="0" aria-valuemax="100"><span id="barfill" style="width:0%"></span></div>
       <div class="now" id="now"></div>
+      <div class="eta" id="eta"></div>
+      <ol class="plan" id="plan" aria-label="Plan"></ol>
     </div>
   </header>
 
@@ -122,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:10:00+01:00",
-  "now": "Phase 8 ist fertig: Anmelden mit Passkey, ein Admin-Bereich (Domain, Updates, Passwörter zurücksetzen), eine klickbare Demo als Artefakt und ein README mit Bildern und Animation. Für v1.0.0 fehlt nur noch das Release auf GitHub (ein Klick von Philip).",
+  "updated": "2026-10-28T06:36:45+00:00",
+  "now": "Alle Prüfungen laufen (Lint, Format, Typen und 155 Tests schon grün) – danach Push und Pull Request",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -174,9 +184,24 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Phase 8 · Passkeys, Admin-Bereich, Demo",
       "status": "fertig",
       "detail": "Anmelden mit Passkey (WebAuthn, an die Domain gebunden, mit echtem Browser-Test), Admin-Bereich mit Domain, Updates und Passwort-Zurücksetzen per Klick (wird einmal angezeigt, optional 2FA und Passkeys entfernen), klickbare Demo als Artefakt (echte Oberfläche, nachgebauter Server im Browser), README mit Titelbild, Bildern je Funktion und Animation. Fehler behoben: Laufzeit konnte kurz negativ angezeigt werden. 147 Tests + 4 Browser-Abläufe."
+    },
+    {
+      "title": "Phase 9 · NetBird-Anleitung und Simple Voice Chat",
+      "status": "fertig",
+      "detail": "Reiter „NetBird“ im Admin-Bereich: was du wo in NetBird einträgst (eigene Domain mit CNAME, HTTPS fürs Panel mit „Pass Host Header“, TCP/UDP-Dienste je Server mit deinen echten Ports zum Kopieren), auch als docs/netbird.md. Das Panel erkennt seine Domain hinter NetBird als HTTPS, damit gehen Passkeys. Öffentlicher Port pro Server für Tunnel mit anderem Außen-Port. Simple Voice Chat mit einem Schalter: Plugin/Mod von Modrinth, eigener UDP-Port ab 24454, Adresse für die Mods wird vor jedem Start neu eingetragen. Demo-Website kann beides. 155 Tests."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p9-voice.webp",
+      "caption": "Phase 9 · Voice-Chat mit einem Schalter: Plugin, UDP-Port und Adresse richten sich selbst ein",
+      "time": "2026-10-28T07:30:00+01:00"
+    },
+    {
+      "img": "progress/p9-netbird.webp",
+      "caption": "Phase 9 · NetBird-Anleitung mit deinen echten Adressen und Ports zum Kopieren",
+      "time": "2026-10-28T07:30:00+01:00"
+    },
     {
       "img": "progress/p8-login.webp",
       "caption": "Phase 8 · Anmelden mit Passwort oder Passkey",
@@ -226,42 +251,75 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p5-schedules.webp",
       "caption": "Phase 5 · Zeitpläne mit Schnellvorlagen, ganz ohne Cron",
       "time": "2026-10-28T01:18:00+01:00"
-    },
-    {
-      "img": "progress/p5-webhook-dialog.webp",
-      "caption": "Phase 5 · Benachrichtigungen an Discord, Slack oder Teams",
-      "time": "2026-10-28T01:18:00+01:00"
-    },
-    {
-      "img": "progress/p4-market.webp",
-      "caption": "Phase 4 · Marktplatz: nur passende Plugins, Installieren mit einem Klick",
-      "time": "2026-10-28T01:02:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/auth/passkeys.ts, passkey-routes.ts, drizzle/0001_passkeys.sql"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/web/src/features/admin/PasskeysCard.tsx, PasswordResetCard.tsx"
+      "path": "apps/server/src/voicechat/ (Simple Voice Chat mit einem Klick), drizzle/0002_ports_voicechat.sql"
     },
     {
       "tag": "geändert",
-      "path": "apps/web/src/features/admin/PanelSettingsPage.tsx (Admin-Bereich mit Domain)"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/web/src/demo/ (nachgebauter Server, Passkey-Simulation), scripts/inline-demo.mjs"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/server/test/passkeys.test.ts, soft-authenticator.ts, e2e/passkey.spec.ts"
+      "path": "apps/server/src/auth/hook.ts, passkeys.ts (Panel-Domain hinter NetBird gilt als HTTPS)"
     },
     {
       "tag": "geändert",
-      "path": "README.md, docs/screenshots/ (Titelbild, Animation, Bilder)"
+      "path": "apps/server/src/servers/service.ts, connectivity.ts (öffentlicher Port)"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/web/src/features/admin/NetBirdGuide.tsx, features/servers/settings/VoiceChatCard.tsx"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/server/test/voicechat.test.ts, docs/netbird.md"
+    },
+    {
+      "tag": "geändert",
+      "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
+    }
+  ],
+  "eta": "2026-10-28T07:15:00Z",
+  "plan": [
+    {
+      "status": "done",
+      "until": "2026-10-28T05:40:00Z",
+      "title": "NetBird recherchieren (offizielle Doku)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T05:55:00Z",
+      "title": "Panel hinter NetBird: HTTPS über die Domain, Passkeys, Cookies (Tests grün)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T06:10:00Z",
+      "title": "Öffentlicher Port pro Server + Simple Voice Chat (Server-Teil, 155 Tests)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T06:22:00Z",
+      "title": "Oberfläche: Voice-Chat-Karte, Reiter „NetBird“, öffentlicher Port, deutsche und englische Texte"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T06:30:00Z",
+      "title": "Im Browser geprüft, Handy-Ansicht repariert, Bilder gemacht"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T06:40:00Z",
+      "title": "Demo-Website: Voice-Chat, Geyser und NetBird zum Durchklicken (neu hochgeladen)"
+    },
+    {
+      "status": "done",
+      "until": "2026-10-28T06:45:00Z",
+      "title": "README, docs/netbird.md, STAND.md, Versionshinweise; Phase 8 nach main übernommen"
+    },
+    {
+      "status": "current",
+      "until": "2026-10-28T07:15:00Z",
+      "title": "Alle Prüfungen, Push, Pull Request nach main"
     }
   ]
 }
@@ -284,6 +342,24 @@ footer { color: var(--muted); font-size: 13px; }
   var now = document.getElementById('now');
   now.appendChild(el('b', null, 'Gerade: '));
   now.appendChild(document.createTextNode(d.now));
+  var clock = function (iso) { return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' }); };
+  if (d.eta) {
+    var left = Math.round((new Date(d.eta) - Date.now()) / 60000);
+    var rest = left > 59 ? Math.floor(left / 60) + ' Std. ' + (left % 60) + ' Min.' : left + ' Min.';
+    var eta = document.getElementById('eta');
+    eta.appendChild(document.createTextNode('Fertig etwa um '));
+    eta.appendChild(el('b', null, clock(d.eta) + ' Uhr'));
+    eta.appendChild(document.createTextNode(left > 0 ? ' · noch ca. ' + rest : ' · gleich so weit'));
+  }
+  var plan = document.getElementById('plan');
+  (d.plan || []).forEach(function (p) {
+    var li = el('li', p.status || '');
+    var tm = el('time', null, (p.status === 'done' ? 'fertig' : 'bis ' + clock(p.until)));
+    if (p.until) tm.setAttribute('datetime', p.until);
+    li.appendChild(tm);
+    li.appendChild(el('span', null, p.title));
+    plan.appendChild(li);
+  });
   var steps = document.getElementById('steps');
   d.steps.forEach(function (s) {
     var li = el('li', 'step');

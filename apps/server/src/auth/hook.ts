@@ -31,9 +31,24 @@ export function pendingSession(request: FastifyRequest): SessionRow | undefined 
   return pendingByRequest.get(request);
 }
 
+/** True when the request arrived through the panel domain the admin entered in the admin area. */
+export function onPanelDomain(ctx: AppContext, hostname: string): boolean {
+  const domain = ctx.settings.get().panelDomain;
+  return domain !== '' && hostname.toLowerCase() === domain;
+}
+
+/**
+ * HTTPS as the browser sees it. Behind a proxy that says so (MH_TRUST_PROXY) the protocol is known;
+ * some proxies (e.g. NetBird's) do not send X-Forwarded-Proto, so the admin's panel domain counts too:
+ * it is the address that is meant to be served over HTTPS.
+ */
+export function servedOverHttps(ctx: AppContext, request: FastifyRequest): boolean {
+  return request.protocol === 'https' || onPanelDomain(ctx, request.hostname);
+}
+
 export function cookieSecure(ctx: AppContext, request: FastifyRequest): boolean {
   const mode = ctx.config.cookieSecure;
-  return mode === 'auto' ? request.protocol === 'https' : mode === 'true';
+  return mode === 'auto' ? servedOverHttps(ctx, request) : mode === 'true';
 }
 
 export function setSessionCookie(
@@ -55,15 +70,16 @@ export function clearSessionCookie(reply: FastifyReply): void {
   reply.clearCookie(SESSION_COOKIE, { path: '/' });
 }
 
-/** Rejects cross-site requests: a browser always sends Origin on unsafe requests and WebSocket handshakes. */
-export function originAllowed(request: FastifyRequest): boolean {
+/**
+ * Rejects cross-site requests: a browser always sends Origin on unsafe requests and WebSocket handshakes.
+ * Pages from the panel's own domain count as the same site even when a proxy rewrites the Host header.
+ */
+export function originAllowed(ctx: AppContext, request: FastifyRequest): boolean {
   const origin = request.headers.origin;
   if (!origin) return true;
-  try {
-    return new URL(origin).host === request.host;
-  } catch {
-    return false;
-  }
+  if (!URL.canParse(origin)) return false;
+  const url = new URL(origin);
+  return url.host === request.host || (url.protocol === 'https:' && onPanelDomain(ctx, url.hostname));
 }
 
 function resolveApiToken(ctx: AppContext, request: FastifyRequest, raw: string): boolean {
@@ -92,7 +108,7 @@ export function createAuthHook(ctx: AppContext) {
   return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     if (!request.url.startsWith('/api/')) return;
     const unsafe = UNSAFE_METHODS.includes(request.method);
-    if (unsafe && !originAllowed(request)) throw new AppError(HTTP_FORBIDDEN, 'bad_origin');
+    if (unsafe && !originAllowed(ctx, request)) throw new AppError(HTTP_FORBIDDEN, 'bad_origin');
 
     const authorization = request.headers.authorization;
     if (authorization?.startsWith(BEARER_PREFIX)) {

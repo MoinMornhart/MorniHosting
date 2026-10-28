@@ -37,6 +37,7 @@ export async function connectionInfo(row: ServerRow, settings: SettingsService):
     publicIp: await publicIp(settings),
     lanIp: s.lanIp || null,
     port: row.port,
+    sharePort: (row.domain || s.publicAddress) && row.publicPort ? row.publicPort : row.port,
     protocol: SOFTWARE[row.software].protocol,
     reachable: reachability.get(row.id) ?? null,
   };
@@ -57,7 +58,8 @@ export async function checkReachability(
     reachability.set(row.id, result);
     return result;
   }
-  const target = `${host}:${row.port}`;
+  // Through the domain friends use the tunnel's port; through the bare public IP the server port.
+  const target = `${host}:${info.domain ? info.sharePort : row.port}`;
   const base =
     row.edition === 'bedrock' ? 'https://api.mcsrvstat.us/bedrock/3/' : 'https://api.mcsrvstat.us/3/';
   try {
