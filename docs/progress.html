@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T06:41:50+00:00",
-  "now": "Proxmox-Skript kann jetzt NetBird gleich mit einrichten – GitHub prüft, danach kommt alles nach main",
+  "updated": "2026-10-28T06:46:04+00:00",
+  "now": "Alles fertig und in main. Der Proxmox-Einzeiler lädt die neue Version mit NetBird-Frage. Jetzt bist du dran: Proxmox aufsetzen und Release-Knopf drücken.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -283,7 +283,7 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
     }
   ],
-  "eta": "2026-10-28T07:00:00Z",
+  "eta": null,
   "plan": [
     {
       "status": "done",
@@ -297,23 +297,23 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:37:00Z",
-      "title": "Alle Prüfungen grün (155 Tests, 4 Browser-Abläufe), Pull Request #3"
+      "until": "2026-10-28T06:41:00Z",
+      "title": "Proxmox-Skript: Container für NetBird vorbereitet, Setup-Key optional"
     },
     {
       "status": "done",
-      "until": "2026-10-28T06:41:00Z",
-      "title": "Proxmox-Skript: Container für NetBird vorbereitet, Setup-Key optional (Probelauf grün)"
-    },
-    {
-      "status": "current",
-      "until": "2026-10-28T06:50:00Z",
-      "title": "GitHub-Prüfung abwarten, dann nach main übernehmen (dann lädt der Einzeiler die neue Version)"
+      "until": "2026-10-28T06:45:00Z",
+      "title": "GitHub-Prüfung grün, Phase 9 nach main übernommen"
     },
     {
       "status": "next",
-      "until": "2026-10-28T07:00:00Z",
-      "title": "Release v1.0.0 versuchen (Tag); falls gesperrt: Knopf auf GitHub für Philip"
+      "until": "",
+      "title": "Release v1.0.0: auf GitHub „Draft a new release“ → Tag v1.0.0, Ziel main → „Publish release“ (aus der Cloud gesperrt)"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "Proxmox: Einzeiler in der Host-Shell starten, bei „NetBird gleich mit einrichten?“ den Setup-Key einfügen"
     }
   ]
 }
@@ -348,7 +348,8 @@ footer { color: var(--muted); font-size: 13px; }
   var plan = document.getElementById('plan');
   (d.plan || []).forEach(function (p) {
     var li = el('li', p.status || '');
-    var tm = el('time', null, (p.status === 'done' ? 'fertig' : 'bis ' + clock(p.until)));
+    var when = p.until ? 'bis ' + clock(p.until) : 'bei dir';
+    var tm = el('time', null, p.status === 'done' ? 'fertig' : when);
     if (p.until) tm.setAttribute('datetime', p.until);
     li.appendChild(tm);
     li.appendChild(el('span', null, p.title));
