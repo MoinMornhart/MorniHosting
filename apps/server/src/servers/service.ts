@@ -5,6 +5,7 @@ import { eq, lt, ne } from 'drizzle-orm';
 import {
   BUILTIN_ROLES,
   CREATABLE_SOFTWARE,
+  PORT_VOICE_CHAT,
   SOFTWARE,
   type CreateServerInput,
   type ServerDetail,
@@ -64,6 +65,11 @@ export interface ServerService {
   readonly isRunning: (id: string) => boolean;
   readonly setExtraPorts: (id: string, ports: ServerRow['extraPorts']) => void;
   readonly setGeyser: (id: string, enabled: boolean) => void;
+  readonly setVoiceChat: (id: string, enabled: boolean, voicePublicPort: number | null) => void;
+  /** Runs right before a container starts; the listener must not throw. */
+  readonly onBeforeStart: (prepare: (id: string) => void) => () => void;
+  /** voice_host for Simple Voice Chat: the public name with the outside UDP port, or just the port. */
+  readonly voiceHost: (id: string) => string;
   /** The first port from `start` upwards that no other server uses. */
   readonly freePort: (start: number, protocol: 'tcp' | 'udp', exceptId: string) => number;
   readonly newId: () => string;
@@ -106,6 +112,8 @@ const ID_BYTES = 5;
 const RCON_PASSWORD_BYTES = 18;
 const DEFAULT_MAX_PLAYERS = 20;
 const ECHO_PREFIX = '\u001b[36m> ';
+/** Extra port entry of Simple Voice Chat (see voicechat/service.ts). */
+export const VOICE_PURPOSE = 'voicechat';
 const ANSI_RESET = '\u001b[0m';
 const PANEL_PREFIX = '\u001b[33m[MorniHosting]\u001b[0m ';
 
@@ -227,11 +235,22 @@ export function createServerService(ctx: AppContext): ServerService {
   };
 
   const withLock = createKeyedLock();
+  /** Features that keep files in sync with the panel (e.g. voice chat) refresh them here. */
+  const beforeStart = new Set<(id: string) => void>();
 
   const addressOf = (r: ServerRow): string => {
     const s = settings.get();
-    const host = r.domain || s.publicAddress || s.lanIp || 'localhost';
-    return displayAddress(host, r.port, SOFTWARE[r.software].defaultPort);
+    const name = r.domain || s.publicAddress;
+    // A tunnel's own port only belongs to the public name; at home the server port is right.
+    const port = name ? (r.publicPort ?? r.port) : r.port;
+    return displayAddress(name || s.lanIp || 'localhost', port, SOFTWARE[r.software].defaultPort);
+  };
+
+  const voiceHostOf = (r: ServerRow): string => {
+    const name = r.domain || settings.get().publicAddress;
+    const hostPort = r.extraPorts.find((p) => p.purpose === VOICE_PURPOSE)?.port ?? PORT_VOICE_CHAT;
+    const port = r.voicePublicPort ?? hostPort;
+    return name ? `${name}:${port}` : String(port);
   };
 
   const summaryOf = (r: ServerRow): ServerSummary => ({
@@ -296,6 +315,7 @@ export function createServerService(ctx: AppContext): ServerService {
     runtime.progress = 0;
     setState(id, 'starting');
     panelLog(id, `Server wird gestartet (${SOFTWARE[r.software].label} ${r.version}) …`);
+    beforeStart.forEach((prepare) => prepare(id));
     await docker.ensureNetwork(config.mcNetwork);
     await docker.ensureImage(r.image, (percent) => {
       const current = rt(id);
@@ -555,6 +575,11 @@ export function createServerService(ctx: AppContext): ServerService {
         image: r.image,
         geyser: r.geyser,
         geyserPort: r.geyser ? (r.extraPorts.find((p) => p.purpose === 'geyser')?.port ?? null) : null,
+        publicPort: r.publicPort,
+        voiceChat: r.voiceChat,
+        voicePort: r.voiceChat ? (r.extraPorts.find((p) => p.purpose === VOICE_PURPOSE)?.port ?? null) : null,
+        voicePublicPort: r.voicePublicPort,
+        voiceHost: r.voiceChat ? voiceHostOf(r) : null,
         permissions: ctx.access.permissionsFor(user, id),
       };
     },
@@ -621,6 +646,7 @@ export function createServerService(ctx: AppContext): ServerService {
         port: patch.port ?? current.port,
         autoStart: patch.autoStart ?? current.autoStart,
         domain: patch.domain === undefined ? current.domain : patch.domain || null,
+        publicPort: patch.publicPort === undefined ? current.publicPort : patch.publicPort,
         javaTag: patch.javaTag === undefined ? current.javaTag : patch.javaTag,
         version: patch.version ?? current.version,
       };
@@ -749,6 +775,14 @@ export function createServerService(ctx: AppContext): ServerService {
     },
     setGeyser: (id, enabled) => {
       db.update(servers).set({ geyser: enabled }).where(eq(servers.id, id)).run();
+    },
+    setVoiceChat: (id, enabled, voicePublicPort) => {
+      db.update(servers).set({ voiceChat: enabled, voicePublicPort }).where(eq(servers.id, id)).run();
+    },
+    voiceHost: (id) => voiceHostOf(row(id)),
+    onBeforeStart: (prepare) => {
+      beforeStart.add(prepare);
+      return () => beforeStart.delete(prepare);
     },
     newId,
   };

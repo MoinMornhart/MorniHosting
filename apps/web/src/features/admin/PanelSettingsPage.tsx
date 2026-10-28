@@ -15,12 +15,15 @@ import { Pill } from '@/components/ui/pill';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
+import { cn } from '@/lib/utils';
 import { useSession } from '@/features/auth/session';
+import { NetBirdGuide } from './NetBirdGuide';
 import { PasswordResetCard } from './PasswordResetCard';
 import { UpdateSection } from './UpdateSection';
 
 const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = { de: 'Deutsch', en: 'English' };
 const SECTIONS = ['domain', 'update', 'passwords', 'settings'] as const;
+const GUIDES = ['proxy', 'netbird'] as const;
 const URL_MARK = '://';
 
 /** "https://Panel.Example.de/login" and "panel.example.de" both become "panel.example.de". */
@@ -88,6 +91,7 @@ export function PanelSettingsPage(): ReactElement {
   });
   const [draft, setDraft] = useState<PanelSettings | null>(null);
   const [cfKey, setCfKey] = useState('');
+  const [guide, setGuide] = useState<(typeof GUIDES)[number]>('netbird');
   useEffect(() => {
     if (data) setDraft(data);
   }, [data]);
@@ -188,14 +192,47 @@ export function PanelSettingsPage(): ReactElement {
             </Field>
           </div>
           <DomainState domain={data?.panelDomain ?? ''} />
-          <details className="rounded-[12px] border border-border p-3 text-sm">
-            <summary className="cursor-pointer font-semibold">{t('admin.httpsGuideTitle')}</summary>
-            <ol className="mt-2 grid list-decimal gap-1.5 pl-5 text-muted-foreground">
-              <li>{t('admin.httpsStep1')}</li>
-              <li>{t('admin.httpsStep2')}</li>
-              <li>{t('admin.httpsStep3')}</li>
-            </ol>
-          </details>
+          <div className="grid gap-4 rounded-[12px] border border-border p-3 sm:p-4">
+            <div
+              className="inline-flex w-fit flex-wrap rounded-[12px] border border-border bg-secondary p-1"
+              role="tablist"
+            >
+              {GUIDES.map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  role="tab"
+                  aria-selected={guide === g}
+                  onClick={() => setGuide(g)}
+                  className={cn(
+                    'rounded-[9px] px-3.5 py-1.5 text-sm font-semibold text-muted-foreground transition-colors',
+                    guide === g && 'bg-card text-foreground shadow-card',
+                  )}
+                >
+                  {t(`admin.guides.${g}`)}
+                </button>
+              ))}
+            </div>
+            {guide === 'proxy' ? (
+              <div className="grid gap-2 text-sm">
+                <b className="font-semibold">{t('admin.httpsGuideTitle')}</b>
+                <ol className="grid list-decimal gap-1.5 pl-5 text-muted-foreground">
+                  <li>{t('admin.httpsStep1')}</li>
+                  <li>{t('admin.httpsStep2')}</li>
+                  <li>{t('admin.httpsStep3')}</li>
+                </ol>
+              </div>
+            ) : (
+              <NetBirdGuide
+                panelDomain={draft.panelDomain}
+                lanIp={draft.lanIp}
+                onUsePanelDomain={(domain) => {
+                  set({ panelDomain: domain });
+                  document.getElementById('ps-domain')?.focus();
+                }}
+              />
+            )}
+          </div>
           {saveButton}
         </Card>
       </form>

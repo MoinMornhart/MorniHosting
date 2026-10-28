@@ -112,6 +112,76 @@ describe('passkeys', () => {
     });
   });
 
+  test('behind a proxy without X-Forwarded-Proto (e.g. NetBird) the panel domain counts as HTTPS', async () => {
+    await t.app.inject({
+      method: 'PUT',
+      url: '/api/settings',
+      headers: { ...BROWSER, ...authHeaders(s) },
+      payload: { panelDomain: 'panel.example.de' },
+    });
+    const viaDomain = { host: 'panel.example.de', origin: 'https://panel.example.de' };
+    const status = await t.app.inject({
+      method: 'GET',
+      url: '/api/system/status',
+      headers: { host: viaDomain.host },
+    });
+    expect(status.json<SystemStatus>().passkeys).toBe('ok');
+
+    const login = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      headers: viaDomain,
+      payload: { username: 'philip', password: 'supersecret123' },
+    });
+    expect(String(login.headers['set-cookie'])).toContain('Secure');
+    const session = {
+      cookie: String(login.headers['set-cookie']).split(';')[0] ?? '',
+      csrf: login.json<{ me: { csrfToken: string } }>().me.csrfToken,
+    };
+    const headers = { ...viaDomain, ...authHeaders(session) };
+    const device = createSoftAuthenticator();
+    const options = (
+      await t.app.inject({ method: 'POST', url: '/api/account/passkeys/options', headers })
+    ).json<RegistrationOptions>();
+    expect(options.rp.id).toBe('panel.example.de');
+    const added = await t.app.inject({
+      method: 'POST',
+      url: '/api/account/passkeys',
+      headers,
+      payload: { name: 'Handy', response: device.register(options, viaDomain.origin) },
+    });
+    expect(added.statusCode).toBe(200);
+    const loginOptions = (
+      await t.app.inject({ method: 'POST', url: '/api/auth/passkey/options', headers: viaDomain })
+    ).json<LoginOptions>();
+    const signedIn = await t.app.inject({
+      method: 'POST',
+      url: '/api/auth/passkey/login',
+      headers: viaDomain,
+      payload: { response: device.login(loginOptions, viaDomain.origin) },
+    });
+    expect(signedIn.json<LoginResponse>().status).toBe('ok');
+  });
+
+  test('without the original Host header, pages from the panel domain are still accepted', async () => {
+    await t.app.inject({
+      method: 'PUT',
+      url: '/api/settings',
+      headers: { ...BROWSER, ...authHeaders(s) },
+      payload: { panelDomain: 'panel.example.de' },
+    });
+    const rewritten = (origin: string) =>
+      t.app.inject({
+        method: 'PATCH',
+        url: '/api/account',
+        headers: { host: '192.168.178.40:8080', origin, ...authHeaders(s) },
+        payload: { displayName: 'Philip' },
+      });
+    expect((await rewritten('https://panel.example.de')).statusCode).toBe(200);
+    expect((await rewritten('http://panel.example.de')).statusCode).toBe(403);
+    expect((await rewritten('https://evil.example')).statusCode).toBe(403);
+  });
+
   test('a request from another page cannot start a passkey ceremony', async () => {
     const res = await t.app.inject({
       method: 'POST',

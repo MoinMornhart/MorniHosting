@@ -9,9 +9,10 @@ import { GeneralCard } from './GeneralCard';
 import { GEYSER_SOFTWARE, GeyserCard } from './GeyserCard';
 import { IconCard } from './IconCard';
 import { PropertiesCard } from './PropertiesCard';
+import { VOICE_CHAT_SOFTWARE, VoiceChatCard } from './VoiceChatCard';
 import { WorldsCard } from './WorldsCard';
 
-const SECTIONS = ['general', 'bedrock', 'game', 'worlds', 'icon', 'danger'] as const;
+const SECTIONS = ['general', 'bedrock', 'voice', 'game', 'worlds', 'icon', 'danger'] as const;
 
 /** Everything about one server on one page, with a section list to jump around. */
 export default function SettingsTab(): ReactElement {
@@ -27,8 +28,10 @@ export default function SettingsTab(): ReactElement {
 
   if (!can('config')) return <EmptyState title={t('server.noPermission')} />;
   const geyser = GEYSER_SOFTWARE.includes(server.software);
+  const voice = VOICE_CHAT_SOFTWARE.includes(server.software);
   const sections = SECTIONS.filter(
-    (s) => (!proxy || (s !== 'game' && s !== 'worlds')) && (geyser || s !== 'bedrock'),
+    (s) =>
+      (!proxy || (s !== 'game' && s !== 'worlds')) && (geyser || s !== 'bedrock') && (voice || s !== 'voice'),
   );
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[190px_minmax(0,1fr)]">
@@ -50,6 +53,11 @@ export default function SettingsTab(): ReactElement {
         {geyser ? (
           <section id="s-bedrock" className="scroll-mt-4">
             <GeyserCard server={server} />
+          </section>
+        ) : null}
+        {voice ? (
+          <section id="s-voice" className="scroll-mt-4">
+            <VoiceChatCard server={server} />
           </section>
         ) : null}
         {proxy ? null : (

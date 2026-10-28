@@ -1,18 +1,22 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- demo timings, made-up live values and HTTP status codes */
-import type {
-  MeResponse,
-  PanelSettings,
-  PasskeyEntry,
-  RoleEntry,
-  ServerDetail,
-  ServerLive,
-  ServerPermission,
-  SystemStatus,
-  UpdateInfo,
-  UserListEntry,
-  WsClientMessage,
-  WsServerMessage,
+import {
+  PORT_VOICE_CHAT,
+  type InstalledContent,
+  type MeResponse,
+  type PanelSettings,
+  type PasskeyEntry,
+  type RoleEntry,
+  type ServerDetail,
+  type ServerLive,
+  type ServerPermission,
+  type SystemStatus,
+  type UpdateInfo,
+  type UserListEntry,
+  type VoiceChatResult,
+  type WsClientMessage,
+  type WsServerMessage,
 } from '@mornihosting/shared';
+import { VOICE_CHAT_SOFTWARE } from '@/features/servers/settings/VoiceChatCard';
 import recordingText from './fixtures.json?raw';
 
 /**
@@ -74,6 +78,20 @@ function shifted<TValue>(value: TValue): TValue {
 const store = new Map<string, unknown>(
   Object.entries(recording.fixtures).map(([key, fixture]) => [key, shifted(fixture.body)]),
 );
+// The recording was made before public ports and voice chat existed.
+Array.from(store)
+  .filter(([key]) => key.endsWith('/connection'))
+  .forEach(([key, value]) => {
+    const info = value as { port: number; sharePort?: number };
+    store.set(key, { sharePort: info.port, ...info });
+  });
+const NEW_SERVER_FIELDS = {
+  publicPort: null,
+  voiceChat: false,
+  voicePort: null,
+  voicePublicPort: null,
+  voiceHost: null,
+} as const;
 const failing = new Map(
   Object.entries(recording.fixtures)
     .filter(([, fixture]) => fixture.status >= 400)
@@ -122,7 +140,10 @@ const state = {
     updating: false,
   } satisfies UpdateInfo as UpdateInfo,
   servers: new Map<string, ServerDetail>(
-    read<ServerDetail[]>('/api/servers').map((s) => [s.id, read<ServerDetail>(`/api/servers/${s.id}`) ?? s]),
+    read<ServerDetail[]>('/api/servers').map((s) => [
+      s.id,
+      { ...NEW_SERVER_FIELDS, ...(read<ServerDetail>(`/api/servers/${s.id}`) ?? s) },
+    ]),
   ),
   consoles: new Map<string, string[]>(
     Object.entries(recording.consoles).map(([id, lines]) => [id, [...lines]]),
@@ -339,6 +360,95 @@ function answerFor(serverId: string, command: string): string {
     help: () => 'Demo: probiere list, say Hallo, op Lena_Baut, time set day oder weather clear',
   };
   return answers[verb]?.() ?? `Befehl ausgeführt: ${command} (Demo)`;
+}
+
+/* ---------- Server settings: public port, Geyser, voice chat ---------- */
+
+const GEYSER_PORT = 19132;
+const JAVA_PORT = 25565;
+const VOICE_JAR = 'voicechat-bukkit-2.6.26.jar';
+
+function changeServer(id: string, change: Partial<ServerDetail>): ServerDetail | undefined {
+  const current = state.servers.get(id);
+  if (!current) return undefined;
+  const next = { ...current, ...change };
+  state.servers.set(id, next);
+  return next;
+}
+
+const publicName = (server: ServerDetail): string => server.domain || state.settings.publicAddress;
+
+function addressWith(server: ServerDetail, publicPort: number | null): string {
+  const name = publicName(server);
+  if (!name) return server.address;
+  const port = publicPort ?? server.port;
+  return port === JAVA_PORT ? name : `${name}:${port}`;
+}
+
+function patchServer(id: string, body: Readonly<Record<string, unknown>>): Reply {
+  const server = state.servers.get(id);
+  if (!server) return error(404, 'not_found');
+  const publicPort =
+    'publicPort' in body ? ((body['publicPort'] as number | null) ?? null) : server.publicPort;
+  const key = `/api/servers/${templateOf(id)}/connection`;
+  const connection = read<{ port: number } | undefined>(key);
+  if (connection) store.set(key, { ...connection, sharePort: publicPort ?? connection.port });
+  return ok(changeServer(id, { ...body, publicPort, address: addressWith(server, publicPort) }));
+}
+
+function setContent(id: string, fileName: string, entry: InstalledContent | null, enabled: boolean): void {
+  const key = `/api/servers/${templateOf(id)}/content`;
+  const list = read<InstalledContent[] | undefined>(key) ?? [];
+  const known = list.some((c) => c.fileName === fileName);
+  const next = known ? list.map((c) => (c.fileName === fileName ? { ...c, enabled } : c)) : list;
+  store.set(key, !known && entry ? [...next, entry] : next);
+}
+
+function setGeyser(id: string, enabled: boolean): Reply {
+  const server = changeServer(id, { geyser: enabled, geyserPort: enabled ? GEYSER_PORT : null });
+  if (!server) return error(404, 'not_found');
+  return ok({ enabled, port: server.geyserPort, restartRequired: server.live.state === 'running' });
+}
+
+function setVoiceChat(id: string, body: Readonly<Record<string, unknown>>): Reply {
+  const server = state.servers.get(id);
+  if (!server) return error(404, 'not_found');
+  if (server.edition === 'bedrock') return error(400, 'voicechat_java_only');
+  if (!VOICE_CHAT_SOFTWARE.includes(server.software)) return error(400, 'voicechat_unsupported');
+  const enabled = body['enabled'] === true;
+  const others = Array.from(state.servers.values()).filter((s) => s.id !== id && s.voicePort !== null).length;
+  const port = enabled ? (server.voicePort ?? PORT_VOICE_CHAT + others) : null;
+  const voicePublicPort = enabled ? ((body['publicPort'] as number | null | undefined) ?? null) : null;
+  const name = publicName(server);
+  const outside = String(voicePublicPort ?? port);
+  const reachable = name ? `${name}:${outside}` : outside;
+  const voiceHost = enabled ? reachable : null;
+  changeServer(id, { voiceChat: enabled, voicePort: port, voicePublicPort, voiceHost });
+  setContent(
+    id,
+    VOICE_JAR,
+    {
+      fileName: VOICE_JAR,
+      enabled: true,
+      size: 1_482_311,
+      modifiedAt: nowIso(),
+      source: 'modrinth',
+      projectId: '9eGKb6K1',
+      name: 'Simple Voice Chat',
+      versionName: '2.6.26',
+      iconUrl: null,
+      url: 'https://modrinth.com/plugin/9eGKb6K1',
+      dependencyOf: null,
+      update: null,
+    },
+    enabled,
+  );
+  return ok({
+    enabled,
+    port,
+    voiceHost,
+    restartRequired: server.live.state === 'running',
+  } satisfies VoiceChatResult);
 }
 
 /* ---------- Routes ---------- */
@@ -614,6 +724,13 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
       return server ? ok(server) : error(404, 'not_found');
     },
   ],
+  ['PATCH', '/api/servers/:id', ({ params, body }) => patchServer(params['id'] ?? '', body)],
+  [
+    'PUT',
+    '/api/servers/:id/geyser',
+    ({ params, body }) => setGeyser(params['id'] ?? '', body['enabled'] === true),
+  ],
+  ['PUT', '/api/servers/:id/voicechat', ({ params, body }) => setVoiceChat(params['id'] ?? '', body)],
   [
     'DELETE',
     '/api/servers/:id',

@@ -228,7 +228,9 @@
     "playitText": "No access to the router? playit.gg makes your server reachable without port forwarding.",
     "lanUnknown": "this device's IP",
     "bedrock": "Bedrock (phone, console):",
-    "bedrockPort": "port"
+    "bedrockPort": "port",
+    "voiceChat": "Voice chat:",
+    "voicePort": "UDP port {{port}}"
   },
   "stats": {
     "players": "Players",
@@ -480,7 +482,9 @@
     "passkey_expired": "That took too long. Please try again.",
     "passkey_not_found": "This passkey no longer exists.",
     "cannot_reset_self": "Change your own password under “My account”.",
-    "demo_readonly": "Uploading files is not possible in the demo. In the real panel it works by drag and drop."
+    "demo_readonly": "Uploading files is not possible in the demo. In the real panel it works by drag and drop.",
+    "voicechat_java_only": "Voice chat is only available for Java servers.",
+    "voicechat_unsupported": "Simple Voice Chat does not exist for this server software. It works with Paper, Purpur, Fabric, Forge and NeoForge."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -613,7 +617,8 @@
       "worlds": "Worlds",
       "icon": "Server picture",
       "danger": "Danger zone",
-      "bedrock": "Bedrock players"
+      "bedrock": "Bedrock players",
+      "voice": "Voice chat"
     },
     "restartToApply": "Applies after a restart.",
     "general": {
@@ -631,7 +636,9 @@
       "domain": "Own address (domain)",
       "domainHint": "Optional. Shown instead of the IP, e.g. mc.myname.com.",
       "autoStart": "Start automatically",
-      "autoStartHint": "Starts the server when the machine or the panel restarts."
+      "autoStartHint": "Starts the server when the machine or the panel restarts.",
+      "publicPort": "Public port (optional)",
+      "publicPortHint": "When NetBird, playit.gg or your router use a different port to the outside. The address card then shows that one."
     },
     "properties": {
       "title": "Game settings",
@@ -1364,7 +1371,9 @@
       "account_two_factor_reset": "2FA turned off on the host",
       "account_passkey_added": "Passkey added",
       "account_passkey_removed": "Passkey removed",
-      "user_password_reset": "Password reset"
+      "user_password_reset": "Password reset",
+      "voicechat_enable": "Voice chat turned on",
+      "voicechat_disable": "Voice chat turned off"
     }
   },
   "account": {
@@ -1443,7 +1452,11 @@
     "httpsGuideTitle": "How your domain gets HTTPS",
     "httpsStep1": "At your domain provider, point a record (A record) to your public IP – or use a DynDNS address.",
     "httpsStep2": "Put a reverse proxy with HTTPS in front, e.g. Nginx Proxy Manager or Caddy. Target: http://<panel IP>:8080.",
-    "httpsStep3": "Set MH_TRUST_PROXY=true in the .env and restart the panel (command: update)."
+    "httpsStep3": "Set MH_TRUST_PROXY=true in the .env and restart the panel (command: update).",
+    "guides": {
+      "proxy": "Own reverse proxy",
+      "netbird": "NetBird"
+    }
   },
   "passwordReset": {
     "cardTitle": "Reset passwords",
@@ -1462,5 +1475,56 @@
     "ownHint": "You change your own password and passkeys under",
     "has2fa": "2FA",
     "locked": "Locked"
+  },
+  "netbird": {
+    "intro": "NetBird gives you HTTPS and your own domain without opening a port on your router. All values below match your panel – just copy them.",
+    "base": "Your domain at NetBird",
+    "baseHint": "The part you enter at NetBird under “Custom Domains”, e.g. mc.your-domain.com. Each service gets its own name in front, like panel.mc.your-domain.com.",
+    "thisMachine": "IP-of-this-machine",
+    "step1Title": "Put NetBird on the machine running MorniHosting",
+    "step1Text": "Install the NetBird client where MorniHosting runs (e.g. in the Proxmox container) and sign it in with a setup key. You get the key in the NetBird dashboard under “Setup Keys” → “Create Setup Key”.",
+    "step1Lxc": "Does MorniHosting run in a Proxmox container (LXC)? With MorniHosting's Proxmox one-liner it is already prepared. If you created the container yourself, NetBird needs a network device there: add these two lines on the Proxmox host to /etc/pve/lxc/<ID>.conf and restart the container:",
+    "step1Router": "Does NetBird already run on another device in your home network (as a router)? Then a resource for <b>{{ip}}</b> under <b>Networks</b> is enough – you pick it as the target later.",
+    "step2Title": "Add your domain at NetBird",
+    "step2Add": "In the NetBird dashboard: <b>Reverse Proxy</b> → <b>Custom Domains</b> → <b>Add Domain</b>. Enter this domain (without *) and save:",
+    "step2Dns": "Then add this record at your domain provider (NetBird shows the exact value after saving):",
+    "dnsType": "Type",
+    "dnsName": "Name",
+    "dnsValue": "Value",
+    "step2Verify": "Back at NetBird: <b>Verify Domain</b> → <b>Start Verification</b>. Once it says <b>Active</b>, continue. Usually this takes a few minutes, at most 24 hours.",
+    "step3Title": "Make the panel reachable over HTTPS",
+    "step3Add": "<b>Reverse Proxy</b> → <b>Services</b> → <b>Add Service</b>, then <b>Add Target</b>. As target, pick <b>Peer</b> and your MorniHosting machine – or <b>Host</b> with the IP below if NetBird runs on another device in your home network:",
+    "mode": "Mode",
+    "subdomain": "Subdomain",
+    "baseDomain": "Base domain",
+    "target": "Target",
+    "protocol": "Protocol",
+    "port": "Port",
+    "step3Host": "Under <b>Settings</b>, make sure to turn on <b>Pass Host Header</b> – otherwise passkeys will not work.",
+    "step3Auth": "You can leave <b>Authentication</b> empty, MorniHosting has its own sign-in. If only people in your NetBird should see the panel, choose <b>NetBird-Only Access</b>.",
+    "step3Result": "Your panel will then be here:",
+    "usePanelDomain": "Use as panel address",
+    "step4Title": "Share the Minecraft servers",
+    "step4Text": "Create one service for each entry below: mode as given (TCP or UDP), any subdomain, target as in step 3 (peer or host) with the port given. TCP and UDP need no HTTPS and no sign-in.",
+    "colTarget": "Target (IP:port)",
+    "noServers": "Create a server first, then its ports show up here.",
+    "step4Port": "After saving, NetBird shows the port your friends come in on (NetBird Cloud assigns it automatically). Enter it at the server under <b>Settings → Public port</b>, for voice chat in the voice chat box. Then MorniHosting shows the right address everywhere.",
+    "step4Srv": "Tip for Java: with an SRV record at your domain provider (<b>_minecraft._tcp.{{name}}</b> → target {{name}}, NetBird's port) friends type just the name, no port.",
+    "step5Title": "Done – set up a passkey",
+    "step5Text": "Open <b>https://{{address}}</b>, sign in and add a passkey under <b>My account</b>. From then on your fingerprint is enough."
+  },
+  "voiceChat": {
+    "title": "Voice chat (Simple Voice Chat)",
+    "text": "Talk like in real life: players close to each other hear each other. One click installs Simple Voice Chat, opens a UDP port and sets the address for players.",
+    "installing": "Installing and setting up Simple Voice Chat …",
+    "enabled": "Voice chat is on (UDP port {{port}})",
+    "disabled": "Voice chat is off",
+    "portInfo": "Runs on UDP port {{port}}.",
+    "hostLabel": "Players' mods connect to",
+    "publicPort": "Public voice port (optional)",
+    "publicPortHint": "Only needed when NetBird, playit.gg or your router use a different port to the outside.",
+    "playersHint": "Every player needs the “Simple Voice Chat” mod in their own Minecraft (Fabric, Forge or NeoForge). Without it they can still play but hear nothing.",
+    "modLink": "Simple Voice Chat on Modrinth",
+    "routerHint": "For friends outside your Wi-Fi, forward UDP port {{port}} on your router – or use NetBird (guide in the admin area)."
   }
 }

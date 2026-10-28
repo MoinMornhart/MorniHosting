@@ -130,6 +130,11 @@ export const servers = sqliteTable('servers', {
     .default([]),
   extraEnv: text('extra_env', { mode: 'json' }).$type<Record<string, string>>().notNull().default({}),
   geyser: integer('geyser', { mode: 'boolean' }).notNull().default(false),
+  /** Port friends use from outside when a tunnel or proxy (NetBird, playit.gg) gives another one. */
+  publicPort: integer('public_port'),
+  voiceChat: integer('voice_chat', { mode: 'boolean' }).notNull().default(false),
+  /** Outside UDP port for Simple Voice Chat, when it differs from the host port. */
+  voicePublicPort: integer('voice_public_port'),
   backupSettings: text('backup_settings', { mode: 'json' })
     .$type<BackupSettings>()
     .notNull()

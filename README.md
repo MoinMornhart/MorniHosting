@@ -19,6 +19,7 @@
   <a href="#installation"><b>Installation</b></a> ·
   <a href="#was-kann-mornihosting"><b>Funktionen</b></a> ·
   <a href="#deine-domain-und-passkeys"><b>Domain &amp; Passkeys</b></a> ·
+  <a href="#netbird-eigene-domain-ohne-portfreigabe"><b>NetBird</b></a> ·
   <a href="#updates"><b>Updates</b></a> ·
   <a href="#häufige-fragen"><b>Fragen</b></a>
 </p>
@@ -88,6 +89,14 @@ für deine Freunde zum Kopieren.
     <td><b>Admin-Bereich</b><br>Domain eintragen, Panel aktualisieren, Passwörter zurücksetzen – nur für Admins.</td>
     <td><b>Anmelden mit Passkey</b><br>Fingerabdruck, Gesicht oder Geräte-PIN statt Passwort.</td>
   </tr>
+  <tr>
+    <td><img src="docs/screenshots/voicechat.webp" alt="Voice-Chat mit einem Schalter"></td>
+    <td><img src="docs/screenshots/netbird.webp" alt="NetBird-Anleitung im Admin-Bereich"></td>
+  </tr>
+  <tr>
+    <td><b>Voice-Chat</b><br>Simple Voice Chat mit einem Schalter: Plugin, UDP-Port und Adresse für die Spieler richten sich selbst ein.</td>
+    <td><b>Eigene Domain mit NetBird</b><br>Schritt für Schritt im Admin-Bereich, mit deinen echten Adressen und Ports zum Kopieren.</td>
+  </tr>
 </table>
 
 <p align="center">
@@ -152,7 +161,9 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHostin
 | 4 Kerne | 8 GB | 32 GB  | Debian 12 | `http://<IP des LXC>:8080` |
 
 Das Skript legt einen eigenen Container an, installiert Docker und MorniHosting und zeigt dir am Ende die
-Adresse. Alle Werte kannst du vorher ändern. Mehr dazu: [Proxmox-Anleitung](docs/proxmox-quickstart.md).
+Adresse. Alle Werte kannst du vorher ändern. Nutzt du [NetBird](#netbird-eigene-domain-ohne-portfreigabe), fragt
+es nach deinem Setup-Key und nimmt den Container gleich in dein NetBird-Netz auf. Mehr dazu:
+[Proxmox-Anleitung](docs/proxmox-quickstart.md).
 
 ### B) Debian oder Ubuntu (Server, VM, Mini-PC)
 
@@ -209,9 +220,15 @@ Ports an deinen Rechner weiter:
 | ------------------------ | --------- | -------------------------------------------- |
 | 25565 (bzw. Server-Port) | TCP       | Java-Server                                  |
 | 19132                    | UDP       | Bedrock-Server oder Geyser (Bedrock-Spieler) |
+| 24454                    | UDP       | Voice-Chat (Simple Voice Chat)               |
 
 Der Knopf **Jetzt prüfen** auf der Server-Seite sagt dir, ob es klappt. Kein Zugriff auf den Router? Dann hilft
-ein Tunnel wie [playit.gg](https://playit.gg) – der Knopf dazu steht direkt daneben.
+ein Tunnel wie [playit.gg](https://playit.gg) – der Knopf dazu steht direkt daneben – oder
+[NetBird](#netbird-eigene-domain-ohne-portfreigabe).
+
+Nutzt der Tunnel oder Router nach außen einen anderen Port, trag ihn beim Server unter **Einstellungen →
+Öffentlicher Port** ein (beim Voice-Chat im Voice-Chat-Kasten). Dann zeigt MorniHosting überall die Adresse, die
+deine Freunde wirklich eintippen müssen.
 
 ## Deine Domain und Passkeys
 
@@ -239,6 +256,28 @@ Mit einer eigenen Domain erreichst du das Panel über `https://panel.deine-domai
 
 Das Passwort bleibt als Rückfallebene erhalten. Wer sein Passwort vergessen hat, bekommt im **Admin-Bereich →
 Passwörter** mit zwei Klicks ein neues.
+
+## NetBird: eigene Domain ohne Portfreigabe
+
+Deine Domain liegt bei [NetBird](https://netbird.io)? Dann bekommst du HTTPS für das Panel und Adressen für
+deine Minecraft-Server, ohne im Router etwas freizugeben. Die komplette Anleitung steht im Panel unter
+**Admin-Bereich → Domain → Reiter „NetBird“** – dort sind alle Werte schon mit deinen Adressen und Ports
+ausgefüllt, du musst nur noch kopieren.
+
+<img src="docs/screenshots/netbird-ports.webp" alt="NetBird-Anleitung: Panel und Minecraft-Server freigeben" width="100%">
+
+Kurz gesagt:
+
+1. NetBird auf dem Rechner mit MorniHosting installieren (`curl -fsSL https://pkgs.netbird.io/install.sh | sh`,
+   dann `netbird up --setup-key <KEY>`).
+2. In NetBird unter **Reverse Proxy → Custom Domains** deine Domain anlegen und beim Domain-Anbieter den
+   CNAME-Eintrag `*.deine-domain.de → eu.proxy.netbird.io` setzen.
+3. Einen **HTTP-Service** für das Panel anlegen (Ziel: IP des Panels, Port 8080) und **Pass Host Header**
+   einschalten. Danach die Adresse im **Admin-Bereich** als Domain des Panels eintragen.
+4. Für jeden Minecraft-Server einen **TCP-Service** (Java) bzw. **UDP-Service** (Bedrock, Geyser, Voice-Chat)
+   anlegen und den Port, den NetBird vergibt, beim Server als **Öffentlicher Port** eintragen.
+
+Ausführlich mit allen Feldern: [docs/netbird.md](docs/netbird.md).
 
 ## Updates
 
@@ -300,6 +339,16 @@ erlauben keine Freigaben – dann hilft der playit.gg-Tunnel.
 
 Ja. In den Server-Einstellungen **Bedrock-Spieler erlauben** einschalten. MorniHosting installiert Geyser und
 Floodgate und öffnet einen UDP-Port (meist 19132). Das geht bei Paper, Purpur, Fabric, NeoForge und Velocity.
+
+</details>
+
+<details>
+<summary><b>Wie bekomme ich Voice-Chat auf meinen Server?</b></summary>
+
+In den Server-Einstellungen bei **Voice-Chat (Simple Voice Chat)** den Schalter umlegen. MorniHosting
+installiert das Plugin bzw. die Mod von Modrinth, öffnet einen UDP-Port (meist 24454) und trägt die Adresse
+für die Spieler ein. Das geht bei Paper, Purpur, Fabric, Forge und NeoForge. Jeder Spieler braucht die Mod
+[Simple Voice Chat](https://modrinth.com/plugin/simple-voice-chat) im eigenen Minecraft.
 
 </details>
 

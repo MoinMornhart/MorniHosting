@@ -20,11 +20,17 @@ Es erscheint eine Zusammenfassung mit den Standardwerten:
 | Festplatte  | 32 GB         | Welten, Plugins und Backups                         |
 | Netzwerk    | `vmbr0`, DHCP | Der Container bekommt eine eigene IP im Heimnetz    |
 
-Mit **Ja** geht es los, mit **Nein** kannst du jeden Wert ändern. Ohne Rückfragen geht es auch,
-indem du die Werte vorher setzt:
+Mit **Ja** geht es los, mit **Nein** kannst du jeden Wert ändern.
+
+Danach fragt das Skript, ob es **NetBird** gleich mit einrichten soll. Wenn du deine Domain über NetBird
+nutzt, sag **Ja** und füge deinen Setup-Key ein (NetBird-Dashboard → **Setup Keys → Create Setup Key**). Der
+Container erscheint dann in NetBird unter seinem Namen (`mornihosting`). Das Netzwerk-Gerät, das NetBird im
+Container braucht, richtet das Skript immer ein – du kannst NetBird also auch später noch nachinstallieren.
+
+Ohne Rückfragen geht es auch, indem du die Werte vorher setzt:
 
 ```bash
-CTID=210 RAM=12288 CORES=6 DISK=64 bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
+CTID=210 RAM=12288 CORES=6 DISK=64 NETBIRD_SETUP_KEY=<KEY> bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 ```
 
 ## 2. Panel öffnen
@@ -41,16 +47,21 @@ Damit Freunde von außen spielen können, gib im Router diese Ports an die IP de
 | ----------------------------- | --------- | ------------------------------------------------------- |
 | 25565 (bzw. dein Server-Port) | TCP       | Java-Server                                             |
 | 19132                         | UDP       | Bedrock-Server oder Geyser („Bedrock-Spieler erlauben“) |
+| 24454                         | UDP       | Voice-Chat (Simple Voice Chat)                          |
 
 Das Panel selbst (Port 8080) solltest du **nicht** ins Internet freigeben. Für den Zugriff von
 unterwegs nimm besser ein VPN (z. B. WireGuard oder Tailscale) oder einen Reverse-Proxy mit HTTPS
 und setze dann in der `.env` `MH_TRUST_PROXY=true`.
 
+**Mit NetBird** brauchst du gar keine Portfreigabe: Panel und Server bekommen Adressen unter deiner
+Domain, das Panel sogar mit HTTPS. Die Anleitung mit deinen echten Werten steht im Panel unter
+**Admin-Bereich → Domain → Reiter „NetBird“** (zum Nachlesen: [netbird.md](netbird.md)).
+
 Die IP-Karte auf der Server-Seite prüft auf Knopfdruck, ob dein Server von außen erreichbar ist.
 
 ## Updates
 
-- **Im Panel:** Unter _Einstellungen → Updates_ erscheint ein Knopf, sobald es eine neue Version gibt.
+- **Im Panel:** Im _Admin-Bereich → Updates_ erscheint ein Knopf, sobald es eine neue Version gibt.
 - **Auf der Konsole:** im Proxmox-Host `pct enter <ID>` und dann `update`.
 
 Deine Minecraft-Server laufen während des Updates weiter.

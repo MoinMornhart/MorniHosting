@@ -41,6 +41,8 @@ import { registerBackupRoutes } from './backups/routes.js';
 import { createBackupService } from './backups/service.js';
 import { registerGeyserRoutes } from './geyser/routes.js';
 import { createGeyserService } from './geyser/service.js';
+import { registerVoiceChatRoutes } from './voicechat/routes.js';
+import { createVoiceChatService } from './voicechat/service.js';
 import { registerMarketRoutes } from './market/routes.js';
 import { createMarketService } from './market/service.js';
 import { registerImportRoutes } from './servers/import-routes.js';
@@ -218,6 +220,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const market = createMarketService(ctx, servers, files);
   registerMarketRoutes(app, ctx, servers, market);
   registerGeyserRoutes(app, ctx, createGeyserService(ctx, servers, market));
+  registerVoiceChatRoutes(app, ctx, createVoiceChatService(ctx, servers, market));
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
   registerWebhookRoutes(app, webhooks);
