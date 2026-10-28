@@ -435,8 +435,8 @@
     "backup_not_found": "Dieses Backup gibt es nicht.",
     "invalid_interval": "Dieses Intervall ist nicht möglich.",
     "command_required": "Bitte gib einen Befehl an.",
-    "webhook_host_not_allowed": "Diese Adresse passt nicht zum gewählten Dienst.",
-    "webhook_private_address": "Webhooks an Adressen im eigenen Netz sind nicht erlaubt.",
+    "webhook_host_not_allowed": "Diese Adresse passt nicht zum gewählten Dienst. Kopiere die Webhook-URL direkt aus dem Dienst.",
+    "webhook_private_address": "Adressen im eigenen Netzwerk sind aus Sicherheitsgründen nicht erlaubt.",
     "username_taken": "Diesen Benutzernamen gibt es schon.",
     "last_admin": "Der letzte Administrator kann nicht entfernt werden.",
     "cannot_delete_self": "Du kannst dich nicht selbst löschen.",
@@ -459,7 +459,9 @@
     "world_invalid": "In der ZIP-Datei ist keine Minecraft-Welt (es fehlt level.dat).",
     "missing_permission": "Dafür fehlt dir auf diesem Server das Recht „{{permission}}“.",
     "content_already_installed": "„{{name}}“ ist schon installiert (Datei {{file}}). Zweimal dasselbe Plugin führt zu Fehlern.",
-    "content_up_to_date": "Das ist schon die neueste passende Version."
+    "content_up_to_date": "Das ist schon die neueste passende Version.",
+    "backup_failed": "Das Sicherheits-Backup hat nicht geklappt, darum wurde nichts wiederhergestellt.",
+    "webhook_unresolvable": "Die Adresse {{host}} wurde nicht gefunden."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -975,5 +977,155 @@
       "alpha": "Alpha"
     },
     "notFitWarning": "Diese Version ist nicht für deine Minecraft-Version gemacht. Sie kann Fehler oder Abstürze verursachen."
+  },
+  "backups": {
+    "create": "Backup jetzt erstellen",
+    "running": "Backup läuft …",
+    "started": "Backup gestartet. Das kann je nach Weltgröße ein paar Minuten dauern.",
+    "automatic": "Automatisch sichern",
+    "storage": "Backups belegen {{used}} · frei: {{free}}",
+    "emptyTitle": "Noch keine Backups",
+    "emptyText": "Ein Backup ist eine Sicherungskopie deines Servers mit Welt, Plugins und Einstellungen. Damit kannst du jederzeit zurück.",
+    "kind": {
+      "manual": "Von Hand",
+      "scheduled": "Automatisch",
+      "before-restore": "Vor Wiederherstellung"
+    },
+    "failed": "Fehlgeschlagen",
+    "interrupted": "Abgebrochen, weil das Panel neu gestartet wurde.",
+    "restored": "Backup vom {{when}} ist wiederhergestellt",
+    "restoreTitle": "Backup vom {{when}} wiederherstellen?",
+    "restoreText": "Die jetzigen Dateien werden vorher als Sicherheits-Backup gespeichert. Dann wird das Backup eingespielt.",
+    "restoreTextRunning": "Der Server wird dafür gestoppt. Die jetzigen Dateien werden vorher als Sicherheits-Backup gespeichert, dann wird das Backup eingespielt und der Server startet wieder.",
+    "deleteTitle": "Backup löschen?",
+    "deleteText": "Das Backup wird endgültig gelöscht.",
+    "settingsTitle": "Einstellungen",
+    "settingsText": "Ältere Backups werden automatisch gelöscht, damit die Festplatte nicht vollläuft.",
+    "keep": "Aufbewahren",
+    "keepN_one": "Das neueste Backup",
+    "keepN_other": "Die neuesten {{count}} Backups",
+    "exclude": "Nicht sichern",
+    "excludeNone": "Alles wird gesichert.",
+    "excludePlaceholder": "z. B. logs/ oder *.log",
+    "addExclude": "Hinzufügen",
+    "removeExclude": "{{pattern}} wieder sichern",
+    "excludeHint": "Ordner mit / am Ende (logs/), Dateitypen mit Stern (*.log). Protokolle und Cache brauchst du meist nicht."
+  },
+  "schedules": {
+    "new": "Neuer Zeitplan",
+    "newTitle": "Neuer Zeitplan",
+    "editTitle": "Zeitplan bearbeiten",
+    "dialogText": "Was soll wann passieren? Der Server erledigt es dann von allein.",
+    "what": "Was soll passieren?",
+    "when": "Wann?",
+    "actions": {
+      "restart": "Neustart",
+      "backup": "Backup",
+      "command": "Befehl",
+      "start": "Starten",
+      "stop": "Stoppen"
+    },
+    "kinds": {
+      "interval": "Regelmäßig",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich"
+    },
+    "every": {
+      "minutes_one": "Jede Minute",
+      "minutes_other": "Alle {{count}} Minuten",
+      "hours_one": "Jede Stunde",
+      "hours_other": "Alle {{count}} Stunden"
+    },
+    "dailyAt": "Täglich um {{time}}",
+    "weeklyAt": "{{days}} um {{time}}",
+    "monthlyAt": "Am {{day}}. jeden Monats um {{time}}",
+    "days": "Wochentage",
+    "dayOfMonth": "Tag im Monat",
+    "dayN": "Am {{day}}.",
+    "time": "Uhrzeit",
+    "command": "Befehl",
+    "commandHint": "Ein Konsolenbefehl ohne Schrägstrich, z. B. say Hallo oder weather clear.",
+    "warn": "Spieler vorher warnen",
+    "warnNone": "Nicht warnen",
+    "warnN_one": "1 Minute vorher im Chat",
+    "warnN_other": "{{count}} Minuten vorher im Chat",
+    "warnShort_one": "Warnung 1 Min. vorher",
+    "warnShort_other": "Warnung {{count}} Min. vorher",
+    "presets": "Schnellvorlagen",
+    "preset": {
+      "nightlyRestart": "Täglicher Neustart um 4 Uhr",
+      "backupEvery6h": "Backup alle 6 Stunden",
+      "nightlyBackup": "Nächtliches Backup um 3:30"
+    },
+    "saved": "Zeitplan „{{name}}“ gespeichert",
+    "runNow": "Jetzt ausführen",
+    "ranOk": "„{{name}}“ wurde ausgeführt",
+    "ranFailed": "„{{name}}“ hat nicht geklappt (läuft der Server?)",
+    "next": "Nächstes Mal {{when}}",
+    "last": "Zuletzt {{when}}",
+    "lastFailed": "Zuletzt fehlgeschlagen {{when}}",
+    "enabledFor": "{{name}} an oder aus",
+    "emptyTitle": "Noch keine Zeitpläne",
+    "emptyText": "Lass den Server nachts neu starten oder regelmäßig sichern, ganz ohne Cron. Nimm eine Schnellvorlage oder erstelle einen eigenen Zeitplan.",
+    "timezoneNote": "Uhrzeiten gelten in der Zeitzone des Panels.",
+    "deleteTitle": "„{{name}}“ löschen?",
+    "deleteText": "Der Zeitplan läuft dann nicht mehr."
+  },
+  "webhooks": {
+    "title": "Benachrichtigungen",
+    "subtitle": "Nachrichten an Discord, Slack oder Teams, wenn ein Server startet, abstürzt oder ein Backup fertig ist.",
+    "new": "Neue Benachrichtigung",
+    "newTitle": "Neue Benachrichtigung",
+    "editTitle": "Benachrichtigung bearbeiten",
+    "dialogText": "Wähle, wohin die Nachrichten gehen und bei welchen Ereignissen.",
+    "kind": "Dienst",
+    "generic": "Eigene Adresse",
+    "url": "Webhook-Adresse",
+    "urlKeep": "Leer lassen, um die bisherige Adresse ({{host}}) zu behalten.",
+    "howTo": {
+      "discord": "In Discord: Servereinstellungen → Integrationen → Webhooks → Neuer Webhook → „Webhook-URL kopieren“.",
+      "slack": "In Slack: App „Incoming Webhooks“ hinzufügen, Kanal wählen und die Webhook-URL kopieren.",
+      "teams": "In Teams: Kanal → Workflows → „Bei Eingang einer Webhook-Anforderung posten“ und die URL kopieren.",
+      "generic": "Eine HTTPS-Adresse, an die wir JSON schicken (z. B. für eigene Skripte oder Home Assistant)."
+    },
+    "placeholder": {
+      "discord": "https://discord.com/api/webhooks/…",
+      "slack": "https://hooks.slack.com/services/…",
+      "teams": "https://….webhook.office.com/…",
+      "generic": "https://example.com/minecraft-hook"
+    },
+    "events": "Bei welchen Ereignissen?",
+    "event": {
+      "server": {
+        "started": "Server gestartet",
+        "stopped": "Server gestoppt",
+        "crashed": "Server abgestürzt"
+      },
+      "backup": {
+        "done": "Backup fertig",
+        "failed": "Backup fehlgeschlagen"
+      },
+      "player": {
+        "joined": "Spieler beigetreten",
+        "left": "Spieler gegangen"
+      }
+    },
+    "servers": "Für welche Server?",
+    "allServers": "Alle Server",
+    "eventCount_one": "1 Ereignis",
+    "eventCount_other": "{{count}} Ereignisse",
+    "test": "Testen",
+    "testOk": "Test-Nachricht ist angekommen",
+    "testFailed": "Der Dienst hat die Nachricht abgelehnt (Fehler {{status}}). Stimmt die Adresse?",
+    "testUnreachable": "Der Dienst war nicht erreichbar.",
+    "lastOk": "Zuletzt gesendet {{when}}",
+    "lastFailed": "Fehler {{status}}",
+    "saved": "„{{name}}“ gespeichert",
+    "enabledFor": "{{name}} an oder aus",
+    "emptyTitle": "Noch keine Benachrichtigungen",
+    "emptyText": "Verbinde Discord, Slack oder Teams und erfahre sofort, wenn ein Server abstürzt.",
+    "deleteTitle": "„{{name}}“ löschen?",
+    "deleteText": "Es werden keine Nachrichten mehr dorthin geschickt."
   }
 }

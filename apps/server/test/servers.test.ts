@@ -30,6 +30,22 @@ describe('server lifecycle with the fake driver', () => {
     (await t.app.inject({ url: `/api/servers/${id}`, headers: authHeaders(s) })).json<ServerDetail>().live
       .state;
 
+  test('a restart is not mistaken for a crash', async () => {
+    const created = (
+      await t.app.inject({ method: 'POST', url: '/api/servers', headers: authHeaders(s), payload: paper })
+    ).json<ServerSummary>();
+    await waitFor(async () => (await state(created.id)) === 'running');
+    await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/actions/restart`,
+      headers: authHeaders(s),
+    });
+    await waitFor(async () => (await state(created.id)) === 'running');
+    // The old container's exit arrives late (after a short settle delay); it must not touch the new one.
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    expect(await state(created.id)).toBe('running');
+  });
+
   test('create, start, command, stop', async () => {
     const created = (
       await t.app.inject({ method: 'POST', url: '/api/servers', headers: authHeaders(s), payload: paper })

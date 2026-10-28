@@ -369,6 +369,13 @@ export function createServerService(ctx: AppContext): ServerService {
     const runtime = rt(r.id);
     // The die event can overtake the last log lines; give the log stream a moment to drain.
     await sleep(DIE_SETTLE_MS);
+    // During a restart the next container may already be running; this exit is old news then.
+    const current = db
+      .select({ containerId: servers.containerId })
+      .from(servers)
+      .where(eq(servers.id, r.id))
+      .get();
+    if (current?.containerId !== containerId) return;
     detachLogs(r.id);
     if (runtime.stopRequested || runtime.state === 'stopped') {
       setState(r.id, 'stopped');

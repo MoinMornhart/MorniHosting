@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildApp, type BuiltApp } from '../src/app.js';
+import { buildApp, type BuildOptions, type BuiltApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 import { createFakeDriver, FAKE_STEP_MS_FAST } from '../src/docker/fake-driver.js';
 
@@ -13,7 +13,10 @@ export interface TestApp extends BuiltApp {
 const TEST_SECRET = 'test-secret-test-secret-test-secret-123';
 
 /** A panel with a fresh data folder and the fake Docker driver, for HTTP-level tests. */
-export async function createTestApp(env: Record<string, string> = {}): Promise<TestApp> {
+export async function createTestApp(
+  env: Record<string, string> = {},
+  options: Pick<BuildOptions, 'resolver'> = {},
+): Promise<TestApp> {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mh-test-'));
   const config = loadConfig(
     { MH_SECRET: TEST_SECRET, MH_DATA_DIR: dataDir, MH_DOCKER_DRIVER: 'fake', ...env },
@@ -23,6 +26,7 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
     config,
     logger: process.env['MH_TEST_LOG'] === '1',
     docker: createFakeDriver({ stepMs: FAKE_STEP_MS_FAST, simulatePlayers: false }),
+    ...options,
   });
   await built.start();
   await built.app.ready();

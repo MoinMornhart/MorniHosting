@@ -122,8 +122,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T01:02:00+01:00",
-  "now": "Phase 4 ist fertig: Marktplatz mit Modrinth, Hangar, SpigotMC und CurseForge (eigener Schlüssel), Abhängigkeiten, Prüfsummen, Updates und An/Aus. Weiter mit Phase 5: Backups, Zeitpläne und Webhooks.",
+  "updated": "2026-10-28T01:18:00+01:00",
+  "now": "Phase 5 ist fertig: Backups mit Aufbewahrung und Ein-Klick-Wiederherstellung, Zeitpläne ohne Cron mit Vorwarnung, Benachrichtigungen an Discord, Slack und Teams. Dabei einen echten Fehler beim Neustart behoben. Weiter mit Phase 6: Benutzer, Rollen, API-Zugänge und Protokoll.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -157,12 +157,12 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Phase 5 · Backups, Zeitpläne, Webhooks",
-      "status": "laeuft",
-      "detail": "Backups mit Aufbewahrung, Zeitpläne ohne Cron, Discord zuerst."
+      "status": "fertig",
+      "detail": "Backups (ZIP, Welt wird vorher gespeichert, Ausschlüsse, Aufbewahrung, Download, Wiederherstellen mit Sicherheits-Backup), Zeitpläne ohne Cron (Vorlagen, Wochentage, Vorwarnung im Chat), Webhooks für Discord, Slack, Teams und eigene Adressen (verschlüsselt gespeichert, kein Zugriff aufs Heimnetz). Neustart-Fehler behoben. 126 Tests."
     },
     {
       "title": "Phase 6 · Benutzer, Rollen, API",
-      "status": "offen",
+      "status": "laeuft",
       "detail": "Rechte pro Server, Audit-Log, API-Tokens, OpenAPI."
     },
     {
@@ -172,6 +172,26 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p5-backups.webp",
+      "caption": "Phase 5 · Backups: ein Klick zum Sichern, einer zum Wiederherstellen",
+      "time": "2026-10-28T01:18:00+01:00"
+    },
+    {
+      "img": "progress/p5-schedules.webp",
+      "caption": "Phase 5 · Zeitpläne mit Schnellvorlagen, ganz ohne Cron",
+      "time": "2026-10-28T01:18:00+01:00"
+    },
+    {
+      "img": "progress/p5-schedule-dialog.webp",
+      "caption": "Phase 5 · Zeitplan anlegen: was, wann, Spieler vorwarnen",
+      "time": "2026-10-28T01:18:00+01:00"
+    },
+    {
+      "img": "progress/p5-webhook-dialog.webp",
+      "caption": "Phase 5 · Benachrichtigungen an Discord, Slack oder Teams",
+      "time": "2026-10-28T01:18:00+01:00"
+    },
     {
       "img": "progress/p4-installed.webp",
       "caption": "Phase 4 · Installierte Plugins: Quelle, Abhängigkeit, An/Aus, Updates",
@@ -211,48 +231,28 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p3-settings-phone.webp",
       "caption": "Phase 3 · Einstellungen auf dem Handy",
       "time": "2026-10-28T00:45:00+01:00"
-    },
-    {
-      "img": "progress/p2-server-overview.webp",
-      "caption": "Phase 2 · Server-Übersicht mit IP-Karte, Kennzahlen und Konsole",
-      "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
-      "img": "progress/p2-console.webp",
-      "caption": "Phase 2 · Live-Konsole mit Farben und Befehls-Ergänzung",
-      "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
-      "img": "progress/p2-crash-helper.webp",
-      "caption": "Phase 2 · Absturz-Helfer: zu wenig RAM, mit Knopf zur Lösung",
-      "time": "2026-10-28T00:12:00+01:00"
-    },
-    {
-      "img": "progress/p2-import.webp",
-      "caption": "Phase 2 · Import: Paper 1.21.4 mit Welt und 2 Plugins erkannt",
-      "time": "2026-10-28T00:12:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/market/ (Modrinth, Hangar, Spiget, CurseForge, sicherer Download, Dienst, Routen)"
+      "path": "apps/server/src/backups/, schedules/, webhooks/"
     },
     {
       "tag": "neu",
-      "path": "apps/web/src/features/servers/content/ (Installiert, Marktplatz, Versionen)"
+      "path": "apps/server/src/lib/net-guard.ts (Schutz vor Anfragen ins Heimnetz)"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/lib/locks.ts, lib/multipart.ts"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/server/test/market.test.ts"
+      "path": "apps/web/src/features/servers/backups/, schedules/, features/admin/NotificationsPage.tsx"
     },
     {
       "tag": "geändert",
-      "path": "packages/shared/src/api.ts (Marktplatz-Typen)"
+      "path": "apps/server/src/servers/service.ts (Neustart wurde als Absturz gewertet)"
+    },
+    {
+      "tag": "neu",
+      "path": "apps/server/test/backups.test.ts"
     }
   ]
 }

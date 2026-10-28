@@ -34,21 +34,30 @@ import { HTTP_BAD_REQUEST, HTTP_INTERNAL, HTTP_NOT_FOUND, HTTP_TOO_MANY } from '
 import { BYTES_PER_MB, MS_PER_HOUR, MS_PER_SECOND } from './lib/units.js';
 import { registerFileRoutes } from './files/routes.js';
 import { createFileService } from './files/service.js';
+import { registerBackupRoutes } from './backups/routes.js';
+import { createBackupService } from './backups/service.js';
 import { registerMarketRoutes } from './market/routes.js';
 import { createMarketService } from './market/service.js';
 import { registerImportRoutes } from './servers/import-routes.js';
 import { registerServerRoutes } from './servers/routes.js';
 import { createServerService, type ServerService } from './servers/service.js';
+import { registerScheduleRoutes } from './schedules/routes.js';
+import { createScheduleService } from './schedules/service.js';
 import { createSettingsService } from './settings/service.js';
 import { sampleHostCpu } from './system/host.js';
 import { createAccessService } from './users/access.js';
+import { registerWebhookRoutes } from './webhooks/routes.js';
+import { createWebhookService } from './webhooks/service.js';
 import { registerWebSocket } from './ws.js';
+import type { Resolver } from './lib/net-guard.js';
 
 export interface BuildOptions {
   readonly config: Config;
   /** Inject a driver (tests); otherwise chosen by MH_DOCKER_DRIVER. */
   readonly docker?: DockerDriver;
   readonly logger?: boolean;
+  /** DNS lookup for webhook targets (tests answer without a network). */
+  readonly resolver?: Resolver;
 }
 
 export interface BuiltApp {
@@ -119,6 +128,9 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   };
   const servers = createServerService(ctx);
   const files = createFileService(config);
+  const backups = createBackupService(ctx, servers);
+  const schedules = createScheduleService(ctx, servers, backups);
+  const webhooks = createWebhookService(ctx, options.resolver);
 
   await app.register(helmet, {
     contentSecurityPolicy: {
@@ -194,6 +206,9 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerImportRoutes(app, ctx, servers);
   registerFileRoutes(app, ctx, servers, files);
   registerMarketRoutes(app, ctx, servers, createMarketService(ctx, servers, files));
+  registerBackupRoutes(app, ctx, servers, backups);
+  registerScheduleRoutes(app, ctx, servers, schedules);
+  registerWebhookRoutes(app, webhooks);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));
@@ -219,10 +234,14 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       intervals.push(setInterval(() => ctx.sessions.purgeExpired(), MS_PER_HOUR));
       files.purgeOld();
       intervals.push(setInterval(() => files.purgeOld(), MS_PER_HOUR));
+      backups.init();
+      webhooks.init();
       await servers.init();
+      schedules.init();
     },
     stop: async () => {
       intervals.forEach(clearInterval);
+      schedules.shutdown();
       servers.shutdown();
       ctx.docker.close();
       await app.close();

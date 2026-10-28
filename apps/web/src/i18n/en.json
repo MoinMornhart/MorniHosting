@@ -435,8 +435,8 @@
     "backup_not_found": "This backup does not exist.",
     "invalid_interval": "This interval is not possible.",
     "command_required": "Please enter a command.",
-    "webhook_host_not_allowed": "This address does not match the selected service.",
-    "webhook_private_address": "Webhooks to addresses in your own network are not allowed.",
+    "webhook_host_not_allowed": "This address does not fit the chosen service. Copy the webhook URL straight from the service.",
+    "webhook_private_address": "Addresses in your own network are not allowed for security reasons.",
     "username_taken": "This username already exists.",
     "last_admin": "The last administrator cannot be removed.",
     "cannot_delete_self": "You cannot delete yourself.",
@@ -459,7 +459,9 @@
     "world_invalid": "The ZIP file contains no Minecraft world (level.dat is missing).",
     "missing_permission": "You are missing the “{{permission}}” right on this server.",
     "content_already_installed": "“{{name}}” is already installed (file {{file}}). The same plugin twice leads to errors.",
-    "content_up_to_date": "This is already the newest fitting version."
+    "content_up_to_date": "This is already the newest fitting version.",
+    "backup_failed": "The safety backup did not work, so nothing was restored.",
+    "webhook_unresolvable": "The address {{host}} was not found."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -975,5 +977,155 @@
       "alpha": "Alpha"
     },
     "notFitWarning": "This version is not made for your Minecraft version. It can cause errors or crashes."
+  },
+  "backups": {
+    "create": "Create backup now",
+    "running": "Backup running …",
+    "started": "Backup started. Depending on the world size this can take a few minutes.",
+    "automatic": "Back up automatically",
+    "storage": "Backups use {{used}} · free: {{free}}",
+    "emptyTitle": "No backups yet",
+    "emptyText": "A backup is a copy of your server with world, plugins and settings. With it you can always go back.",
+    "kind": {
+      "manual": "Manual",
+      "scheduled": "Automatic",
+      "before-restore": "Before restore"
+    },
+    "failed": "Failed",
+    "interrupted": "Cancelled because the panel restarted.",
+    "restored": "Backup from {{when}} is restored",
+    "restoreTitle": "Restore backup from {{when}}?",
+    "restoreText": "The current files are saved as a safety backup first. Then the backup is restored.",
+    "restoreTextRunning": "The server is stopped for this. The current files are saved as a safety backup first, then the backup is restored and the server starts again.",
+    "deleteTitle": "Delete backup?",
+    "deleteText": "The backup is deleted for good.",
+    "settingsTitle": "Settings",
+    "settingsText": "Older backups are deleted automatically so the disk does not fill up.",
+    "keep": "Keep",
+    "keepN_one": "The newest backup",
+    "keepN_other": "The newest {{count}} backups",
+    "exclude": "Do not back up",
+    "excludeNone": "Everything is backed up.",
+    "excludePlaceholder": "e.g. logs/ or *.log",
+    "addExclude": "Add",
+    "removeExclude": "Back up {{pattern}} again",
+    "excludeHint": "Folders with a trailing / (logs/), file types with a star (*.log). You rarely need logs and cache."
+  },
+  "schedules": {
+    "new": "New schedule",
+    "newTitle": "New schedule",
+    "editTitle": "Edit schedule",
+    "dialogText": "What should happen and when? The server then does it on its own.",
+    "what": "What should happen?",
+    "when": "When?",
+    "actions": {
+      "restart": "Restart",
+      "backup": "Backup",
+      "command": "Command",
+      "start": "Start",
+      "stop": "Stop"
+    },
+    "kinds": {
+      "interval": "Repeating",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "every": {
+      "minutes_one": "Every minute",
+      "minutes_other": "Every {{count}} minutes",
+      "hours_one": "Every hour",
+      "hours_other": "Every {{count}} hours"
+    },
+    "dailyAt": "Daily at {{time}}",
+    "weeklyAt": "{{days}} at {{time}}",
+    "monthlyAt": "On day {{day}} of every month at {{time}}",
+    "days": "Weekdays",
+    "dayOfMonth": "Day of the month",
+    "dayN": "Day {{day}}",
+    "time": "Time",
+    "command": "Command",
+    "commandHint": "A console command without a slash, e.g. say Hello or weather clear.",
+    "warn": "Warn players first",
+    "warnNone": "Don't warn",
+    "warnN_one": "1 minute before, in chat",
+    "warnN_other": "{{count}} minutes before, in chat",
+    "warnShort_one": "Warning 1 min before",
+    "warnShort_other": "Warning {{count}} min before",
+    "presets": "Quick templates",
+    "preset": {
+      "nightlyRestart": "Daily restart at 4 am",
+      "backupEvery6h": "Backup every 6 hours",
+      "nightlyBackup": "Nightly backup at 3:30"
+    },
+    "saved": "Schedule “{{name}}” saved",
+    "runNow": "Run now",
+    "ranOk": "“{{name}}” was run",
+    "ranFailed": "“{{name}}” did not work (is the server running?)",
+    "next": "Next {{when}}",
+    "last": "Last {{when}}",
+    "lastFailed": "Last failed {{when}}",
+    "enabledFor": "{{name}} on or off",
+    "emptyTitle": "No schedules yet",
+    "emptyText": "Let the server restart at night or back up regularly, no cron needed. Pick a quick template or create your own schedule.",
+    "timezoneNote": "Times are in the panel's time zone.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteText": "The schedule will no longer run."
+  },
+  "webhooks": {
+    "title": "Notifications",
+    "subtitle": "Messages to Discord, Slack or Teams when a server starts, crashes or a backup is done.",
+    "new": "New notification",
+    "newTitle": "New notification",
+    "editTitle": "Edit notification",
+    "dialogText": "Choose where messages go and for which events.",
+    "kind": "Service",
+    "generic": "Own address",
+    "url": "Webhook address",
+    "urlKeep": "Leave empty to keep the current address ({{host}}).",
+    "howTo": {
+      "discord": "In Discord: Server settings → Integrations → Webhooks → New webhook → “Copy webhook URL”.",
+      "slack": "In Slack: add the “Incoming Webhooks” app, choose a channel and copy the webhook URL.",
+      "teams": "In Teams: channel → Workflows → “Post to a channel when a webhook request is received” and copy the URL.",
+      "generic": "An HTTPS address we send JSON to (e.g. for your own scripts or Home Assistant)."
+    },
+    "placeholder": {
+      "discord": "https://discord.com/api/webhooks/…",
+      "slack": "https://hooks.slack.com/services/…",
+      "teams": "https://….webhook.office.com/…",
+      "generic": "https://example.com/minecraft-hook"
+    },
+    "events": "For which events?",
+    "event": {
+      "server": {
+        "started": "Server started",
+        "stopped": "Server stopped",
+        "crashed": "Server crashed"
+      },
+      "backup": {
+        "done": "Backup done",
+        "failed": "Backup failed"
+      },
+      "player": {
+        "joined": "Player joined",
+        "left": "Player left"
+      }
+    },
+    "servers": "For which servers?",
+    "allServers": "All servers",
+    "eventCount_one": "1 event",
+    "eventCount_other": "{{count}} events",
+    "test": "Test",
+    "testOk": "Test message arrived",
+    "testFailed": "The service rejected the message (error {{status}}). Is the address right?",
+    "testUnreachable": "The service could not be reached.",
+    "lastOk": "Last sent {{when}}",
+    "lastFailed": "Error {{status}}",
+    "saved": "“{{name}}” saved",
+    "enabledFor": "{{name}} on or off",
+    "emptyTitle": "No notifications yet",
+    "emptyText": "Connect Discord, Slack or Teams and know right away when a server crashes.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteText": "No more messages will be sent there."
   }
 }
