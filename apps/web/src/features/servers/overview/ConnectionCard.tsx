@@ -4,6 +4,7 @@ import {
   CircleHelp,
   CircleX,
   ExternalLink,
+  Home,
   Link2,
   RefreshCw,
   Mic,
@@ -63,6 +64,9 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
   const sharePort = data.domain ? data.sharePort : data.port;
   const shareAddress = host ? withPort(host, sharePort, defaultPort) : null;
   const voicePort = server.voicePublicPort ?? server.voicePort;
+  // From home the public IP usually does not loop back through the router: show the LAN address too.
+  const homeAddress = data.lanIp ? withPort(data.lanIp, data.port, defaultPort) : null;
+  const showHome = data.viewerAtHome === true && homeAddress !== null && homeAddress !== shareAddress;
   // Through NetBird, Bedrock players have their own name and the port NetBird assigned.
   const bedrock = server.netbird?.services.find((s) => s.purpose === 'geyser');
   const bedrockHost = bedrock?.domain ?? host;
@@ -119,6 +123,14 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
             </Button>
           </div>
         )}
+        {showHome ? (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-[12px] bg-primary/10 px-3 py-2 text-sm">
+            <Home className="size-4 text-primary" aria-hidden />
+            <span>{t('connection.atHome')}</span>
+            <b className="font-mono">{homeAddress}</b>
+            <CopyButton text={homeAddress} className="size-7" toastText={t('card.addressCopied')} />
+          </div>
+        ) : null}
         {server.geyser && bedrockPort && bedrockHost ? (
           <div className="flex flex-wrap items-center gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px]">
             <Smartphone className="size-4 text-primary" aria-hidden />

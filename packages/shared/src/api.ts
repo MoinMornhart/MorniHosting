@@ -280,6 +280,8 @@ export interface ConnectionInfo {
   readonly sharePort: number;
   readonly protocol: 'tcp' | 'udp';
   readonly reachable: ReachabilityResult | null;
+  /** The person looking at the page is in the same home network: they join via the LAN address. */
+  readonly viewerAtHome?: boolean;
 }
 
 export interface ReachabilityResult {
