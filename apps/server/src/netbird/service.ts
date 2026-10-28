@@ -1,6 +1,5 @@
 import { and, eq, isNull, ne } from 'drizzle-orm';
 import {
-  NETBIRD_DEFAULT_API,
   SOFTWARE,
   type NetbirdConfigInput,
   type NetbirdDiscovery,
@@ -247,7 +246,7 @@ export function createNetbirdAutomation(
     const cfg = config();
     return {
       configured: cfg !== null,
-      apiUrl: cfg?.apiUrl ?? NETBIRD_DEFAULT_API,
+      apiUrl: cfg?.apiUrl ?? ctx.config.netbirdApi,
       domain: cfg?.domain ?? null,
       peerId: cfg?.peerId ?? null,
       peerName: cfg?.peerName ?? null,
@@ -264,7 +263,7 @@ export function createNetbirdAutomation(
     return token;
   };
   const clientFromInput = (input: { apiUrl?: string; token?: string }): NetbirdClient =>
-    clientFactory(input.apiUrl ?? config()?.apiUrl ?? NETBIRD_DEFAULT_API, tokenFor(input));
+    clientFactory(input.apiUrl ?? config()?.apiUrl ?? ctx.config.netbirdApi, tokenFor(input));
 
   // A server gets its address before the answer to "create" goes out, later changes follow on their own.
   servers.onCreated((id) => (serverRow(id)?.netbirdName ? syncQuietly(id) : Promise.resolve()));

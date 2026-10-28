@@ -11,6 +11,7 @@ import { HTTP_BAD_GATEWAY, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } f
 
 const MESSAGE_MAX = 200;
 const AUTH_FAILURES: readonly number[] = [HTTP_UNAUTHORIZED, HTTP_FORBIDDEN];
+const UNKNOWN_TOKEN = 'invalid token';
 
 const domainSchema = z.object({
   id: z.string(),
@@ -80,16 +81,23 @@ function serviceBody(request: NetbirdServiceRequest): Record<string, unknown> {
   };
 }
 
-/** NetBird's own words when it refuses something (e.g. "domain already in use"), kept short. */
-async function rejection(response: Response): Promise<AppError> {
+/**
+ * NetBird's own words when it refuses something (e.g. "domain already in use"), kept short.
+ * A well-formed key that this NetBird does not know comes back as 404 "invalid token: pat: … not found":
+ * it was made on another NetBird server (self-hosted) or has been deleted.
+ */
+async function rejection(response: Response, host: string): Promise<AppError> {
   if (AUTH_FAILURES.includes(response.status)) return new AppError(HTTP_BAD_GATEWAY, 'netbird_unauthorized');
   const parsed = errorSchema.safeParse(await response.json().catch(() => null));
   const message = parsed.success ? parsed.data.message.slice(0, MESSAGE_MAX) : `HTTP ${response.status}`;
+  if (response.status === HTTP_NOT_FOUND && message.toLowerCase().startsWith(UNKNOWN_TOKEN))
+    return new AppError(HTTP_BAD_GATEWAY, 'netbird_token_unknown', { host });
   return new AppError(HTTP_BAD_GATEWAY, 'netbird_rejected', { message });
 }
 
 export const createNetbirdClient: NetbirdClientFactory = (apiUrl, token) => {
-  const base = `${new URL(apiUrl).origin}/api`;
+  const { origin, host } = new URL(apiUrl);
+  const base = `${origin}/api`;
   const call = async (method: string, path: string, body?: unknown): Promise<Response> => {
     try {
       return await fetchResponse(`${base}${path}`, {
@@ -104,7 +112,7 @@ export const createNetbirdClient: NetbirdClientFactory = (apiUrl, token) => {
   };
   const json = async <TValue>(schema: z.ZodType<TValue>, method: string, path: string, body?: unknown) => {
     const response = await call(method, path, body);
-    if (!response.ok) throw await rejection(response);
+    if (!response.ok) throw await rejection(response, host);
     return schema.parse(await response.json());
   };
   return {
@@ -117,7 +125,7 @@ export const createNetbirdClient: NetbirdClientFactory = (apiUrl, token) => {
       json(serviceSchema, 'PUT', `/reverse-proxies/services/${encodeURIComponent(id)}`, serviceBody(request)),
     deleteService: async (id) => {
       const response = await call('DELETE', `/reverse-proxies/services/${encodeURIComponent(id)}`);
-      if (!response.ok && response.status !== HTTP_NOT_FOUND) throw await rejection(response);
+      if (!response.ok && response.status !== HTTP_NOT_FOUND) throw await rejection(response, host);
     },
   };
 };

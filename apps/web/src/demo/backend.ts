@@ -140,7 +140,7 @@ const state = {
     available: true,
     notes:
       '## Neu\n- Anmelden mit Passkey\n- Admin-Bereich mit Domain, Updates und Passwörtern\n\n## Verbessert\n- Statistik zeigt auch TPS',
-    url: 'https://github.com/MoinMornhart/MorniHosting/releases',
+    url: 'https://github.com/pmornhart/MorniHosting/releases',
     checkedAt: nowIso(),
     canSelfUpdate: true,
     updating: false,
@@ -470,6 +470,30 @@ function setVoiceChat(id: string, body: Readonly<Record<string, unknown>>): Repl
   } satisfies VoiceChatResult);
 }
 
+/* ---------- Linked Minecraft account ---------- */
+
+// A Java name as Mojang accepts it: "Philip_MC" matches; "ab" and "Finn 2015" do not.
+// https://regex101.com/?flavor=javascript&regex=%5E%5BA-Za-z0-9_%5D%7B3%2C16%7D%24&flags=gm&testString=Philip_MC%0Aab%0AFinn%202015
+const JAVA_NAME = /^[A-Za-z0-9_]{3,16}$/;
+const UUID_HEX = 32;
+const HEX = 16;
+
+/** Links (or with null unlinks) the demo user's Minecraft account; the uuid is made up from the name. */
+function linkMinecraft(name: string | null): Reply {
+  if (name !== null && !JAVA_NAME.test(name)) return error(404, 'player_unknown');
+  const hex = Array.from(name ?? '', (c) => c.charCodeAt(0).toString(HEX))
+    .join('')
+    .padEnd(UUID_HEX, '0')
+    .slice(0, UUID_HEX);
+  const uuid = [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join(
+    '-',
+  );
+  state.users = state.users.map((u) =>
+    u.id === state.userId ? { ...u, minecraft: name ? { name, uuid } : null } : u,
+  );
+  return ok({ user: meNow()?.user });
+}
+
 /* ---------- NetBird automation (pretend account with one domain) ---------- */
 
 const DEMO_DOMAIN = 'moinmornhart.de';
@@ -637,6 +661,8 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/account/passkeys', () => ok(state.passkeys.get(state.userId ?? -1) ?? [])],
+  ['PUT', '/api/account/minecraft', ({ body }) => linkMinecraft(String(body['name'] ?? ''))],
+  ['DELETE', '/api/account/minecraft', () => linkMinecraft(null)],
   ['POST', '/api/account/passkeys/options', () => ok({ challenge: randomText(32) })],
   [
     'POST',
@@ -728,6 +754,7 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
         displayName: String(body['displayName'] ?? ''),
         isAdmin: body['isAdmin'] === true,
         canCreateServers: body['isAdmin'] === true || body['canCreateServers'] === true,
+        minecraft: null,
         locale: 'de',
         theme: 'dark',
         totpEnabled: false,

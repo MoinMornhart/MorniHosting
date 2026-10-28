@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { Pill } from '@/components/ui/pill';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { NetbirdNameInput } from '@/features/netbird/NetbirdNameInput';
 import { netbirdStatusQuery } from '@/features/netbird/netbird';
@@ -40,12 +40,17 @@ function ConnectForm({
   const [apiUrl, setApiUrl] = useState(status.apiUrl);
   const [domain, setDomain] = useState('');
   const [peerId, setPeerId] = useState('');
+  // Another NetBird server than NetBird Cloud: open the address field right away.
+  const [ownServer, setOwnServer] = useState(status.apiUrl !== NETBIRD_DEFAULT_API);
   const body = { apiUrl: apiUrl.trim(), ...(token.trim() ? { token: token.trim() } : {}) };
   const discover = useMutation({
     mutationFn: () => api<NetbirdDiscovery>('/api/netbird/discover', { method: 'POST', body }),
     onSuccess: (found) => {
       setDomain(preferredDomain(found, status.domain));
       setPeerId(status.peerId ?? found.suggestedPeerId ?? found.peers[0]?.id ?? '');
+    },
+    onError: (err) => {
+      if (err instanceof ApiError && err.code === 'netbird_token_unknown') setOwnServer(true);
     },
   });
   const save = useMutation({
@@ -75,7 +80,7 @@ function ConnectForm({
           onChange={(e) => setToken(e.target.value)}
         />
       </Field>
-      <details className="text-sm">
+      <details className="text-sm" open={ownServer} onToggle={(e) => setOwnServer(e.currentTarget.open)}>
         <summary className="cursor-pointer font-semibold text-muted-foreground">
           {t('netbirdAuto.ownServer')}
         </summary>

@@ -54,5 +54,7 @@ export function toUserInfo(row: UserRow): UserInfo {
     createdAt: row.createdAt,
     lastLoginAt: row.lastLoginAt,
     disabled: row.disabled,
+    minecraft:
+      row.minecraftName && row.minecraftUuid ? { name: row.minecraftName, uuid: row.minecraftUuid } : null,
   };
 }

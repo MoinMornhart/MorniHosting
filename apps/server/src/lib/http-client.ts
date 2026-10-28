@@ -25,10 +25,10 @@ export class UpstreamError extends Error {
   }
 }
 
-const state = { userAgent: 'MorniHosting (+https://github.com/MoinMornhart/MorniHosting)' };
+const state = { userAgent: 'MorniHosting (+https://github.com/pmornhart/MorniHosting)' };
 
 export function setUserAgent(version: string): void {
-  state.userAgent = `MorniHosting/${version} (+https://github.com/MoinMornhart/MorniHosting)`;
+  state.userAgent = `MorniHosting/${version} (+https://github.com/pmornhart/MorniHosting)`;
 }
 
 export async function fetchResponse(url: string, options: FetchOptions = {}): Promise<Response> {

@@ -2,7 +2,7 @@
 # MorniHosting – Proxmox-Quick-Start (Stil der community-scripts.org).
 # Auf dem Proxmox-Host in der Shell ausführen:
 #
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/proxmox/mornihosting.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/pmornhart/MorniHosting/main/proxmox/mornihosting.sh)"
 #
 # Legt einen Debian-12-LXC-Container an (unprivilegiert, Nesting für Docker, Netzwerk-Gerät für
 # NetBird), installiert darin MorniHosting mit install.sh und zeigt am Ende die Adresse des Panels.
@@ -14,7 +14,7 @@
 set -Eeuo pipefail
 
 APP="MorniHosting"
-INSTALL_URL="${MH_INSTALL_URL:-https://raw.githubusercontent.com/MoinMornhart/MorniHosting/main/install.sh}"
+INSTALL_URL="${MH_INSTALL_URL:-https://raw.githubusercontent.com/pmornhart/MorniHosting/main/install.sh}"
 
 GN=$'\e[32m'
 YW=$'\e[33m'
@@ -153,6 +153,8 @@ if [[ -n "${NETBIRD_SETUP_KEY}" ]]; then
   if pct exec "${CTID}" -- bash -c "curl -fsSL ${NETBIRD_INSTALL_URL} | sh" >/dev/null 2>&1 &&
     pct exec "${CTID}" -- netbird up --setup-key "${NETBIRD_SETUP_KEY}" >/dev/null 2>&1; then
     NETBIRD_OK="yes"
+    # Das Panel merkt sich, mit welchem NetBird-Server der Container verbunden ist (Cloud oder selbst betrieben).
+    pct exec "${CTID}" -- bash -c "cd /opt/mornihosting && bash scripts/netbird-env.sh >/dev/null && docker compose up -d >/dev/null" || true
     msg_ok "NetBird verbunden – im NetBird-Dashboard heißt dieser Rechner ${CT_HOSTNAME}"
   else
     msg_error "NetBird ließ sich nicht einrichten. Später im Container: netbird up --setup-key <KEY>"

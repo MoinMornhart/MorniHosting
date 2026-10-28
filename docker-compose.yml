@@ -3,7 +3,7 @@ name: mornihosting
 
 services:
   panel:
-    image: ghcr.io/moinmornhart/mornihosting:${MH_IMAGE_TAG:-latest}
+    image: ghcr.io/pmornhart/mornihosting:${MH_IMAGE_TAG:-latest}
     build:
       context: .
       args:

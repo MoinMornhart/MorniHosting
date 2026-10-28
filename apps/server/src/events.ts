@@ -7,6 +7,8 @@ export interface PanelEvents {
   'server.log': { serverId: string; line: string };
   'server.crashed': { serverId: string; crash: CrashInfo };
   'server.deleted': { serverId: string };
+  /** Who may do what changed: roles, admin rights, a user locked, deleted or a Minecraft account linked. */
+  'access.changed': { userId: number | null };
   'player.joined': { serverId: string; player: string };
   'player.left': { serverId: string; player: string };
   'backup.done': { serverId: string; backupId: number; sizeBytes: number };

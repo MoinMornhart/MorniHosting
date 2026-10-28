@@ -56,6 +56,10 @@ export const passwordSchema = z.string().min(PASSWORD_MIN).max(PASSWORD_MAX);
 export const totpCodeSchema = z.string().trim().regex(TOTP_PATTERN);
 export const hostnameSchema = z.string().trim().max(DOMAIN_MAX).regex(HOSTNAME_PATTERN);
 export const playerNameSchema = z.string().trim().regex(PLAYER_PATTERN);
+// Java account names: 3 to 16 letters, digits or underscores. Matches "Lena_Baut"; rejects "ab", "Finn 2015", "Name!".
+// https://regex101.com/?flavor=javascript&regex=%5E%5BA-Za-z0-9_%5D%7B3%2C16%7D%24&flags=gm&testString=Lena_Baut%0Aab%0AFinn%202015%0AName!
+const JAVA_NAME_PATTERN = /^[A-Za-z0-9_]{3,16}$/;
+export const minecraftLinkSchema = z.object({ name: z.string().trim().regex(JAVA_NAME_PATTERN) });
 export const portSchema = z.number().int().min(PORT_MIN).max(PORT_MAX);
 export const memorySchema = z.number().int().min(MEMORY_MIN_MB).max(MEMORY_MAX_MB);
 
@@ -117,6 +121,13 @@ export interface UserInfo {
   readonly createdAt: string;
   readonly lastLoginAt: string | null;
   readonly disabled: boolean;
+  /** The linked Minecraft (Java) account: its head is shown, and on servers the user owns they are OP. */
+  readonly minecraft: MinecraftAccount | null;
+}
+
+export interface MinecraftAccount {
+  readonly name: string;
+  readonly uuid: string;
 }
 
 export interface MeResponse {
