@@ -15,7 +15,7 @@ import type { FileToDownload } from './types.js';
  * hosts of the four marketplaces, a size cap while streaming, and the hash checked when the API gave one.
  */
 
-export const DOWNLOAD_HOSTS: ReadonlySet<string> = new Set([
+const DOWNLOAD_HOSTS: ReadonlySet<string> = new Set([
   'cdn.modrinth.com',
   'hangarcdn.papermc.io',
   'hangar.papermc.io',

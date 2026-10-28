@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T08:32:57+00:00",
-  "now": "Minecraft-Konto und NetBird-Schlüssel-Hilfe sind fertig und geprüft. Jetzt: Commit, PR und Merge nach main.",
+  "updated": "2026-10-28T09:04:47+00:00",
+  "now": "Feste NetBird-Ports und alle Repo-Check-Issues sind fertig und geprüft. Jetzt: Commit, PR und Merge nach main.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -214,6 +214,16 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Fehler behoben · NetBird-Schlüssel „not found“",
       "status": "fertig",
       "detail": "Dein Schlüssel ist richtig aufgebaut, aber NetBird Cloud (api.netbird.io) kennt ihn nicht – das passiert, wenn er auf einem selbst betriebenen NetBird angelegt wurde oder gelöscht ist. Das Panel erklärt das jetzt und öffnet das Feld für die eigene NetBird-Adresse. Läuft NetBird auf dem Rechner mit MorniHosting, übernimmt das Panel dessen Adresse bei jedem Update selbst. Gegen das echte NetBird geprüft, 172 Tests."
+    },
+    {
+      "title": "Fehler behoben · Server über selbst betriebenes NetBird offline",
+      "status": "fertig",
+      "detail": "reich.moinmornhart.de:23150 war offline, weil dein NetBird-Proxy (netbird.morncloud.de) nur Port 443 durchlässt. Jetzt nimmt das Panel nach außen denselben Port wie der Server (25565 …), wenn dein Proxy das erlaubt, und zeigt im Admin-Bereich genau, welche Ports du im netbird-proxy und in der Firewall freigeben musst."
+    },
+    {
+      "title": "Repo-Check: Sicherheitslücken, Geheimnisse, Befunde, Updates",
+      "status": "fertig",
+      "detail": "15 Sicherheitslücken behoben (pnpm audit sauber), die 4 „Geheimnisse“ sind erfundene Test-Passwörter, 30 Befunde abgearbeitet (Dockerfile, Hook, ungenutzter Code, Lieferketten-Schutz in pnpm), ESLint 10, TypeScript 6, Prettier, Playwright aktualisiert. 173 Tests, 4 Browser-Abläufe."
     }
   ],
   "shots": [
@@ -280,60 +290,48 @@ footer { color: var(--muted); font-size: 13px; }
   ],
   "files": [
     {
-      "tag": "neu",
-      "path": "scripts/netbird-env.sh (NetBird-Adresse des Rechners → .env)"
+      "tag": "geändert",
+      "path": "apps/server/src/netbird/ (feste Ports), NetbirdAutomationCard.tsx (Ports freigeben)"
     },
     {
       "tag": "geändert",
-      "path": "apps/server/src/netbird/client.ts, NetbirdAutomationCard.tsx, update.sh, install.sh, Proxmox-Skript"
+      "path": "package.json, apps/*/package.json, pnpm-lock.yaml, pnpm-workspace.yaml, .npmrc"
     },
     {
       "tag": "neu",
-      "path": "apps/server/src/minecraft/ (service.ts, routes.ts), drizzle/0004_minecraft_link.sql"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/web/src/features/admin/MinecraftAccountCard.tsx"
+      "path": ".gitleaks.toml, .fallowrc.jsonc"
     },
     {
       "tag": "geändert",
-      "path": "Kopf unten links (components/server-visuals.tsx, AppShell.tsx), Benutzer-Routen (access.changed)"
-    },
-    {
-      "tag": "neu",
-      "path": "apps/server/test/minecraft.test.ts"
-    },
-    {
-      "tag": "geändert",
-      "path": "README.md, STAND.md, Links und Image auf pmornhart"
+      "path": "Dockerfile, .claude/hooks/skills-cloud.sh, ungenutzter Code entfernt"
     }
   ],
-  "eta": "2026-10-28T10:05:00+01:00",
+  "eta": "2026-10-28T10:30:00+01:00",
   "plan": [
     {
       "status": "fertig",
       "until": "",
-      "title": "Minecraft-Konto verbinden, Kopf unten links reparieren"
+      "title": "Server offline über NetBird: feste Ports, Ports-Liste im Admin-Bereich"
     },
     {
       "status": "fertig",
       "until": "",
-      "title": "NetBird: unbekannten Schlüssel erklären, Adresse vom Rechner übernehmen"
+      "title": "Issues #10, #9, #11, #7 abgearbeitet"
     },
     {
       "status": "fertig",
       "until": "",
-      "title": "Alle Prüfungen: 172 Tests, 4 Browser-Abläufe, Lint, Typen, Build"
+      "title": "Prüfungen: 173 Tests, 4 Browser-Abläufe, Lint, Typen, Build"
     },
     {
       "status": "läuft",
-      "until": "2026-10-28T09:45:00+01:00",
-      "title": "Commit und PR"
+      "until": "2026-10-28T10:15:00+01:00",
+      "title": "Commit, PR, CI"
     },
     {
       "status": "offen",
-      "until": "2026-10-28T10:05:00+01:00",
-      "title": "CI abwarten und nach main mergen"
+      "until": "2026-10-28T10:30:00+01:00",
+      "title": "Merge nach main"
     }
   ]
 }

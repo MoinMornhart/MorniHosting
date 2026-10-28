@@ -4,7 +4,6 @@ import {
   HTTP_FORBIDDEN,
   HTTP_NOT_FOUND,
   HTTP_UNAUTHORIZED,
-  HTTP_UNAVAILABLE,
 } from './http-status.js';
 
 /**
@@ -30,11 +29,6 @@ export const forbidden = (code = 'forbidden'): AppError => new AppError(HTTP_FOR
 export const notFound = (code = 'not_found'): AppError => new AppError(HTTP_NOT_FOUND, code);
 export const conflict = (code: string, params?: Record<string, string | number>): AppError =>
   new AppError(HTTP_CONFLICT, code, params);
-export const unavailable = (
-  code: string,
-  params?: Record<string, string | number>,
-  cause?: unknown,
-): AppError => new AppError(HTTP_UNAVAILABLE, code, params, { cause });
 
 export function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);

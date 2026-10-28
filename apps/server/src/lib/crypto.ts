@@ -19,7 +19,7 @@ export interface SecretBox {
   readonly decrypt: (sealed: string) => string;
 }
 
-export class DecryptError extends Error {
+class DecryptError extends Error {
   override readonly name = 'DecryptError';
 }
 
@@ -40,7 +40,7 @@ export function createSecretBox(secret: string): SecretBox {
       const tag = raw.subarray(IV_BYTES, IV_BYTES + TAG_BYTES);
       const body = raw.subarray(IV_BYTES + TAG_BYTES);
       try {
-        const decipher = createDecipheriv(CIPHER, key, iv);
+        const decipher = createDecipheriv(CIPHER, key, iv, { authTagLength: TAG_BYTES });
         decipher.setAuthTag(tag);
         return Buffer.concat([decipher.update(body), decipher.final()]).toString('utf8');
       } catch (err) {

@@ -9,7 +9,7 @@ import type {
   ServerSummary,
 } from '@mornihosting/shared';
 import { loadConfig } from '../src/config.js';
-import { settings } from '../src/db/schema.js';
+import { netbirdServices, settings } from '../src/db/schema.js';
 import {
   authHeaders,
   createTestApp,
@@ -43,8 +43,11 @@ interface FakeService {
   targets: { target_id: string; target_type: string; protocol: string; port: number }[];
 }
 
-/** A tiny NetBird management API: domains, peers and reverse-proxy services, ports from 31000 up. */
-function createFakeNetbird() {
+/**
+ * A tiny NetBird management API: domains, peers and reverse-proxy services. Like NetBird Cloud it hands out
+ * ports from 31000 up; with `customPorts` (a self-hosted proxy) it listens where it is asked to.
+ */
+function createFakeNetbird(options: { customPorts?: boolean } = {}) {
   const services = new Map<string, FakeService>();
   const calls: { method: string; host: string; path: string; auth: string | null }[] = [];
   const next = { port: 31000, id: 1 };
@@ -65,7 +68,13 @@ function createFakeNetbird() {
       return Response.json([PEER, { ...PEER, id: 'peer-laptop', name: 'laptop' }]);
     if (url.pathname === '/api/reverse-proxies/domains') {
       return Response.json([
-        { id: 'd1', domain: BASE, validated: true, type: 'custom' },
+        {
+          id: 'd1',
+          domain: BASE,
+          validated: true,
+          type: 'custom',
+          supports_custom_ports: options.customPorts,
+        },
         { id: 'd2', domain: 'abc.netbird.app', validated: true, type: 'free' },
       ]);
     }
@@ -77,7 +86,7 @@ function createFakeNetbird() {
       const created = {
         ...body,
         id: `svc-${next.id++}`,
-        listen_port: body.mode === 'http' ? 0 : next.port++,
+        listen_port: body.mode === 'http' ? 0 : (options.customPorts && body.listen_port) || next.port++,
       };
       services.set(created.id, created);
       return Response.json(created);
@@ -268,6 +277,29 @@ describe('NetBird automation', () => {
     // Anything but an HTTPS address is ignored and NetBird Cloud stays the default.
     const plain = loadConfig({ MH_SECRET: 'x'.repeat(40), MH_NETBIRD_API: 'http://10.0.0.5' }, '0.0.0-test');
     expect(plain.netbirdApi).toBe('https://api.netbird.io');
+  });
+
+  test('a self-hosted proxy with its own ports gets the server port; older random ports move over', async () => {
+    netbird = createFakeNetbird({ customPorts: true });
+    await configure();
+    const server = await create({ netbirdName: 'reich' });
+    expect(netbird.byDomain(`reich.${BASE}`)).toMatchObject({ mode: 'tcp', listen_port: 25565 });
+    expect((await detail(server.id)).publicPort).toBe(25565);
+    const status = (await call('GET', '/api/netbird')).json<NetbirdStatus>();
+    expect(status).toMatchObject({
+      customPorts: true,
+      openPorts: [{ port: 25565, protocol: 'tcp', domain: `reich.${BASE}` }],
+    });
+
+    // A setup from before: no port rule stored yet and a random port in NetBird, like reich…:23150.
+    const stored = t.ctx.settings.getValue<Record<string, unknown>>('netbird') ?? {};
+    t.ctx.settings.setValue('netbird', { ...stored, customPorts: undefined });
+    const service = netbird.byDomain(`reich.${BASE}`);
+    if (service) service.listen_port = 23150;
+    t.ctx.db.update(netbirdServices).set({ listenPort: 23150 }).run();
+    await call('PUT', `/api/servers/${server.id}/netbird`, { name: 'reich' });
+    expect(netbird.byDomain(`reich.${BASE}`)?.listen_port).toBe(25565);
+    expect((await detail(server.id)).publicPort).toBe(25565);
   });
 
   test('a new server with a name gets its address in NetBird right away', async () => {

@@ -1,0 +1,12 @@
+# Einstellungen für den Geheimnis-Scan (gitleaks).
+# Passwörter und Schlüssel in den Tests sind erfunden und gelten nur für Wegwerf-Testinstanzen
+# (z. B. „lena-passwort-1“). Echte Geheimnisse stehen nie im Repo, nur in der .env.
+#
+# Verfasst mit Claude 🤖
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Erfundene Testdaten"
+paths = ['''^apps/server/test/''', '''^e2e/''']

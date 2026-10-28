@@ -37,6 +37,23 @@ beim Verbinden unter **Eigener NetBird-Server?** die Adresse ein, unter der du d
 die Adresse bei der Installation und bei jedem `update` selbst (aus `netbird status`). Meldet das Panel
 „… kennt diesen Schlüssel nicht“, ist genau das der Grund – oder der Schlüssel wurde in NetBird gelöscht.
 
+**Ports beim selbst betriebenen Proxy:** Der `netbird-proxy` lässt von sich aus nur Port 443 durch, jeder
+TCP/UDP-Port für Minecraft muss freigegeben werden – sonst steht der Server in der Liste als „offline“. Erlaubt
+dein Proxy eigene Ports (`supports_custom_ports`), nimmt MorniHosting nach außen denselben Port wie der Server.
+Dann reicht einmal ein Bereich:
+
+```yaml
+netbird-proxy:
+  ports:
+    - '25565-25575:25565-25575/tcp' # Java-Server
+    - '19132-19140:19132-19140/udp' # Bedrock und Geyser
+    - '24454-24460:24454-24460/udp' # Voice-Chat
+```
+
+Danach `docker compose up -d` und dieselben Ports in der Firewall des NetBird-Servers öffnen (Cloud-Panel des
+Anbieters oder `ufw allow 25565:25575/tcp`). Alternativ den Proxy mit `network_mode: host` betreiben. Welche
+Ports gerade gebraucht werden, zeigt das Panel unter **Admin-Bereich → NetBird**.
+
 **Trennen** (Admin-Bereich → NetBird) löscht die Dienste der Server in NetBird wieder; die Panel-Adresse bleibt,
 damit du dich nicht aussperrst.
 

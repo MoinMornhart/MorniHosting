@@ -60,16 +60,6 @@ function cpuPercent(stats: Docker.ContainerStats): number {
   return (cpuDelta / systemDelta) * cpus * PERCENT;
 }
 
-async function readAll(stream: Readable): Promise<string> {
-  const chunks: Buffer[] = [];
-  stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-  await new Promise<void>((resolve, reject) => {
-    stream.on('end', resolve);
-    stream.on('error', reject);
-  });
-  return Buffer.concat(chunks).toString('utf8');
-}
-
 export function createDockerDriver(config: Config): DockerDriver {
   const docker = new Docker(connectionOptions(config.dockerHost));
   const cleanups = new Set<() => void>();
@@ -310,8 +300,4 @@ export function createDockerDriver(config: Config): DockerDriver {
     },
   };
   return driver;
-}
-
-export async function readStream(stream: Readable): Promise<string> {
-  return readAll(stream);
 }

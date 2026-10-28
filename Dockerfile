@@ -2,6 +2,9 @@
 # MorniHosting: one image with the web app and the API.
 
 FROM node:22-alpine AS build
+# Nur Bauwerkzeuge für native Module in der Bau-Stufe; ihre Versionen folgen dem Alpine-Stand des Node-Images
+# (feste apk-Versionen verschwinden aus dem Alpine-Index und würden den Bau brechen).
+# hadolint ignore=DL3018
 RUN apk add --no-cache python3 make g++ && corepack enable
 WORKDIR /src
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
@@ -31,10 +34,10 @@ WORKDIR /app
 COPY --from=build /out /app/server
 COPY --from=build /src/apps/web/dist /app/web
 # The node user (uid 1000) is the same user the Minecraft images write files as.
-RUN mkdir -p /data && chown node:node /data
-USER node
+RUN mkdir -p /data && chown 1000:1000 /data
+USER 1000:1000
 EXPOSE 8080
 VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD node -e "fetch('http://127.0.0.1:8080/api/system/status').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+  CMD ["node", "-e", "fetch('http://127.0.0.1:8080/api/system/status').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 CMD ["node", "/app/server/dist/index.js"]

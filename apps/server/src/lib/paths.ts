@@ -4,7 +4,7 @@ import { AppError } from './errors.js';
 import { HTTP_BAD_REQUEST } from './http-status.js';
 
 /** Thrown for any path that would leave the folder it belongs to (../, absolute paths, symlinks out). */
-export const outsideError = (): AppError => new AppError(HTTP_BAD_REQUEST, 'path_outside');
+const outsideError = (): AppError => new AppError(HTTP_BAD_REQUEST, 'path_outside');
 
 const NUL = '\0';
 

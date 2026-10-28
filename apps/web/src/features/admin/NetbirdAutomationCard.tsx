@@ -5,6 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { NETBIRD_DEFAULT_API, type NetbirdDiscovery, type NetbirdStatus } from '@mornihosting/shared';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -251,6 +252,40 @@ function PanelAddress({
   );
 }
 
+/** Self-hosted NetBird: its proxy only lets port 443 through until each server port is opened. */
+function SelfHostedPorts({ status }: { status: NetbirdStatus }): ReactElement {
+  const { t } = useTranslation();
+  const lines = status.openPorts.map((p) => `      - "${p.port}:${p.port}/${p.protocol}"`);
+  const compose = ['  netbird-proxy:', '    ports:', ...lines].join('\n');
+  return (
+    <div className="grid gap-2.5 rounded-[12px] border border-warning/40 bg-warning-soft px-3.5 py-3 text-sm">
+      <p className="font-semibold">{t('netbirdAuto.selfHosted.title')}</p>
+      <p>{status.customPorts ? t('netbirdAuto.selfHosted.fixed') : t('netbirdAuto.selfHosted.random')}</p>
+      {status.openPorts.length ? (
+        <>
+          <ul className="grid gap-1">
+            {status.openPorts.map((p) => (
+              <li key={`${p.port}/${p.protocol}`} className="flex flex-wrap gap-x-2 font-mono text-[13px]">
+                <b>
+                  {p.port}/{p.protocol}
+                </b>
+                <span className="text-muted-foreground">{p.domain}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex items-start gap-2 rounded-[10px] bg-background/60 px-3 py-2">
+            <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre font-mono text-[13px]">
+              {compose}
+            </pre>
+            <CopyButton text={compose} className="size-7" />
+          </div>
+        </>
+      ) : null}
+      <p className="text-[13px] text-muted-foreground">{t('netbirdAuto.selfHosted.firewall')}</p>
+    </div>
+  );
+}
+
 /** Admin area: connect NetBird once, then every server only needs a name to get its address. */
 export function NetbirdAutomationCard({ panelDomain }: { panelDomain: string }): ReactElement | null {
   const { t } = useTranslation();
@@ -297,7 +332,14 @@ export function NetbirdAutomationCard({ panelDomain }: { panelDomain: string }):
               components={{ b: <b className="font-mono font-semibold" /> }}
             />
           </p>
-          <p className="text-[13px] text-muted-foreground">{t('netbirdAuto.portNote', { domain })}</p>
+          <p className="text-[13px] text-muted-foreground">
+            {status.customPorts
+              ? t('netbirdAuto.portNoteFixed', { domain })
+              : t('netbirdAuto.portNote', { domain })}
+          </p>
+          {status.customPorts || status.apiUrl !== NETBIRD_DEFAULT_API ? (
+            <SelfHostedPorts status={status} />
+          ) : null}
           <PanelAddress status={status} domain={domain} panelDomain={panelDomain} />
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="secondary" onClick={() => setEditing(true)}>

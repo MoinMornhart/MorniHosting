@@ -47,6 +47,16 @@ export interface NetbirdStatus {
   readonly peerName: string | null;
   /** The panel's own address when the panel created its NetBird service, e.g. "panel.example.de". */
   readonly panelAddress: string | null;
+  /** The proxy uses the servers' own ports outside (self-hosted NetBird); NetBird Cloud picks its own. */
+  readonly customPorts: boolean;
+  /** Outside ports of the server addresses: on a self-hosted proxy each must be let through. */
+  readonly openPorts: readonly NetbirdOpenPort[];
+}
+
+export interface NetbirdOpenPort {
+  readonly port: number;
+  readonly protocol: 'tcp' | 'udp';
+  readonly domain: string;
 }
 
 export interface NetbirdDomainOption {

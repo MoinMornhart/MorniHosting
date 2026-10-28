@@ -88,12 +88,12 @@ lauf() {
       quelle="$(find "$d" -type f -name SKILL.md -path "*/$skill/SKILL.md" -not -path '*/node_modules/*' 2>/dev/null | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2-)"
       # sonst per "name:" in der Kopfzeile
       if [[ -z "$quelle" ]]; then
-        quelle="$(grep -rlE --include=SKILL.md "^name:[[:space:]]*['\"]?$skill['\"]?[[:space:]]*$" "$d" 2>/dev/null | head -1)"
+        quelle="$(grep -rlE --include=SKILL.md "^name:[[:space:]]*['\"]?${skill}['\"]?[[:space:]]*$" "$d" 2>/dev/null | head -1)"
       fi
       # Repo hat nur einen Skill im Wurzelordner
       if [[ -z "$quelle" && -f "$d/SKILL.md" ]]; then quelle="$d/SKILL.md"; fi
       if [[ -n "$quelle" ]]; then
-        rm -rf "$ZIEL/$skill" && mkdir -p "$ZIEL/$skill" \
+        rm -rf "${ZIEL:?}/${skill:?}" && mkdir -p "$ZIEL/$skill" \
           && cp -r "$(dirname "$quelle")/." "$ZIEL/$skill/" && rm -rf "$ZIEL/$skill/.git"
       elif command -v npx >/dev/null && timeout 120 npx -y skills add "https://github.com/$repo" --skill "$skill" -a claude-code -g -y >/dev/null 2>&1; then
         :

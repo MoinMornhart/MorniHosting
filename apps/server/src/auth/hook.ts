@@ -61,7 +61,7 @@ export function servedOverHttps(ctx: AppContext, request: FastifyRequest): boole
   );
 }
 
-export function cookieSecure(ctx: AppContext, request: FastifyRequest): boolean {
+function cookieSecure(ctx: AppContext, request: FastifyRequest): boolean {
   const mode = ctx.config.cookieSecure;
   return mode === 'auto' ? servedOverHttps(ctx, request) : mode === 'true';
 }
