@@ -18,6 +18,8 @@ const domainSchema = z.object({
   domain: z.string(),
   validated: z.boolean().catch(false),
   type: z.enum(['free', 'custom']).catch('custom'),
+  /** Self-hosted proxies can listen on ports the panel picks; NetBird Cloud assigns them itself. */
+  supports_custom_ports: z.boolean().catch(false),
 });
 const peerSchema = z.object({
   id: z.string(),

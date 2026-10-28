@@ -21,6 +21,8 @@ import { createNetbirdClient, type NetbirdClient, type NetbirdClientFactory } fr
  * one reverse-proxy service per address in the admin's NetBird account. A server only needs a name;
  * "survival" becomes survival.<domain> (plus survival-bedrock and survival-voice when those are on).
  * NetBird Cloud assigns the outside ports; the panel stores them so every page shows the full address.
+ * A self-hosted proxy that allows its own ports gets the server's port instead (survival.<domain>:25565),
+ * so the admin opens one fixed range on the proxy once instead of a random port per server.
  */
 
 const SETTINGS_KEY = 'netbird';
@@ -41,6 +43,8 @@ interface StoredConfig {
   readonly domain: string;
   readonly peerId: string;
   readonly peerName: string;
+  /** The domain's proxy listens on the ports the panel asks for; unknown for setups saved before. */
+  readonly customPorts?: boolean;
 }
 
 interface Wanted {
@@ -152,21 +156,38 @@ export function createNetbirdAutomation(
       port: want.port,
       passHostHeader: want.mode === 'http',
     };
-    const same = existing?.domain === want.domain && existing.targetPort === want.port;
+    // Fixed ports: the same port outside as on the server. Otherwise NetBird's port stays once assigned.
+    const fixedPort = cfg.customPorts && want.mode !== 'http' ? want.port : null;
+    const same =
+      existing?.domain === want.domain &&
+      existing.targetPort === want.port &&
+      (fixedPort === null || existing.listenPort === fixedPort);
     if (existing && existing.mode === want.mode && same && !force) return existing;
     if (existing && existing.mode === want.mode) {
       const updated = await client.updateService(existing.id, {
         ...request,
-        listenPort: existing.listenPort,
+        listenPort: fixedPort ?? existing.listenPort,
       });
-      return remember(serverId, want, existing.id, updated.listen_port ?? existing.listenPort);
+      return remember(serverId, want, existing.id, updated.listen_port ?? fixedPort ?? existing.listenPort);
     }
     if (existing) {
       await client.deleteService(existing.id);
       forget(existing.id);
     }
-    const created = await client.createService(request);
-    return remember(serverId, want, created.id, created.listen_port ?? null);
+    const created = await client.createService({ ...request, listenPort: fixedPort });
+    return remember(serverId, want, created.id, created.listen_port ?? fixedPort);
+  };
+
+  /** Setups saved before the panel knew about fixed ports learn it once from NetBird. */
+  const withPortMode = async (cfg: StoredConfig | null): Promise<StoredConfig | null> => {
+    if (!cfg || cfg.customPorts !== undefined) return cfg;
+    const domains = await clientFor(cfg).domains();
+    const known: StoredConfig = {
+      ...cfg,
+      customPorts: domains.find((d) => d.domain.toLowerCase() === cfg.domain)?.supports_custom_ports ?? false,
+    };
+    ctx.settings.setValue(SETTINGS_KEY, known);
+    return known;
   };
 
   const addressOf = (done: readonly Mapping[]): TunnelAddress => {
@@ -185,7 +206,7 @@ export function createNetbirdAutomation(
 
   /** Brings NetBird in line with one server; a deleted server loses all its services. */
   const syncNow = async (serverId: string, force = false): Promise<void> => {
-    const cfg = config();
+    const cfg = await withPortMode(config());
     const existing = mappings(serverId);
     if (!cfg) return;
     const row = serverRow(serverId);
@@ -242,6 +263,20 @@ export function createNetbirdAutomation(
       .all()
       .filter((r) => r.netbirdName !== null);
 
+  /** Outside ports of all server addresses, e.g. for opening them on a self-hosted proxy. */
+  const openPorts = (): NetbirdStatus['openPorts'] =>
+    ctx.db
+      .select()
+      .from(netbirdServices)
+      .all()
+      .filter((m) => m.serverId !== null && m.listenPort !== null && m.mode !== 'http')
+      .map((m) => ({
+        port: m.listenPort ?? 0,
+        protocol: m.mode === 'udp' ? ('udp' as const) : ('tcp' as const),
+        domain: m.domain,
+      }))
+      .sort((a, b) => a.port - b.port);
+
   const status = (): NetbirdStatus => {
     const cfg = config();
     return {
@@ -251,6 +286,8 @@ export function createNetbirdAutomation(
       peerId: cfg?.peerId ?? null,
       peerName: cfg?.peerName ?? null,
       panelAddress: mappings(null)[0]?.domain ?? null,
+      customPorts: cfg?.customPorts ?? false,
+      openPorts: openPorts(),
     };
   };
 
@@ -286,6 +323,8 @@ export function createNetbirdAutomation(
         }
       : null;
   servers.describeNetbird(describe);
+  // After an update, addresses made under older rules (e.g. a random port on a self-hosted proxy) follow.
+  if (config()) void Promise.allSettled(namedServers().map((r) => syncQuietly(r.id)));
 
   return {
     status,
@@ -310,8 +349,8 @@ export function createNetbirdAutomation(
       const token = tokenFor(input);
       const [domains, peers] = await Promise.all([client.domains(), client.peers()]);
       const domain = input.domain.toLowerCase();
-      if (!domains.some((d) => d.domain.toLowerCase() === domain))
-        throw badRequest('netbird_domain_unknown', { domain });
+      const chosen = domains.find((d) => d.domain.toLowerCase() === domain);
+      if (!chosen) throw badRequest('netbird_domain_unknown', { domain });
       const peer = peers.find((p) => p.id === input.peerId);
       if (!peer) throw badRequest('netbird_peer_unknown');
       const previous = config();
@@ -321,9 +360,13 @@ export function createNetbirdAutomation(
         domain,
         peerId: peer.id,
         peerName: peer.name,
+        customPorts: chosen.supports_custom_ports,
       } satisfies StoredConfig);
       ctx.audit.record(actor, 'netbird.configure', null, { domain, machine: peer.name });
-      const moved = previous?.domain !== domain || previous.peerId !== peer.id;
+      const moved =
+        previous?.domain !== domain ||
+        previous.peerId !== peer.id ||
+        previous.customPorts !== chosen.supports_custom_ports;
       await Promise.allSettled(namedServers().map((r) => syncQuietly(r.id, moved)));
       return status();
     },

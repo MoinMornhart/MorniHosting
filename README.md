@@ -288,7 +288,11 @@ Den Port nach außen vergibt NetBird Cloud selbst, die Adresse sieht also so aus
 
 Betreibst du NetBird selbst, trägst du beim Verbinden unter **Eigener NetBird-Server?** die Adresse deines
 NetBird-Dashboards ein. Läuft NetBird auf dem Rechner mit MorniHosting, übernimmt das Panel sie bei jedem
-`update` selbst.
+`update` selbst. Wichtig: Der Proxy eines selbst betriebenen NetBird lässt nur Port 443 durch. Erlaubt er eigene
+Ports, nimmt MorniHosting nach außen denselben Port wie der Server (`minecraft.deine-domain.de` für 25565). Gib
+die Ports dann einmal beim Dienst `netbird-proxy` in der `docker-compose.yml` deines NetBird-Servers und in dessen
+Firewall frei, z. B. `25565-25575/tcp`, `19132-19140/udp` und `24454-24460/udp`. Die genaue Liste steht im Panel
+unter **Admin-Bereich → NetBird**.
 
 ### Von Hand
 

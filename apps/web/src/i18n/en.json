@@ -1600,6 +1600,13 @@
       "geyser": "Bedrock (Geyser):",
       "voice": "Voice chat:",
       "panel": "Panel:"
+    },
+    "portNoteFixed": "Your NetBird uses the server's own port outside, e.g. minecraft.{{domain}} for port 25565 – no port number needed.",
+    "selfHosted": {
+      "title": "Self-hosted NetBird: open the ports",
+      "fixed": "The NetBird proxy only lets port 443 through by default. Open these ports once – in your NetBird server's docker-compose.yml under the netbird-proxy service, then run “docker compose up -d”. New servers get the next free port (25566, 25567 …); easiest is to open a range right away, e.g. “25565-25575:25565-25575/tcp”.",
+      "random": "The NetBird proxy only lets port 443 through by default, and your NetBird assigns its own port per server. Open each of these ports – in your NetBird server's docker-compose.yml under the netbird-proxy service, then run “docker compose up -d”. If your proxy allows custom ports, MorniHosting uses the servers' own ports (25565 …) automatically.",
+      "firewall": "Open the same ports in the NetBird server's firewall too (e.g. in your provider's cloud panel or with “ufw allow 25565/tcp”). Alternatively run netbird-proxy with “network_mode: host”; then the list in docker-compose.yml is not needed."
     }
   },
   "minecraftAccount": {

@@ -505,6 +505,8 @@ const NOT_CONNECTED: NetbirdStatus = {
   peerId: null,
   peerName: null,
   panelAddress: null,
+  customPorts: false,
+  openPorts: [],
 };
 const netbird = { status: NOT_CONNECTED, nextPort: 31000 };
 
