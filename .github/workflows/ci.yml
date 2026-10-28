@@ -125,5 +125,11 @@ jobs:
           printf '\n\nVerfasst mit Claude 🤖\n' >> notes.md
           args=()
           if [[ "${TAG}" == *-* ]]; then args+=(--prerelease); fi
-          gh release create "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "MorniHosting ${TAG#v}" \
-            --notes-file notes.md --verify-tag "${args[@]}"
+          # Wurde das Release schon auf GitHub angelegt (Knopf „Publish release“), nur Titel und Text setzen.
+          if gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release edit "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "MorniHosting ${TAG#v}" \
+              --notes-file notes.md "${args[@]}"
+          else
+            gh release create "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "MorniHosting ${TAG#v}" \
+              --notes-file notes.md --verify-tag "${args[@]}"
+          fi
