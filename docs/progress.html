@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T07:00:01+00:00",
-  "now": "Fehler aus deinem Test behoben (Anmeldung über die NetBird-Domain) – alle Prüfungen laufen, danach main und Update-Anleitung",
+  "updated": "2026-10-28T07:05:39+00:00",
+  "now": "Fehler behoben und in main. Bei dir: Update im Container einspielen (pct enter <ID>, dann update).",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -192,8 +192,8 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Fehler behoben · Anmelden über deine NetBird-Domain",
-      "status": "laeuft",
-      "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt."
+      "status": "fertig",
+      "detail": "Ohne „Pass Host Header“ sah das Panel nur die interne Adresse und lehnte die Anmeldung ab („Anfrage von einer fremden Seite“), die Live-Verbindung brach ab. Jetzt erkennt das Panel die eigene Seite am Merkmal, das nur der Browser setzt, und die Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus. Anmeldeseite erklärt, was für Passkeys noch fehlt. 159 Tests, im Browser über einen nachgestellten NetBird-Proxy geprüft."
     }
   ],
   "shots": [
@@ -288,7 +288,7 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "README.md, docs/screenshots/, apps/web/src/demo/backend.ts"
     }
   ],
-  "eta": "2026-10-28T07:20:00Z",
+  "eta": null,
   "plan": [
     {
       "status": "done",
@@ -298,22 +298,32 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "status": "done",
       "until": "2026-10-28T06:55:00Z",
-      "title": "Anmeldung erkennt die eigene Seite am Browser-Merkmal (Test grün)"
+      "title": "Anmeldung erkennt die eigene Seite am Browser-Merkmal"
     },
     {
       "status": "done",
       "until": "2026-10-28T07:00:00Z",
-      "title": "Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus; im Browser über einen nachgebauten Proxy geprüft"
+      "title": "Live-Verbindung weist sich mit dem Sitzungs-Schlüssel aus; im Browser geprüft"
     },
     {
-      "status": "current",
-      "until": "2026-10-28T07:10:00Z",
-      "title": "Alle Prüfungen, Push, Pull Request"
+      "status": "done",
+      "until": "2026-10-28T07:05:00Z",
+      "title": "Alle Prüfungen grün, nach main übernommen"
     },
     {
       "status": "next",
-      "until": "2026-10-28T07:20:00Z",
-      "title": "Nach main übernehmen; dann bei dir: pct enter <ID> und update"
+      "until": "",
+      "title": "Update einspielen: auf dem Proxmox-Host pct enter <ID>, dann update"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "Für Passkeys: in NetBird „Pass Host Header“ an, Domain im Admin-Bereich eintragen"
+    },
+    {
+      "status": "next",
+      "until": "",
+      "title": "Release v1.0.0 auf GitHub: „Draft a new release“ → Tag v1.0.0 → „Publish release“"
     }
   ]
 }
