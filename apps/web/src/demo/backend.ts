@@ -6,6 +6,7 @@ import {
   type InstalledContent,
   type NetbirdServiceInfo,
   type DnsStatus,
+  type HttpsStatus,
   type NetbirdStatus,
   type MeResponse,
   type PanelSettings,
@@ -423,6 +424,7 @@ function connectionOf(id: string): Reply {
     domain,
     port: server.port,
     sharePort: domain && server.publicPort ? server.publicPort : server.port,
+    srv: dns.configured && Boolean(server.netbird) && server.edition === 'java',
   } satisfies ConnectionInfo);
 }
 
@@ -523,11 +525,70 @@ const NOT_CONNECTED: NetbirdStatus = {
 };
 const netbird = { status: NOT_CONNECTED, nextPort: 31000 };
 
+/* ---------- Own domain (mornihosting.de at INWX, with HTTPS) ---------- */
+
+const OWN_DOMAIN = 'mornihosting.de';
+const OWN_IP = '203.0.113.25';
+const BEDROCK_STANDARD_PORT = 19132;
+/** The recorded servers get names under the own domain, as Philip would pick them. */
+const OWN_NAMES: Readonly<Record<string, string>> = {
+  'Survival mit Freunden': 'survival',
+  'Create-Modpack': 'create',
+  'Bedrock für die Kids': 'kids',
+};
+const dns = { configured: true, https: true };
+
+function dnsStatus(): DnsStatus {
+  return {
+    configured: dns.configured,
+    provider: dns.configured ? 'inwx' : null,
+    domain: dns.configured ? OWN_DOMAIN : null,
+    ip: dns.configured ? OWN_IP : null,
+    ipCheckedAt: dns.configured ? nowIso() : null,
+    error: null,
+    netbirdActive: netbird.status.configured,
+  };
+}
+
+function httpsStatus(): HttpsStatus {
+  return { enabled: dns.https, domain: dns.configured ? OWN_DOMAIN : null, running: dns.https, error: null };
+}
+
+/** With the own domain: name.mornihosting.de on the server's own port (A record, SRV for Java). */
+function setDomainName(server: ServerDetail, name: string | null): ServerDetail | undefined {
+  if (!name)
+    return changeServer(server.id, { netbird: null, domain: null, publicPort: null, geyserPublicPort: null });
+  const host = `${name}.${OWN_DOMAIN}`;
+  const java = server.edition === 'java';
+  return changeServer(server.id, {
+    netbird: {
+      name,
+      services: [
+        { purpose: 'main', domain: host, port: server.port },
+        ...(server.geyser && server.geyserPort
+          ? [{ purpose: 'geyser', domain: host, port: server.geyserPort } as const]
+          : []),
+        ...(server.voiceChat && server.voicePort
+          ? [{ purpose: 'voice', domain: host, port: server.voicePort } as const]
+          : []),
+      ],
+      error: null,
+    },
+    domain: host,
+    publicPort: null,
+    geyserPublicPort: null,
+    voicePublicPort: null,
+    address: java || server.port === BEDROCK_STANDARD_PORT ? host : `${host}:${server.port}`,
+    voiceHost: server.voiceChat && server.voicePort ? `${host}:${server.voicePort}` : null,
+  });
+}
+
 /** Gives a server its NetBird names; outside ports are handed out like NetBird Cloud does. */
 function setNetbirdName(id: string, name: string | null): ServerDetail | undefined {
   const server = state.servers.get(id);
   const domain = netbird.status.domain;
   if (!server) return undefined;
+  if (dns.configured) return setDomainName(server, name);
   if (!name || !domain) {
     return changeServer(id, { netbird: null, domain: null, publicPort: null, geyserPublicPort: null });
   }
@@ -553,6 +614,13 @@ function setNetbirdName(id: string, name: string | null): ServerDetail | undefin
     voicePublicPort: port('voice'),
     voiceHost: server.voiceChat ? `${name}.${domain}:${port('voice')}` : null,
   });
+}
+
+/** Every recorded server gets its name under the own domain. */
+function nameAll(): void {
+  Array.from(state.servers.values()).forEach((server) =>
+    setNetbirdName(server.id, OWN_NAMES[server.name] ?? null),
+  );
 }
 
 /** After Geyser or voice chat changed, NetBird follows. */
@@ -876,22 +944,40 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/netbird', () => ok(netbird.status)],
-  // The demo shows the own-domain card unconnected: a real key would be needed for the provider.
+  // The own domain is connected from the start (mornihosting.de at INWX); disconnect and connect again works.
+  ['GET', '/api/dns', () => ok(dnsStatus())],
+  ['POST', '/api/dns/discover', () => ok({ zones: [{ id: OWN_DOMAIN, name: OWN_DOMAIN }] })],
   [
-    'GET',
+    'PUT',
     '/api/dns',
-    () =>
-      ok({
-        configured: false,
-        provider: null,
-        domain: null,
-        ip: null,
-        ipCheckedAt: null,
-        error: null,
-        netbirdActive: netbird.status.configured,
-      } satisfies DnsStatus),
+    () => {
+      if (netbird.status.configured) return error(409, 'dns_netbird_active');
+      dns.configured = true;
+      nameAll();
+      return ok(dnsStatus());
+    },
   ],
-  ['POST', '/api/dns/discover', () => error(502, 'dns_unauthorized')],
+  [
+    'DELETE',
+    '/api/dns',
+    () => {
+      Array.from(state.servers.keys()).forEach((id) => setNetbirdName(id, null));
+      dns.configured = false;
+      dns.https = false;
+      return ok(dnsStatus());
+    },
+  ],
+  ['GET', '/api/https', () => ok(httpsStatus())],
+  [
+    'PUT',
+    '/api/https',
+    ({ body }) => {
+      if (!dns.configured) return error(400, 'https_needs_domain');
+      dns.https = body['enabled'] === true;
+      if (dns.https) state.settings = { ...state.settings, panelDomain: OWN_DOMAIN };
+      return ok(httpsStatus());
+    },
+  ],
   [
     'POST',
     '/api/netbird/discover',
@@ -908,6 +994,7 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     'PUT',
     '/api/netbird',
     ({ body }) => {
+      if (dns.configured) return error(409, 'netbird_dns_active');
       netbird.status = {
         ...netbird.status,
         configured: true,
@@ -1110,6 +1197,9 @@ class DemoUpload extends EventTarget {
 }
 
 export function installDemoBackend(): void {
+  // Start like Philip's panel: mornihosting.de connected, HTTPS on, every server with its name.
+  nameAll();
+  state.settings = { ...state.settings, panelDomain: OWN_DOMAIN };
   const realFetch = window.fetch.bind(window);
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const href = input instanceof Request ? input.url : String(input);

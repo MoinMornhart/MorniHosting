@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T11:43:54+00:00",
-  "now": "Fertig – wartet auf Philip: INWX eintragen, HTTPS einschalten, Fritzbox 80/443",
+  "updated": "2026-10-30T12:16:17+00:00",
+  "now": "PR, CI abwarten, Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -239,9 +239,29 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "fertig",
       "detail": "Fertig und in main (PR #17): INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei ggdehosting, Joinen mit name.mornihosting.de (Java ohne Port, Bedrock mit Port-Hinweis). 192 Tests, 4 Playwright-Abläufe, CI grün. Philip: INWX im Admin-Bereich eintragen, HTTPS einschalten, Fritzbox TCP 80/443 freigeben."
+    },
+    {
+      "title": "Admin aufgeräumt, Update neu, Demo aktualisiert",
+      "status": "fertig",
+      "detail": "Admin-Bereich mit Reitern (Domain & HTTPS, NetBird, Updates, Passwörter, Einstellungen); Darstellung repariert (lange Befehle ragten aus der NetBird-Karte, Heimnetz-Adresse brach mitten in der Zahl um). Update folgt jetzt main statt eines Releases (darum kam bisher nie eins): Liste „Was ist neu?“, Knopf, Fortschritt in 3 Schritten mit Protokoll, Hinweis wenn der Updater nicht reagiert, Seite lädt danach neu. Demo zeigt mornihosting.de mit INWX, HTTPS, Bestellung und Update."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p13-update.webp",
+      "caption": "Update · Fortschritt in 3 Schritten mit Protokoll und „Was ist neu?“",
+      "time": "2026-10-30T13:12:00+01:00"
+    },
+    {
+      "img": "progress/p13-admin.webp",
+      "caption": "Admin-Bereich mit Reitern · NetBird-Karte passt wieder in den Rahmen",
+      "time": "2026-10-30T13:05:00+01:00"
+    },
+    {
+      "img": "progress/p13-demo.webp",
+      "caption": "Demo · survival.mornihosting.de ohne Port, Heimnetz-Adresse bricht sauber um",
+      "time": "2026-10-30T13:14:00+01:00"
+    },
     {
       "img": "progress/p12-join.webp",
       "caption": "mornihosting.de · Adresse für Freunde: Java nur reich.mornihosting.de (SRV-Eintrag), Bedrock mit Hinweis aufs Port-Feld",
@@ -286,77 +306,47 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p9-netbird.webp",
       "caption": "Phase 9 · NetBird-Anleitung mit deinen echten Adressen und Ports zum Kopieren",
       "time": "2026-10-28T07:30:00+01:00"
-    },
-    {
-      "img": "progress/p8-login.webp",
-      "caption": "Phase 8 · Anmelden mit Passwort oder Passkey",
-      "time": "2026-10-28T07:10:00+01:00"
-    },
-    {
-      "img": "progress/p8-admin.webp",
-      "caption": "Phase 8 · Admin-Bereich: Domain, Updates, Passwörter",
-      "time": "2026-10-28T07:10:00+01:00"
-    },
-    {
-      "img": "progress/p8-reset.webp",
-      "caption": "Phase 8 · Neues Passwort für Lena, nur einmal sichtbar",
-      "time": "2026-10-28T07:10:00+01:00"
     }
   ],
   "files": [
     {
-      "tag": "geändert",
-      "path": "ConnectionCard.tsx: Java nur Name (SRV), Bedrock mit Port-Hinweis"
+      "tag": "neu",
+      "path": "components/command-line.tsx (Befehle brechen um statt überzustehen)"
     },
     {
       "tag": "geändert",
-      "path": "servers/routes.ts: /connection meldet srv"
-    },
-    {
-      "tag": "behoben",
-      "path": "WebSocket-Tests (seit HTTPS-Schritt rot)"
+      "path": "admin/PanelSettingsPage.tsx (Reiter), UpdateSection.tsx, shell/UpdateCard.tsx"
     },
     {
       "tag": "geändert",
-      "path": "README und STAND.md: INWX, HTTPS, Bestellung, Joinen"
+      "path": "server/system/update.ts (folgt main), update.sh (Schritte + Protokoll), install.sh"
+    },
+    {
+      "tag": "geändert",
+      "path": "demo/backend.ts (mornihosting.de, HTTPS, Update-Ablauf)"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-30T13:45:00+01:00",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T11:59:00+01:00",
-      "title": "INWX als DNS-Anbieter (Anmeldung, Einträge, DynDNS)"
+      "until": "2026-10-30T13:09:00+01:00",
+      "title": "Update reparieren: folgt main, Fortschritt mit Protokoll, Hinweis wenn der Updater hängt"
     },
     {
       "status": "done",
-      "until": "2026-10-30T11:59:00+01:00",
-      "title": "mornihosting.de und *.mornihosting.de zeigen auf deine öffentliche IP"
+      "until": "2026-10-30T13:09:00+01:00",
+      "title": "Admin-Bereich aufräumen (Reiter) und Darstellung reparieren"
     },
     {
       "status": "done",
-      "until": "2026-10-30T12:05:00+01:00",
-      "title": "HTTPS: jede Adresse unter mornihosting.de öffnet das Panel (Zertifikat automatisch)"
+      "until": "2026-10-30T13:15:00+01:00",
+      "title": "Demo-Seite mit mornihosting.de, Bestellung und Update neu veröffentlichen"
     },
     {
-      "status": "done",
-      "until": "2026-10-30T12:10:00+01:00",
-      "title": "Startseite und Anmeldeseite im ggdehosting-Stil"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T12:20:00+01:00",
-      "title": "Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, unten Benutzerdefiniert, Servername .mornihosting.de, Add-ons, Bestellübersicht"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T12:30:00+01:00",
-      "title": "Java und Bedrock joinen mit name.mornihosting.de"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T12:44:00+01:00",
-      "title": "Tests, Doku, Merge nach main"
+      "status": "current",
+      "until": "2026-10-30T13:45:00+01:00",
+      "title": "Tests, PR, Merge nach main"
     }
   ]
 }

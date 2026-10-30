@@ -28,6 +28,7 @@ const STEPS = ['pull', 'build', 'restart'] as const;
 /** While an update runs the card asks every few seconds, also while the panel restarts. */
 const POLL_MS = 3000;
 const RELOAD_DELAY_MS = 1500;
+const IS_DEMO = import.meta.env.MODE === 'demo';
 
 /** How a step looks: done, running now, failed there, or still to come. */
 const LOOKS = {
@@ -158,9 +159,13 @@ export function UpdateSection(): ReactElement {
     if (startedOn.current === null || !current || current === startedOn.current) return;
     startedOn.current = null;
     toast.success(t('update.finished', { version: current }));
-    const timer = window.setTimeout(() => window.location.reload(), RELOAD_DELAY_MS);
+    // The demo lives in this one page: reloading would start it over, so it only refreshes the data.
+    const timer = window.setTimeout(
+      () => (IS_DEMO ? void queryClient.invalidateQueries() : window.location.reload()),
+      RELOAD_DELAY_MS,
+    );
     return () => window.clearTimeout(timer);
-  }, [current, t]);
+  }, [current, t, queryClient]);
 
   if (!data) return <Skeleton id="update" className="h-40 rounded-[16px]" />;
   const restarting = isError && startedOn.current !== null;
