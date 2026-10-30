@@ -18,6 +18,8 @@ interface Body {
   readonly rows?: readonly (readonly [label: string, value: string])[];
   readonly button?: { readonly label: string; readonly url: string };
   readonly note?: string;
+  /** One value that matters most (the server address), shown large in its own box. */
+  readonly highlight?: { readonly label: string; readonly value: string };
 }
 
 export interface MailVars {
@@ -38,11 +40,46 @@ export type MailKind =
   | 'server_crashed';
 
 const EMERALD = '#10b981';
-const EMERALD_DARK = '#047857';
+const EMERALD_DEEP = '#065f46';
+const EMERALD_SOFT = '#ecfdf5';
 const INK = '#0f1f1a';
 const MUTED = '#5b6b65';
-const PAPER = '#f2f6f4';
-const LINE = '#dbe5e0';
+const PAPER = '#eef4f1';
+const LINE = '#e1eae6';
+const BOX = '#f6faf8';
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace";
+const PREHEADER_MAX = 140;
+
+/** The symbol in the circle at the top of each mail, and whether it is good news or a warning. */
+const LOOK: Readonly<Record<MailKind, { readonly icon: string; readonly warn?: boolean }>> = {
+  test: { icon: '🎉' },
+  welcome: { icon: '👋' },
+  register: { icon: '📬' },
+  already_registered: { icon: '🔐' },
+  email_change: { icon: '✉️' },
+  password_reset: { icon: '🔑' },
+  server_ordered: { icon: '🎮' },
+  server_crashed: { icon: '⚠️', warn: true },
+};
+
+/** Mail apps that know dark mode (Apple Mail, Outlook app) switch colours through these classes. */
+const DARK_STYLE = `<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme:dark){
+.mh-bg{background:#0b1210!important}
+.mh-card{background:#131d1a!important;border-color:#22312c!important}
+.mh-ink{color:#e7f0ec!important}
+.mh-muted{color:#93a59e!important}
+.mh-box{background:#18241f!important;border-color:#22312c!important}
+.mh-line{border-color:#22312c!important}
+.mh-hl{background:#0f2a21!important;border-color:#1f4d3d!important}
+.mh-hl-v{color:#6ee7b7!important}
+.mh-icon{background:#0f2a21!important;border-color:#131d1a!important}
+.mh-link{color:#6ee7b7!important}
+}
+@media (max-width:520px){.mh-pad{padding-left:20px!important;padding-right:20px!important}}
+</style>`;
 
 const ESCAPES: Readonly<Record<string, string>> = {
   '&': '&amp;',
@@ -66,45 +103,94 @@ const dateFormat = (locale: Locale): Intl.DateTimeFormat =>
   new Intl.DateTimeFormat(locale === 'de' ? 'de-DE' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 export const formatWhen = (locale: Locale, date: Date): string => dateFormat(locale).format(date);
 
-const shell = (body: Body, locale: Locale, host: string | null): MailMessage => {
-  const footer: Readonly<Record<Locale, string>> = {
-    de: 'Diese Mail hat dein MorniHosting-Panel automatisch verschickt.',
-    en: 'Your MorniHosting panel sent this mail automatically.',
-  };
-  const rows = (body.rows ?? [])
+const FOOTER: Readonly<Record<Locale, { readonly why: string; readonly fallback: string }>> = {
+  de: {
+    why: 'Diese Mail hat dein MorniHosting-Panel automatisch verschickt.',
+    fallback: 'Klappt der Knopf nicht? Kopiere diesen Link in deinen Browser:',
+  },
+  en: {
+    why: 'Your MorniHosting panel sent this mail automatically.',
+    fallback: 'Button not working? Copy this link into your browser:',
+  },
+};
+
+const rowsHtml = (rows: Body['rows']): string => {
+  const list = rows ?? [];
+  if (list.length === 0) return '';
+  const cells = list
     .map(
-      ([label, value]) =>
-        `<tr><td style="padding:6px 16px 6px 0;color:${MUTED};font-size:14px;white-space:nowrap">${escapeHtml(label)}</td><td style="padding:6px 0;color:${INK};font-size:14px;font-weight:600">${escapeHtml(value)}</td></tr>`,
+      ([label, value], index) =>
+        `<tr><td class="mh-line" style="padding:12px 16px;${index ? `border-top:1px solid ${LINE};` : ''}">
+<div class="mh-muted" style="font-size:12px;line-height:1.4;color:${MUTED};letter-spacing:.3px">${escapeHtml(label)}</div>
+<div class="mh-ink" style="font-size:15px;line-height:1.45;color:${INK};font-weight:600;word-break:break-word">${escapeHtml(value)}</div>
+</td></tr>`,
     )
     .join('');
-  const button = body.button
-    ? `<p style="margin:24px 0"><a href="${escapeHtml(body.button.url)}" style="display:inline-block;background:${EMERALD};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:10px">${escapeHtml(body.button.label)}</a></p><p style="margin:0 0 8px;color:${MUTED};font-size:12px;word-break:break-all">${escapeHtml(body.button.url)}</p>`
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mh-box" style="margin:20px 0 0;background:${BOX};border:1px solid ${LINE};border-radius:14px;border-collapse:separate">${cells}</table>`;
+};
+
+const highlightHtml = (highlight: Body['highlight']): string =>
+  highlight
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mh-hl" style="margin:20px 0 0;background:${EMERALD_SOFT};border:1px dashed #6ee7b7;border-radius:14px;border-collapse:separate"><tr><td align="center" style="padding:16px 14px">
+<div class="mh-muted" style="font-size:12px;color:${MUTED};letter-spacing:.3px">${escapeHtml(highlight.label)}</div>
+<div class="mh-hl-v" style="margin-top:4px;font-family:${MONO};font-size:20px;line-height:1.35;font-weight:700;color:${EMERALD_DEEP};word-break:break-all">${escapeHtml(highlight.value)}</div>
+</td></tr></table>`
     : '';
+
+/** A "bulletproof" button: a coloured table cell, so it looks like a button even in Outlook. */
+const buttonHtml = (button: Body['button'], locale: Locale): string =>
+  button
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:28px auto 0"><tr><td align="center" bgcolor="${EMERALD}" style="border-radius:12px;background:${EMERALD}">
+<a href="${escapeHtml(button.url)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:12px">${escapeHtml(button.label)} &rarr;</a>
+</td></tr></table>
+<p class="mh-muted" style="margin:18px 0 0;font-size:12px;line-height:1.5;color:${MUTED};text-align:center">${escapeHtml(FOOTER[locale].fallback)}<br><span class="mh-link" style="word-break:break-all;color:${EMERALD_DEEP}">${escapeHtml(button.url)}</span></p>`
+    : '';
+
+const shell = (kind: MailKind, body: Body, locale: Locale, host: string | null): MailMessage => {
+  const look = LOOK[kind];
+  const iconBg = look.warn ? '#fef3c7' : EMERALD_SOFT;
+  const iconLine = look.warn ? '#fcd34d' : '#a7f3d0';
+  const preheader = (body.paragraphs[1] ?? body.paragraphs[0] ?? '').slice(0, PREHEADER_MAX);
   const html = `<!doctype html>
-<html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(body.subject)}</title></head>
-<body style="margin:0;padding:0;background:${PAPER};font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:24px 12px"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid ${LINE};border-radius:16px;overflow:hidden">
-<tr><td style="background:${EMERALD_DARK};padding:18px 28px"><span style="display:inline-block;width:14px;height:14px;background:${EMERALD};border-radius:4px;vertical-align:-1px;margin-right:10px"></span><span style="color:#ffffff;font-weight:800;font-size:18px;letter-spacing:.2px">MorniHosting</span></td></tr>
-<tr><td style="padding:28px 28px 8px">
-<h1 style="margin:0 0 14px;color:${INK};font-size:22px;line-height:1.3">${escapeHtml(body.heading)}</h1>
-${body.paragraphs.map((p) => `<p style="margin:0 0 12px;color:${INK};font-size:15px;line-height:1.6">${escapeHtml(p)}</p>`).join('\n')}
-${rows ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};width:100%">${rows}</table>` : ''}
-${button}
-${body.note ? `<p style="margin:12px 0 0;color:${MUTED};font-size:13px;line-height:1.5">${escapeHtml(body.note)}</p>` : ''}
+<html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
+<title>${escapeHtml(body.subject)}</title>${DARK_STYLE}</head>
+<body class="mh-bg" style="margin:0;padding:0;background:${PAPER};font-family:${FONT};-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${escapeHtml(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="mh-bg" style="background:${PAPER}"><tr><td align="center" style="padding:28px 12px 36px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px">
+<tr><td bgcolor="${EMERALD_DEEP}" style="background:${EMERALD_DEEP};background-image:linear-gradient(135deg,#064e3b 0%,${EMERALD_DEEP} 45%,${EMERALD} 100%);border-radius:20px 20px 0 0;padding:26px 32px 58px" class="mh-pad">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td valign="middle" style="width:38px;height:38px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:11px;text-align:center;font-size:20px;font-weight:800;line-height:38px;color:#ffffff">M</td>
+<td valign="middle" style="padding-left:12px"><div style="font-size:19px;font-weight:800;letter-spacing:.2px;color:#ffffff;line-height:1.1">MorniHosting</div>
+<div style="font-size:12px;color:#a7f3d0;line-height:1.4;margin-top:2px">${locale === 'de' ? 'Dein Minecraft-Server' : 'Your Minecraft server'}</div></td>
+</tr></table></td></tr>
+<tr><td class="mh-card mh-pad" style="background:#ffffff;border:1px solid ${LINE};border-top:0;border-radius:0 0 20px 20px;padding:0 32px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding-top:0">
+<div class="mh-icon" style="display:inline-block;width:72px;height:72px;margin-top:-36px;background:${iconBg};border:4px solid #ffffff;outline:1px solid ${iconLine};border-radius:50%;font-size:32px;line-height:72px;text-align:center">${look.icon}</div>
+</td></tr></table>
+<h1 class="mh-ink" style="margin:18px 0 18px;font-size:24px;line-height:1.3;font-weight:800;color:${INK};text-align:center;letter-spacing:-.2px">${escapeHtml(body.heading)}</h1>
+${body.paragraphs.map((p) => `<p class="mh-ink" style="margin:0 0 12px;font-size:15px;line-height:1.65;color:${INK}">${escapeHtml(p)}</p>`).join('\n')}
+${highlightHtml(body.highlight)}
+${rowsHtml(body.rows)}
+${buttonHtml(body.button, locale)}
+${body.note ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0 0"><tr><td class="mh-box mh-muted" style="padding:12px 14px;background:${BOX};border-left:3px solid ${look.warn ? '#f59e0b' : EMERALD};border-radius:8px;font-size:13px;line-height:1.55;color:${MUTED}">${escapeHtml(body.note)}</td></tr></table>` : ''}
 </td></tr>
-<tr><td style="padding:20px 28px 26px;color:${MUTED};font-size:12px;line-height:1.5;border-top:1px solid ${LINE}">${escapeHtml(footer[locale])}${host ? `<br>${escapeHtml(host)}` : ''}</td></tr>
+<tr><td align="center" class="mh-muted" style="padding:22px 24px 0;font-size:12px;line-height:1.6;color:${MUTED}">
+<b class="mh-link" style="color:${EMERALD_DEEP}">MorniHosting</b>${host ? ` &middot; ${escapeHtml(host)}` : ''}<br>${escapeHtml(FOOTER[locale].why)}
+</td></tr>
 </table></td></tr></table></body></html>`;
   const text = [
     body.heading,
     '',
     ...body.paragraphs,
+    ...(body.highlight ? ['', `${body.highlight.label}: ${body.highlight.value}`] : []),
     ...(body.rows ?? []).map(([label, value]) => `${label}: ${value}`),
     ...(body.button ? ['', `${body.button.label}: ${body.button.url}`] : []),
     ...(body.note ? ['', body.note] : []),
     '',
     '-- ',
-    footer[locale] + (host ? ` (${host})` : ''),
+    FOOTER[locale].why + (host ? ` (${host})` : ''),
   ].join('\n');
   return { subject: oneLine(body.subject), html, text };
 };
@@ -120,7 +206,7 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
   de: {
     test: () => ({
       subject: 'Test-Mail von MorniHosting',
-      heading: 'Es funktioniert! 🎉',
+      heading: 'Es funktioniert!',
       paragraphs: ['Diese Test-Mail ist angekommen. Dein Panel kann ab jetzt E-Mails verschicken.'],
     }),
     welcome: (v) => ({
@@ -174,16 +260,19 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
     }),
     server_ordered: (v) => ({
       subject: `Dein Server „${v['server'] ?? ''}“ ist bestellt`,
-      heading: 'Dein Server ist bereit 🎮',
+      heading: 'Dein Server ist bereit',
       paragraphs: [
         hi.de(v.name),
         'danke für deine Bestellung! So sieht dein neuer Server aus. Die Adresse gibst du deinen Freunden, damit sie beitreten können.',
       ],
+      highlight: {
+        label: 'Adresse für dich und deine Freunde',
+        value: v['address'] ?? 'noch nicht festgelegt',
+      },
       rows: [
         ['Name', v['server'] ?? ''],
         ['Paket', v['plan'] ?? ''],
         ['Software', v['software'] ?? ''],
-        ['Adresse', v['address'] ?? 'noch nicht festgelegt'],
         ['Bestellt am', v['when'] ?? ''],
       ],
       ...(v.link ? { button: { label: 'Server öffnen', url: v.link } } : {}),
@@ -203,7 +292,7 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
   en: {
     test: () => ({
       subject: 'Test mail from MorniHosting',
-      heading: 'It works! 🎉',
+      heading: 'It works!',
       paragraphs: ['This test mail arrived. Your panel can send e-mails from now on.'],
     }),
     welcome: (v) => ({
@@ -257,16 +346,16 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
     }),
     server_ordered: (v) => ({
       subject: `Your server “${v['server'] ?? ''}” is ordered`,
-      heading: 'Your server is ready 🎮',
+      heading: 'Your server is ready',
       paragraphs: [
         hi.en(v.name),
         'thanks for your order! This is your new server. Give the address to your friends so they can join.',
       ],
+      highlight: { label: 'Address for you and your friends', value: v['address'] ?? 'not set yet' },
       rows: [
         ['Name', v['server'] ?? ''],
         ['Plan', v['plan'] ?? ''],
         ['Software', v['software'] ?? ''],
-        ['Address', v['address'] ?? 'not set yet'],
         ['Ordered on', v['when'] ?? ''],
       ],
       ...(v.link ? { button: { label: 'Open server', url: v.link } } : {}),
@@ -288,5 +377,5 @@ export function renderMail(kind: MailKind, locale: Locale, vars: MailVars): Mail
   const clean = Object.fromEntries(
     Object.entries(vars).map(([key, value]) => [key, typeof value === 'string' ? oneLine(value) : value]),
   ) as MailVars;
-  return shell(COPY[locale][kind](clean), locale, clean.host);
+  return shell(kind, COPY[locale][kind](clean), locale, clean.host);
 }
