@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T21:10:11+00:00",
-  "now": "Drei Sitzungen arbeiten parallel (Spiele, DDoS, E-Mail); ich sammle ihre Stände hier ein.",
+  "updated": "2026-10-30T21:21:19+00:00",
+  "now": "Weitere Spiele laufen als eigenes größeres Projekt (Sitzung „Weitere Spiele“).",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -298,7 +298,7 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "Neutrales Logo (M über Server-Einschub)",
       "status": "fertig",
-      "detail": "Statt Grasblock ein neutrales Zeichen, auch als Tab-Bild. Auf dem Arbeits-Branch, kommt mit dem nächsten Go nach main."
+      "detail": "Neutrales Zeichen, auch als Tab-Bild. In main (PR #22)."
     },
     {
       "title": "Spiele-Auswahl",
@@ -321,9 +321,9 @@ footer { color: var(--muted); font-size: 13px; }
       "detail": "Fertig auf claude/email: E-Mail-Versand über ein eigenes Postfach (SMTP, Reiter „E-Mail“ im Admin-Bereich mit Test-Mail), Registrierung mit Bestätigungs-Link (schaltbar), „Passwort vergessen“, Willkommens-, Bestell- und Absturz-Mails, E-Mail-Adresse im Konto. 211 Tests grün, gegen einen lokalen Mailserver geprüft."
     },
     {
-      "title": "Zusammenführen, Demo, Go",
-      "status": "offen",
-      "detail": "Wenn die Sitzungen fertig sind: alles zusammenführen, Demo zeigen, nach Philips Go nach main."
+      "title": "DDoS-Schutz + E-Mails veröffentlicht",
+      "status": "fertig",
+      "detail": "Zusammengeführt und nach main gemergt (PR #22) mit neuem Logo. 224 Tests + 4 Browser-Tests grün, CI grün. Update im Panel verfügbar. Einmal auf dem Proxmox-Host: modprobe -a xt_hashlimit xt_connlimit xt_conntrack xt_comment."
     }
   ],
   "shots": [
@@ -405,24 +405,14 @@ footer { color: var(--muted); font-size: 13px; }
   "eta": null,
   "plan": [
     {
+      "status": "done",
+      "until": "",
+      "title": "DDoS-Schutz + E-Mails veröffentlicht"
+    },
+    {
       "status": "current",
       "until": "",
-      "title": "Weitere Spiele (Factorio zuerst)"
-    },
-    {
-      "status": "done",
-      "until": "",
-      "title": "DDoS-Schutz"
-    },
-    {
-      "status": "done",
-      "until": "",
-      "title": "E-Mails"
-    },
-    {
-      "status": "todo",
-      "until": "",
-      "title": "Zusammenführen, Demo, Go"
+      "title": "Weitere Spiele (eigenes Projekt)"
     }
   ]
 }
