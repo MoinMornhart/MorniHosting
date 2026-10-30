@@ -507,7 +507,8 @@
     "netbird_dns_active": "The own domain (without NetBird) is connected – disconnect it first, then NetBird works.",
     "dns_no_public_ip": "Your public IP cannot be found right now (api.ipify.org does not answer). The panel tries again every 5 minutes.",
     "dns_not_configured": "Neither NetBird nor an own domain is connected (admin area).",
-    "dns_failed": "The DNS records could not be created."
+    "dns_failed": "The DNS records could not be created.",
+    "dns_inwx_2fa": "This INWX account uses two-factor login. Enter the 2FA secret (or use a sub-account without 2FA)."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1646,7 +1647,8 @@
     "tokenKeep": "Leave empty to keep using the stored key.",
     "tokenHint": {
       "cloudflare": "dash.cloudflare.com → Profile → API Tokens → “Create Token” → template “Edit zone DNS” → choose your domain as zone. The domain must use Cloudflare's name servers (Cloudflare shows them when you add the domain). Stored encrypted.",
-      "ionos": "developer.hosting.ionos.de → create an “API key”. It looks like prefix.secret – paste both together with the dot. Stored encrypted."
+      "ionos": "developer.hosting.ionos.de → create an “API key”. It looks like prefix.secret – paste both together with the dot. Stored encrypted.",
+      "inwx": "The login of your INWX account. Safest is a separate sub-account just for DNS (INWX: “Account → Sub-accounts”). If the account uses two-factor login, enter the secret INWX showed when setting up 2FA (not the 6-digit code). Everything is stored encrypted."
     },
     "connect": "Connect",
     "connecting": "Connecting …",
@@ -1661,6 +1663,9 @@
     "disconnected": "Own domain disconnected – the records are deleted.",
     "disconnectTitle": "Disconnect own domain?",
     "disconnectText": "MorniHosting deletes all records it created at your DNS provider. The servers keep running but are only reachable by IP.",
-    "netbirdActive": "NetBird hands out the addresses right now. For an own domain without NetBird, disconnect NetBird first (card below)."
+    "netbirdActive": "NetBird hands out the addresses right now. For an own domain without NetBird, disconnect NetBird first (card below).",
+    "inwxUser": "INWX user name",
+    "inwxPass": "INWX password",
+    "inwxOtp": "2FA secret (only if 2FA is on)"
   }
 }

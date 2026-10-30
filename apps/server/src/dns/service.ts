@@ -30,6 +30,8 @@ const NETBIRD_KEY = 'netbird';
 const CHECK_MINUTES = 5;
 const SRV_PRIORITY = 0;
 const SRV_WEIGHT = 5;
+/** Records of the domain itself (example.de and *.example.de) are kept under this key instead of a server id. */
+const DOMAIN_KEY = '_domain';
 
 interface StoredConfig {
   readonly provider: DnsProvider;
@@ -136,15 +138,12 @@ export function createDnsAutomation(
     return ip;
   };
 
-  /** Brings the provider in line with one server; a deleted or unnamed server loses its records. */
-  const syncNow = async (serverId: string): Promise<void> => {
-    const cfg = config();
-    if (!cfg) return;
-    const row = serverRow(serverId);
-    const existing = recordsOf(serverId);
-    const wants = row?.netbirdName ? wanted(row, cfg, await currentIp(cfg)) : [];
+  const sameSlot = (r: RecordRow, w: Wanted): boolean => r.type === w.type && r.name === w.name;
+  /** Makes the records kept under one key (a server, or the domain itself) exactly the wanted ones. */
+  const syncRecords = async (cfg: StoredConfig, key: string, wants: readonly Wanted[]): Promise<void> => {
+    const existing = recordsOf(key);
     const client = clientFor(cfg);
-    const stale = existing.filter((r) => !wants.some((w) => w.type === r.type));
+    const stale = existing.filter((r) => !wants.some((w) => sameSlot(r, w)));
     await Promise.all(
       stale.map(async (r) => {
         await client.remove(cfg.zoneId, r.id);
@@ -156,12 +155,49 @@ export function createDnsAutomation(
         apply(
           client,
           cfg,
-          serverId,
+          key,
           w,
-          existing.find((r) => r.type === w.type),
+          existing.find((r) => sameSlot(r, w)),
         ),
       ),
     );
+  };
+
+  /**
+   * The domain and every name below it point at this connection, so example.de and any server name open the
+   * panel in the browser. New domains often come with the registrar's parking records; their IPv6 (AAAA)
+   * entries would send browsers to the parking page, so they go.
+   */
+  const syncDomain = async (): Promise<void> => {
+    const cfg = config();
+    if (!cfg) return;
+    const ip = await currentIp(cfg);
+    const names = [cfg.zone, `*.${cfg.zone}`];
+    await syncRecords(
+      cfg,
+      DOMAIN_KEY,
+      names.map((name) => ({ type: 'A', name, ip, content: ip })),
+    );
+    const client = clientFor(cfg);
+    const parking = await Promise.all(names.map((name) => client.find(cfg.zoneId, 'AAAA', name)));
+    await Promise.all(parking.filter((id) => id !== null).map((id) => client.remove(cfg.zoneId, id)));
+  };
+  const syncDomainQuietly = async (): Promise<void> => {
+    try {
+      await lock(DOMAIN_KEY, syncDomain);
+    } catch (err) {
+      state.lastError = failureOf(err);
+      ctx.log.warn({ err }, 'DNS sync of the domain failed');
+    }
+  };
+
+  /** Brings the provider in line with one server; a deleted or unnamed server loses its records. */
+  const syncNow = async (serverId: string): Promise<void> => {
+    const cfg = config();
+    if (!cfg) return;
+    const row = serverRow(serverId);
+    const wants = row?.netbirdName ? wanted(row, cfg, await currentIp(cfg)) : [];
+    await syncRecords(cfg, serverId, wants);
     if (row?.netbirdName) {
       servers.setTunnelAddress(serverId, {
         domain: hostOf(row, cfg),
@@ -205,6 +241,7 @@ export function createDnsAutomation(
     state.lastError = null;
     if (ip !== cfg.ip) {
       ctx.log.info({ from: cfg.ip, to: ip }, 'public IP changed, moving DNS records');
+      await syncDomainQuietly();
       await syncAll();
     }
   };
@@ -276,7 +313,7 @@ export function createDnsAutomation(
       const moved =
         previous !== null && (previous.zone !== zone.name || previous.provider !== input.provider);
       // Records at the old domain or provider are removed first, so nothing is left behind.
-      if (moved) await Promise.allSettled(namedServers().map((r) => clearServer(r.id)));
+      if (moved) await Promise.allSettled([DOMAIN_KEY, ...namedServers().map((r) => r.id)].map(clearServer));
       save({
         provider: input.provider,
         token: ctx.secrets.encrypt(token),
@@ -290,11 +327,12 @@ export function createDnsAutomation(
       const cfg = config();
       if (cfg && ip) save({ ...cfg, ip, ipCheckedAt: new Date().toISOString() });
       state.lastError = ip ? null : { code: 'dns_no_public_ip', params: {} };
+      await syncDomainQuietly();
       await syncAll();
       return status();
     },
     disconnect: async (actor) => {
-      await Promise.allSettled(namedServers().map((r) => clearServer(r.id)));
+      await Promise.allSettled([DOMAIN_KEY, ...namedServers().map((r) => r.id)].map(clearServer));
       ctx.db.delete(dnsRecords).run();
       namedServers().forEach((r) =>
         servers.setTunnelAddress(r.id, {

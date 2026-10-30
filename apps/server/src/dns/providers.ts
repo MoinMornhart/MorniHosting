@@ -1,3 +1,4 @@
+import { Secret, TOTP } from 'otpauth';
 import { z } from 'zod';
 import type { DnsProvider } from '@mornihosting/shared';
 import { AppError } from '../lib/errors.js';
@@ -37,7 +38,11 @@ export interface DnsZone {
 export interface DnsClient {
   readonly zones: () => Promise<DnsZone[]>;
   /** The id of an existing record with this type and name, e.g. one made by hand before. */
-  readonly find: (zoneId: string, type: DnsRecordInput['type'], name: string) => Promise<string | null>;
+  readonly find: (
+    zoneId: string,
+    type: DnsRecordInput['type'] | 'AAAA',
+    name: string,
+  ) => Promise<string | null>;
   readonly create: (zoneId: string, record: DnsRecordInput) => Promise<string>;
   readonly update: (zoneId: string, id: string, record: DnsRecordInput) => Promise<void>;
   /** Deleting a record that is already gone counts as done. */
@@ -165,5 +170,155 @@ function ionos(token: string): DnsClient {
   };
 }
 
-export const createDnsClient: DnsClientFactory = (provider, token) =>
-  provider === 'cloudflare' ? cloudflare(token) : ionos(token);
+/* ---------- INWX ---------- */
+
+/** INWX logs in with the account's user name and password (plus the 2FA secret if 2FA is on). */
+const inwxCredentials = z.object({
+  user: z.string().min(1),
+  pass: z.string().min(1),
+  otp: z.string().optional(),
+});
+const inwxAnswer = z.object({ code: z.number(), msg: z.string().catch(''), resData: z.unknown().optional() });
+const inwxLogin = z.object({ tfa: z.union([z.string(), z.number()]).optional() }).catch({});
+const inwxDomains = z
+  .object({ domains: z.array(z.object({ domain: z.string() })).catch([]) })
+  .catch({ domains: [] });
+const inwxRecords = z
+  .object({ record: z.array(z.object({ id: z.union([z.number(), z.string()]) })).catch([]) })
+  .catch({ record: [] });
+const inwxCreated = z.object({ id: z.union([z.number(), z.string()]) });
+/** Answers from 1000 up to 1999 mean success; 2200–2202 is a failed login. */
+const INWX_OK_FROM = 1000;
+const INWX_OK_UNTIL = 2000;
+const INWX_AUTH_FROM = 2200;
+const INWX_AUTH_UNTIL = 2203;
+const INWX_GONE = 2303;
+/** INWX does not accept a shorter time to live. */
+const INWX_TTL = 300;
+const NO_2FA = '0';
+// Spaces in a pasted 2FA secret: "JBSW Y3DP" becomes "JBSWY3DP".
+// https://regex101.com/?flavor=javascript&regex=%5Cs&flags=g&testString=JBSW%20Y3DP
+const WHITESPACE = /\s/g;
+
+class InwxRefusal extends Error {
+  override readonly name = 'InwxRefusal';
+  constructor(
+    readonly code: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** INWX names are relative to the domain: "reich" for reich.example.de, "" for the domain itself. */
+function relativeName(name: string, zone: string): string {
+  return name === zone ? '' : name.slice(0, -(zone.length + 1));
+}
+
+function inwx(token: string): DnsClient {
+  const parsed = inwxCredentials.safeParse(
+    (() => {
+      try {
+        return JSON.parse(token) as unknown;
+      } catch {
+        return null;
+      }
+    })(),
+  );
+  const endpoint = 'https://api.domrobot.com/jsonrpc/';
+  const host = new URL(endpoint).host;
+  const session: { cookie: string | null } = { cookie: null };
+  const rpc = async (method: string, params: Record<string, unknown>): Promise<unknown> => {
+    const response = await (async () => {
+      try {
+        return await fetchResponse(endpoint, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            ...(session.cookie ? { cookie: session.cookie } : {}),
+          },
+          body: JSON.stringify({ method, params }),
+        });
+      } catch (err) {
+        throw new AppError(HTTP_BAD_GATEWAY, 'dns_unreachable', { host }, { cause: err });
+      }
+    })();
+    const cookie = response.headers.get('set-cookie')?.split(';')[0];
+    if (cookie) session.cookie = cookie;
+    const answer = inwxAnswer.safeParse(await bodyOf(response));
+    if (!answer.success)
+      throw new AppError(HTTP_BAD_GATEWAY, 'dns_rejected', { message: `HTTP ${response.status}` });
+    const { code, msg } = answer.data;
+    if (code >= INWX_OK_FROM && code < INWX_OK_UNTIL) return answer.data.resData;
+    if (code >= INWX_AUTH_FROM && code < INWX_AUTH_UNTIL)
+      throw new AppError(HTTP_BAD_GATEWAY, 'dns_unauthorized', { host });
+    throw new InwxRefusal(code, msg);
+  };
+  const call = async (method: string, params: Record<string, unknown>): Promise<unknown> => {
+    try {
+      return await rpc(method, params);
+    } catch (err) {
+      if (err instanceof InwxRefusal)
+        throw new AppError(HTTP_BAD_GATEWAY, 'dns_rejected', { message: err.message.slice(0, MESSAGE_MAX) });
+      throw err;
+    }
+  };
+  const login = async (): Promise<void> => {
+    if (session.cookie) return;
+    if (!parsed.success) throw new AppError(HTTP_BAD_GATEWAY, 'dns_unauthorized', { host });
+    const { user, pass, otp } = parsed.data;
+    const answer = inwxLogin.parse(await call('account.login', { user, pass }));
+    if (answer.tfa === undefined || String(answer.tfa) === NO_2FA) return;
+    if (!otp) throw new AppError(HTTP_BAD_GATEWAY, 'dns_inwx_2fa');
+    const tan = new TOTP({ secret: Secret.fromBase32(otp.replace(WHITESPACE, '').toUpperCase()) }).generate();
+    await call('account.unlock', { tan });
+  };
+  const body = (zone: string, record: DnsRecordInput): Record<string, unknown> =>
+    record.type === 'A'
+      ? { type: 'A', name: relativeName(record.name, zone), content: record.ip, ttl: INWX_TTL }
+      : {
+          type: 'SRV',
+          name: relativeName(record.name, zone),
+          content: `${record.srv.weight} ${record.srv.port} ${record.srv.target}`,
+          prio: record.srv.priority,
+          ttl: INWX_TTL,
+        };
+  return {
+    zones: async () => {
+      await login();
+      return inwxDomains
+        .parse(await call('nameserver.list', {}))
+        .domains.map((d) => ({ id: d.domain, name: d.domain }));
+    },
+    find: async (zone, type, name) => {
+      await login();
+      const found = inwxRecords.parse(
+        await call('nameserver.info', { domain: zone, type, name: relativeName(name, zone) }),
+      );
+      const id = found.record[0]?.id;
+      return id === undefined ? null : String(id);
+    },
+    create: async (zone, record) => {
+      await login();
+      return String(
+        inwxCreated.parse(await call('nameserver.createRecord', { domain: zone, ...body(zone, record) })).id,
+      );
+    },
+    update: async (zone, id, record) => {
+      await login();
+      await call('nameserver.updateRecord', { id: Number(id), ...body(zone, record) });
+    },
+    remove: async (_zone, id) => {
+      await login();
+      try {
+        await rpc('nameserver.deleteRecord', { id: Number(id) });
+      } catch (err) {
+        if (!(err instanceof InwxRefusal && err.code === INWX_GONE)) throw err;
+      }
+    },
+  };
+}
+
+const CLIENTS: Readonly<Record<DnsProvider, (token: string) => DnsClient>> = { cloudflare, ionos, inwx };
+
+export const createDnsClient: DnsClientFactory = (provider, token) => CLIENTS[provider](token);

@@ -507,7 +507,8 @@
     "netbird_dns_active": "Die eigene Domain (ohne NetBird) ist verbunden – trenne sie zuerst, dann geht NetBird.",
     "dns_no_public_ip": "Deine öffentliche IP lässt sich gerade nicht ermitteln (api.ipify.org antwortet nicht). Das Panel versucht es alle 5 Minuten wieder.",
     "dns_not_configured": "Es ist weder NetBird noch eine eigene Domain verbunden (Admin-Bereich).",
-    "dns_failed": "Die DNS-Einträge konnten nicht angelegt werden."
+    "dns_failed": "Die DNS-Einträge konnten nicht angelegt werden.",
+    "dns_inwx_2fa": "Bei diesem INWX-Konto ist die Zwei-Faktor-Anmeldung an. Trag den 2FA-Schlüssel ein (oder nutze ein Unterkonto ohne 2FA)."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -1646,7 +1647,8 @@
     "tokenKeep": "Leer lassen, um den gespeicherten Schlüssel weiter zu nutzen.",
     "tokenHint": {
       "cloudflare": "dash.cloudflare.com → Profil → API-Tokens → „Token erstellen“ → Vorlage „DNS-Zone bearbeiten“ → bei Zone deine Domain wählen. Die Domain muss die Nameserver von Cloudflare nutzen (das zeigt dir Cloudflare beim Hinzufügen der Domain). Wird verschlüsselt gespeichert.",
-      "ionos": "developer.hosting.ionos.de → „API-Schlüssel“ anlegen. Der Schlüssel hat die Form Präfix.Geheimnis – beides zusammen mit dem Punkt einfügen. Wird verschlüsselt gespeichert."
+      "ionos": "developer.hosting.ionos.de → „API-Schlüssel“ anlegen. Der Schlüssel hat die Form Präfix.Geheimnis – beides zusammen mit dem Punkt einfügen. Wird verschlüsselt gespeichert.",
+      "inwx": "Die Anmeldedaten deines INWX-Kontos. Am sichersten legst du bei INWX unter „Konto → Unterkonten“ ein eigenes Konto nur für DNS an. Ist bei dem Konto die Zwei-Faktor-Anmeldung an, trag den geheimen Schlüssel ein, den INWX beim Einrichten von 2FA zeigt (nicht den 6-stelligen Code). Alles wird verschlüsselt gespeichert."
     },
     "connect": "Verbinden",
     "connecting": "Verbinde …",
@@ -1661,6 +1663,9 @@
     "disconnected": "Eigene Domain getrennt – die Einträge sind gelöscht.",
     "disconnectTitle": "Eigene Domain trennen?",
     "disconnectText": "MorniHosting löscht alle Einträge, die es bei deinem DNS-Anbieter angelegt hat. Die Server laufen weiter, sind aber nur noch über die IP erreichbar.",
-    "netbirdActive": "Gerade verteilt NetBird die Adressen. Für eine eigene Domain ohne NetBird trenne zuerst NetBird (Karte unten)."
+    "netbirdActive": "Gerade verteilt NetBird die Adressen. Für eine eigene Domain ohne NetBird trenne zuerst NetBird (Karte unten).",
+    "inwxUser": "INWX-Benutzername",
+    "inwxPass": "INWX-Passwort",
+    "inwxOtp": "2FA-Schlüssel (nur wenn 2FA an ist)"
   }
 }

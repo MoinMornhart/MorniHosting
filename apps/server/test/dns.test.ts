@@ -57,7 +57,10 @@ function createFakeInternet() {
   };
   const byName = (type: string, name: string) =>
     [...records.values()].find((r) => r.type === type && r.name === name);
-  return { records, net, handle, byName };
+  /** Records of servers, without those of the domain itself (example.de and *.example.de). */
+  const serverRecords = () =>
+    [...records.values()].filter((r) => r.name !== ZONE.name && r.name !== `*.${ZONE.name}`);
+  return { records, net, handle, byName, serverRecords };
 }
 
 describe('own domain without NetBird (DNS)', () => {
@@ -108,6 +111,17 @@ describe('own domain without NetBird (DNS)', () => {
       netbirdActive: false,
     });
     expect(JSON.stringify(status)).not.toContain(TOKEN);
+  });
+
+  test('the domain and every name below it point here; the parking IPv6 records go', async () => {
+    fake.records.set('parking', { id: 'parking', type: 'AAAA', name: ZONE.name, content: '2a00:1:2::3' });
+    await connect();
+    expect(fake.byName('A', ZONE.name)?.content).toBe('93.223.190.172');
+    expect(fake.byName('A', `*.${ZONE.name}`)?.content).toBe('93.223.190.172');
+    expect(fake.records.has('parking')).toBe(false);
+    fake.net.ip = '93.223.190.200';
+    await t.dns.refreshIp();
+    expect(fake.byName('A', `*.${ZONE.name}`)?.content).toBe('93.223.190.200');
   });
 
   test('a Java server gets an A and an SRV record, Bedrock only the A record', async () => {
@@ -165,7 +179,7 @@ describe('own domain without NetBird (DNS)', () => {
     });
     const server = await create({ netbirdName: 'reich' });
     expect(fake.records.get('by-hand')?.content).toBe('93.223.190.172');
-    expect([...fake.records.values()].filter((r) => r.type === 'A')).toHaveLength(1);
+    expect(fake.serverRecords().filter((r) => r.type === 'A')).toHaveLength(1);
 
     await call('PUT', `/api/servers/${server.id}/netbird`, { name: 'arm' });
     expect(fake.byName('A', 'reich.mein-minecraft.de')).toBeUndefined();
@@ -173,13 +187,13 @@ describe('own domain without NetBird (DNS)', () => {
     expect((await detail(server.id)).domain).toBe('arm.mein-minecraft.de');
 
     await call('PUT', `/api/servers/${server.id}/netbird`, { name: null });
-    expect(fake.records.size).toBe(0);
+    expect(fake.serverRecords()).toHaveLength(0);
     expect((await detail(server.id)).domain).toBeNull();
 
     const other = await create({ name: 'Creative', port: 25566, netbirdName: 'creative' });
-    expect(fake.records.size).toBe(2);
+    expect(fake.serverRecords()).toHaveLength(2);
     await call('DELETE', `/api/servers/${other.id}`);
-    await vi.waitFor(() => expect(fake.records.size).toBe(0));
+    await vi.waitFor(() => expect(fake.serverRecords()).toHaveLength(0));
   });
 
   test('only one of NetBird and DNS; disconnecting removes the records', async () => {
@@ -196,7 +210,7 @@ describe('own domain without NetBird (DNS)', () => {
     expect(netbirdNow.json()).toMatchObject({ error: 'netbird_dns_active' });
 
     const server = await create({ netbirdName: 'reich' });
-    expect(fake.records.size).toBe(2);
+    expect(fake.serverRecords()).toHaveLength(2);
     const off = (await call('DELETE', '/api/dns')).json<DnsStatus>();
     expect(off.configured).toBe(false);
     expect(fake.records.size).toBe(0);
@@ -239,6 +253,69 @@ describe('IONOS', () => {
           disabled: false,
         },
       ],
+    });
+  });
+});
+
+describe('INWX', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('logs in once with user and password, keeps the session cookie and uses names relative to the domain', async () => {
+    const calls: { method: string; params: Record<string, unknown>; cookie: string | null }[] = [];
+    vi.stubGlobal('fetch', async (_input: string | URL | Request, init?: RequestInit) => {
+      const { method, params } = JSON.parse(String(init?.body)) as {
+        method: string;
+        params: Record<string, unknown>;
+      };
+      calls.push({ method, params, cookie: new Headers(init?.headers).get('cookie') });
+      if (method === 'account.login') {
+        const ok = params['user'] === 'philip' && params['pass'] === 'geheim';
+        return Response.json(
+          ok ? { code: 1000, msg: 'ok', resData: { tfa: '0' } } : { code: 2200, msg: 'Authentication error' },
+          {
+            headers: ok ? { 'set-cookie': 'domrobot=abc123; Path=/; HttpOnly' } : {},
+          },
+        );
+      }
+      if (method === 'nameserver.list')
+        return Response.json({
+          code: 1000,
+          msg: 'ok',
+          resData: { domains: [{ domain: 'mornihosting.de' }] },
+        });
+      if (method === 'nameserver.createRecord')
+        return Response.json({ code: 1000, msg: 'ok', resData: { id: 4711 } });
+      return Response.json({ code: 2303, msg: 'Object does not exist' });
+    });
+    const wrong = createDnsClient('inwx', JSON.stringify({ user: 'philip', pass: 'falsch' }));
+    await expect(wrong.zones()).rejects.toMatchObject({ code: 'dns_unauthorized' });
+
+    const client = createDnsClient('inwx', JSON.stringify({ user: 'philip', pass: 'geheim' }));
+    expect(await client.zones()).toEqual([{ id: 'mornihosting.de', name: 'mornihosting.de' }]);
+    const id = await client.create('mornihosting.de', {
+      type: 'SRV',
+      name: '_minecraft._tcp.reich.mornihosting.de',
+      srv: { priority: 0, weight: 5, port: 25566, target: 'reich.mornihosting.de' },
+    });
+    expect(id).toBe('4711');
+    await client.create('mornihosting.de', { type: 'A', name: 'mornihosting.de', ip: '93.223.190.172' });
+    await client.remove('mornihosting.de', '999');
+    const after = calls.slice(1);
+    expect(after.filter((c) => c.method === 'account.login')).toHaveLength(1);
+    expect(after.slice(1).every((c) => c.cookie === 'domrobot=abc123')).toBe(true);
+    expect(after.find((c) => c.method === 'nameserver.createRecord')?.params).toEqual({
+      domain: 'mornihosting.de',
+      type: 'SRV',
+      name: '_minecraft._tcp.reich',
+      content: '5 25566 reich.mornihosting.de',
+      prio: 0,
+      ttl: 300,
+    });
+    expect(after.filter((c) => c.method === 'nameserver.createRecord')[1]?.params).toMatchObject({
+      name: '',
+      type: 'A',
     });
   });
 });

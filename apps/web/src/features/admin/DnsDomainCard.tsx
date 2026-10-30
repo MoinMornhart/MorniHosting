@@ -15,7 +15,18 @@ import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { dnsStatusQuery } from '@/features/dns/dns';
 
-const PROVIDER_LABEL: Readonly<Record<DnsProvider, string>> = { cloudflare: 'Cloudflare', ionos: 'IONOS' };
+const PROVIDER_LABEL: Readonly<Record<DnsProvider, string>> = {
+  inwx: 'INWX',
+  cloudflare: 'Cloudflare',
+  ionos: 'IONOS',
+};
+
+/** INWX login data as the stored key; empty until user name and password are filled in. */
+function loginToken(login: { user: string; pass: string; otp: string }): string {
+  if (!login.user.trim() || !login.pass) return '';
+  const otp = login.otp.trim();
+  return JSON.stringify({ user: login.user.trim(), pass: login.pass, ...(otp ? { otp } : {}) });
+}
 
 function ConnectForm({
   status,
@@ -27,11 +38,15 @@ function ConnectForm({
   onCancel: (() => void) | null;
 }): ReactElement {
   const { t } = useTranslation();
-  const [provider, setProvider] = useState<DnsProvider>(status.provider ?? 'cloudflare');
-  const [token, setToken] = useState('');
+  const [provider, setProvider] = useState<DnsProvider>(status.provider ?? 'inwx');
+  const [key, setKey] = useState('');
+  // INWX signs in with the account itself: user name, password and – if 2FA is on – its secret.
+  const [login, setLogin] = useState({ user: '', pass: '', otp: '' });
+  const usesLogin = provider === 'inwx';
+  const token = usesLogin ? loginToken(login) : key.trim();
   const [zoneId, setZoneId] = useState('');
   const keepToken = status.configured && status.provider === provider;
-  const body = { provider, ...(token.trim() ? { token: token.trim() } : {}) };
+  const body = { provider, ...(token ? { token } : {}) };
   const discover = useMutation({
     mutationFn: () => api<{ zones: DnsZoneOption[] }>('/api/dns/discover', { method: 'POST', body }),
     onSuccess: ({ zones }) =>
@@ -71,26 +86,62 @@ function ConnectForm({
             </SelectContent>
           </Select>
         </label>
-        <Field
-          id="dns-token"
-          label={t('dnsAuto.tokenLabel')}
-          hint={keepToken ? t('dnsAuto.tokenKeep') : t(`dnsAuto.tokenHint.${provider}`)}
-        >
-          <Input
+        {usesLogin ? null : (
+          <Field
             id="dns-token"
-            type="password"
-            autoComplete="off"
-            value={token}
-            placeholder={keepToken ? '••••••••' : ''}
-            onChange={(e) => setToken(e.target.value)}
-          />
-        </Field>
+            label={t('dnsAuto.tokenLabel')}
+            hint={keepToken ? t('dnsAuto.tokenKeep') : t(`dnsAuto.tokenHint.${provider}`)}
+          >
+            <Input
+              id="dns-token"
+              type="password"
+              autoComplete="off"
+              value={key}
+              placeholder={keepToken ? '••••••••' : ''}
+              onChange={(e) => setKey(e.target.value)}
+            />
+          </Field>
+        )}
       </div>
+      {usesLogin ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field id="dns-user" label={t('dnsAuto.inwxUser')}>
+            <Input
+              id="dns-user"
+              autoComplete="off"
+              value={login.user}
+              onChange={(e) => setLogin({ ...login, user: e.target.value })}
+            />
+          </Field>
+          <Field id="dns-pass" label={t('dnsAuto.inwxPass')}>
+            <Input
+              id="dns-pass"
+              type="password"
+              autoComplete="off"
+              value={login.pass}
+              placeholder={keepToken ? '••••••••' : ''}
+              onChange={(e) => setLogin({ ...login, pass: e.target.value })}
+            />
+          </Field>
+          <Field id="dns-otp" label={t('dnsAuto.inwxOtp')}>
+            <Input
+              id="dns-otp"
+              type="password"
+              autoComplete="off"
+              value={login.otp}
+              onChange={(e) => setLogin({ ...login, otp: e.target.value })}
+            />
+          </Field>
+          <p className="text-[13px] text-muted-foreground sm:col-span-3">
+            {keepToken ? t('dnsAuto.tokenKeep') : t('dnsAuto.tokenHint.inwx')}
+          </p>
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           variant={zones ? 'secondary' : 'default'}
-          disabled={discover.isPending || (!token.trim() && !keepToken)}
+          disabled={discover.isPending || (!token && !keepToken)}
           onClick={() => discover.mutate()}
         >
           <PlugZap />

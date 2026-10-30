@@ -6,7 +6,7 @@ import { z } from 'zod';
  * (kept up to date like DynDNS) and, for Java, an SRV record so players need no port.
  */
 
-export const DNS_PROVIDERS = ['cloudflare', 'ionos'] as const;
+export const DNS_PROVIDERS = ['inwx', 'cloudflare', 'ionos'] as const;
 export type DnsProvider = (typeof DNS_PROVIDERS)[number];
 
 const TOKEN_MAX = 300;
