@@ -6,12 +6,12 @@ MorniHosting kann deine Minecraft-Server und das Panel vor **Flut-Angriffen** sc
 
 Pro Absender-IP (bei IPv6 pro /64, also pro Anschluss) gelten diese Grenzen:
 
-| Was | Grenze | Warum so viel |
-| --- | --- | --- |
-| Neue TCP-Verbindungen (Java, Panel) | 120 pro Minute, bis zu 60 auf einmal | Server-Liste aktualisieren, Einloggen, Browser-Tabs – auch für eine ganze Familie |
-| Gleichzeitig offene TCP-Verbindungen | 64 | Ein Spieler braucht eine, ein Browser bis zu 6 |
-| UDP-Pakete (Bedrock/Geyser, Voice-Chat) | 4000 pro Sekunde, Spitze 8000 | Bedrock ~100, Voice-Chat ~50 Pakete pro Spieler und Sekunde |
-| Kaputte TCP-Pakete (gehören zu keiner Verbindung) | werden verworfen | – |
+| Was                                               | Grenze                               | Warum so viel                                                                     |
+| ------------------------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
+| Neue TCP-Verbindungen (Java, Panel)               | 120 pro Minute, bis zu 60 auf einmal | Server-Liste aktualisieren, Einloggen, Browser-Tabs – auch für eine ganze Familie |
+| Gleichzeitig offene TCP-Verbindungen              | 64                                   | Ein Spieler braucht eine, ein Browser bis zu 6                                    |
+| UDP-Pakete (Bedrock/Geyser, Voice-Chat)           | 4000 pro Sekunde, Spitze 8000        | Bedrock ~100, Voice-Chat ~50 Pakete pro Spieler und Sekunde                       |
+| Kaputte TCP-Pakete (gehören zu keiner Verbindung) | werden verworfen                     | –                                                                                 |
 
 Dazu SYN-Cookies, schnelleres Vergessen halb offener Verbindungen und eine größere Verbindungstabelle (sysctl).
 
