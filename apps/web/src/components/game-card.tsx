@@ -13,6 +13,7 @@ export function GameCard({ game, onStart }: { game: GameKind; onStart: () => voi
     <button
       type="button"
       onClick={onStart}
+      style={{ color: 'inherit' }}
       className="group grid grid-rows-[auto_1fr] overflow-hidden rounded-[18px] border border-border bg-card text-left shadow-card transition hover:-translate-y-1 hover:border-primary hover:shadow-xl"
     >
       <span className="relative block h-48 overflow-hidden">

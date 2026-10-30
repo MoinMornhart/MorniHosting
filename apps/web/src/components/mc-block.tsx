@@ -8,7 +8,22 @@ import { cn } from '@/lib/utils';
  */
 
 export type BlockKind =
-  'grass' | 'purpur' | 'planks' | 'furnace' | 'magma' | 'prismarine' | 'diamond' | 'command' | 'stone';
+  | 'grass'
+  | 'purpur'
+  | 'planks'
+  | 'furnace'
+  | 'magma'
+  | 'prismarine'
+  | 'diamond'
+  | 'command'
+  | 'stone'
+  | 'copper'
+  | 'iron'
+  | 'gold'
+  | 'emerald'
+  | 'redstone'
+  | 'amethyst'
+  | 'netherite';
 
 type Face = 'top' | 'side' | 'front';
 type Painter = (x: number, y: number, r: Rng) => string;
@@ -28,7 +43,37 @@ const MAGMA = ['#7a2a12', '#8f3a14', '#5e1f0e', '#9b4416'];
 const COMMAND = ['#c98a4f', '#b9783f', '#d79a5d', '#a96c37'];
 const DIAMOND_DOTS = new Set(['1,1', '2,1', '5,2', '6,3', '2,5', '3,5', '5,6', '6,6']);
 
+const AMETHYST = ['#9a5cc6', '#8a4fb5', '#b07ad8', '#7b41a3', '#c69ae6'];
+const DEBRIS = ['#5e4a44', '#6b5550', '#4d3c37', '#7a6159'];
+
+/** An ore: stone with clusters of the mineral in its colours, on every face a little differently. */
+function ore(spots: readonly string[]): Readonly<Record<Face, Painter>> {
+  return {
+    top: (x, y, r) => (DIAMOND_DOTS.has(`${x},${y}`) ? pick(r, spots) : pick(r, STONE)),
+    side: (x, y, r) => (DIAMOND_DOTS.has(`${y},${x}`) ? pick(r, spots) : pick(r, STONE)),
+    front: (x, y, r) => (DIAMOND_DOTS.has(`${7 - x},${y}`) ? pick(r, spots) : pick(r, STONE)),
+  };
+}
+
 const PAINTERS: Readonly<Record<BlockKind, Readonly<Record<Face, Painter>>>> = {
+  copper: ore(['#e0814a', '#c9693a', '#5fb89a']),
+  iron: ore(['#e3c3a8', '#d2a98a', '#f0dccb']),
+  gold: ore(['#ffe14d', '#f5c518', '#fff3a0']),
+  emerald: ore(['#3ddc75', '#17b45a', '#9bf5b8']),
+  redstone: ore(['#ff2b2b', '#c81414', '#ff7a7a']),
+  amethyst: {
+    top: (x, y, r) => ((x * 3 + y) % 5 === 0 ? '#e9c9ff' : pick(r, AMETHYST)),
+    side: (x, y, r) => ((x + y * 3) % 5 === 0 ? '#e9c9ff' : pick(r, AMETHYST)),
+    front: (x, y, r) => ((x * 2 + y * 3) % 5 === 0 ? '#e9c9ff' : pick(r, AMETHYST)),
+  },
+  netherite: {
+    top: (x, y, r) => ((x + y) % 4 === 0 ? '#9c857c' : pick(r, DEBRIS)),
+    side: (_x, y, r) => (y % 3 === 0 ? '#3f312d' : pick(r, DEBRIS)),
+    front: (x, y, r) => {
+      if (y % 3 === 0) return '#3f312d';
+      return (x + y) % 5 === 0 ? '#9c857c' : pick(r, DEBRIS);
+    },
+  },
   grass: {
     top: (_x, _y, r) => pick(r, GREEN),
     side: (_x, y, r) => (y < 2 || (y === 2 && r() > 0.5) ? pick(r, GREEN) : pick(r, DIRT)),

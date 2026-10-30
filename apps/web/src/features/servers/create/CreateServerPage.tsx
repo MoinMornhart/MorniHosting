@@ -34,7 +34,7 @@ import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge, Gem, type GemTier } from '@/components/art';
+import { Badge } from '@/components/art';
 import { GameCard } from '@/components/game-card';
 import { blockOf, McBlock } from '@/components/mc-block';
 import { hasProjectLogo, ProjectLogo } from '@/components/project-logo';
@@ -53,8 +53,14 @@ const GAMES = ['java', 'bedrock', 'crossplay'] as const;
 type Game = (typeof GAMES)[number];
 
 const MB_PER_GB = 1024;
+/**
+ * Card-like buttons take the text colour of the card. Set inline, because some app viewers (the demo inside
+ * the Claude app on iPhone) give buttons their own dark text colour that would otherwise win.
+ */
+export const OWN_TEXT_COLOUR = { color: 'inherit' } as const;
 /* eslint-disable ts-patterns/no-magic-numbers -- the package table: GB, about how many players, and its stone */
-type Tier = 'stone' | 'copper' | 'iron' | 'gold' | 'emerald' | 'diamond' | 'amethyst' | 'ruby' | 'netherite';
+type Tier =
+  'stone' | 'copper' | 'iron' | 'gold' | 'emerald' | 'diamond' | 'amethyst' | 'redstone' | 'netherite';
 /** The packages: memory and about how many players it carries (vanilla/Paper, a few plugins). */
 const PLANS: readonly { readonly gb: number; readonly players: number; readonly tier: Tier }[] = [
   { gb: 2, players: 4, tier: 'stone' },
@@ -64,20 +70,20 @@ const PLANS: readonly { readonly gb: number; readonly players: number; readonly 
   { gb: 6, players: 15, tier: 'emerald' },
   { gb: 8, players: 20, tier: 'diamond' },
   { gb: 10, players: 40, tier: 'amethyst' },
-  { gb: 12, players: 50, tier: 'ruby' },
+  { gb: 12, players: 50, tier: 'redstone' },
   { gb: 16, players: 100, tier: 'netherite' },
 ];
-/** Each package is a stone: the bigger, the rarer – with more sparkle. */
-const TIERS: Readonly<Record<Tier, GemTier>> = {
-  stone: { shades: ['#e2e8f0', '#94a3b8', '#475569'], sparkles: 0 },
-  copper: { shades: ['#fed7aa', '#ea7a3b', '#9a3412'], sparkles: 0 },
-  iron: { shades: ['#f8fafc', '#cbd5e1', '#64748b'], sparkles: 1 },
-  gold: { shades: ['#fef08a', '#facc15', '#b45309'], sparkles: 1 },
-  emerald: { shades: ['#bbf7d0', '#22c55e', '#166534'], sparkles: 1 },
-  diamond: { shades: ['#cffafe', '#22d3ee', '#0e7490'], sparkles: 2 },
-  amethyst: { shades: ['#f3e8ff', '#a855f7', '#6b21a8'], sparkles: 2 },
-  ruby: { shades: ['#ffe4e6', '#f43f5e', '#9f1239'], sparkles: 2 },
-  netherite: { shades: ['#e7e5e4', '#8a7f7a', '#44403c'], sparkles: 3 },
+/** Each package is a Minecraft ore: the bigger, the rarer. The glow behind it takes the ore's colour. */
+const TIER_GLOW: Readonly<Record<Tier, string>> = {
+  stone: '#94a3b8',
+  copper: '#ea7a3b',
+  iron: '#e2c3a6',
+  gold: '#facc15',
+  emerald: '#22c55e',
+  diamond: '#22d3ee',
+  amethyst: '#a855f7',
+  redstone: '#ef4444',
+  netherite: '#a8a29e',
 };
 /* eslint-enable ts-patterns/no-magic-numbers */
 const FALLBACK_PLAN_GB = 2;
@@ -397,12 +403,13 @@ export function CreateServerPage(): ReactElement {
                     type="button"
                     aria-pressed={selected}
                     disabled={tooBig}
+                    style={OWN_TEXT_COLOUR}
                     onClick={() => {
                       setCustom(false);
                       setMemoryPick(mb);
                     }}
                     className={cn(
-                      'group relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
+                      'group relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center text-foreground transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
                       selected && 'border-primary bg-accent ring-1 ring-primary',
                     )}
                   >
@@ -411,10 +418,17 @@ export function CreateServerPage(): ReactElement {
                         {t('order.recommended')}
                       </span>
                     ) : null}
-                    <Gem
-                      tier={TIERS[p.tier]}
-                      className="transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"
-                    />
+                    <span
+                      className="grid size-[76px] place-items-center rounded-full"
+                      style={{
+                        background: `radial-gradient(circle, ${TIER_GLOW[p.tier]}55, transparent 68%)`,
+                      }}
+                    >
+                      <McBlock
+                        kind={p.tier}
+                        className="size-[60px] transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"
+                      />
+                    </span>
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                       {t(`order.tiers.${p.tier}`)}
                     </span>
@@ -497,6 +511,7 @@ export function CreateServerPage(): ReactElement {
                     key={id}
                     type="button"
                     aria-pressed={software === id}
+                    style={OWN_TEXT_COLOUR}
                     onClick={() => {
                       setSoftwarePick(id);
                       setVersion('');
