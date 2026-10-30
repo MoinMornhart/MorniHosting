@@ -6,7 +6,7 @@ import { z } from 'zod';
  * (kept up to date like DynDNS) and, for Java, an SRV record so players need no port.
  */
 
-export const DNS_PROVIDERS = ['cloudflare', 'ionos'] as const;
+export const DNS_PROVIDERS = ['inwx', 'cloudflare', 'ionos'] as const;
 export type DnsProvider = (typeof DNS_PROVIDERS)[number];
 
 const TOKEN_MAX = 300;
@@ -32,6 +32,20 @@ export interface DnsZoneOption {
   readonly id: string;
   readonly name: string;
 }
+
+/** HTTPS for the own domain: a Caddy helper on ports 80/443 in front of the panel. */
+export interface HttpsStatus {
+  readonly enabled: boolean;
+  /** The domain the panel is (or would be) reached at, e.g. "mornihosting.de". */
+  readonly domain: string | null;
+  readonly running: boolean;
+  readonly error: {
+    readonly code: string;
+    readonly params: Readonly<Record<string, string | number>>;
+  } | null;
+}
+
+export const httpsSchema = z.object({ enabled: z.boolean() });
 
 export interface DnsStatus {
   readonly configured: boolean;

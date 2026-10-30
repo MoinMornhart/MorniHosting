@@ -1,85 +1,86 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, ChevronLeft, ChevronRight, Rocket, Search, Upload } from 'lucide-react';
+import {
+  ArrowLeft,
+  Blocks,
+  Check,
+  Cpu,
+  Gauge,
+  Globe,
+  Puzzle,
+  Rocket,
+  Settings2,
+  ShieldCheck,
+  Upload,
+  Users,
+  Zap,
+} from 'lucide-react';
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import {
   CREATABLE_SOFTWARE,
   SOFTWARE,
   recommendedMemoryMb,
   type CreateServerInput,
-  type Edition,
   type ServerSummary,
   type SoftwareId,
   type VersionOption,
 } from '@mornihosting/shared';
-import { PageHeader } from '@/components/page';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
 import { formatMemoryMb } from '@/lib/format';
-import { blockForServer, blockIcon } from '@/lib/pixel';
+import { blockForServer, blockIcon, type BlockKind } from '@/lib/pixel';
 import { errorText } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
-import { NetbirdNameInput } from '@/features/netbird/NetbirdNameInput';
 import { toNetbirdName, useAddressAutomation } from '@/features/netbird/netbird';
+import { GEYSER_SOFTWARE } from '../settings/GeyserCard';
+import { VOICE_CHAT_SOFTWARE } from '../settings/VoiceChatCard';
 import { serversQuery } from '../live';
 
-const STEPS = ['stepEdition', 'stepSoftware', 'stepVersion', 'stepSize', 'stepName'] as const;
-const STEP_SOFTWARE = 1;
-const STEP_VERSION = 2;
-const STEP_SIZE = 3;
-const STEP_NAME = 4;
+/** What can be ordered, like at a hoster: Java, Bedrock, or a Java server Bedrock players can join (Geyser). */
+const GAMES = ['java', 'bedrock', 'crossplay'] as const;
+type Game = (typeof GAMES)[number];
+const GAME_BLOCK: Readonly<Record<Game, BlockKind>> = { java: 'grass', bedrock: 'stone', crossplay: 'sand' };
+
+const MB_PER_GB = 1024;
+/* eslint-disable ts-patterns/no-magic-numbers -- the package table: GB and about how many players */
+/** The packages: memory and about how many players it carries (vanilla/Paper, a few plugins). */
+const PLANS: readonly { readonly gb: number; readonly players: number; readonly block: BlockKind }[] = [
+  { gb: 2, players: 4, block: 'grass' },
+  { gb: 3, players: 6, block: 'planks' },
+  { gb: 4, players: 8, block: 'stone' },
+  { gb: 5, players: 10, block: 'sand' },
+  { gb: 6, players: 15, block: 'pumpkin' },
+  { gb: 8, players: 20, block: 'ice' },
+  { gb: 10, players: 40, block: 'diamond' },
+  { gb: 12, players: 50, block: 'nether' },
+  { gb: 16, players: 100, block: 'diamond' },
+];
+/* eslint-enable ts-patterns/no-magic-numbers */
+const FALLBACK_PLAN_GB = 2;
+/** Rough rule for a custom size between the packages: two players per GB. */
+const PLAYERS_PER_GB = 2;
 const MEMORY_STEP_MB = 512;
-const MEMORY_MIN_MB = 512;
+const MEMORY_MIN_MB = 1024;
 const MEMORY_CAP_MB = 32768;
-const MEMORY_SLIDER_MIN_MAX_MB = 1024;
 const FALLBACK_HOST_MB = 16384;
-const MAX_VISIBLE_VERSIONS = 60;
 const PORT_SEARCH_LIMIT = 200;
 const EULA_URL = 'https://www.minecraft.net/eula';
+const BACKUP_TIME = '04:00';
 
-function Choice({
-  selected,
-  onClick,
-  icon,
-  title,
-  text,
-  badge,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  icon?: ReactNode;
-  title: ReactNode;
-  text: ReactNode;
-  badge?: ReactNode;
-}): ReactElement {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={cn(
-        'flex items-start gap-3 rounded-[14px] border border-input bg-card p-4 text-left transition-colors hover:border-primary',
-        selected && 'border-primary bg-accent ring-1 ring-primary',
-      )}
-    >
-      {icon}
-      <span className="min-w-0 flex-1">
-        <span className="flex flex-wrap items-center gap-2 font-bold">
-          {title}
-          {badge}
-        </span>
-        <span className="mt-1 block text-sm text-muted-foreground">{text}</span>
-      </span>
-      {selected ? <Check className="size-5 shrink-0 text-primary" /> : null}
-    </button>
-  );
+const ADJECTIVES = ['mutiger', 'flinker', 'goldener', 'wilder', 'schlauer', 'gruener', 'stolzer', 'leiser'];
+const NOUNS = ['creeper', 'schleim', 'enderman', 'axolotl', 'golem', 'fuchs', 'panda', 'drache'];
+
+/** A fun name to start with, like hosters prefill: "goldener-axolotl". */
+function suggestName(): string {
+  const pick = (list: readonly string[]): string => list[Math.floor(Math.random() * list.length)] ?? '';
+  return `${pick(ADJECTIVES)}-${pick(NOUNS)}`;
 }
 
 function nextFreePort(base: number, servers: readonly ServerSummary[]): number {
@@ -88,66 +89,227 @@ function nextFreePort(base: number, servers: readonly ServerSummary[]): number {
   return candidates.find((p) => !used.has(p)) ?? base;
 }
 
+function isGame(value: string | null): value is Game {
+  return GAMES.some((g) => g === value);
+}
+
+function Section({
+  number,
+  icon,
+  title,
+  text,
+  children,
+}: {
+  number: number;
+  icon: ReactNode;
+  title: string;
+  text: string;
+  children: ReactNode;
+}): ReactElement {
+  return (
+    <section className="grid gap-4 border-b border-border p-5 last:border-b-0 sm:p-6">
+      <div className="flex items-start gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-accent text-primary">
+          {icon}
+        </span>
+        <div>
+          <h2 className="text-lg font-bold">
+            {number}. {title}
+          </h2>
+          <p className="text-sm text-muted-foreground">{text}</p>
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** Step 0: which game, like the hoster's game selection. */
+function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement {
+  const { t } = useTranslation();
+  return (
+    <div className="grid gap-5">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-[-0.02em]">{t('order.pickTitle')}</h1>
+        <p className="mt-1 text-muted-foreground">{t('order.pickText')}</p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {GAMES.map((g) => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => onPick(g)}
+            className="grid gap-4 rounded-[16px] border border-border bg-card p-5 text-left transition hover:-translate-y-0.5 hover:border-primary"
+          >
+            <img src={blockIcon(GAME_BLOCK[g])} alt="" className="pixelated size-14 rounded-[10px]" />
+            <span>
+              <span className="block text-lg font-bold">{t(`landing.games.${g}.title`)}</span>
+              <span className="block text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</span>
+            </span>
+            <span className="flex items-center justify-between text-sm font-semibold">
+              {t('landing.free')}
+              <span className="rounded-[10px] bg-primary px-3 py-1.5 text-primary-foreground">
+                {t('landing.start')}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
+      <Button asChild variant="ghost" className="justify-self-start">
+        <Link to="/servers/import">
+          <Upload />
+          {t('create.importInstead')}
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+function AddOn({
+  title,
+  text,
+  on,
+  locked,
+  recommended,
+  onChange,
+}: {
+  title: string;
+  text: string;
+  on: boolean;
+  locked?: boolean;
+  recommended?: boolean;
+  onChange: (on: boolean) => void;
+}): ReactElement {
+  const { t } = useTranslation();
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap items-center gap-3 rounded-[12px] border border-border bg-secondary/60 px-4 py-3',
+        on && 'border-primary/60 bg-accent',
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2 font-semibold">
+          {title}
+          {recommended ? (
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+              {t('order.recommended')}
+            </span>
+          ) : null}
+        </div>
+        <p className="text-sm text-muted-foreground">{text}</p>
+      </div>
+      <span className="text-sm font-semibold text-muted-foreground">{t('order.included')}</span>
+      <Button
+        type="button"
+        size="sm"
+        variant={on ? 'secondary' : 'default'}
+        disabled={locked}
+        onClick={() => onChange(!on)}
+      >
+        {on ? <Check /> : null}
+        {on ? t('order.added') : t('order.add')}
+      </Button>
+    </div>
+  );
+}
+
+/** Ordering a server like at a hoster: package, software, name, add-ons – and an order summary. Free, it's yours. */
 export function CreateServerPage(): ReactElement {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [params, setParams] = useSearchParams();
+  const gameParam = params.get('game');
+  const game: Game | null = isGame(gameParam) ? gameParam : null;
   const { data: servers = [] } = useQuery(serversQuery);
   const { data: host } = useQuery(hostQuery);
-  const [step, setStep] = useState(0);
-  const [edition, setEdition] = useState<Edition>('java');
-  const [software, setSoftware] = useState<SoftwareId>('paper');
+  const address = useAddressAutomation();
+
+  const edition = game === 'bedrock' ? 'bedrock' : 'java';
+  const softwareChoices = CREATABLE_SOFTWARE[edition].filter(
+    (id) => game !== 'crossplay' || GEYSER_SOFTWARE.includes(id),
+  );
+  const [softwarePick, setSoftwarePick] = useState<SoftwareId | null>(null);
+  const software: SoftwareId =
+    softwarePick && softwareChoices.includes(softwarePick) ? softwarePick : (softwareChoices[0] ?? 'paper');
   const [version, setVersion] = useState('');
   const [showUnstable, setShowUnstable] = useState(false);
-  const [filter, setFilter] = useState('');
-  const [memoryMb, setMemoryMb] = useState(recommendedMemoryMb('paper'));
-  const [name, setName] = useState('');
-  const [port, setPort] = useState<number | null>(null);
+  const [memoryPick, setMemoryPick] = useState<number | null>(null);
+  const [custom, setCustom] = useState(false);
+  const [subdomain, setSubdomain] = useState(suggestName);
+  const [displayName, setDisplayName] = useState('');
+  const [portPick, setPortPick] = useState<number | null>(null);
+  const [addOns, setAddOns] = useState({ geyser: false, voice: false, backups: true });
   const [startNow, setStartNow] = useState(true);
   const [eula, setEula] = useState(false);
-  const netbird = useAddressAutomation();
-  /** null while the address simply follows the server name. */
-  const [netbirdName, setNetbirdName] = useState<string | null>(null);
-  const chosenNetbirdName = (netbirdName ?? toNetbirdName(name)).trim();
 
   const versions = useQuery({
     queryKey: ['versions', software],
     queryFn: () => api<VersionOption[]>(`/api/versions/${software}`),
+    enabled: game !== null,
   });
-  const visibleVersions = useMemo(
-    () =>
-      (versions.data ?? [])
-        .filter((v) => showUnstable || v.stable)
-        .filter((v) => v.id.toLowerCase().includes(filter.toLowerCase()))
-        .slice(0, MAX_VISIBLE_VERSIONS),
-    [versions.data, showUnstable, filter],
+  const versionList = useMemo(
+    () => (versions.data ?? []).filter((v) => showUnstable || v.stable),
+    [versions.data, showUnstable],
   );
   const latestStable = versions.data?.find((v) => v.stable)?.id ?? '';
   const chosenVersion = version || latestStable;
-  const defaultPort = SOFTWARE[software].defaultPort;
-  const chosenPort = port ?? nextFreePort(defaultPort, servers);
+
+  const recommendedMb = recommendedMemoryMb(software);
+  const recommendedPlan = PLANS.find((p) => p.gb * MB_PER_GB >= recommendedMb) ?? PLANS[PLANS.length - 1];
+  const memoryMb = memoryPick ?? (recommendedPlan?.gb ?? FALLBACK_PLAN_GB) * MB_PER_GB;
   const hostTotal = host?.memoryTotalMb ?? FALLBACK_HOST_MB;
   const hostFree = host ? host.memoryTotalMb - host.memoryUsedMb : null;
   const maxMemory = Math.max(
-    MEMORY_SLIDER_MIN_MAX_MB,
+    MEMORY_MIN_MB,
     Math.min(MEMORY_CAP_MB, Math.floor(hostTotal / MEMORY_STEP_MB) * MEMORY_STEP_MB),
   );
+  const plan = custom ? undefined : PLANS.find((p) => p.gb * MB_PER_GB === memoryMb);
+  const players = plan?.players ?? Math.max(1, Math.round((memoryMb / MB_PER_GB) * PLAYERS_PER_GB));
+
+  const defaultPort = SOFTWARE[software].defaultPort;
+  const port = portPick ?? nextFreePort(defaultPort, servers);
+  const geyserPossible = edition === 'java' && GEYSER_SOFTWARE.includes(software);
+  const voicePossible = VOICE_CHAT_SOFTWARE.includes(software);
+  const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
+  const voice = voicePossible && addOns.voice;
+  const addressName = toNetbirdName(subdomain, '');
+  const name = displayName.trim() || subdomain.trim();
+  const hostname = address && addressName ? `${addressName}.${address.domain}` : null;
 
   const create = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const body: CreateServerInput = {
-        name: name.trim(),
+        name,
         edition,
         software,
         version: chosenVersion,
         memoryMb,
-        port: chosenPort,
+        port,
         eula: true,
         autoStart: true,
         startNow,
-        ...(netbird && chosenNetbirdName ? { netbirdName: chosenNetbirdName } : {}),
+        ...(address && addressName ? { netbirdName: addressName } : {}),
       };
-      return api<ServerSummary>('/api/servers', { method: 'POST', body });
+      const server = await api<ServerSummary>('/api/servers', { method: 'POST', body });
+      // The add-ons from the order; a failing one does not stop the server from being there.
+      await Promise.allSettled([
+        geyser ? api(`/api/servers/${server.id}/geyser`, { method: 'PUT', body: { enabled: true } }) : null,
+        voice ? api(`/api/servers/${server.id}/voicechat`, { method: 'PUT', body: { enabled: true } }) : null,
+        addOns.backups
+          ? api(`/api/servers/${server.id}/schedules`, {
+              method: 'POST',
+              body: {
+                name: t('order.backupName'),
+                action: 'backup',
+                spec: { kind: 'daily', time: BACKUP_TIME },
+                enabled: true,
+              },
+            })
+          : null,
+      ]);
+      return server;
     },
     onSuccess: (server) => {
       void queryClient.invalidateQueries({ queryKey: serversQuery.queryKey });
@@ -157,266 +319,363 @@ export function CreateServerPage(): ReactElement {
     onError: () => undefined,
   });
 
-  const pickEdition = (value: Edition): void => {
-    const first = CREATABLE_SOFTWARE[value][0] ?? 'paper';
-    setEdition(value);
-    setSoftware(first);
-    setVersion('');
-    setPort(null);
-    setMemoryMb(recommendedMemoryMb(first));
-    setStep(value === 'bedrock' ? STEP_VERSION : STEP_SOFTWARE);
-  };
-  const pickSoftware = (value: SoftwareId): void => {
-    setSoftware(value);
-    setVersion('');
-    setPort(null);
-    setMemoryMb(recommendedMemoryMb(value));
-    setStep(STEP_VERSION);
-  };
+  if (!game) return <GamePicker onPick={(g) => setParams({ game: g })} />;
 
-  const canNext: Readonly<Record<number, boolean>> = {
-    0: true,
-    [STEP_SOFTWARE]: true,
-    [STEP_VERSION]: Boolean(chosenVersion),
-    [STEP_SIZE]: true,
-    [STEP_NAME]: Boolean(name.trim()) && eula,
-  };
-  const back = (): void =>
-    setStep((s) => (edition === 'bedrock' && s === STEP_VERSION ? 0 : Math.max(0, s - 1)));
+  const ready = Boolean(chosenVersion) && Boolean(name) && eula && (!address || Boolean(addressName));
+  const features = [
+    { key: 'panel', icon: Blocks },
+    { key: 'instant', icon: Rocket },
+    { key: 'secure', icon: ShieldCheck },
+    { key: 'fast', icon: Zap },
+  ] as const;
 
   return (
-    <>
-      <PageHeader
-        title={t('create.title')}
-        subtitle={t('create.subtitle')}
-        actions={
-          <Button asChild variant="ghost">
-            <Link to="/servers/import">
-              <Upload />
-              {t('create.importInstead')}
-            </Link>
-          </Button>
-        }
-      />
-      <ol className="flex flex-wrap gap-2 text-xs font-semibold">
-        {STEPS.map((key, i) => (
-          <li
-            key={key}
-            className={cn(
-              'flex items-center gap-1.5 rounded-full px-3 py-1.5',
-              i < step && 'bg-accent text-foreground',
-              i === step && 'bg-primary text-primary-foreground',
-              i > step && 'bg-muted text-muted-foreground',
-            )}
+    <div className="grid gap-5">
+      <header className="grid gap-3 rounded-[16px] border border-border bg-card bg-[radial-gradient(ellipse_at_0%_0%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)] p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="flex items-center gap-3 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
+            <img src={blockIcon(GAME_BLOCK[game])} alt="" className="pixelated size-9 rounded-[8px]" />
+            {t(`order.title.${game}`)}
+          </h1>
+          <Link
+            to="/servers/new"
+            className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
           >
-            {i < step ? <Check className="size-3.5" /> : <span>{i + 1}</span>}
-            {t(`create.${key}`)}
-          </li>
-        ))}
-      </ol>
+            <ArrowLeft className="size-4" />
+            {t('order.backToGames')}
+          </Link>
+        </div>
+        <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          {features.map(({ key, icon: Icon }) => (
+            <li key={key} className="flex items-center gap-1.5">
+              <Icon className="size-4 text-primary" aria-hidden />
+              {t(`landing.perks.${key}`)}
+            </li>
+          ))}
+        </ul>
+      </header>
 
-      <Card className="grid gap-5 p-5 sm:p-6">
-        {step === 0 ? (
-          <>
-            <h2 className="text-xl font-bold">{t('create.editionTitle')}</h2>
-            <div className="grid gap-3 md:grid-cols-2">
-              <Choice
-                selected={edition === 'java'}
-                onClick={() => pickEdition('java')}
-                icon={<img src={blockIcon('grass')} alt="" className="pixelated size-12 rounded-[10px]" />}
-                title={t('create.java')}
-                text={t('create.javaText')}
-              />
-              <Choice
-                selected={edition === 'bedrock'}
-                onClick={() => pickEdition('bedrock')}
-                icon={<img src={blockIcon('pumpkin')} alt="" className="pixelated size-12 rounded-[10px]" />}
-                title={t('create.bedrock')}
-                text={t('create.bedrockText')}
-              />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="overflow-hidden rounded-[16px] border border-border bg-card">
+          <Section
+            number={1}
+            icon={<Gauge className="size-5" />}
+            title={t('order.performance')}
+            text={t('order.performanceText')}
+          >
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {PLANS.map((p) => {
+                const mb = p.gb * MB_PER_GB;
+                const selected = !custom && memoryMb === mb;
+                const tooBig = mb > hostTotal;
+                return (
+                  <button
+                    key={p.gb}
+                    type="button"
+                    aria-pressed={selected}
+                    disabled={tooBig}
+                    onClick={() => {
+                      setCustom(false);
+                      setMemoryPick(mb);
+                    }}
+                    className={cn(
+                      'relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
+                      selected && 'border-primary bg-accent ring-1 ring-primary',
+                    )}
+                  >
+                    {p === recommendedPlan ? (
+                      <span className="absolute -top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+                        {t('order.recommended')}
+                      </span>
+                    ) : null}
+                    <img src={blockIcon(p.block)} alt="" className="pixelated size-10 rounded-[8px]" />
+                    <span className="text-xl font-extrabold">
+                      {p.gb} GB <span className="text-muted-foreground">RAM</span>
+                    </span>
+                    <span className="flex items-center gap-1 rounded-[8px] border border-border px-2 py-0.5 text-xs">
+                      ~{p.players} <Users className="size-3.5" aria-hidden />
+                    </span>
+                    <span className="text-sm font-semibold">{t('landing.free')}</span>
+                  </button>
+                );
+              })}
             </div>
-          </>
-        ) : null}
+            <div
+              className={cn(
+                'grid gap-3 rounded-[14px] border border-dashed border-border p-4',
+                custom && 'border-solid border-primary bg-accent',
+              )}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="flex items-center gap-2 font-semibold">
+                  <Settings2 className="size-4 text-primary" aria-hidden />
+                  {t('order.custom')}
+                </span>
+                {custom ? (
+                  <span className="text-sm font-semibold">
+                    {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
+                  </span>
+                ) : (
+                  <Button type="button" size="sm" variant="secondary" onClick={() => setCustom(true)}>
+                    {t('order.customize')}
+                  </Button>
+                )}
+              </div>
+              {custom ? (
+                <>
+                  <Slider
+                    value={[memoryMb]}
+                    min={MEMORY_MIN_MB}
+                    max={maxMemory}
+                    step={MEMORY_STEP_MB}
+                    onValueChange={([value]) => setMemoryPick(value ?? memoryMb)}
+                    aria-label={t('order.custom')}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{formatMemoryMb(MEMORY_MIN_MB)}</span>
+                    <span>{formatMemoryMb(maxMemory)}</span>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t('order.customText')}</p>
+              )}
+            </div>
+            <p
+              className={cn(
+                'text-sm',
+                hostFree !== null && memoryMb > hostFree ? 'text-warning' : 'text-muted-foreground',
+              )}
+            >
+              {hostFree !== null && memoryMb > hostFree
+                ? t('create.ramWarn')
+                : t('order.recommendation', {
+                    software: SOFTWARE[software].label,
+                    ram: formatMemoryMb(recommendedMb),
+                  })}
+            </p>
+          </Section>
 
-        {step === STEP_SOFTWARE ? (
-          <>
-            <h2 className="text-xl font-bold">{t('create.softwareTitle')}</h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {CREATABLE_SOFTWARE[edition].map((id) => (
-                <Choice
-                  key={id}
-                  selected={software === id}
-                  onClick={() => pickSoftware(id)}
-                  icon={
+          <Section
+            number={2}
+            icon={<Cpu className="size-5" />}
+            title={t('order.software')}
+            text={t('order.softwareText')}
+          >
+            {softwareChoices.length > 1 ? (
+              <div className="flex flex-wrap gap-2">
+                {softwareChoices.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-pressed={software === id}
+                    onClick={() => {
+                      setSoftwarePick(id);
+                      setVersion('');
+                      setPortPick(null);
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 rounded-[10px] border border-border bg-secondary/60 px-3 py-2 text-sm font-semibold hover:border-primary',
+                      software === id && 'border-primary bg-accent',
+                    )}
+                    title={t(`create.software.${id}`)}
+                  >
                     <img
                       src={blockIcon(blockForServer(id, id))}
                       alt=""
-                      className="pixelated size-10 rounded-[9px]"
+                      className="pixelated size-5 rounded-[4px]"
                     />
-                  }
-                  title={SOFTWARE[id].label}
-                  text={t(`create.software.${id}`)}
-                  badge={
-                    SOFTWARE[id].recommended ? (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] text-primary-foreground">
-                        {t('create.recommended')}
-                      </span>
-                    ) : null
-                  }
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
-
-        {step === STEP_VERSION ? (
-          <>
-            <div>
-              <h2 className="text-xl font-bold">{t('create.versionTitle')}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{t('create.versionHint')}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative min-w-[200px] flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  placeholder="1.21"
-                  className="pl-9"
-                  aria-label={t('common.search')}
-                />
+                    {SOFTWARE[id].label}
+                  </button>
+                ))}
               </div>
-              <label className="flex items-center gap-2 text-sm font-semibold">
+            ) : null}
+            <p className="text-sm text-muted-foreground">{t(`create.software.${software}`)}</p>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="grid min-w-[180px] gap-2 text-sm font-semibold">
+                {t('order.version')}
+                {versions.isPending ? (
+                  <Skeleton className="h-10" />
+                ) : (
+                  <Select value={chosenVersion} onValueChange={setVersion}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {versionList.map((v) => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.id === latestStable ? `${v.id} · ${t('create.latest')}` : v.id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </label>
+              <label className="flex items-center gap-2 pb-2 text-sm font-semibold">
                 <Switch checked={showUnstable} onCheckedChange={setShowUnstable} />
                 {t('create.showUnstable')}
               </label>
             </div>
-            {versions.isPending ? <Skeleton className="h-40" /> : null}
             {versions.error ? (
               <p className="rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">
                 {t('create.versionsFailed')} {errorText(versions.error)}
               </p>
             ) : null}
-            <div
-              className="grid max-h-[340px] grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-6"
-              role="radiogroup"
-              aria-label={t('create.versionTitle')}
-            >
-              {visibleVersions.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={chosenVersion === v.id}
-                  onClick={() => setVersion(v.id)}
-                  className={cn(
-                    'rounded-[10px] border border-input bg-secondary px-3 py-2 text-left font-mono text-sm hover:border-primary',
-                    chosenVersion === v.id && 'border-primary bg-accent font-semibold',
-                  )}
-                >
-                  {v.id}
-                  {v.id === latestStable ? (
-                    <span className="ml-1 font-sans text-[11px] text-primary">· {t('create.latest')}</span>
-                  ) : null}
-                </button>
-              ))}
-            </div>
-          </>
-        ) : null}
+          </Section>
 
-        {step === STEP_SIZE ? (
-          <>
-            <div>
-              <h2 className="text-xl font-bold">{t('create.sizeTitle')}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t('create.sizeHint', { recommended: formatMemoryMb(recommendedMemoryMb(software)) })}
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <span className="tabular text-4xl font-extrabold tracking-[-0.02em]">
-                {formatMemoryMb(memoryMb)}
-              </span>
-              <Slider
-                value={[memoryMb]}
-                min={MEMORY_MIN_MB}
-                max={maxMemory}
-                step={MEMORY_STEP_MB}
-                onValueChange={([value]) => setMemoryMb(value ?? memoryMb)}
-                aria-label={t('create.sizeTitle')}
+          <Section
+            number={3}
+            icon={<Globe className="size-5" />}
+            title={t('order.name')}
+            text={t('order.nameText')}
+          >
+            <div className="flex items-stretch overflow-hidden rounded-[12px] border border-input bg-background focus-within:ring-2 focus-within:ring-ring">
+              <input
+                id="server-address"
+                aria-label={t('order.name')}
+                value={subdomain}
+                maxLength={40}
+                spellCheck={false}
+                autoComplete="off"
+                onChange={(e) => setSubdomain(e.target.value)}
+                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-base outline-none"
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{formatMemoryMb(MEMORY_MIN_MB)}</span>
-                <span>{formatMemoryMb(maxMemory)}</span>
-              </div>
-              {hostFree !== null ? (
-                <p className={cn('text-sm', memoryMb > hostFree ? 'text-warning' : 'text-muted-foreground')}>
-                  {memoryMb > hostFree
-                    ? t('create.ramWarn')
-                    : t('create.ramFree', { free: formatMemoryMb(hostFree) })}
-                </p>
+              {address ? (
+                <span className="flex items-center border-l border-input bg-secondary px-3 font-mono text-sm text-muted-foreground">
+                  .{address.domain}
+                </span>
               ) : null}
             </div>
-          </>
-        ) : null}
-
-        {step === STEP_NAME ? (
-          <>
-            <h2 className="text-xl font-bold">{t('create.nameTitle')}</h2>
-            <div className="grid gap-4 md:grid-cols-[1fr_200px]">
-              <Field id="server-name" label={t('create.name')}>
-                <Input
-                  id="server-name"
-                  autoFocus
-                  maxLength={40}
-                  value={name}
-                  placeholder={t('create.namePlaceholder')}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </Field>
-              <Field
-                id="server-port"
-                label={t('create.port')}
-                hint={t('create.portHint', { port: defaultPort })}
-              >
-                <Input
-                  id="server-port"
-                  type="number"
-                  inputMode="numeric"
-                  value={chosenPort}
-                  onChange={(e) => setPort(Number(e.target.value) || null)}
-                />
-              </Field>
-            </div>
-            {netbird?.domain ? (
-              <Field
-                id="server-netbird"
-                label={t('netbirdAuto.fieldLabel')}
-                hint={t('netbirdAuto.createHint')}
-              >
-                <NetbirdNameInput
-                  id="server-netbird"
-                  value={netbirdName ?? toNetbirdName(name)}
-                  domain={netbird.domain}
-                  onChange={setNetbirdName}
-                />
-              </Field>
+            <p className="text-sm text-muted-foreground">
+              {hostname ? t('order.addressReady', { hostname }) : t('order.noDomain')}
+            </p>
+            {hostname && (edition === 'bedrock' || geyser) ? (
+              <p className="rounded-[10px] bg-secondary px-3 py-2 text-sm text-muted-foreground">
+                {edition === 'bedrock'
+                  ? t('order.bedrockJoin', { hostname, port })
+                  : t('order.geyserJoin', { hostname })}
+              </p>
             ) : null}
-            <div className="grid gap-2 rounded-[12px] bg-secondary p-4 text-sm">
-              <b>{t('create.summary')}</b>
-              <span className="text-muted-foreground">
-                {edition === 'java' ? t('create.java') : t('create.bedrock')} · {SOFTWARE[software].label}{' '}
-                {chosenVersion} · {formatMemoryMb(memoryMb)} · Port {chosenPort}
-              </span>
+            <Field id="server-name" label={t('order.displayName')} hint={t('order.displayNameHint')}>
+              <Input
+                id="server-name"
+                maxLength={40}
+                value={displayName}
+                placeholder={subdomain}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+            </Field>
+          </Section>
+
+          <Section
+            number={4}
+            icon={<Puzzle className="size-5" />}
+            title={t('order.addOns')}
+            text={t('order.addOnsText')}
+          >
+            {edition === 'java' ? (
+              <AddOn
+                title={t('order.geyser')}
+                text={geyserPossible ? t('order.geyserText') : t('order.notForSoftware')}
+                on={geyser}
+                locked={game === 'crossplay' || !geyserPossible}
+                recommended={game !== 'crossplay' && geyserPossible}
+                onChange={(on) => setAddOns({ ...addOns, geyser: on })}
+              />
+            ) : null}
+            <AddOn
+              title={t('order.voice')}
+              text={voicePossible ? t('order.voiceText') : t('order.notForSoftware')}
+              on={voice}
+              locked={!voicePossible}
+              onChange={(on) => setAddOns({ ...addOns, voice: on })}
+            />
+            <AddOn
+              title={t('order.backups')}
+              text={t('order.backupsText', { time: BACKUP_TIME })}
+              on={addOns.backups}
+              recommended
+              onChange={(on) => setAddOns({ ...addOns, backups: on })}
+            />
+            <details className="text-sm">
+              <summary className="cursor-pointer font-semibold text-muted-foreground">
+                {t('order.advanced')}
+              </summary>
+              <div className="mt-3 max-w-[220px]">
+                <Field
+                  id="server-port"
+                  label={t('create.port')}
+                  hint={t('create.portHint', { port: defaultPort })}
+                >
+                  <Input
+                    id="server-port"
+                    type="number"
+                    inputMode="numeric"
+                    value={port}
+                    onChange={(e) => setPortPick(Number(e.target.value) || null)}
+                  />
+                </Field>
+              </div>
+            </details>
+          </Section>
+        </div>
+
+        <aside className="grid gap-4 rounded-[16px] border border-border bg-card p-5 lg:sticky lg:top-4">
+          <h2 className="text-lg font-bold">{t('order.summary')}</h2>
+          <dl className="grid gap-3 text-sm">
+            <div className="flex justify-between gap-3 border-b border-border pb-3">
+              <dt>
+                <b className="block">{t(`order.title.${game}`)}</b>
+                <span className="font-mono text-xs uppercase text-muted-foreground">{name || '–'}</span>
+              </dt>
+              <dd className="font-semibold">{t('landing.free')}</dd>
             </div>
-            <label className="flex items-center gap-2.5 text-sm font-semibold">
-              <Switch checked={startNow} onCheckedChange={setStartNow} />
-              {t('create.startNow')}
-            </label>
-            <div className="flex items-center gap-2.5 text-sm">
-              <Checkbox id="eula" checked={eula} onCheckedChange={(v) => setEula(v === true)} />
-              <label htmlFor="eula" className="font-semibold">
-                {t('create.eula')}
-              </label>
+            <div className="flex justify-between gap-3 border-b border-border pb-3">
+              <dt className="text-muted-foreground">{t('order.performance')}</dt>
+              <dd className="text-right font-semibold">
+                {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3 border-b border-border pb-3">
+              <dt className="text-muted-foreground">{t('order.software')}</dt>
+              <dd className="text-right font-semibold">
+                {SOFTWARE[software].label} {chosenVersion}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3 border-b border-border pb-3">
+              <dt className="text-muted-foreground">{t('order.address')}</dt>
+              <dd className="break-all text-right font-mono text-xs font-semibold">
+                {hostname ?? `Port ${port}`}
+              </dd>
+            </div>
+            {geyser || voice || addOns.backups ? (
+              <div className="flex justify-between gap-3 border-b border-border pb-3">
+                <dt className="text-muted-foreground">{t('order.addOns')}</dt>
+                <dd className="grid text-right font-semibold">
+                  {geyser ? <span>{t('order.geyser')}</span> : null}
+                  {voice ? <span>{t('order.voice')}</span> : null}
+                  {addOns.backups ? <span>{t('order.backups')}</span> : null}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t('order.price')}
+            </div>
+            <div className="text-3xl font-extrabold">
+              0,00 €{' '}
+              <span className="text-base font-semibold text-muted-foreground">/ {t('order.month')}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">{t('order.priceNote')}</p>
+          </div>
+          <label className="flex items-center gap-2.5 text-sm">
+            <Checkbox checked={startNow} onCheckedChange={(v) => setStartNow(v === true)} />
+            {t('order.startNow')}
+          </label>
+          <div className="flex items-start gap-2.5 text-sm">
+            <Checkbox id="eula" checked={eula} onCheckedChange={(v) => setEula(v === true)} />
+            <label htmlFor="eula">
+              {t('create.eula')}{' '}
               <a
                 href={EULA_URL}
                 target="_blank"
@@ -425,33 +684,21 @@ export function CreateServerPage(): ReactElement {
               >
                 {t('create.eulaLink')}
               </a>
-            </div>
-            {create.error ? (
-              <p className="rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">
-                {errorText(create.error)}
-              </p>
-            ) : null}
-          </>
-        ) : null}
-
-        <div className="flex flex-wrap justify-between gap-2 border-t border-border pt-4">
-          <Button variant="secondary" disabled={step === 0} onClick={back}>
-            <ChevronLeft />
-            {t('common.back')}
+            </label>
+          </div>
+          {create.error ? (
+            <p className="rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">{errorText(create.error)}</p>
+          ) : null}
+          <Button size="lg" disabled={!ready || create.isPending} onClick={() => create.mutate()}>
+            <Rocket />
+            {create.isPending ? t('create.creating') : t('create.submit')}
           </Button>
-          {step < STEP_NAME ? (
-            <Button disabled={!canNext[step]} onClick={() => setStep((s) => s + 1)}>
-              {t('common.next')}
-              <ChevronRight />
-            </Button>
-          ) : (
-            <Button disabled={!canNext[STEP_NAME] || create.isPending} onClick={() => create.mutate()}>
-              <Rocket />
-              {create.isPending ? t('create.creating') : t('create.submit')}
-            </Button>
-          )}
-        </div>
-      </Card>
-    </>
+          <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <Check className="size-3.5" />
+            {t('order.changeLater')}
+          </p>
+        </aside>
+      </div>
+    </div>
   );
 }

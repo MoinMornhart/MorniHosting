@@ -33,6 +33,8 @@ function withPort(host: string, port: number, defaultPort: number): string {
   return port === defaultPort ? host : `${host}:${port}`;
 }
 
+const BEDROCK_PORT = SOFTWARE.bedrock.defaultPort;
+
 const REACH_STYLE = {
   reachable: { icon: CircleCheck, box: 'bg-success-soft', dot: 'bg-success text-background' },
   unreachable: { icon: CircleX, box: 'bg-warning-soft', dot: 'bg-warning text-background' },
@@ -62,7 +64,9 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
   const host = data.domain ?? data.publicIp ?? data.lanIp;
   // With a domain friends use the tunnel's port (NetBird, playit.gg) if one is set; via the IP the server port.
   const sharePort = data.domain ? data.sharePort : data.port;
-  const shareAddress = host ? withPort(host, sharePort, defaultPort) : null;
+  // A SRV record at the own domain tells Java where the port is; Bedrock has its own port field (hint below).
+  const bareName = data.srv === true || (server.edition === 'bedrock' && data.domain !== null);
+  const shareAddress = host && bareName ? host : host && withPort(host, sharePort, defaultPort);
   const voicePort = server.voicePublicPort ?? server.voicePort;
   // From home the public IP usually does not loop back through the router: show the LAN address too.
   const homeAddress = data.lanIp ? withPort(data.lanIp, data.port, defaultPort) : null;
@@ -71,6 +75,12 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
   const bedrock = server.netbird?.services.find((s) => s.purpose === 'geyser');
   const bedrockHost = bedrock?.domain ?? host;
   const bedrockPort = bedrock?.port ?? server.geyserPort;
+  // Bedrock knows no SRV records: off the standard port, players type the port into its own field.
+  const bedrockOffPort = server.edition === 'bedrock' ? sharePort : bedrockPort;
+  const bedrockPortHint =
+    data.domain && (server.edition === 'bedrock' || server.geyser) && bedrockOffPort !== BEDROCK_PORT
+      ? bedrockOffPort
+      : null;
   const netbirdError = server.netbird?.error;
   const running = server.live.state === 'running';
   const reach = data.reachable;
@@ -140,6 +150,12 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
             <span className="font-mono font-semibold">{bedrockPort}</span>
             <CopyButton text={bedrockHost} className="size-7" toastText={t('card.addressCopied')} />
           </div>
+        ) : null}
+        {bedrockPortHint ? (
+          <p className="flex items-start gap-2 rounded-[12px] bg-secondary px-3 py-2 text-[13px] text-muted-foreground">
+            <Smartphone className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+            {t('connection.bedrockNoSrv', { port: bedrockPortHint, standard: BEDROCK_PORT })}
+          </p>
         ) : null}
         {netbirdError ? (
           <p className="flex items-start gap-2 rounded-[12px] bg-warning-soft px-3 py-2 text-[13px] text-warning">

@@ -282,6 +282,8 @@ export interface ConnectionInfo {
   readonly reachable: ReachabilityResult | null;
   /** The person looking at the page is in the same home network: they join via the LAN address. */
   readonly viewerAtHome?: boolean;
+  /** The own domain has a Minecraft SRV record for this server: Java players type just the name, no port. */
+  readonly srv?: boolean;
 }
 
 export interface ReachabilityResult {

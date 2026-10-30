@@ -232,7 +232,8 @@
     "voiceChat": "Voice chat:",
     "voicePort": "UDP port {{port}}",
     "netbirdError": "NetBird could not set up the address: {{reason}}",
-    "atHome": "You are on the same home network right now – join from here with this address:"
+    "atHome": "You are on the same home network right now – join from here with this address:",
+    "bedrockNoSrv": "Bedrock knows no addresses with a built-in port: in the game, put the address above into “Server address” and {{port}} into “Port”. Only a server on {{standard}} works without a port."
   },
   "stats": {
     "players": "Players",
@@ -507,7 +508,10 @@
     "netbird_dns_active": "The own domain (without NetBird) is connected – disconnect it first, then NetBird works.",
     "dns_no_public_ip": "Your public IP cannot be found right now (api.ipify.org does not answer). The panel tries again every 5 minutes.",
     "dns_not_configured": "Neither NetBird nor an own domain is connected (admin area).",
-    "dns_failed": "The DNS records could not be created."
+    "dns_failed": "The DNS records could not be created.",
+    "dns_inwx_2fa": "This INWX account uses two-factor login. Enter the 2FA secret (or use a sub-account without 2FA).",
+    "https_needs_domain": "Connect your own domain first.",
+    "https_failed": "HTTPS could not start: {{message}}"
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1405,7 +1409,9 @@
       "account_minecraft_unlink": "Minecraft account unlinked",
       "dns_configure": "Own domain connected",
       "dns_disconnect": "Own domain disconnected",
-      "dns_server": "Address under own domain changed"
+      "dns_server": "Address under own domain changed",
+      "https_enable": "HTTPS turned on",
+      "https_disable": "HTTPS turned off"
     }
   },
   "account": {
@@ -1646,7 +1652,8 @@
     "tokenKeep": "Leave empty to keep using the stored key.",
     "tokenHint": {
       "cloudflare": "dash.cloudflare.com → Profile → API Tokens → “Create Token” → template “Edit zone DNS” → choose your domain as zone. The domain must use Cloudflare's name servers (Cloudflare shows them when you add the domain). Stored encrypted.",
-      "ionos": "developer.hosting.ionos.de → create an “API key”. It looks like prefix.secret – paste both together with the dot. Stored encrypted."
+      "ionos": "developer.hosting.ionos.de → create an “API key”. It looks like prefix.secret – paste both together with the dot. Stored encrypted.",
+      "inwx": "The login of your INWX account. Safest is a separate sub-account just for DNS (INWX: “Account → Sub-accounts”). If the account uses two-factor login, enter the secret INWX showed when setting up 2FA (not the 6-digit code). Everything is stored encrypted."
     },
     "connect": "Connect",
     "connecting": "Connecting …",
@@ -1661,6 +1668,121 @@
     "disconnected": "Own domain disconnected – the records are deleted.",
     "disconnectTitle": "Disconnect own domain?",
     "disconnectText": "MorniHosting deletes all records it created at your DNS provider. The servers keep running but are only reachable by IP.",
-    "netbirdActive": "NetBird hands out the addresses right now. For an own domain without NetBird, disconnect NetBird first (card below)."
+    "netbirdActive": "NetBird hands out the addresses right now. For an own domain without NetBird, disconnect NetBird first (card below).",
+    "inwxUser": "INWX user name",
+    "inwxPass": "INWX password",
+    "inwxOtp": "2FA secret (only if 2FA is on)"
+  },
+  "https": {
+    "title": "HTTPS for the panel",
+    "text": "One click starts a small web server (Caddy) that fetches the certificate by itself. Then https://{{domain}} opens the panel, and every address below it (e.g. survival.{{domain}}) leads there in the browser too. First forward TCP 80 and 443 to this machine in your router.",
+    "enable": "Turn on HTTPS",
+    "disable": "Turn off HTTPS",
+    "running": "Running",
+    "stopped": "Stopped",
+    "on": "HTTPS is running – the certificate arrives on the first visit.",
+    "off": "HTTPS is off."
+  },
+  "landing": {
+    "exampleDomain": "mornihosting.de",
+    "signIn": "Sign in",
+    "createServer": "Create server",
+    "tagline": "Your Minecraft server is waiting for you",
+    "text": "Get started! Java, Bedrock or both together – your server runs within a minute, with its own address under {{domain}}, mods, backups and everything else.",
+    "perks": {
+      "instant": "Ready instantly",
+      "panel": "Modern control panel",
+      "secure": "Secure with HTTPS & 2FA",
+      "fast": "Own hardware, no sharing"
+    },
+    "showGames": "Show servers",
+    "gamesTitle": "Our games",
+    "gamesText": "Pick what you start with – version and software can be changed any time.",
+    "games": {
+      "java": {
+        "title": "Minecraft Java",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac."
+      },
+      "bedrock": {
+        "title": "Minecraft Bedrock",
+        "text": "For phone, console and Windows – the store edition."
+      },
+      "crossplay": {
+        "title": "Minecraft Crossplay",
+        "text": "A Java server that Bedrock players can join too (Geyser)."
+      }
+    },
+    "free": "Free",
+    "start": "Start now",
+    "featuresTitle": "Everything for your Minecraft server",
+    "features": {
+      "mods": {
+        "title": "Mods & plugins in one click",
+        "text": "Modrinth, CurseForge, Hangar and SpigotMC – only what fits your version, dependencies included."
+      },
+      "worlds": {
+        "title": "Upload and download worlds",
+        "text": "Upload your own worlds, switch or create new ones – right in the panel."
+      },
+      "subdomain": {
+        "title": "Free subdomain",
+        "text": "Give your server a name – friends join via name.{{domain}}."
+      },
+      "backups": {
+        "title": "Backups & schedules",
+        "text": "Back up with a click or on a schedule, restarts with a warning in chat."
+      }
+    },
+    "footer": "Runs on your own server"
+  },
+  "order": {
+    "pickTitle": "Which game will it be?",
+    "pickText": "Pick the edition – then put your server together like at a hoster, just for free.",
+    "title": {
+      "java": "Minecraft: Java Edition server",
+      "bedrock": "Minecraft: Bedrock Edition server",
+      "crossplay": "Minecraft crossplay server (Java + Bedrock)"
+    },
+    "backToGames": "Back to the game selection",
+    "performance": "Choose performance",
+    "performanceText": "Set the slots & power. More memory (RAM) = more players and mods.",
+    "recommended": "Recommended",
+    "players": "players",
+    "custom": "Custom",
+    "customize": "Set it yourself",
+    "customText": "Need a different size? Set the memory yourself.",
+    "recommendation": "For {{software}} we recommend at least {{ram}}. The player count is a guide – many mods need more.",
+    "software": "Software & version",
+    "softwareText": "The server software decides whether plugins or mods run. Not sure? Keep the preselection.",
+    "version": "Minecraft version",
+    "name": "Choose a server name",
+    "nameText": "The address players use to connect to your server.",
+    "addressReady": "Players connect with {{hostname}}. We already filled in a name – change it now or any time later.",
+    "noDomain": "No own domain set up yet – players then connect by IP and port. You can set up a domain in the admin area.",
+    "displayName": "Display name (optional)",
+    "displayNameHint": "The server's name in the panel. Empty = same as the address.",
+    "addOns": "Configure add-ons",
+    "addOnsText": "Extras for your server. All included and changeable any time.",
+    "included": "Included",
+    "add": "Add",
+    "added": "Added",
+    "geyser": "Bedrock players (Geyser)",
+    "geyserText": "Phones, consoles and Windows edition can join.",
+    "voice": "Voice chat",
+    "voiceText": "Simple Voice Chat: talk to each other in Minecraft, louder the closer you are.",
+    "backups": "Automatic backups",
+    "backupsText": "A backup of your world every day at {{time}}.",
+    "backupName": "Daily backup",
+    "notForSoftware": "Not possible with this software.",
+    "advanced": "Advanced (port)",
+    "summary": "Order summary",
+    "address": "Address",
+    "price": "Price",
+    "month": "month",
+    "priceNote": "Free – it's your own server.",
+    "startNow": "The server is set up and started right away",
+    "changeLater": "Power & add-ons can be changed any time",
+    "bedrockJoin": "Bedrock players enter {{hostname}} as server address and {{port}} as port. Bedrock knows no addresses with a built-in port – only a server on 19132 works without entering a port.",
+    "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled)."
   }
 }

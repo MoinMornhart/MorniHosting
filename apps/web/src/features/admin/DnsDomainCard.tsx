@@ -1,9 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Globe, PlugZap, Save, Unplug } from 'lucide-react';
+import { ExternalLink, Globe, Lock, PlugZap, Save, Unplug } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { DNS_PROVIDERS, type DnsProvider, type DnsStatus, type DnsZoneOption } from '@mornihosting/shared';
+import {
+  DNS_PROVIDERS,
+  type DnsProvider,
+  type DnsStatus,
+  type DnsZoneOption,
+  type HttpsStatus,
+} from '@mornihosting/shared';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +21,18 @@ import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
 import { dnsStatusQuery } from '@/features/dns/dns';
 
-const PROVIDER_LABEL: Readonly<Record<DnsProvider, string>> = { cloudflare: 'Cloudflare', ionos: 'IONOS' };
+const PROVIDER_LABEL: Readonly<Record<DnsProvider, string>> = {
+  inwx: 'INWX',
+  cloudflare: 'Cloudflare',
+  ionos: 'IONOS',
+};
+
+/** INWX login data as the stored key; empty until user name and password are filled in. */
+function loginToken(login: { user: string; pass: string; otp: string }): string {
+  if (!login.user.trim() || !login.pass) return '';
+  const otp = login.otp.trim();
+  return JSON.stringify({ user: login.user.trim(), pass: login.pass, ...(otp ? { otp } : {}) });
+}
 
 function ConnectForm({
   status,
@@ -27,11 +44,15 @@ function ConnectForm({
   onCancel: (() => void) | null;
 }): ReactElement {
   const { t } = useTranslation();
-  const [provider, setProvider] = useState<DnsProvider>(status.provider ?? 'cloudflare');
-  const [token, setToken] = useState('');
+  const [provider, setProvider] = useState<DnsProvider>(status.provider ?? 'inwx');
+  const [key, setKey] = useState('');
+  // INWX signs in with the account itself: user name, password and – if 2FA is on – its secret.
+  const [login, setLogin] = useState({ user: '', pass: '', otp: '' });
+  const usesLogin = provider === 'inwx';
+  const token = usesLogin ? loginToken(login) : key.trim();
   const [zoneId, setZoneId] = useState('');
   const keepToken = status.configured && status.provider === provider;
-  const body = { provider, ...(token.trim() ? { token: token.trim() } : {}) };
+  const body = { provider, ...(token ? { token } : {}) };
   const discover = useMutation({
     mutationFn: () => api<{ zones: DnsZoneOption[] }>('/api/dns/discover', { method: 'POST', body }),
     onSuccess: ({ zones }) =>
@@ -71,26 +92,62 @@ function ConnectForm({
             </SelectContent>
           </Select>
         </label>
-        <Field
-          id="dns-token"
-          label={t('dnsAuto.tokenLabel')}
-          hint={keepToken ? t('dnsAuto.tokenKeep') : t(`dnsAuto.tokenHint.${provider}`)}
-        >
-          <Input
+        {usesLogin ? null : (
+          <Field
             id="dns-token"
-            type="password"
-            autoComplete="off"
-            value={token}
-            placeholder={keepToken ? '••••••••' : ''}
-            onChange={(e) => setToken(e.target.value)}
-          />
-        </Field>
+            label={t('dnsAuto.tokenLabel')}
+            hint={keepToken ? t('dnsAuto.tokenKeep') : t(`dnsAuto.tokenHint.${provider}`)}
+          >
+            <Input
+              id="dns-token"
+              type="password"
+              autoComplete="off"
+              value={key}
+              placeholder={keepToken ? '••••••••' : ''}
+              onChange={(e) => setKey(e.target.value)}
+            />
+          </Field>
+        )}
       </div>
+      {usesLogin ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field id="dns-user" label={t('dnsAuto.inwxUser')}>
+            <Input
+              id="dns-user"
+              autoComplete="off"
+              value={login.user}
+              onChange={(e) => setLogin({ ...login, user: e.target.value })}
+            />
+          </Field>
+          <Field id="dns-pass" label={t('dnsAuto.inwxPass')}>
+            <Input
+              id="dns-pass"
+              type="password"
+              autoComplete="off"
+              value={login.pass}
+              placeholder={keepToken ? '••••••••' : ''}
+              onChange={(e) => setLogin({ ...login, pass: e.target.value })}
+            />
+          </Field>
+          <Field id="dns-otp" label={t('dnsAuto.inwxOtp')}>
+            <Input
+              id="dns-otp"
+              type="password"
+              autoComplete="off"
+              value={login.otp}
+              onChange={(e) => setLogin({ ...login, otp: e.target.value })}
+            />
+          </Field>
+          <p className="text-[13px] text-muted-foreground sm:col-span-3">
+            {keepToken ? t('dnsAuto.tokenKeep') : t('dnsAuto.tokenHint.inwx')}
+          </p>
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           variant={zones ? 'secondary' : 'default'}
-          disabled={discover.isPending || (!token.trim() && !keepToken)}
+          disabled={discover.isPending || (!token && !keepToken)}
           onClick={() => discover.mutate()}
         >
           <PlugZap />
@@ -132,6 +189,62 @@ function ConnectForm({
       ) : null}
       {error ? (
         <p className="rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">{errorText(error)}</p>
+      ) : null}
+    </div>
+  );
+}
+
+const httpsQuery = { queryKey: ['https'], queryFn: () => api<HttpsStatus>('/api/https') } as const;
+
+/** HTTPS for the own domain: one switch starts Caddy on 80/443, which fetches the certificates itself. */
+function HttpsSection(): ReactElement | null {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { data } = useQuery(httpsQuery);
+  const toggle = useMutation({
+    mutationFn: (enabled: boolean) => api<HttpsStatus>('/api/https', { method: 'PUT', body: { enabled } }),
+    onSuccess: (next) => {
+      queryClient.setQueryData(httpsQuery.queryKey, next);
+      toast.success(next.enabled ? t('https.on') : t('https.off'));
+    },
+  });
+  if (!data) return null;
+  const error = toggle.error ? errorText(toggle.error) : null;
+  const lastError = data.error ? t(`errors.${data.error.code}`, data.error.params) : null;
+  return (
+    <div className="grid gap-3 rounded-[12px] border border-border px-3.5 py-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2 font-semibold">
+        <Lock className="size-4 text-primary" aria-hidden />
+        {t('https.title')}
+        {data.enabled ? (
+          <Pill tone={data.running ? 'ok' : 'warn'}>
+            {data.running ? t('https.running') : t('https.stopped')}
+          </Pill>
+        ) : null}
+      </div>
+      <p className="text-muted-foreground">{t('https.text', { domain: data.domain })}</p>
+      {data.enabled && data.domain ? (
+        <a
+          href={`https://${data.domain}`}
+          className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline"
+        >
+          <ExternalLink className="size-4" aria-hidden />
+          https://{data.domain}
+        </a>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant={data.enabled ? 'ghost' : 'default'}
+          disabled={toggle.isPending}
+          onClick={() => toggle.mutate(!data.enabled)}
+        >
+          <Lock />
+          {data.enabled ? t('https.disable') : t('https.enable')}
+        </Button>
+      </div>
+      {error || lastError ? (
+        <p className="rounded-[10px] bg-destructive-soft px-3 py-2">{error ?? lastError}</p>
       ) : null}
     </div>
   );
@@ -199,6 +312,7 @@ export function DnsDomainCard(): ReactElement | null {
             />
           </p>
           <p className="text-[13px] text-muted-foreground">{t('dnsAuto.portNote')}</p>
+          <HttpsSection />
           {status.error ? (
             <p className="rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">
               {t(`errors.${status.error.code}`, status.error.params)}

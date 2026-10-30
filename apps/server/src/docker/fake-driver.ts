@@ -501,6 +501,12 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
     start: async (id) => {
       const c = get(id);
       if (isRunning(id)) return;
+      // Helper containers with their own command (the HTTPS gateway) just run.
+      if (c.spec.command) {
+        statuses.set(id, { ...STOPPED, running: true, startedAt: new Date().toISOString() });
+        emitEvent(id, 'start');
+        return;
+      }
       prepareFiles(c.spec);
       fs.writeFileSync(path.join(c.spec.dataDir, 'logs', 'latest.log'), '');
       statuses.set(id, { ...STOPPED, running: true, startedAt: new Date().toISOString() });
@@ -528,6 +534,7 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
         oomKilled: s.oomKilled,
         startedAt: s.startedAt,
         finishedAt: s.finishedAt,
+        ip: null,
       };
     },
     followLogs: async (id, tail, onLine) => {

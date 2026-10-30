@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { api } from '@/lib/api';
 import { errorText } from '@/lib/query';
-import { AuthLayout } from './AuthLayout';
+import { LandingLayout } from './LandingLayout';
 import { panelDomainMissing, passkeysUsable, signInWithPasskey } from './passkey';
 import { adoptMe, meQuery, statusQuery } from './session';
 
@@ -67,7 +67,7 @@ export function LoginPage(): ReactElement {
   const busy = login.isPending || verify.isPending || passkey.isPending;
 
   return (
-    <AuthLayout>
+    <LandingLayout>
       <form onSubmit={submit} className="grid gap-5" noValidate>
         {step === 'password' ? (
           <>
@@ -169,6 +169,6 @@ export function LoginPage(): ReactElement {
           </Button>
         ) : null}
       </form>
-    </AuthLayout>
+    </LandingLayout>
   );
 }

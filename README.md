@@ -33,11 +33,13 @@ Klicks – ohne Anleitung.**
 ## So legst du einen Server an
 
 <p align="center">
-  <img src="docs/screenshots/wizard.webp" alt="Ein neuer Paper-Server entsteht: Spieltyp, Software, Version, Größe, Name – und er läuft" width="100%">
+  <img src="docs/screenshots/order.webp" alt="Server bestellen wie bei einem Hoster: Pakete mit Spielerzahl, Benutzerdefiniert und Bestellübersicht" width="100%">
 </p>
 
-Spieltyp wählen, Software, Version, Größe, Name – fertig. Der Server startet sofort, und oben steht die Adresse
-für deine Freunde zum Kopieren.
+Wie bei einem Hoster, nur kostenlos: Spiel wählen (Java, Bedrock oder Crossplay), ein Paket mit Spielerzahl
+(2 GB für etwa 4 Spieler bis 16 GB für etwa 100 – oder „Benutzerdefiniert“), Software und Version, den Namen unter
+deiner Domain und Add-ons wie Bedrock-Spieler, Voice-Chat oder tägliche Backups. Rechts steht die Bestellübersicht
+(0,00 €). Der Server startet sofort, und oben steht die Adresse für deine Freunde zum Kopieren.
 
 ## Was kann MorniHosting?
 
@@ -260,18 +262,30 @@ Passwörter** mit zwei Klicks ein neues.
 
 ## Eigene Domain ohne NetBird
 
-Du hast eine Domain (z. B. `mein-minecraft.de`) und die Ports im Router freigegeben? Dann trägt MorniHosting die
-Adressen selbst bei deinem DNS-Anbieter ein – **Cloudflare** (kostenlos, geht mit jeder Domain) oder **IONOS**.
+Du hast eine Domain (z. B. `mornihosting.de`) und die Ports im Router freigegeben? Dann trägt MorniHosting die
+Adressen selbst bei deinem DNS-Anbieter ein – **INWX**, **Cloudflare** (kostenlos, geht mit jeder Domain) oder
+**IONOS**.
 
-1. API-Schlüssel holen:
+1. Zugang vorbereiten:
+   - **INWX:** nichts extra – Benutzername und Passwort deines INWX-Kontos genügen. Mit Zwei-Faktor-Anmeldung
+     zusätzlich den 2FA-Schlüssel (der Text hinter dem QR-Code), dann erzeugt das Panel die Codes selbst.
+     Tipp: bei INWX einen eigenen Unterbenutzer nur für DNS anlegen.
    - **Cloudflare:** Domain bei Cloudflare hinzufügen und beim Domain-Anbieter die Nameserver von Cloudflare
      eintragen. Dann **Profil → API-Tokens → Token erstellen → Vorlage „DNS-Zone bearbeiten“**, Zone: deine Domain.
    - **IONOS:** auf [developer.hosting.ionos.de](https://developer.hosting.ionos.de) einen API-Schlüssel anlegen
      (Form `Präfix.Geheimnis`).
-2. Im Panel **Admin-Bereich → Eigene Domain**: Anbieter wählen, Schlüssel einfügen, **Verbinden**, Domain wählen,
-   **Speichern**.
-3. Beim **Server anlegen** steht schon ein Name, z. B. `reich` – fertig: MorniHosting legt `reich.mein-minecraft.de`
-   an (A-Eintrag auf deine öffentliche IP) und für Java einen SRV-Eintrag, damit niemand eine Portnummer braucht.
+2. Im Panel **Admin-Bereich → Eigene Domain**: Anbieter wählen, Zugang eintragen, **Verbinden**, Domain wählen,
+   **Speichern**. Die Domain selbst und `*.deine-domain` zeigen danach auf deine öffentliche IP.
+3. Optional **HTTPS einschalten** (gleiche Karte): Das Panel startet einen kleinen Caddy-Container auf Port 80 und
+   443 und holt die Zertifikate selbst. Dann öffnet `https://mornihosting.de` die Anmeldeseite, und jeder
+   Server-Name (`https://reich.mornihosting.de`) führt auch dorthin. Dafür im Router TCP 80 und 443 auf den
+   MorniHosting-Rechner freigeben.
+4. Beim **Server bestellen** wählst du den Namen selbst (vorausgefüllt ist ein lustiger wie `wilder-axolotl`):
+   MorniHosting legt `name.mornihosting.de` an (A-Eintrag auf deine öffentliche IP) und für Java einen SRV-Eintrag.
+   - **Java:** Spieler tippen nur `name.mornihosting.de` – ohne Port.
+   - **Bedrock:** Bedrock kennt keine SRV-Einträge. Spieler tragen `name.mornihosting.de` als Adresse und den Port
+     ins eigene Port-Feld ein. Nur ein Bedrock-Server (bzw. Geyser) auf 19132 klappt ganz ohne Port-Angabe – der
+     erste bekommt automatisch 19132.
 
 Ändert sich deine öffentliche IP (Zwangstrennung), zieht das Panel alle Einträge innerhalb von 5 Minuten nach –
 wie DynDNS. Pro Panel geht entweder NetBird oder die eigene Domain.
