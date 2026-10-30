@@ -188,7 +188,7 @@ export function gamePorts(row: Pick<ServerRow, 'port' | 'extraPorts'>, game: Gam
     return {
       key: p.key,
       hostPort,
-      containerPort: p.env || p.sameAsMain ? hostPort : p.defaultPort,
+      containerPort: p.env || p.sameAsMain || p.configKey ? hostPort : p.defaultPort,
       protocol: p.protocol,
     };
   });

@@ -5,6 +5,7 @@ import { ConsoleView } from './console/ConsoleView';
 import { CrashCard } from './overview/CrashCard';
 import { LiveTiles } from './overview/LiveTiles';
 import { useServer } from './ServerLayout';
+import { GameFilesCard } from './settings/GameFilesCard';
 
 const LiveCharts = lazyPage(() => import('./overview/LiveCharts'));
 const StatsChart = lazyPage(() => import('./overview/StatsChart'));
@@ -19,6 +20,7 @@ export function ConsoleHome(): ReactElement {
       {showCrash && server.crash ? (
         <CrashCard serverId={server.id} crash={server.crash} canControl={can('control')} />
       ) : null}
+      {can('files') ? <GameFilesCard server={server} onlyMissing /> : null}
       {can('console') ? (
         <div className="rounded-[16px] border border-border bg-card p-3 sm:p-4">
           <ConsoleView

@@ -205,10 +205,22 @@ describe.each(GAME_IDS.map((id) => [id]))('%s with the fake driver', (id) => {
       method: 'POST',
       url: '/api/servers',
       headers: authHeaders(s),
-      payload: order(id),
+      payload: order(id, { startNow: false }),
     });
     expect(res.statusCode).toBe(200);
     const created = res.json<ServerSummary>();
+    // Files the person uploads first (ETS2's server packages).
+    (game.requiredFiles ?? []).forEach((file) => {
+      const full = path.join(t.dataDir, 'servers', created.id, file);
+      fs.mkdirSync(path.dirname(full), { recursive: true });
+      fs.writeFileSync(full, 'exported in game');
+    });
+    const start = await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/actions/start`,
+      headers: authHeaders(s),
+    });
+    expect(start.statusCode).toBeLessThan(300);
     const detail = async (): Promise<ServerDetail> =>
       (
         await t.app.inject({ url: `/api/servers/${created.id}`, headers: authHeaders(s) })
@@ -343,6 +355,55 @@ describe('Satisfactory ports', () => {
         payload: order('satisfactory', { port: 7778, startNow: false }),
       });
       expect(res.statusCode).toBe(409);
+    } finally {
+      await t.cleanup();
+    }
+  });
+});
+
+describe('Euro Truck Simulator 2', () => {
+  test('needs the exported server packages and gets its config written', async () => {
+    const t = await createTestApp();
+    const s = await setupAdmin(t);
+    try {
+      const payload = order('ets2', {
+        port: 27020,
+        startNow: false,
+        gameSettings: { lobbyName: 'Morni Trucker', password: 'geheim', maxPlayers: '6' },
+      });
+      const res = await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload,
+      });
+      const id = res.json<ServerSummary>().id;
+      const start = (): Promise<{ statusCode: number; json: () => unknown }> =>
+        t.app.inject({ method: 'POST', url: `/api/servers/${id}/actions/start`, headers: authHeaders(s) });
+      const refused = await start();
+      expect(refused.statusCode).toBe(400);
+      expect(refused.json()).toMatchObject({ error: 'game_files_missing' });
+
+      const home = path.join(t.dataDir, 'servers', id, '.local/share/Euro Truck Simulator 2');
+      fs.mkdirSync(home, { recursive: true });
+      ['server_packages.sii', 'server_packages.dat'].forEach((f) =>
+        fs.writeFileSync(path.join(home, f), 'x'),
+      );
+      expect((await start()).statusCode).toBeLessThan(300);
+      await waitFor(async () => t.servers.live(id).state === 'running');
+
+      const config = fs.readFileSync(path.join(home, 'server_config.sii'), 'utf8');
+      expect(config).toContain(' lobby_name: "Morni Trucker"');
+      expect(config).toContain(' password: "geheim"');
+      expect(config).toContain(' max_players: 6');
+      expect(config).toContain(' connection_dedicated_port: 27020');
+      expect(config).toContain(' query_dedicated_port: 27016');
+      expect(config).toContain(' connection_virtual_port: 100');
+      const spec = buildContainerSpec(t.ctx.config, t.servers.rowWithSecrets(id), 'Europe/Berlin');
+      expect(spec.ports).toEqual([
+        { containerPort: 27020, hostPort: 27020, protocol: 'udp' },
+        { containerPort: 27016, hostPort: 27016, protocol: 'udp' },
+      ]);
     } finally {
       await t.cleanup();
     }

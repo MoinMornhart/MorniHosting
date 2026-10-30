@@ -5,7 +5,7 @@
  * For these games the server's `edition` and `software` both hold the game id.
  */
 
-export const GAME_IDS = ['factorio', 'cs2', 'gmod', 'satisfactory'] as const;
+export const GAME_IDS = ['factorio', 'cs2', 'gmod', 'satisfactory', 'ets2'] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /** How console commands reach the game: Source RCON over the internal network, the process' stdin, or not at all. */
@@ -20,6 +20,8 @@ export interface GamePort {
   readonly sameAsMain?: boolean;
   /** The image reads its listening port from this variable; inside and outside port are then the same. */
   readonly env?: string;
+  /** The port is a key in the game's config file (see GameInfo.configFile); the panel writes it there. */
+  readonly configKey?: string;
 }
 
 export type GameFieldKind = 'text' | 'secret' | 'number' | 'boolean' | 'select';
@@ -32,6 +34,8 @@ export interface GameField {
   /** Start argument instead of a variable ("+host_workshop_collection" → "+host_workshop_collection 123"). */
   readonly arg?: string;
   readonly kind: GameFieldKind;
+  /** Key in the game's config file (see GameInfo.configFile) the panel writes the value to before each start. */
+  readonly configKey?: string;
   /** Choices of a select field (stored as is; the label comes from the translations). */
   readonly options?: readonly string[];
   /** Value when nothing was entered (as the image expects it); undefined = variable is left out. */
@@ -78,6 +82,11 @@ export interface GameInfo {
   readonly memoryEnv?: string;
   /** Files the person has to upload before the first start (ETS2's exported server packages). */
   readonly requiredFiles?: readonly string[];
+  /**
+   * A config file in SCS's "sii" format the panel keeps in sync with the settings and ports (`configKey`);
+   * written from the template when it does not exist yet. Path relative to the server folder.
+   */
+  readonly configFile?: { readonly path: string; readonly template: string };
   /** File (relative to the server folder) the image reads its RCON password from; the panel writes it. */
   readonly rconPasswordFile?: string;
   /** Fixed variables (user id, accepting licences, …). */
@@ -160,6 +169,47 @@ const SRCDS_JOIN = /Client "([^"]+)" connected/;
 // https://regex101.com/?flavor=javascript&regex=Dropped%20(.%2B%3F)%20from%20server&flags=gm&testString=Dropped%20Lena%20from%20server%20(Disconnect%20by%20user.)%0ADropped%20packets
 const SRCDS_LEAVE = /Dropped (.+?) from server/;
 const GMOD_DIR = '/home/gmod/server/garrysmod';
+const ETS2_HOME = '.local/share/Euro Truck Simulator 2';
+const ETS2_PORT = 27015;
+const ETS2_QUERY = 27016;
+// LinuxGSM reports the started server: "[  OK  ] Starting ets2server: Euro Truck Simulator 2"; rejects "[ FAIL ] Starting".
+// https://regex101.com/?flavor=javascript&regex=%5C%5B%5Cs*OK%5Cs*%5C%5D%20Starting%20ets2server&flags=gm&testString=%5B%20%20OK%20%20%5D%20Starting%20ets2server%3A%20Euro%20Truck%20Simulator%202%0A%5B%20FAIL%20%5D%20Starting%20ets2server
+const ETS2_READY = /\[\s*OK\s*\] Starting ets2server/;
+/** SCS's dedicated server config, as documented on modding.scssoft.com; the panel fills in its keys. */
+const ETS2_CONFIG = [
+  'SiiNunit',
+  '{',
+  'server_config : _nameless.0 {',
+  ' lobby_name: "MorniHosting"',
+  ' description: ""',
+  ' welcome_message: ""',
+  ' password: ""',
+  ' max_players: 8',
+  ' max_vehicles_total: 100',
+  ' max_ai_vehicles_player: 50',
+  ' max_ai_vehicles_player_spawn: 50',
+  ' connection_virtual_port: 100',
+  ' query_virtual_port: 101',
+  ' connection_dedicated_port: 27015',
+  ' query_dedicated_port: 27016',
+  ' server_logon_token: ""',
+  ' player_damage: true',
+  ' traffic: true',
+  ' hide_in_company: false',
+  ' hide_colliding: true',
+  ' force_speed_limiter: false',
+  ' mods_optioning: false',
+  ' timezones: 0',
+  ' service_no_collision: false',
+  ' in_menu_ghosting: false',
+  ' name_tags: true',
+  ' friends_only: false',
+  ' show_server: true',
+  ' moderator_list: 0',
+  '}',
+  '}',
+  '',
+].join('\n');
 const SATISFACTORY_PORT = 7777;
 const SATISFACTORY_MESSAGING = 8888;
 // Satisfactory is ready: "LogServer: Display: Server API listening on '0.0.0.0:7777' (Standalone)".
@@ -325,6 +375,41 @@ export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
     logPatterns: { ready: SATISFACTORY_READY },
     steamAppId: 526870,
     downloadGb: 8,
+  },
+  ets2: {
+    id: 'ets2',
+    label: 'Euro Truck Simulator 2',
+    image: 'gameservermanagers/gameserver',
+    versions: [{ id: 'steam', tag: 'ets2', stable: true }],
+    mounts: [{ subdir: '', path: '/data' }],
+    ports: [
+      { key: 'main', defaultPort: ETS2_PORT, protocol: 'udp', configKey: 'connection_dedicated_port' },
+      { key: 'query', defaultPort: ETS2_QUERY, protocol: 'udp', configKey: 'query_dedicated_port' },
+    ],
+    // LinuxGSM runs the game in tmux; ETS2 has no server console worth typing into.
+    console: 'none',
+    env: {},
+    fields: [
+      { key: 'lobbyName', configKey: 'lobby_name', kind: 'text', onOrder: true },
+      { key: 'password', configKey: 'password', kind: 'secret', onOrder: true },
+      { key: 'maxPlayers', configKey: 'max_players', kind: 'number', fallback: '8' },
+      { key: 'welcome', configKey: 'welcome_message', kind: 'text' },
+      {
+        key: 'logonToken',
+        configKey: 'server_logon_token',
+        kind: 'secret',
+        helpUrl: 'https://steamcommunity.com/dev/managegameservers',
+      },
+    ],
+    requiredFiles: [`${ETS2_HOME}/server_packages.sii`, `${ETS2_HOME}/server_packages.dat`],
+    configFile: { path: `${ETS2_HOME}/server_config.sii`, template: ETS2_CONFIG },
+    packagesGb: [2, 3, 4],
+    recommendedGb: 2,
+    playersPerGb: 4,
+    maxPlayers: 8,
+    logPatterns: { ready: ETS2_READY },
+    steamAppId: 227300,
+    downloadGb: 3,
   },
 } satisfies Record<GameId, GameInfo>);
 /* eslint-enable ts-patterns/no-magic-numbers */

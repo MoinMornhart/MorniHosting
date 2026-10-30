@@ -56,6 +56,13 @@ const BOOT: Readonly<Record<GameId, (input: DemoBootInput) => readonly string[]>
     'LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()',
     `LogServer: Display: Server API listening on '0.0.0.0:${port}' (Standalone)`,
   ],
+  ets2: () => [
+    '[ .... ] Starting ets2server: Euro Truck Simulator 2',
+    '00:00:00.000 : [MP] Dedicated server starting',
+    '00:00:01.204 : [MP] Loading server_packages.sii',
+    '00:00:03.517 : [MP] Session created',
+    '[  OK  ] Starting ets2server: Euro Truck Simulator 2',
+  ],
 };
 
 /** Source games log like "L 10/30/2026 - 12:00:01: …". */
@@ -71,6 +78,7 @@ const JOIN: Readonly<Record<GameId, (name: string) => string>> = {
     `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><>" connected, address "10.0.0.2:27005"`,
   gmod: (name) => `Client "${name}" connected (10.0.0.2:27005).`,
   satisfactory: (name) => `LogNet: Join succeeded: ${name}`,
+  ets2: (name) => `00:12:41.090 : [MP] ${name} connected, client_id = 1`,
 };
 
 const LEAVE: Readonly<Record<GameId, (name: string) => string>> = {
@@ -79,6 +87,7 @@ const LEAVE: Readonly<Record<GameId, (name: string) => string>> = {
     `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><CT>" disconnected (reason "Disconnect")`,
   gmod: (name) => `Dropped ${name} from server (Disconnect by user.)`,
   satisfactory: (name) => `LogNet: UChannel::Close: ${name} left`,
+  ets2: (name) => `00:48:02.311 : [MP] ${name} disconnected, client_id = 1`,
 };
 
 /** Anything else typed into the console: Factorio treats it as chat, Source games run it as a command. */
@@ -87,6 +96,7 @@ const CHAT: Readonly<Record<GameId, (text: string) => string>> = {
   cs2: (text) => `${sourceStamp()} rcon from "172.18.0.2": command "${text}"`,
   gmod: (text) => `] ${text}`,
   satisfactory: (text) => text,
+  ets2: (text) => text,
 };
 
 /** Files a fresh server of the game has, so the file manager is not empty. */
@@ -95,6 +105,7 @@ export const DEMO_GAME_FILES: Readonly<Record<GameId, readonly string[]>> = {
   cs2: ['game/csgo/cfg/server.cfg', 'game/csgo/gameinfo.gi', 'steamcmd.log'],
   gmod: ['data/sv.db', 'addons/.keep'],
   satisfactory: ['saved/server/MorniFabrik.sav', 'gamefiles/FactoryServer.sh', 'logs/FactoryGame.log'],
+  ets2: ['serverfiles/bin/linux_x64/eurotrucks2_server', 'log/console/ets2server-console.log'],
 };
 
 export function demoBootLines(game: GameInfo, input: DemoBootInput): readonly string[] {

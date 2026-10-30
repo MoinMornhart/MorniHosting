@@ -5,6 +5,7 @@ import { SOFTWARE, isGameId } from '@mornihosting/shared';
 import { EmptyState } from '@/components/page';
 import { TabIntro } from '@/components/tab-intro';
 import { useServer } from '../ServerLayout';
+import { GameFilesCard } from './GameFilesCard';
 import { GameSettingsCard } from './GameSettingsCard';
 import { GeneralCard } from './GeneralCard';
 import { IconCard } from './IconCard';
@@ -55,7 +56,8 @@ export default function SettingsTab(): ReactElement {
             <GeneralCard key={`${server.id}-${server.memoryMb}-${server.version}`} server={server} />
           </section>
           {otherGame ? (
-            <section id="s-game" className="scroll-mt-4">
+            <section id="s-game" className="grid scroll-mt-4 gap-5">
+              <GameFilesCard server={server} />
               <GameSettingsCard server={server} />
             </section>
           ) : null}

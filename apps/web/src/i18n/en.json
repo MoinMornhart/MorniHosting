@@ -472,6 +472,7 @@
     "self_update_unavailable": "Automatic updates are not set up on this system.",
     "world_not_found": "This world does not exist.",
     "geyser_java_only": "Bedrock servers don't need this: Bedrock players can join directly.",
+    "game_files_missing": "Files from the game are still missing: {{files}}. Upload them under settings.",
     "game_setting_unknown": "This game has no setting called {{key}}.",
     "game_setting_invalid": "The value for “{{key}}” does not fit. Letters, numbers and simple characters like - _ . : / are allowed.",
     "minecraft_only": "This is only available for Minecraft servers.",
@@ -1950,8 +1951,8 @@
     "save": "Save",
     "restartHint": "Changes apply from the server's next restart.",
     "ports": {
-      "api": "API (TCP)",
-      "messaging": "Messaging (TCP)",
+      "api": "API",
+      "messaging": "Messaging",
       "query": "Query"
     },
     "factorio": {
@@ -2039,6 +2040,38 @@
         "autosavesHint": "How many automatic saves are kept.",
         "experimental": "Experimental version",
         "experimentalHint": "Downloads the Experimental branch from Steam. All players then need Experimental too."
+      }
+    },
+    "files": {
+      "uploaded": "Uploaded.",
+      "done": "Everything is there – the server can start.",
+      "upload": "Upload files",
+      "replace": "Upload new files"
+    },
+    "ets2": {
+      "kicker": "Convoy driving",
+      "text": "Drive together in a convoy across Europe – on your own server, even while you are offline.",
+      "about": "Your own convoy server for Euro Truck Simulator 2 (up to 8 drivers). Before the first start you need two files only the game itself can make – the panel shows you how.",
+      "memoryHint": "{{gb}} GB is enough for a convoy of 8 drivers.",
+      "filesTitle": "Server packages from the game",
+      "filesText": "The server needs your map and DLC list from the game. This is how you get the two files:",
+      "filesSteps": [
+        "Start Euro Truck Simulator 2 and load your profile.",
+        "Open config.cfg in “Documents/Euro Truck Simulator 2” and set uset g_console to \"1\".",
+        "In the game press the ~ key, type export_server_packages and press Enter.",
+        "“Documents/Euro Truck Simulator 2” now holds server_packages.sii and server_packages.dat – upload both here."
+      ],
+      "fields": {
+        "lobbyName": "Convoy name",
+        "lobbyNameHint": "What the server is called in the convoy list in game.",
+        "password": "Join password",
+        "passwordHint": "Anyone who wants to drive along needs this password. Empty = everyone.",
+        "maxPlayers": "Maximum drivers",
+        "maxPlayersHint": "How many may drive at once (at most 8).",
+        "welcome": "Welcome message",
+        "welcomeHint": "Shows in the chat when someone joins.",
+        "logonToken": "Steam token",
+        "logonTokenHint": "Optional: a “Game Server Login Token” with app id 227300. It keeps the server's id the same."
       }
     }
   }

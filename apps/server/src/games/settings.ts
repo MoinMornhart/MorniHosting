@@ -3,7 +3,7 @@ import path from 'node:path';
 import { gameOf, type GameField, type GameInfo, type GameSettingsView } from '@mornihosting/shared';
 import type { SecretBox } from '../lib/crypto.js';
 import { badRequest } from '../lib/errors.js';
-import type { ServerRow } from '../servers/spec.js';
+import { gamePorts, type ServerRow } from '../servers/spec.js';
 
 /** Owner-only read and write for the RCON password file (Factorio reads config/rconpw). */
 const PASSWORD_FILE_MODE = 0o600;
@@ -81,11 +81,57 @@ export function gameSettingsView(row: Pick<ServerRow, 'software' | 'gameSettings
   };
 }
 
-/** Writes files the image expects before it starts (the RCON password for Factorio). */
-export function prepareGameFiles(dir: string, row: Pick<ServerRow, 'software' | 'rconPassword'>): void {
+/** Files from `requiredFiles` that are not uploaded yet (relative paths). */
+export function missingGameFiles(dir: string, software: string): string[] {
+  return (gameOf(software)?.requiredFiles ?? []).filter((file) => !fs.existsSync(path.join(dir, file)));
+}
+
+/** A value as the sii format wants it: text in quotes, numbers and true/false bare. */
+function siiValue(kind: GameField['kind'] | 'port', value: string): string {
+  return kind === 'number' || kind === 'boolean' || kind === 'port' ? value : `"${value}"`;
+}
+
+/**
+ * Keeps the game's sii config in step with the settings and ports: every known key line is replaced, the
+ * rest of the file (changed by hand) stays. Values went through validateGameSettings (no quotes, no breaks).
+ */
+function writeConfigFile(
+  dir: string,
+  row: Pick<ServerRow, 'port' | 'extraPorts' | 'gameSettings'>,
+  game: GameInfo,
+): void {
+  if (!game.configFile) return;
+  const file = path.join(dir, game.configFile.path);
+  const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : game.configFile.template;
+  const ports = gamePorts(row, game);
+  const values = new Map<string, string>([
+    ...game.ports.flatMap((p): [string, string][] => {
+      const bound = ports.find((b) => b.key === p.key);
+      return p.configKey && bound ? [[p.configKey, siiValue('port', String(bound.hostPort))]] : [];
+    }),
+    ...game.fields.flatMap((f): [string, string][] => {
+      const value = row.gameSettings[f.key] || f.fallback;
+      return f.configKey && value !== undefined ? [[f.configKey, siiValue(f.kind, value)]] : [];
+    }),
+  ]);
+  const lines = current.split('\n').map((line) => {
+    const key = line.trim().split(':')[0] ?? '';
+    const value = values.get(key);
+    return value === undefined ? line : ` ${key}: ${value}`;
+  });
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, lines.join('\n'));
+}
+
+/** Writes files the image expects before it starts (RCON password for Factorio, ETS2's server config). */
+export function prepareGameFiles(
+  dir: string,
+  row: Pick<ServerRow, 'software' | 'rconPassword' | 'port' | 'extraPorts' | 'gameSettings'>,
+): void {
   const game = gameOf(row.software);
   // Mounted folders must exist, otherwise Docker creates them owned by root.
   game?.mounts.forEach((m) => fs.mkdirSync(path.join(dir, m.subdir), { recursive: true }));
+  if (game) writeConfigFile(dir, row, game);
   if (!game?.rconPasswordFile) return;
   const file = path.join(dir, game.rconPasswordFile);
   fs.mkdirSync(path.dirname(file), { recursive: true });

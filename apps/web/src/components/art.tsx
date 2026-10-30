@@ -39,6 +39,15 @@ const STROKE = {
 const LINE = { fill: 'none', ...STROKE } as const;
 
 const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
+  // A truck seen from the side: driving across Europe (no game logo).
+  'game-ets2': (
+    <>
+      <rect x="2" y="6" width="12" height="9.5" rx="1" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <path d="M14 9.5h4.2l3.3 3.6v2.4H14Z" fill="currentColor" fillOpacity="0.4" {...STROKE} />
+      <circle cx="6" cy="18" r="2" {...LINE} />
+      <circle cx="17.5" cy="18" r="2" {...LINE} />
+    </>
+  ),
   // A conveyor belt between two machines on an alien planet's horizon (no game logo).
   'game-satisfactory': (
     <>
@@ -232,6 +241,7 @@ const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
   'game-cs2': ['#60a5fa', '#1e293b'],
   'game-gmod': ['#38bdf8', '#0c4a6e'],
   'game-satisfactory': ['#fb923c', '#9a3412'],
+  'game-ets2': ['#facc15', '#a16207'],
 };
 
 const GLYPH_NAMES = Object.keys(TONES) as Glyph[];

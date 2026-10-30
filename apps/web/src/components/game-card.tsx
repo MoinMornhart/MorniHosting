@@ -77,6 +77,7 @@ const SCENE_COLOURS: Readonly<Record<GameId, readonly [string, string]>> = {
   cs2: ['#1e3a5f', '#070b12'],
   gmod: ['#0e4f73', '#050d14'],
   satisfactory: ['#8a4b12', '#120a04'],
+  ets2: ['#3b5b1e', '#0b1205'],
 };
 
 export function OtherGameScene({ game }: { game: GameId }): ReactElement {

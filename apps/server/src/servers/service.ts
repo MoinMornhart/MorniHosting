@@ -33,6 +33,7 @@ import {
   gameSettingsView,
   mergeGameSettings,
   parseGamePlayers,
+  missingGameFiles,
   prepareGameFiles,
   validateGameSettings,
 } from '../games/settings.js';
@@ -433,6 +434,8 @@ export function createServerService(ctx: AppContext): ServerService {
     });
     if (r.containerId) await docker.removeContainer(r.containerId);
     fs.mkdirSync(serverDir(config, id), { recursive: true });
+    const missing = missingGameFiles(serverDir(config, id), r.software);
+    if (missing.length) throw new Error(`Es fehlen Dateien: ${missing.join(', ')}`);
     prepareGameFiles(serverDir(config, id), r);
     const spec = buildContainerSpec(config, r, settings.get().timezone);
     const containerId = await docker.createContainer(spec);
@@ -893,7 +896,9 @@ export function createServerService(ctx: AppContext): ServerService {
       events.emit('server.deleted', { serverId: id });
     },
     start: async (id, actor) => {
-      row(id);
+      const r = row(id);
+      const missing = missingGameFiles(serverDir(config, id), r.software);
+      if (missing.length) throw badRequest('game_files_missing', { files: missing.join(', ') });
       if (ACTIVE_STATES.includes(rt(id).state)) throw conflict('server_already_running');
       audit.record(actor, 'server.start', id);
       rt(id).state = 'starting';
