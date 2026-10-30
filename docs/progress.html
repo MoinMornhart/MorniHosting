@@ -132,7 +132,7 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T21:07:22+00:00",
+  "updated": "2026-10-30T21:08:03+00:00",
   "now": "Drei Sitzungen arbeiten parallel (Spiele, DDoS, E-Mail); ich sammle ihre Stände hier ein.",
   "steps": [
     {
@@ -317,8 +317,8 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "E-Mails",
-      "status": "läuft",
-      "detail": "Eigene Sitzung „MorniHosting · E-Mails“ (Sonnet), Branch claude/email: SMTP, Registrierung mit Bestätigung, Passwort vergessen, Bestellmail."
+      "status": "fertig",
+      "detail": "Fertig auf claude/email: E-Mail-Versand über ein eigenes Postfach (SMTP, Reiter „E-Mail“ im Admin-Bereich mit Test-Mail), Registrierung mit Bestätigungs-Link (schaltbar), „Passwort vergessen“, Willkommens-, Bestell- und Absturz-Mails, E-Mail-Adresse im Konto. 211 Tests grün, gegen einen lokalen Mailserver geprüft."
     },
     {
       "title": "Zusammenführen, Demo, Go",
@@ -327,6 +327,21 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p23-email-mail-bestaetigung.webp",
+      "caption": "Bestätigungs-Mail bei der Registrierung",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
+    {
+      "img": "progress/p23-email-admin.webp",
+      "caption": "Reiter „E-Mail“ im Admin-Bereich",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
+    {
+      "img": "progress/p23-email-login.webp",
+      "caption": "Anmeldung mit „Passwort vergessen“ und „Jetzt registrieren“",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
     {
       "img": "progress/p22-ddos.webp",
       "caption": "DDoS-Schutz im Admin-Bereich",
@@ -371,21 +386,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p15-blocks.webp",
       "caption": "Server mit 3D-Minecraft-Blöcken · lange Namen werden sauber gekürzt",
       "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p15-games.webp",
-      "caption": "Spielauswahl als große Bildkarten · oben dunkler, unten heller Modus",
-      "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p15-update.webp",
-      "caption": "Neue Update-Karte · Add-ons mit Geyser- und Voice-Chat-Logo",
-      "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p14-servers.webp",
-      "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
-      "time": "2026-10-30T13:55:00+01:00"
     }
   ],
   "files": [
@@ -415,7 +415,7 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "DDoS-Schutz"
     },
     {
-      "status": "current",
+      "status": "done",
       "until": "",
       "title": "E-Mails"
     },
