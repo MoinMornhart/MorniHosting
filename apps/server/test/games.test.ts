@@ -305,3 +305,46 @@ describe("Garry's Mod container", () => {
     }
   });
 });
+
+describe('Satisfactory ports', () => {
+  test('UDP and TCP on the game port, messaging on its own free port', async () => {
+    const t = await createTestApp();
+    const s = await setupAdmin(t);
+    try {
+      const create = async (port: number): Promise<string> => {
+        const payload = order('satisfactory', { port, startNow: false });
+        const res = await t.app.inject({
+          method: 'POST',
+          url: '/api/servers',
+          headers: authHeaders(s),
+          payload,
+        });
+        expect(res.statusCode).toBe(200);
+        return res.json<ServerSummary>().id;
+      };
+      await create(7777);
+      // The same game port is taken (UDP and TCP); the second server gets 7778 and the next messaging port.
+      const second = await create(7778);
+      const spec = buildContainerSpec(t.ctx.config, t.servers.rowWithSecrets(second), 'Europe/Berlin');
+      expect(spec.ports).toEqual([
+        { containerPort: 7778, hostPort: 7778, protocol: 'udp' },
+        { containerPort: 7778, hostPort: 7778, protocol: 'tcp' },
+        { containerPort: 8889, hostPort: 8889, protocol: 'tcp' },
+      ]);
+      expect(spec.env).toMatchObject({
+        SERVERGAMEPORT: '7778',
+        SERVERMESSAGINGPORT: '8889',
+        MAXPLAYERS: '4',
+      });
+      const res = await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: order('satisfactory', { port: 7778, startNow: false }),
+      });
+      expect(res.statusCode).toBe(409);
+    } finally {
+      await t.cleanup();
+    }
+  });
+});

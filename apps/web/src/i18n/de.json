@@ -1949,7 +1949,11 @@
     "saved": "Gespeichert. Gilt ab dem nächsten Start.",
     "save": "Speichern",
     "restartHint": "Änderungen gelten ab dem nächsten Neustart des Servers.",
-    "ports": {},
+    "ports": {
+      "api": "API (TCP)",
+      "messaging": "Messaging (TCP)",
+      "query": "Query"
+    },
     "factorio": {
       "kicker": "Fabrik-Aufbau",
       "text": "Baut zusammen riesige Fabriken – mit Förderbändern, Zügen und Space Age.",
@@ -2020,6 +2024,21 @@
         "passwordHint": "Ohne Leerzeichen. Leer = jeder mit der Adresse kann beitreten.",
         "gslt": "Steam-Token (GSLT)",
         "gsltHint": "Ein „Game Server Login Token“ mit App-ID 4000. Nur nötig, damit der Server dauerhaft in der Liste erscheint."
+      }
+    },
+    "noConsole": "Dieses Spiel hat keine Konsole fürs Panel. Du verwaltest den Server im Spiel selbst.",
+    "satisfactory": {
+      "kicker": "Fabrik-Aufbau in 3D",
+      "text": "Baut zusammen eine riesige Fabrik auf einem fremden Planeten – bis zu 8 Spieler.",
+      "about": "Ein eigener Satisfactory-Server. Nach dem ersten Start fügst du ihn im Spiel unter „Server Manager“ mit der Adresse hinzu und legst dort Namen und Admin-Passwort fest. Läuft der Rechner auf Proxmox, stell den CPU-Typ der VM auf „host“ – sonst startet der Server nicht.",
+      "memoryHint": "Satisfactory braucht viel Arbeitsspeicher: {{gb}} GB sind ein guter Start, große Fabriken brauchen 16 GB.",
+      "fields": {
+        "maxPlayers": "Maximale Spieler",
+        "maxPlayersHint": "Wie viele gleichzeitig spielen dürfen (Standard 4, offiziell bis 8).",
+        "autosaves": "Anzahl Autosaves",
+        "autosavesHint": "Wie viele automatische Spielstände behalten werden.",
+        "experimental": "Experimentelle Version",
+        "experimentalHint": "Lädt den Experimental-Zweig von Steam. Alle Spieler brauchen dann auch Experimental."
       }
     }
   }

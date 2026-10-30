@@ -7,7 +7,7 @@ import { ArrowDownToLine, Copy, Eraser, Search, SendHorizontal } from 'lucide-re
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { isGameId, type Edition } from '@mornihosting/shared';
+import { GAMES, isGameId, type Edition } from '@mornihosting/shared';
 import { copyText } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -218,8 +218,11 @@ export function ConsoleView({
     if (await copyText(feed.lines.map(stripAnsi).join('\n'))) toast.success(t('console.copiedAll'));
   };
 
+  // Some games (Satisfactory, ETS2) have no console the panel can type into; they are managed in game.
+  const noConsole = isGameId(edition) && GAMES[edition].console === 'none';
   let hint: string | null = null;
-  if (!running) hint = t('console.notRunning');
+  if (noConsole) hint = t('games.noConsole');
+  else if (!running) hint = t('console.notRunning');
   else if (!canSend) hint = t('console.noCommandPermission');
 
   return (
@@ -296,7 +299,7 @@ export function ConsoleView({
           <Input
             id={`cmd-${serverId}`}
             value={command}
-            disabled={!running || !canSend}
+            disabled={!running || !canSend || noConsole}
             autoComplete="off"
             spellCheck={false}
             placeholder={hint ?? t('console.placeholder')}

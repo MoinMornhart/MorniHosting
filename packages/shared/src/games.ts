@@ -5,7 +5,7 @@
  * For these games the server's `edition` and `software` both hold the game id.
  */
 
-export const GAME_IDS = ['factorio', 'cs2', 'gmod'] as const;
+export const GAME_IDS = ['factorio', 'cs2', 'gmod', 'satisfactory'] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /** How console commands reach the game: Source RCON over the internal network, the process' stdin, or not at all. */
@@ -160,6 +160,11 @@ const SRCDS_JOIN = /Client "([^"]+)" connected/;
 // https://regex101.com/?flavor=javascript&regex=Dropped%20(.%2B%3F)%20from%20server&flags=gm&testString=Dropped%20Lena%20from%20server%20(Disconnect%20by%20user.)%0ADropped%20packets
 const SRCDS_LEAVE = /Dropped (.+?) from server/;
 const GMOD_DIR = '/home/gmod/server/garrysmod';
+const SATISFACTORY_PORT = 7777;
+const SATISFACTORY_MESSAGING = 8888;
+// Satisfactory is ready: "LogServer: Display: Server API listening on '0.0.0.0:7777' (Standalone)".
+// https://regex101.com/?flavor=javascript&regex=Server%20API%20listening%20on&flags=gm&testString=LogServer%3A%20Display%3A%20Server%20API%20listening%20on%20'0.0.0.0%3A7777'%20(Standalone)%0ALogServer%3A%20Display%3A%20Starting
+const SATISFACTORY_READY = /Server API listening on/;
 
 export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
   factorio: {
@@ -292,6 +297,34 @@ export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
     logPatterns: { ready: SRCDS_READY, join: SRCDS_JOIN, leave: SRCDS_LEAVE },
     steamAppId: 4000,
     downloadGb: 4,
+  },
+  satisfactory: {
+    id: 'satisfactory',
+    label: 'Satisfactory',
+    image: 'wolveix/satisfactory-server',
+    versions: STEAM_VERSIONS,
+    mounts: [{ subdir: '', path: '/config' }],
+    // Game traffic over UDP, the server API (joining, admin) over TCP on the same port, plus messaging (1.1+).
+    ports: [
+      { key: 'main', defaultPort: SATISFACTORY_PORT, protocol: 'udp', env: 'SERVERGAMEPORT' },
+      { key: 'api', defaultPort: SATISFACTORY_PORT, protocol: 'tcp', sameAsMain: true },
+      { key: 'messaging', defaultPort: SATISFACTORY_MESSAGING, protocol: 'tcp', env: 'SERVERMESSAGINGPORT' },
+    ],
+    // No RCON and no stdin: the server is claimed and managed in the game (Server Manager).
+    console: 'none',
+    env: { PUID: RUN_UID, PGID: RUN_UID },
+    fields: [
+      { key: 'maxPlayers', env: 'MAXPLAYERS', kind: 'number', fallback: '4', onOrder: true },
+      { key: 'autosaves', env: 'AUTOSAVENUM', kind: 'number', fallback: '5' },
+      { key: 'experimental', env: 'STEAMBETA', kind: 'boolean', fallback: 'false' },
+    ],
+    packagesGb: [8, 12, 16],
+    recommendedGb: 12,
+    playersPerGb: 0.5,
+    maxPlayers: 8,
+    logPatterns: { ready: SATISFACTORY_READY },
+    steamAppId: 526870,
+    downloadGb: 8,
   },
 } satisfies Record<GameId, GameInfo>);
 /* eslint-enable ts-patterns/no-magic-numbers */

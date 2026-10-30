@@ -48,6 +48,14 @@ const BOOT: Readonly<Record<GameId, (input: DemoBootInput) => readonly string[]>
     'Connection to Steam servers successful.',
     'VAC secure mode is activated.',
   ],
+  satisfactory: ({ port }) => [
+    'Checking available memory: 12GB detected',
+    'Downloading the latest version of the game...',
+    "Success! App '1690800' fully installed.",
+    'Launching game server',
+    'LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()',
+    `LogServer: Display: Server API listening on '0.0.0.0:${port}' (Standalone)`,
+  ],
 };
 
 /** Source games log like "L 10/30/2026 - 12:00:01: …". */
@@ -62,6 +70,7 @@ const JOIN: Readonly<Record<GameId, (name: string) => string>> = {
   cs2: (name) =>
     `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><>" connected, address "10.0.0.2:27005"`,
   gmod: (name) => `Client "${name}" connected (10.0.0.2:27005).`,
+  satisfactory: (name) => `LogNet: Join succeeded: ${name}`,
 };
 
 const LEAVE: Readonly<Record<GameId, (name: string) => string>> = {
@@ -69,6 +78,7 @@ const LEAVE: Readonly<Record<GameId, (name: string) => string>> = {
   cs2: (name) =>
     `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><CT>" disconnected (reason "Disconnect")`,
   gmod: (name) => `Dropped ${name} from server (Disconnect by user.)`,
+  satisfactory: (name) => `LogNet: UChannel::Close: ${name} left`,
 };
 
 /** Anything else typed into the console: Factorio treats it as chat, Source games run it as a command. */
@@ -76,6 +86,7 @@ const CHAT: Readonly<Record<GameId, (text: string) => string>> = {
   factorio: (text) => `${demoClock()} [CHAT] <server>: ${text}`,
   cs2: (text) => `${sourceStamp()} rcon from "172.18.0.2": command "${text}"`,
   gmod: (text) => `] ${text}`,
+  satisfactory: (text) => text,
 };
 
 /** Files a fresh server of the game has, so the file manager is not empty. */
@@ -83,6 +94,7 @@ export const DEMO_GAME_FILES: Readonly<Record<GameId, readonly string[]>> = {
   factorio: ['saves/world.zip', 'config/server-settings.json', 'mods/mod-list.json'],
   cs2: ['game/csgo/cfg/server.cfg', 'game/csgo/gameinfo.gi', 'steamcmd.log'],
   gmod: ['data/sv.db', 'addons/.keep'],
+  satisfactory: ['saved/server/MorniFabrik.sav', 'gamefiles/FactoryServer.sh', 'logs/FactoryGame.log'],
 };
 
 export function demoBootLines(game: GameInfo, input: DemoBootInput): readonly string[] {
