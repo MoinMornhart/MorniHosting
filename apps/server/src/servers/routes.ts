@@ -8,6 +8,7 @@ import {
   SOFTWARE_IDS,
   commandInputSchema,
   createServerSchema,
+  gameSettingsSchema,
   updateServerSchema,
   type ServerAction,
   type StatsPoint,
@@ -58,6 +59,17 @@ export function registerServerRoutes(app: Api, ctx: AppContext, servers: ServerS
       const auth = requireAuth(request);
       access.assert(auth.user, request.params.id, 'config');
       return servers.update(request.params.id, request.body, actorOf(request));
+    },
+  );
+
+  app.put(
+    '/api/servers/:id/game-settings',
+    { schema: { params: idParams, body: z.object({ values: gameSettingsSchema }) } },
+    async (request, reply) => {
+      const auth = requireAuth(request);
+      access.assert(auth.user, request.params.id, 'config');
+      servers.setGameSettings(request.params.id, request.body.values, actorOf(request));
+      return reply.code(HTTP_NO_CONTENT).send();
     },
   );
 

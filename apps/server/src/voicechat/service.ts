@@ -50,7 +50,7 @@ export function createVoiceChatService(
 ): VoiceChatService {
   const configDirOf = (serverId: string): string => {
     const row = servers.row(serverId);
-    if (row.edition === 'bedrock') throw badRequest('voicechat_java_only');
+    if (row.edition !== 'java') throw badRequest('voicechat_java_only');
     const dir = CONFIG_DIRS[row.software];
     if (!dir) throw badRequest('voicechat_unsupported');
     return path.join(servers.dir(serverId), dir);

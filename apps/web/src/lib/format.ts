@@ -1,3 +1,4 @@
+import { isGameId, type SoftwareId } from '@mornihosting/shared';
 import i18n from '@/i18n';
 
 const KB = 1024;
@@ -78,4 +79,9 @@ export function formatTime(iso: string): string {
 /** "1,2 Mio." / "12K" */
 export function formatCompact(value: number): string {
   return new Intl.NumberFormat(locale(), { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+}
+
+/** Version as people read it: Minecraft "1.21.4" as is, other games' image choices translated ("Stabil"). */
+export function versionLabel(software: SoftwareId, version: string): string {
+  return isGameId(software) ? i18n.t(`games.versions.${version}`, { defaultValue: version }) : version;
 }

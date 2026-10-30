@@ -176,6 +176,19 @@ export interface MailStatus {
 export const SERVER_STATES = ['installing', 'stopped', 'starting', 'running', 'stopping', 'crashed'] as const;
 export type ServerState = (typeof SERVER_STATES)[number];
 
+const GAME_SETTING_MAX = 200;
+const GAME_SETTING_KEY_MAX = 40;
+export const gameSettingsSchema = z.record(
+  z.string().max(GAME_SETTING_KEY_MAX),
+  z.string().trim().max(GAME_SETTING_MAX),
+);
+
+/** Settings of another game as the settings page sees them: secrets only as "stored". */
+export interface GameSettingsView {
+  readonly values: Readonly<Record<string, string>>;
+  readonly secretsSet: readonly string[];
+}
+
 export const createServerSchema = z.object({
   name: z.string().trim().min(1).max(NAME_MAX),
   edition: z.enum(EDITIONS),
@@ -188,6 +201,8 @@ export const createServerSchema = z.object({
   startNow: z.boolean().default(true),
   /** Name in front of the NetBird domain (admins with NetBird set up); the panel creates the services. */
   netbirdName: netbirdNameSchema.optional(),
+  /** Settings of another game (GameField keys from games.ts). */
+  gameSettings: gameSettingsSchema.optional(),
 });
 export type CreateServerInput = z.infer<typeof createServerSchema>;
 
@@ -285,6 +300,13 @@ export interface ServerDetail extends ServerSummary {
   /** Addresses the panel set up in NetBird for this server, or null. */
   readonly netbird: NetbirdServerInfo | null;
   readonly permissions: readonly ServerPermission[];
+  /** Other games: their settings and every port players need (Minecraft: null / empty). */
+  readonly gameSettings: GameSettingsView | null;
+  readonly gamePorts: readonly {
+    readonly key: string;
+    readonly port: number;
+    readonly protocol: 'tcp' | 'udp';
+  }[];
 }
 
 export interface VersionOption {

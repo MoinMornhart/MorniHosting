@@ -1,5 +1,14 @@
-export const EDITIONS = ['java', 'bedrock'] as const;
-export type Edition = (typeof EDITIONS)[number];
+import { GAME_IDS, GAMES, type GameId } from './games.js';
+
+export const MINECRAFT_EDITIONS = ['java', 'bedrock'] as const;
+export type MinecraftEdition = (typeof MINECRAFT_EDITIONS)[number];
+/** Minecraft's two editions, then every other game (see games.ts); for those the edition is the game id. */
+export const EDITIONS = [...MINECRAFT_EDITIONS, ...GAME_IDS] as const;
+export type Edition = MinecraftEdition | GameId;
+
+export function isMinecraft(edition: Edition): edition is MinecraftEdition {
+  return (MINECRAFT_EDITIONS as readonly string[]).includes(edition);
+}
 
 export const SOFTWARE_IDS = [
   'vanilla',
@@ -11,6 +20,7 @@ export const SOFTWARE_IDS = [
   'velocity',
   'bedrock',
   'custom',
+  ...GAME_IDS,
 ] as const;
 export type SoftwareId = (typeof SOFTWARE_IDS)[number];
 
@@ -187,7 +197,36 @@ export const SOFTWARE: Readonly<Record<SoftwareId, SoftwareInfo>> = Object.freez
     curseforge: null,
     tpsCommand: null,
   },
+  ...gameSoftware(),
 } satisfies Record<SoftwareId, SoftwareInfo>);
+
+/** Every other game is its own "software" with nothing to install from the marketplace. */
+function gameSoftware(): Record<GameId, SoftwareInfo> {
+  const entries = GAME_IDS.map((id): [GameId, SoftwareInfo] => {
+    const game = GAMES[id];
+    const [main] = game.ports;
+    return [
+      id,
+      {
+        id,
+        edition: id,
+        label: game.label,
+        content: 'none',
+        contentDir: null,
+        proxy: false,
+        modrinthLoaders: [],
+        hangarPlatform: null,
+        spiget: false,
+        curseforge: null,
+        tpsCommand: null,
+        defaultPort: main.defaultPort,
+        protocol: main.protocol,
+        recommended: true,
+      },
+    ];
+  });
+  return Object.fromEntries(entries) as Record<GameId, SoftwareInfo>;
+}
 
 /** Java server software a server can switch between in place (same world folder, new server jar). */
 export const SWITCHABLE_SOFTWARE: readonly SoftwareId[] = [
@@ -202,7 +241,8 @@ export const SWITCHABLE_SOFTWARE: readonly SoftwareId[] = [
 export const CREATABLE_SOFTWARE: Readonly<Record<Edition, readonly SoftwareId[]>> = Object.freeze({
   java: ['vanilla', 'paper', 'purpur', 'fabric', 'forge', 'neoforge', 'velocity'],
   bedrock: ['bedrock'],
-});
+  ...Object.fromEntries(GAME_IDS.map((id) => [id, [id]])),
+} as unknown as Record<Edition, readonly SoftwareId[]>);
 
 // Version separators: "1.21.4-rc1" splits into "1", "21", "4", "rc1"; "26.3" into "26", "3".
 // https://regex101.com/?flavor=javascript&regex=%5B.%5C-%2B%5D&flags=g&testString=1.21.4-rc1%0A26.3%0A1.20%2Bbuild
@@ -249,7 +289,8 @@ export function javaTagFor(software: SoftwareId, version: string): JavaTag {
 
 export const JAVA_TAGS: readonly JavaTag[] = ['java25', 'java21', 'java17', 'java8'];
 
-const MEMORY_SMALL_MB = 1024;
+const MB_PER_GB = 1024;
+const MEMORY_SMALL_MB = MB_PER_GB;
 const MEMORY_DEFAULT_MB = 3072;
 const MEMORY_MODDED_MB = 6144;
 
@@ -263,7 +304,8 @@ const RECOMMENDED_MEMORY_MB: Readonly<Record<SoftwareId, number>> = Object.freez
   velocity: MEMORY_SMALL_MB,
   bedrock: MEMORY_SMALL_MB,
   custom: MEMORY_DEFAULT_MB,
-});
+  ...Object.fromEntries(GAME_IDS.map((id) => [id, GAMES[id].recommendedGb * MB_PER_GB])),
+} as Record<SoftwareId, number>);
 
 /** Recommended memory in MB for a new server. */
 export function recommendedMemoryMb(software: SoftwareId): number {

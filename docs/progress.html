@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T21:10:11+00:00",
-  "now": "Drei Sitzungen arbeiten parallel (Spiele, DDoS, E-Mail); ich sammle ihre Stände hier ein.",
+  "updated": "2026-10-30T21:59:33+00:00",
+  "now": "Weitere Spiele sind fertig und geprüft – wartet auf dein Go.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -298,7 +298,7 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "Neutrales Logo (M über Server-Einschub)",
       "status": "fertig",
-      "detail": "Statt Grasblock ein neutrales Zeichen, auch als Tab-Bild. Auf dem Arbeits-Branch, kommt mit dem nächsten Go nach main."
+      "detail": "Neutrales Zeichen, auch als Tab-Bild. In main (PR #22)."
     },
     {
       "title": "Spiele-Auswahl",
@@ -307,8 +307,8 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Weitere Spiele einbauen",
-      "status": "läuft",
-      "detail": "Eigene Sitzung „MorniHosting · Weitere Spiele“ (Opus), Branch claude/spiele: erst Unterbau + Factorio, dann CS2, Garry's Mod, Satisfactory, ETS2, Hytale."
+      "status": "fertig",
+      "detail": "Factorio, Counter-Strike 2, Garry's Mod, Satisfactory, Euro Truck Simulator 2 (Upload-Assistent für die Paket-Datei) und Hytale (eigenes Image mit offiziellem Downloader). Mit dem Rest zusammengeführt: 241 Tests + 5 Browser-Tests grün. Nur simuliert, echte Spielserver noch nicht gestartet. Wartet auf Philips Go für main."
     },
     {
       "title": "DDoS-Schutz",
@@ -321,12 +321,52 @@ footer { color: var(--muted); font-size: 13px; }
       "detail": "Fertig auf claude/email: E-Mail-Versand über ein eigenes Postfach (SMTP, Reiter „E-Mail“ im Admin-Bereich mit Test-Mail), Registrierung mit Bestätigungs-Link (schaltbar), „Passwort vergessen“, Willkommens-, Bestell- und Absturz-Mails, E-Mail-Adresse im Konto. 211 Tests grün, gegen einen lokalen Mailserver geprüft."
     },
     {
-      "title": "Zusammenführen, Demo, Go",
+      "title": "DDoS-Schutz + E-Mails veröffentlicht",
+      "status": "fertig",
+      "detail": "Zusammengeführt und nach main gemergt (PR #22) mit neuem Logo. 224 Tests + 4 Browser-Tests grün, CI grün. Update im Panel verfügbar. Einmal auf dem Proxmox-Host: modprobe -a xt_hashlimit xt_connlimit xt_conntrack xt_comment."
+    },
+    {
+      "title": "Weitere Spiele veröffentlichen",
       "status": "offen",
-      "detail": "Wenn die Sitzungen fertig sind: alles zusammenführen, Demo zeigen, nach Philips Go nach main."
+      "detail": "Nach Philips Go nach main mergen."
     }
   ],
   "shots": [
+    {
+      "img": "progress/spiele-uebersicht.webp",
+      "caption": "Spielauswahl mit den neuen Spielen",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-factorio.webp",
+      "caption": "Factorio-Server",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-cs2.webp",
+      "caption": "Counter-Strike 2",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-gmod.webp",
+      "caption": "Garry's Mod",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-satisfactory.webp",
+      "caption": "Satisfactory",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-ets2.webp",
+      "caption": "Euro Truck Simulator 2 mit Upload-Assistent",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
+    {
+      "img": "progress/spiele-hytale.webp",
+      "caption": "Hytale mit Konto-Anmeldung",
+      "time": "2026-10-30T21:59:33+00:00"
+    },
     {
       "img": "progress/p24-email-bestellung.webp",
       "caption": "Neu gestaltete Bestellmail",
@@ -351,41 +391,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p22-ddos.webp",
       "caption": "DDoS-Schutz im Admin-Bereich",
       "time": "2026-10-30T21:07:22+00:00"
-    },
-    {
-      "img": "progress/p21-logo.webp",
-      "caption": "Neues neutrales Logo – Startseite, Panel, alle Größen",
-      "time": "2026-10-30T20:55:04+00:00"
-    },
-    {
-      "img": "progress/p20-version.webp",
-      "caption": "„Was ist neu“ – ein Klick auf die Version unten links",
-      "time": "2026-10-30T17:10:26+00:00"
-    },
-    {
-      "img": "progress/p19-panel.webp",
-      "caption": "Neues Server-Panel im neuen Design · links hell, rechts dunkel",
-      "time": "2026-10-30T16:44:32+00:00"
-    },
-    {
-      "img": "progress/p18-light.webp",
-      "caption": "Hell und dunkel lesbar, Server-Kopf bleibt beim Scrollen stehen, neues Icon",
-      "time": "2026-10-30T16:14:44+00:00"
-    },
-    {
-      "img": "progress/p17-order.webp",
-      "caption": "Bestellseite ohne Vorauswahl, echte Software-Logos · links dunkel, rechts hell",
-      "time": "2026-10-30T14:58:33+00:00"
-    },
-    {
-      "img": "progress/p16-games.webp",
-      "caption": "Spielauswahl mit echten Bildern · links dunkel, rechts hell",
-      "time": "2026-10-30T15:35:00+01:00"
-    },
-    {
-      "img": "progress/p15-ores.webp",
-      "caption": "Pakete als Minecraft-Erze · links dunkel, rechts hell",
-      "time": "2026-10-30T15:30:00+01:00"
     }
   ],
   "files": [
@@ -405,24 +410,14 @@ footer { color: var(--muted); font-size: 13px; }
   "eta": null,
   "plan": [
     {
+      "status": "done",
+      "until": "",
+      "title": "Weitere Spiele gebaut und geprüft"
+    },
+    {
       "status": "current",
       "until": "",
-      "title": "Weitere Spiele (Factorio zuerst)"
-    },
-    {
-      "status": "done",
-      "until": "",
-      "title": "DDoS-Schutz"
-    },
-    {
-      "status": "done",
-      "until": "",
-      "title": "E-Mails"
-    },
-    {
-      "status": "todo",
-      "until": "",
-      "title": "Zusammenführen, Demo, Go"
+      "title": "Auf dein Go warten, dann Merge nach main"
     }
   ]
 }

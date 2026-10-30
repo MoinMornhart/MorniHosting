@@ -146,6 +146,9 @@ export function createDockerDriver(config: Config): DockerDriver {
       const relative = path.relative(config.dataDir, spec.dataDir);
       if (relative.startsWith('..') || path.isAbsolute(relative))
         throw new Error('server folder outside the data folder');
+      const mounts = spec.mounts ?? [{ subdir: '', path: CONTAINER_DATA_DIR }];
+      if (mounts.some((m) => path.isAbsolute(m.subdir) || m.subdir.split('/').includes('..')))
+        throw new Error('mount outside the server folder');
       const exposed = Object.fromEntries(spec.ports.map((p) => [`${p.containerPort}/${p.protocol}`, {}]));
       const bindings = Object.fromEntries(
         spec.ports.map((p) => [`${p.containerPort}/${p.protocol}`, [{ HostPort: String(p.hostPort) }]]),
@@ -161,7 +164,9 @@ export function createDockerDriver(config: Config): DockerDriver {
         StdinOnce: false,
         Tty: false,
         HostConfig: {
-          Binds: [`${path.posix.join(hostData, relative.split(path.sep).join('/'))}:${CONTAINER_DATA_DIR}`],
+          Binds: mounts.map(
+            (m) => `${path.posix.join(hostData, ...relative.split(path.sep), m.subdir)}:${m.path}`,
+          ),
           PortBindings: bindings,
           Memory: spec.memoryLimitBytes,
           NetworkMode: config.mcNetwork,
@@ -245,6 +250,7 @@ export function createDockerDriver(config: Config): DockerDriver {
       }
     },
     sendCommand: async (id, command, channel) => {
+      if (channel.kind === 'none') throw new Error('this game has no console');
       if (channel.kind === 'rcon') return rconCommand(channel.host, channel.port, channel.password, command);
       const container = docker.getContainer(id);
       if (channel.kind === 'exec') {

@@ -1,3 +1,4 @@
+import type { GameId } from '@mornihosting/shared';
 import { useId, type ReactElement, type ReactNode } from 'react';
 import logoUrl from '@/assets/logo.svg';
 import { hashString } from '@/lib/pixel';
@@ -24,7 +25,8 @@ export type Glyph =
   | 'custom'
   | 'all'
   | 'java'
-  | 'crossplay';
+  | 'crossplay'
+  | `game-${GameId}`;
 
 /** Outline of a filled shape. */
 const STROKE = {
@@ -37,6 +39,74 @@ const STROKE = {
 const LINE = { fill: 'none', ...STROKE } as const;
 
 const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
+  // A sword in front of a mountain: fantasy adventure (no game logo).
+  'game-hytale': (
+    <>
+      <path d="M2 20.5 9 9l3.5 5 2.5-3.5 7 10Z" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <path d="M17.5 2.5 11 9M11.5 6.5l2 2M9.6 10.4l-1.6 1.6" {...LINE} />
+    </>
+  ),
+  // A truck seen from the side: driving across Europe (no game logo).
+  'game-ets2': (
+    <>
+      <rect x="2" y="6" width="12" height="9.5" rx="1" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <path d="M14 9.5h4.2l3.3 3.6v2.4H14Z" fill="currentColor" fillOpacity="0.4" {...STROKE} />
+      <circle cx="6" cy="18" r="2" {...LINE} />
+      <circle cx="17.5" cy="18" r="2" {...LINE} />
+    </>
+  ),
+  // A conveyor belt between two machines on an alien planet's horizon (no game logo).
+  'game-satisfactory': (
+    <>
+      <rect x="2.5" y="9" width="6" height="8" rx="1.2" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <rect
+        x="15.5"
+        y="6"
+        width="6"
+        height="11"
+        rx="1.2"
+        fill="currentColor"
+        fillOpacity="0.25"
+        {...STROKE}
+      />
+      <path d="M8.5 13.5h7M2 20.5h20M10 11.5l1.5 2-1.5 2M13 11.5l1.5 2-1.5 2" {...LINE} />
+    </>
+  ),
+  // A wrench over a cube: building and tinkering sandbox (no game logo).
+  'game-gmod': (
+    <>
+      <path
+        d="M12 9.5 19 13.3v7.4l-7 3.8-7-3.8v-7.4l7-3.8Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        transform="translate(0 -3)"
+        {...STROKE}
+      />
+      <path d="M5 10.3 12 14.1l7-3.8M12 14.1v7.4" {...LINE} />
+      <path d="M14.5 2.2a3.2 3.2 0 0 0-3.9 4.2L6.8 10.2" {...LINE} />
+    </>
+  ),
+  // A crosshair: tactical shooter (no game logo).
+  'game-cs2': (
+    <>
+      <circle cx="12" cy="12" r="7.5" fill="currentColor" fillOpacity="0.2" {...STROKE} />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+      <path d="M12 1.8v5M12 17.2v5M1.8 12h5M17.2 12h5" {...LINE} />
+    </>
+  ),
+  // Two meshing gears above a conveyor belt: building factories (no game logo).
+  'game-factorio': (
+    <>
+      <circle cx="9" cy="9" r="4.2" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <circle cx="9" cy="9" r="1.4" fill="currentColor" />
+      <path
+        d="M9 3V1.8M9 16.2V15M3 9H1.8M16.2 9H15M4.8 4.8l-.9-.9M14.1 14.1l-.9-.9M4.8 13.2l-.9.9M14.1 3.9l-.9.9"
+        {...LINE}
+      />
+      <circle cx="17" cy="13.5" r="2.6" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <path d="M2.5 19.5h19M5 22h0M9.5 22h0M14 22h0M18.5 22h0" {...LINE} />
+    </>
+  ),
   // A paper plane.
   paper: (
     <>
@@ -174,6 +244,12 @@ const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
   all: ['#10b981', '#064e3b'],
   java: ['#22c55e', '#14532d'],
   crossplay: ['#f59e0b', '#92400e'],
+  'game-factorio': ['#f59e0b', '#7c2d12'],
+  'game-cs2': ['#60a5fa', '#1e293b'],
+  'game-gmod': ['#38bdf8', '#0c4a6e'],
+  'game-satisfactory': ['#fb923c', '#9a3412'],
+  'game-ets2': ['#facc15', '#a16207'],
+  'game-hytale': ['#a78bfa', '#3b0764'],
 };
 
 const GLYPH_NAMES = Object.keys(TONES) as Glyph[];

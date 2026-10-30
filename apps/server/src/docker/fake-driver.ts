@@ -12,6 +12,15 @@ import type {
   DockerDriver,
   LogListener,
 } from './driver.js';
+import {
+  bootGame,
+  gameCommand,
+  gameJoin,
+  gameLeave,
+  isFakeGame,
+  prepareGameFiles,
+  type FakeGameHost,
+} from './fake-games.js';
 
 /**
  * A pretend Docker that runs no containers. It writes the files a real Minecraft server
@@ -260,7 +269,19 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
 
   const playerFile = (c: FakeContainer, file: string): string => path.join(c.spec.dataDir, file);
 
+  const gameHost = (c: FakeContainer): FakeGameHost => ({
+    log: (text) => log(c, text),
+    later: (steps, fn) => later(c, steps, fn),
+    exit: (code) => exit(c, code),
+    players: c.players,
+  });
+
   const join = (c: FakeContainer, name: string): void => {
+    const game = isFakeGame(c.spec);
+    if (game) {
+      gameJoin(gameHost(c), game, name);
+      return;
+    }
     c.players.add(name);
     if (editionOf(c.spec) === 'bedrock') {
       log(c, bedrockLine(`Player connected: ${name}, xuid: 25350${Math.floor(Math.random() * PERCENT)}`));
@@ -274,6 +295,11 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
   };
 
   const leave = (c: FakeContainer, name: string): void => {
+    const game = isFakeGame(c.spec);
+    if (game) {
+      gameLeave(gameHost(c), game, name);
+      return;
+    }
     c.players.delete(name);
     if (editionOf(c.spec) === 'bedrock') log(c, bedrockLine(`Player disconnected: ${name}, xuid: 2535`));
     else {
@@ -460,6 +486,8 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
   ];
 
   const runCommand = (c: FakeContainer, command: string): string => {
+    const game = isFakeGame(c.spec);
+    if (game) return gameCommand(gameHost(c), game, command);
     const trimmed = command.trim().replace(/^\//, ''); // eslint-disable-line ts-patterns/require-regex-example -- strips one leading "/": "/list" → "list"
     const handler = commandHandlers
       .map(([pattern, fn]) => [trimmed.match(pattern), fn] as const)
@@ -512,11 +540,14 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
         emitEvent(id, 'start');
         return;
       }
-      prepareFiles(c.spec);
+      const game = isFakeGame(c.spec);
+      if (game) prepareGameFiles(c.spec, game);
+      else prepareFiles(c.spec);
       fs.writeFileSync(path.join(c.spec.dataDir, 'logs', 'latest.log'), '');
       statuses.set(id, { ...STOPPED, running: true, startedAt: new Date().toISOString() });
       emitEvent(id, 'start');
-      if (editionOf(c.spec) === 'bedrock') bootBedrock(c);
+      if (game) bootGame(gameHost(c), c.spec, game, () => schedulePlayers(c));
+      else if (editionOf(c.spec) === 'bedrock') bootBedrock(c);
       else bootJava(c);
     },
     stop: async (id) => {

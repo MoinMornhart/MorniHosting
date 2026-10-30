@@ -88,6 +88,8 @@ if grep -q '^MH_IMAGE_TAG=' .env 2>/dev/null; then
 else
   msg_info "Neues Panel wird gebaut (dauert ein paar Minuten)"
   MH_BUILD_VERSION="$(git describe --tags --always 2>/dev/null || echo dev)" docker compose build --quiet panel
+  # Hytale hat kein offizielles Image: das kleine Rezept aus images/hytale wird mitgebaut (Fehler stören das Update nicht).
+  docker build --quiet -t ghcr.io/pmornhart/mornihosting-hytale:latest images/hytale >/dev/null || msg_info "Hytale-Image konnte nicht gebaut werden"
   msg_ok "Panel gebaut"
   step "restart"
   msg_info "Panel wird neu gestartet"

@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
-import type { PlayerAction, PlayerEntry, PlayersResponse } from '@mornihosting/shared';
+import { gameOf, type PlayerAction, type PlayerEntry, type PlayersResponse } from '@mornihosting/shared';
 import type { Actor } from '../audit/service.js';
 import { conflict, notFound } from '../lib/errors.js';
 import { fetchJson } from '../lib/http-client.js';
 import { readPropertiesFile } from './properties-file.js';
 import type { ServerService } from './service.js';
+import { assertMinecraft } from './spec.js';
 
 /** Operators, whitelist and bans: by console command while running, by editing the JSON files while stopped. */
 
@@ -156,6 +157,9 @@ export function createPlayerService(
       const f = files(serverId);
       const props = readPropertiesFile(servers.dir(serverId)).values;
       const online = servers.live(serverId).players.map((name) => ({ name, uuid: null }));
+      // Other games only show who is online; their lists live in the game's own files.
+      if (gameOf(row.software))
+        return { online, ops: [], whitelist: [], banned: [], whitelistEnabled: false };
       if (row.edition === 'bedrock') {
         const operators = (() => {
           try {
@@ -184,6 +188,7 @@ export function createPlayerService(
     },
     act: async (serverId, action, name, reason, actor) => {
       const row = servers.row(serverId);
+      assertMinecraft(row);
       const bedrock = row.edition === 'bedrock';
       if (servers.isRunning(serverId)) {
         const command = (bedrock ? BEDROCK_COMMANDS : JAVA_COMMANDS)[action];

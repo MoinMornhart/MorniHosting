@@ -97,6 +97,13 @@ jobs:
             MH_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      # Hytale-Server-Image (nur Java + Startskript, siehe images/hytale); der Downloader gibt es nur für amd64.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: images/hytale
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/pmornhart/mornihosting-hytale:latest
 
   release:
     name: GitHub-Release

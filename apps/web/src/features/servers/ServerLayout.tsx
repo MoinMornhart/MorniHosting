@@ -20,7 +20,8 @@ import {
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useOutletContext, useParams } from 'react-router';
-import { SOFTWARE, type ServerDetail, type ServerPermission } from '@mornihosting/shared';
+import { SOFTWARE, isGameId, type ServerDetail, type ServerPermission } from '@mornihosting/shared';
+import { OtherGameScene } from '@/components/game-card';
 import { GameScene } from '@/components/art';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CopyButton } from '@/components/copy-button';
@@ -37,6 +38,7 @@ import {
 import { Skeleton } from '@/components/ui/misc';
 import { ApiError } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { versionLabel } from '@/lib/format';
 import { useServerAction } from '@/features/dashboard/ServerCard';
 import { serverQuery } from './live';
 import { useShareInfo } from './overview/share';
@@ -70,11 +72,11 @@ const TABS: readonly TabDef[] = [
     key: 'players',
     icon: UsersRound,
     permission: 'players',
-    show: (s) => !SOFTWARE[s.software].proxy,
+    show: (s) => !SOFTWARE[s.software].proxy && !isGameId(s.software),
   },
   { to: 'settings', key: 'settings', icon: SlidersHorizontal, permission: 'config', show: () => true },
   { to: 'files', key: 'files', icon: Folder, permission: 'files', show: () => true },
-  { to: 'version', key: 'version', icon: Box, permission: 'config', show: () => true },
+  { to: 'version', key: 'version', icon: Box, permission: 'config', show: (s) => !isGameId(s.software) },
   {
     to: 'content',
     key: 'plugins',
@@ -170,7 +172,7 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
   const state = server.live.state;
   const online = state === 'running';
   const ip = share ? (share.data.publicIp ?? share.data.lanIp) : null;
-  const art = server.edition === 'bedrock' ? 'bedrock' : 'java';
+  const art = isGameId(server.edition) ? server.edition : server.edition === 'bedrock' ? 'bedrock' : 'java';
   const head = useRef<HTMLDivElement>(null);
   const banner = useRef<HTMLDivElement>(null);
   // Side menus (settings) stick right below the part of the head that stays: its height without the banner.
@@ -199,7 +201,13 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
         <GameArt
           game={art}
           className="absolute inset-0 size-full object-cover object-[50%_35%]"
-          fallback={<GameScene game={art} className="absolute inset-0 size-full" />}
+          fallback={
+            isGameId(art) ? (
+              <OtherGameScene game={art} />
+            ) : (
+              <GameScene game={art} className="absolute inset-0 size-full" />
+            )
+          }
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card" />
       </div>
@@ -217,8 +225,12 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
               <span className="text-[13px] font-medium text-muted-foreground">
                 {t('server.meta', {
                   software: SOFTWARE[server.software].label,
-                  version: server.version,
-                  edition: server.edition === 'java' ? 'Java' : 'Bedrock',
+                  version: versionLabel(server.software, server.version),
+                  edition: isGameId(server.edition)
+                    ? t('games.dedicated')
+                    : server.edition === 'java'
+                      ? 'Java'
+                      : 'Bedrock',
                   port: server.port,
                 })}
               </span>
@@ -248,6 +260,13 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {ip ? <InfoChip label="IP" value={ip} /> : null}
           <InfoChip label={t('server.portLabel')} value={String(share?.sharePort ?? server.port)} />
+          {server.gamePorts.slice(1).map((p) => (
+            <InfoChip
+              key={`${p.key}-${p.protocol}`}
+              label={t(`games.ports.${p.key}`, { defaultValue: p.key })}
+              value={`${p.port}/${p.protocol.toUpperCase()}`}
+            />
+          ))}
           {server.geyser && share?.bedrockPort ? (
             <InfoChip label={t('server.geyserPortLabel')} value={String(share.bedrockPort)} />
           ) : null}

@@ -10,6 +10,7 @@ import { badRequest, conflict, notFound } from '../lib/errors.js';
 import { extractZip, listZip } from '../lib/zip.js';
 import { commonPrefix } from './import.js';
 import { readPropertiesFile, writePropertiesFile } from './properties-file.js';
+import { assertMinecraft } from './spec.js';
 import type { ServerService } from './service.js';
 
 /** Worlds: list, upload a ZIP, switch the active one, reset with a new seed. */
@@ -56,6 +57,7 @@ export function createWorldService(
   },
 ): WorldService {
   const worldRoot = (serverId: string): string => {
+    assertMinecraft(servers.row(serverId));
     const dir = servers.dir(serverId);
     return servers.row(serverId).edition === 'bedrock' ? path.join(dir, 'worlds') : dir;
   };
