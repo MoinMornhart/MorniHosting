@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
-import type { UpdateChange, UpdateInfo, UpdateRun } from '@mornihosting/shared';
+import type { Changelog, UpdateChange, UpdateInfo, UpdateRun } from '@mornihosting/shared';
 import type { Actor } from '../audit/service.js';
 import type { AppContext } from '../context.js';
 import { conflict } from '../lib/errors.js';
@@ -43,6 +43,13 @@ const DESCRIBED = /-g([0-9a-f]{7,40})$/;
 // A release: "1.2.0" and "v1.2.0" match (number without "v"); "1.2" and "dev" do not.
 // https://regex101.com/?flavor=javascript&regex=%5Ev%3F(%5Cd%2B%5C.%5Cd%2B%5C.%5Cd%2B)%24&testString=1.2.0%0Av1.2.0%0A1.2%0Adev
 const RELEASE = /^v?(\d+\.\d+\.\d+)$/;
+// The release in front of "git describe": "v1.2.0-3-gb886c33" gives "1.2.0"; "b886c33" does not match.
+// https://regex101.com/?flavor=javascript&regex=%5Ev%3F(%5Cd%2B%5C.%5Cd%2B%5C.%5Cd%2B)-%5Cd%2B-g&testString=v1.2.0-3-gb886c33%0Ab886c33
+const DESCRIBED_RELEASE = /^v?(\d+\.\d+\.\d+)-\d+-g/;
+/** How many changes "What's new" lists (merge commits left out). */
+const CHANGELOG_SIZE = 15;
+/** Commits fetched for it; some of them are merges. */
+const CHANGELOG_FETCH = 30;
 
 const commitSchema = z.object({
   sha: z.string(),
@@ -96,6 +103,8 @@ export interface UpdateService {
   /** Asks GitHub again right now instead of waiting for the hourly check. */
   readonly check: () => Promise<UpdateInfo>;
   readonly request: (actor: Actor) => Promise<UpdateInfo>;
+  /** The running version and the changes up to it (for "What's new"). */
+  readonly changelog: () => Promise<Changelog>;
 }
 
 function readJson<T>(file: string, schema: z.ZodType<T>): T | null {
@@ -233,7 +242,42 @@ export function createUpdateService(ctx: AppContext): UpdateService {
     return { ...base, ...(await latest(force)) };
   };
 
+  const changelogCache = createCache<Changelog>(MS_PER_HOUR);
+  const changelog = async (): Promise<Changelog> => {
+    const hit = changelogCache.get('log');
+    if (hit) return hit;
+    const version = ctx.config.version;
+    const base = baseRef(version);
+    const release = RELEASE.exec(version)?.[1] ?? DESCRIBED_RELEASE.exec(version)?.[1] ?? null;
+    const commit =
+      (COMMIT.test(version) ? version : DESCRIBED.exec(version)?.[1])?.slice(0, SHORT_SHA) ?? null;
+    const own = { release, commit };
+    try {
+      const commits = z
+        .array(commitSchema)
+        .parse(
+          await fetchJson(`${api}/commits?sha=${base ?? branch}&per_page=${CHANGELOG_FETCH}`, { headers }),
+        );
+      const fresh: Changelog = {
+        ...own,
+        changes: commits
+          .filter((c) => !c.commit.message.startsWith(MERGE_PREFIX))
+          .slice(0, CHANGELOG_SIZE)
+          .map(toChange),
+        url: `https://github.com/${repo}/commits/${base ?? branch}`,
+        failed: false,
+      };
+      changelogCache.set('log', fresh);
+      return fresh;
+    } catch (err) {
+      ctx.log.warn({ err }, 'changelog failed');
+      // Not cached: the next opening tries again.
+      return { ...own, changes: [], url: `https://github.com/${repo}/commits/${branch}`, failed: true };
+    }
+  };
+
   return {
+    changelog,
     info: () => info(),
     check: () => info(true),
     request: async (actor) => {

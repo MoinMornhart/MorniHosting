@@ -2,6 +2,7 @@
 import {
   NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
+  type Changelog,
   type ConnectionInfo,
   type InstalledContent,
   type NetbirdServiceInfo,
@@ -814,6 +815,30 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/system/update', () => ok(state.update)],
+  [
+    'GET',
+    '/api/system/changelog',
+    () =>
+      ok({
+        release: '1.0.0',
+        commit: state.update.current,
+        url: 'https://github.com/pmornhart/MorniHosting/commits/main',
+        failed: false,
+        changes: [
+          ['ce95d5c', 'Server-Panel im neuen Design', 0.2],
+          ['a8a2fea', 'Heller Modus in der Claude-App, fester Server-Kopf, neues Icon, INWX-Meldung', 1],
+          ['95e46a2', 'Echte Software-Logos, Vanilla zuerst, Bestellseite ohne Vorauswahl', 2],
+          ['092c7d1', 'Echte Minecraft-Bilder bei der Spielauswahl, Schrift in der Demo lesbar', 3],
+          ['ffa4635', 'Pakete als Minecraft-Erze, schwarze Schrift auf dem iPhone behoben', 4],
+          ['e937dbc', 'Spielauswahl mit großen Bildkarten, gleich große Symbole, Karten bündig', 5],
+          ['16331a3', 'Minecraft-Blöcke als Server-Icons, Logos von Paper und Geyser', 6],
+        ].map(([sha, title, hours]) => ({
+          sha: String(sha),
+          title: String(title),
+          date: new Date(Date.now() - Number(hours) * 3_600_000).toISOString(),
+        })),
+      } satisfies Changelog),
+  ],
   [
     'POST',
     '/api/system/update',

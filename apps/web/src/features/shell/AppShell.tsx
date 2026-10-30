@@ -40,6 +40,7 @@ import { setLanguage } from '@/i18n';
 import { meQuery, useSession } from '@/features/auth/session';
 import { useLiveSync, useServers } from '@/features/servers/live';
 import { applyTheme, useResolvedTheme } from './theme';
+import { VersionBadge } from './VersionBadge';
 import { UpdateCard } from './UpdateCard';
 
 interface NavItem {
@@ -290,6 +291,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }): ReactEleme
       <div className="mt-auto grid gap-2.5">
         {me.user.isAdmin ? <UpdateCard /> : null}
         <UserMenu me={me} />
+        <VersionBadge onNavigate={onNavigate} />
       </div>
     </div>
   );

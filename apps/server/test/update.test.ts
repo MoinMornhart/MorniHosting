@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { UpdateInfo } from '@mornihosting/shared';
+import type { Changelog, UpdateInfo } from '@mornihosting/shared';
 import { authHeaders, createTestApp, setupAdmin, type Session, type TestApp } from './helpers.js';
 
 const HEAD = 'b886c33f113e8d3334a7c20776e5da54a1bbe712';
@@ -20,6 +20,13 @@ function fakeGithub() {
     asked.push(url);
     if (url.endsWith('/commits/main'))
       return Response.json(commit(HEAD, 'Fortschrittsseite: fertig', '2026-10-30T11:44:00Z'));
+    if (url.includes('/commits?sha=')) {
+      return Response.json([
+        commit(RUNNING + '0000', 'Neues Server-Panel\n\nKopf, Reiter', '2026-10-30T12:00:00Z'),
+        commit('3333333cccc', 'Merge pull request #20 from pmornhart/claude/x', '2026-10-30T11:50:00Z'),
+        commit('4444444dddd', 'Echte Logos', '2026-10-30T11:00:00Z'),
+      ]);
+    }
     if (url.includes('/compare/')) {
       return Response.json({
         ahead_by: 3,
@@ -80,6 +87,14 @@ describe('panel updates (follow the main branch)', () => {
       'Server bestellen wie bei einem Hoster',
     ]);
     expect(github.asked.at(-1)).toContain(`/compare/${RUNNING}...${HEAD}`);
+  });
+
+  test('"what is new" names the running version and lists its changes without merges', async () => {
+    await restart(`v1.0.0-4-g${RUNNING}`);
+    const log = (await call('GET', '/api/system/changelog')).json<Changelog>();
+    expect(log).toMatchObject({ release: '1.0.0', commit: RUNNING, failed: false });
+    expect(log.changes.map((c) => c.title)).toEqual(['Neues Server-Panel', 'Echte Logos']);
+    expect(github.asked.at(-1)).toContain(`/commits?sha=${RUNNING}`);
   });
 
   test('the update button hands over to the host updater, whose steps and output show up', async () => {

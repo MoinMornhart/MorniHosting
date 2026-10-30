@@ -1892,7 +1892,8 @@
     "switch": "Zu {{software}} wechseln",
     "install": "Version installieren",
     "saved": "{{software}} {{version}} ist eingestellt. Gilt beim nächsten Start.",
-    "running": "Läuft gerade"
+    "running": "Läuft gerade",
+    "dev": "Entwicklerversion"
   },
   "network": {
     "title": "Netzwerk",
@@ -1906,5 +1907,15 @@
     "container": "Container",
     "image": "Image",
     "created": "Angelegt am"
+  },
+  "changelog": {
+    "title": "Was ist neu",
+    "open": "Version und Neuerungen anzeigen",
+    "running": "Dein Panel läuft mit {{version}}. Das sind die letzten Änderungen:",
+    "updateReady_one": "Ein Update ist bereit – jetzt ansehen",
+    "updateReady_other": "{{count}} Neuerungen sind bereit – jetzt aktualisieren",
+    "updateDot": "Update verfügbar",
+    "failed": "GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.",
+    "all": "Alle Änderungen auf GitHub"
   }
 }

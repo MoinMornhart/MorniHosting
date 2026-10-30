@@ -753,6 +753,20 @@ export interface UpdateInfo {
   readonly run: UpdateRun | null;
 }
 
+/** The running version for the badge in the menu, and what changed up to it. */
+export interface Changelog {
+  /** Release number ("1.0.0") when the panel was built from or after a release tag. */
+  readonly release: string | null;
+  /** Short commit the panel was built from; null for a build without git ("dev"). */
+  readonly commit: string | null;
+  /** The latest changes up to the running version, newest first. */
+  readonly changes: readonly UpdateChange[];
+  /** All changes on GitHub. */
+  readonly url: string | null;
+  /** GitHub could not be asked (no internet, limit); the list is empty then. */
+  readonly failed: boolean;
+}
+
 export type { ScheduleAction, ScheduleSpec, ServerPermission, SoftwareId, Edition, JavaTag };
 
 /* ---------- WebSocket ---------- */
