@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T17:10:26+00:00",
-  "now": "Warte auf dein Go für den Merge nach main",
+  "updated": "2026-10-30T21:10:11+00:00",
+  "now": "Drei Sitzungen arbeiten parallel (Spiele, DDoS, E-Mail); ich sammle ihre Stände hier ein.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -287,16 +287,76 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "Demo zeigen, nach deinem Go Merge nach main",
-      "status": "läuft",
-      "detail": "Demo und Screenshots geschickt. Gemergt wird erst nach deinem Go."
+      "status": "fertig",
+      "detail": "Gemergt nach main (PR #20): neues Server-Panel, Versionsanzeige, Zertifikatsstatus für HTTPS. mornihosting.de läuft mit HTTPS."
     },
     {
       "title": "DDoS-Schutz (eigenes Update)",
       "status": "offen",
       "detail": "Kommt als eigenes Update nach diesem Release (Branch claude/ddos-schutz angefangen)."
+    },
+    {
+      "title": "Neutrales Logo (M über Server-Einschub)",
+      "status": "fertig",
+      "detail": "Statt Grasblock ein neutrales Zeichen, auch als Tab-Bild. Auf dem Arbeits-Branch, kommt mit dem nächsten Go nach main."
+    },
+    {
+      "title": "Spiele-Auswahl",
+      "status": "fertig",
+      "detail": "Seite mit 27 selbst hostbaren Spielen. Philip hat gewählt: Factorio, Satisfactory, Counter-Strike 2, Euro Truck Simulator 2, Garry's Mod, dazu Hytale."
+    },
+    {
+      "title": "Weitere Spiele einbauen",
+      "status": "läuft",
+      "detail": "Eigene Sitzung „MorniHosting · Weitere Spiele“ (Opus), Branch claude/spiele: erst Unterbau + Factorio, dann CS2, Garry's Mod, Satisfactory, ETS2, Hytale."
+    },
+    {
+      "title": "DDoS-Schutz",
+      "status": "fertig",
+      "detail": "Fertig auf claude/ddos-schutz: Host-Skript mit Firewall-Kette (Grenzen pro Absender für neue/gleichzeitige Verbindungen und UDP-Fluten, SYN-Cookies, IPv4+IPv6), läuft über systemd, Admin-Reiter mit Schalter, Zählern und ehrlichem Hinweis auf TCPShield/Cloudflare für große Angriffe. 209 Tests grün, mit echtem iptables getestet. Nach dem Merge muss Philip einmal auf dem Proxmox-Host einen modprobe-Befehl ausführen."
+    },
+    {
+      "title": "E-Mails",
+      "status": "fertig",
+      "detail": "Fertig auf claude/email: E-Mail-Versand über ein eigenes Postfach (SMTP, Reiter „E-Mail“ im Admin-Bereich mit Test-Mail), Registrierung mit Bestätigungs-Link (schaltbar), „Passwort vergessen“, Willkommens-, Bestell- und Absturz-Mails, E-Mail-Adresse im Konto. 211 Tests grün, gegen einen lokalen Mailserver geprüft."
+    },
+    {
+      "title": "Zusammenführen, Demo, Go",
+      "status": "offen",
+      "detail": "Wenn die Sitzungen fertig sind: alles zusammenführen, Demo zeigen, nach Philips Go nach main."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p24-email-bestellung.webp",
+      "caption": "Neu gestaltete Bestellmail",
+      "time": "2026-10-30T21:10:11+00:00"
+    },
+    {
+      "img": "progress/p23-email-mail-bestaetigung.webp",
+      "caption": "Bestätigungs-Mail bei der Registrierung",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
+    {
+      "img": "progress/p23-email-admin.webp",
+      "caption": "Reiter „E-Mail“ im Admin-Bereich",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
+    {
+      "img": "progress/p23-email-login.webp",
+      "caption": "Anmeldung mit „Passwort vergessen“ und „Jetzt registrieren“",
+      "time": "2026-10-30T21:08:03+00:00"
+    },
+    {
+      "img": "progress/p22-ddos.webp",
+      "caption": "DDoS-Schutz im Admin-Bereich",
+      "time": "2026-10-30T21:07:22+00:00"
+    },
+    {
+      "img": "progress/p21-logo.webp",
+      "caption": "Neues neutrales Logo – Startseite, Panel, alle Größen",
+      "time": "2026-10-30T20:55:04+00:00"
+    },
     {
       "img": "progress/p20-version.webp",
       "caption": "„Was ist neu“ – ein Klick auf die Version unten links",
@@ -326,36 +386,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p15-ores.webp",
       "caption": "Pakete als Minecraft-Erze · links dunkel, rechts hell",
       "time": "2026-10-30T15:30:00+01:00"
-    },
-    {
-      "img": "progress/p15-blocks.webp",
-      "caption": "Server mit 3D-Minecraft-Blöcken · lange Namen werden sauber gekürzt",
-      "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p15-games.webp",
-      "caption": "Spielauswahl als große Bildkarten · oben dunkler, unten heller Modus",
-      "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p15-update.webp",
-      "caption": "Neue Update-Karte · Add-ons mit Geyser- und Voice-Chat-Logo",
-      "time": "2026-10-30T15:05:00+01:00"
-    },
-    {
-      "img": "progress/p14-servers.webp",
-      "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
-      "time": "2026-10-30T13:55:00+01:00"
-    },
-    {
-      "img": "progress/p14-games.webp",
-      "caption": "Eigene Grafiken · Spiele-Karten mit schwebenden Szenen",
-      "time": "2026-10-30T13:55:00+01:00"
-    },
-    {
-      "img": "progress/p14-gems.webp",
-      "caption": "Eigene Grafiken · Pakete als Edelsteine von Stein bis Netherite",
-      "time": "2026-10-30T13:55:00+01:00"
     }
   ],
   "files": [
@@ -375,14 +405,24 @@ footer { color: var(--muted); font-size: 13px; }
   "eta": null,
   "plan": [
     {
-      "status": "done",
-      "until": "",
-      "title": "Server-Panel im neuen Design"
-    },
-    {
       "status": "current",
       "until": "",
-      "title": "Auf dein Go warten, dann Merge nach main"
+      "title": "Weitere Spiele (Factorio zuerst)"
+    },
+    {
+      "status": "done",
+      "until": "",
+      "title": "DDoS-Schutz"
+    },
+    {
+      "status": "done",
+      "until": "",
+      "title": "E-Mails"
+    },
+    {
+      "status": "todo",
+      "until": "",
+      "title": "Zusammenführen, Demo, Go"
     }
   ]
 }

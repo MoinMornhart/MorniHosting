@@ -288,7 +288,7 @@ export function Monogram({ name, className }: { name: string; className?: string
 /* ---------- Logo ---------- */
 
 /** The MorniHosting mark: an emerald cube floating on a soft glow. */
-/** The MorniHosting logo: a grass block with a pixel "M" on emerald (same picture as the browser tab icon). */
+/** The MorniHosting logo: an "M" above a server slot on emerald, the same picture as the browser tab icon. */
 export function LogoMark({ className }: { className?: string }): ReactElement {
   return <img src={logoUrl} alt="" aria-hidden className={cn('size-8 shrink-0', className)} />;
 }

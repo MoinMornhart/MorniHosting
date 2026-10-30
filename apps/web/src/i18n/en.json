@@ -154,7 +154,10 @@
     "or": "or",
     "passkey": "Sign in with a passkey",
     "passkeyWaiting": "Waiting for your device …",
-    "passkeyElsewhere": "Passkey sign-in works at"
+    "passkeyElsewhere": "Passkey sign-in works at",
+    "forgot": "Forgot your password?",
+    "noAccount": "No account yet?",
+    "register": "Sign up now"
   },
   "dashboard": {
     "title": "Your servers",
@@ -532,7 +535,15 @@
     "software_not_switchable": "The server cannot switch between these two programs.",
     "software_switch_running": "Stop the server before switching the software.",
     "software_switch_addons": "Turn off Bedrock players (Geyser) and voice chat before switching the software.",
-    "software_switch_version": "Pick a Minecraft version for the new software."
+    "software_switch_version": "Pick a Minecraft version for the new software.",
+    "email_unconfirmed": "Please confirm your e-mail address first. We sent you the link.",
+    "registration_closed": "Signing up is not possible right now.",
+    "reset_unavailable": "“Password forgotten” is not set up here. Please ask whoever runs the panel.",
+    "link_invalid": "This link has expired or was already used. Please request a new one.",
+    "email_taken": "This e-mail address already belongs to another account.",
+    "mail_failed": "The mail could not be sent: {{message}}",
+    "mail_not_configured": "E-mail is not set up yet (admin area → E-mail, plus the panel's domain).",
+    "mail_no_recipient": "Please enter a recipient address or add your own e-mail address first."
   },
   "update": {
     "text": "Your Minecraft servers keep running during the update.",
@@ -1292,7 +1303,9 @@
     "enable": "Unlock",
     "you": "You",
     "deleteTitle": "Delete {{name}}?",
-    "deleteText": "The account and its API keys are deleted. Servers stay."
+    "deleteText": "The account and its API keys are deleted. Servers stay.",
+    "email": "E-mail address (optional)",
+    "emailHint": "For the welcome mail, “password forgotten” and confirmations. Each address only once."
   },
   "roles": {
     "new": "Add role",
@@ -1476,8 +1489,100 @@
       "dns_disconnect": "Own domain disconnected",
       "dns_server": "Address under own domain changed",
       "https_enable": "HTTPS turned on",
-      "https_disable": "HTTPS turned off"
+      "https_disable": "HTTPS turned off",
+      "ddos_update": "DDoS protection changed",
+      "auth_register": "Signed up",
+      "auth_email_confirmed": "E-mail confirmed",
+      "account_email_changed": "E-mail address changed",
+      "account_email_removed": "E-mail address removed",
+      "auth_password_forgotten": "Password reset by mail",
+      "mail_settings": "Mail settings saved",
+      "mail_removed": "Mail settings removed"
     }
+  },
+  "ddos": {
+    "title": "DDoS protection",
+    "headline": {
+      "active": "Protection is on",
+      "off": "Protection is off",
+      "switchingOn": "Switching on …",
+      "switchingOff": "Switching off …",
+      "stuck": "The computer does not answer",
+      "failed": "Protection could not be switched on",
+      "no_host": "A part on the computer is still missing"
+    },
+    "state": {
+      "active": "On",
+      "off": "Off",
+      "waiting": "Almost there",
+      "stuck": "No answer",
+      "failed": "Error",
+      "no_host": "Not set up"
+    },
+    "stateText": {
+      "active": "Anyone sending too many connections or packets gets slowed down. Normal players do not notice anything.",
+      "off": "Switch it on so single troublemakers cannot knock your servers over.",
+      "waiting": "The computer picks up the setting within a few seconds.",
+      "stuck": "The helper on the computer has not reported back for a few minutes.",
+      "failed": "The firewall rules could not be set. Your servers keep running normally.",
+      "no_host": "For safety the panel may not touch the firewall itself. A small helper on the computer does that."
+    },
+    "switch": "Switch on DDoS protection",
+    "switchHint": "Slows down per sender: too many new connections, too many at once, UDP floods (Bedrock, voice chat) and broken packets. Home network and NetBird stay free.",
+    "installTitle": "Set up the helper on the computer",
+    "stuckTitle": "Check the helper on the computer",
+    "installText": "Enter this once on the computer (or in the Proxmox container) – an update sets it up as well:",
+    "error": {
+      "rules_failed": "The firewall rules were refused.",
+      "iptables_missing": "iptables is missing on the computer."
+    },
+    "errorHint": "Usually a kernel module is missing (xt_hashlimit, xt_connlimit). In a Proxmox container the Proxmox host loads it: run “modprobe -a xt_hashlimit xt_connlimit xt_conntrack xt_comment” there once, then switch off and on again.",
+    "dropped": {
+      "tcpRate": "too many new connections",
+      "tcpConnections": "too many at once",
+      "udpRate": "UDP flood (Bedrock, voice)",
+      "invalid": "broken packets"
+    },
+    "checked": "Last checked {{when}}",
+    "families": {
+      "both": "IPv4 and IPv6",
+      "v4": "IPv4"
+    },
+    "noDocker": "Docker was not found yet – the server ports are protected once Docker runs (happens automatically within a minute).",
+    "noSysctl": "SYN cookies and the bigger connection table are up to the host here (e.g. Proxmox). The firewall rules work anyway.",
+    "limitsTitle": "Which limits apply?",
+    "limits": {
+      "tcpNew": "At most {{count}} new connections per minute and sender (up to {{burst}} at once) – enough for a whole family behind one connection.",
+      "tcpConnections": "At most {{count}} open connections at the same time per sender (a player needs one).",
+      "udp": "At most {{count}} UDP packets per second and sender (a Bedrock player sends about 100, voice chat about 50).",
+      "invalid": "Broken TCP packets that belong to no connection are dropped; SYN cookies catch SYN floods.",
+      "trusted": "Never slowed down: your home network, Docker inside and NetBird."
+    },
+    "limitsChange": "Put your own limits into this file on the computer:",
+    "honestTitle": "What the protection can do – and what not",
+    "honestText": "It helps against single troublemakers and small floods: bots connecting thousands of times, or someone flooding your Bedrock port. Against big attacks that clog your whole internet line nothing running at your home helps – the line is full before a packet reaches your computer. Only a service in front of your connection helps there:",
+    "providers": {
+      "tcpshield": {
+        "name": "TCPShield",
+        "text": "Made for Minecraft Java, free to start. Players connect to TCPShield, which only passes clean connections on to you."
+      },
+      "cloudflare": {
+        "name": "Cloudflare Spectrum",
+        "text": "Protects any TCP/UDP port, Bedrock too. Costs money; for the panel plain Cloudflare (HTTPS) is enough and free."
+      },
+      "netbird": {
+        "name": "NetBird proxy on a rented server",
+        "text": "If your NetBird runs on a rented server, the world only sees its address. Many providers (e.g. IONOS, Hetzner) filter big attacks there already."
+      }
+    },
+    "rateTitle": "Spam limit in Minecraft",
+    "ratePill": "{{count}} packets/s",
+    "off": "Off",
+    "rateText": "Minecraft can kick players who send extremely many packets (for example with cheat tools). A normal game sends far fewer.",
+    "rateSwitch": "Switch on spam limit",
+    "rateHint": "Applies to all Java servers from their next start (in server.properties: rate-limit).",
+    "rateValue": "Packets per second and player",
+    "rateValueHint": "Between {{min}} and {{max}}. 500 is generous."
   },
   "account": {
     "subtitle": "Your name, password, passkeys and two-factor sign-in.",
@@ -1546,7 +1651,9 @@
       "update": "Updates",
       "passwords": "Passwords",
       "settings": "Settings",
-      "netbird": "NetBird"
+      "netbird": "NetBird",
+      "ddos": "DDoS protection",
+      "mail": "E-mail"
     },
     "domainTitle": "Panel address by hand",
     "domainSet": "Set",
@@ -1569,7 +1676,9 @@
       "netbird": "For servers without port forwarding: NetBird connects them to your domain.",
       "update": "Install new features and fixes with one click.",
       "passwords": "Someone forgot their password? Reset it here.",
-      "settings": "Home network addresses, CurseForge key, time zone and language."
+      "settings": "Home network addresses, CurseForge key, time zone and language.",
+      "ddos": "Protects your servers and the panel from flood attacks, as far as that is possible at home.",
+      "mail": "Mails to your people: welcome, sign-up, “password forgotten” and orders."
     },
     "netbirdManual": "Set up NetBird by hand",
     "netbirdManualHint": "Only needed if you don't use the automation above. Tap to open."
@@ -1917,5 +2026,95 @@
     "updateDot": "Update available",
     "failed": "GitHub cannot be reached right now. Try again later.",
     "all": "All changes on GitHub"
+  },
+  "mail": {
+    "title": "Sending e-mail",
+    "on": "Set up",
+    "off": "Not set up",
+    "text": "With a mailbox (SMTP) the panel can send mails. Without these settings everything works as before.",
+    "host": "Mail server",
+    "hostHint": "The address of the outgoing server, e.g. smtp.example.com.",
+    "port": "Port",
+    "security": "Encryption",
+    "securityHint": "“STARTTLS” (port 587) is the usual choice today, “TLS” (port 465) works too. “None” only inside your own network.",
+    "securityKinds": {
+      "starttls": "STARTTLS (587)",
+      "tls": "TLS (465)",
+      "none": "None (25)"
+    },
+    "user": "User",
+    "password": "Password",
+    "passwordHint": "Stored encrypted and never shown again.",
+    "passwordKept": "A password is saved. Leave empty to keep it.",
+    "from": "Sender",
+    "fromHint": "How the mail appears to the recipient, e.g. MorniHosting <noreply@mornihosting.de>.",
+    "needsDomain": "Links in mails need the panel's domain (tab “Domain & HTTPS”). Until then sign-up and “password forgotten” stay off.",
+    "registration": "Allow sign-up on the start page",
+    "registrationHint": "New people create their own account and must confirm their e-mail address with a link. They only get standard rights.",
+    "registrationOrders": "New accounts may order servers",
+    "registrationOrdersHint": "Without this switch you have to approve new accounts first (Users → “May create servers”).",
+    "crashMails": "Mail admins when a server crashes",
+    "crashMailsHint": "At most one mail per server every 15 minutes, in addition to webhooks.",
+    "saved": "E-mail settings saved.",
+    "removed": "Sending e-mail switched off.",
+    "remove": "Switch off e-mail",
+    "testTitle": "Send a test mail",
+    "testHint": "Leave empty to send it to your own address (My account).",
+    "testPlaceholder": "recipient@example.com",
+    "testSend": "Send test mail",
+    "testSent": "Test mail sent to {{to}}.",
+    "helpTitle": "Where do I get a mail server?",
+    "helpInwx": "INWX: create a mailbox for noreply@your-domain in the customer menu. Server and port are in the mailbox details (usually mail.inwx.de, port 587).",
+    "helpIonos": "IONOS: create a mailbox. Server smtp.ionos.com, port 587, the user is the full address.",
+    "helpGmail": "Gmail: smtp.gmail.com, port 587. You need an “app password” (Google account → Security → 2-step verification → App passwords), not your normal password."
+  },
+  "mailPages": {
+    "backToLogin": "Back to login",
+    "email": "E-mail address",
+    "usernameHint": "Letters, digits, dot, dash and underscore.",
+    "passwordHint": "At least 10 characters.",
+    "registerTitle": "Create an account",
+    "registerText": "Your own Minecraft server in a few clicks. First we need your e-mail address.",
+    "registerSubmit": "Create account",
+    "registerSentTitle": "Check your inbox",
+    "registerSent": "We sent a mail to {{email}}. Click the link in it, then you can log in. Nothing there? Check your spam folder too.",
+    "forgotTitle": "Forgot your password?",
+    "forgotText": "Enter your e-mail address. We will send you a link to choose a new password.",
+    "forgotSubmit": "Send link",
+    "forgotSentTitle": "Check your inbox",
+    "forgotSent": "If an account exists for this address, a mail is on its way. The link is valid for one hour.",
+    "resetTitle": "New password",
+    "resetText": "Choose a new password for your account.",
+    "newPassword": "New password",
+    "resetSubmit": "Save password",
+    "resetDoneTitle": "Password changed",
+    "resetDone": "You can now log in with the new password. All other devices were logged out.",
+    "verifying": "One moment …",
+    "verifyFailedTitle": "That did not work",
+    "verifyFailed": "The link is incomplete.",
+    "verified": {
+      "register": {
+        "title": "E-mail confirmed",
+        "text": "Thanks! Your account is active. You can log in now."
+      },
+      "email_change": {
+        "title": "Address confirmed",
+        "text": "Your new e-mail address is saved."
+      }
+    }
+  },
+  "emailCard": {
+    "title": "E-mail address",
+    "confirmed": "Confirmed",
+    "text": "For “password forgotten” and order confirmations. A new address only becomes active once you click the link in the mail.",
+    "label": "E-mail address",
+    "newLabel": "New e-mail address",
+    "password": "Your password",
+    "passwordHint": "We ask once more, for safety.",
+    "send": "Send confirmation mail",
+    "sent": "We sent a mail to {{email}}. Click the link in it.",
+    "remove": "Remove",
+    "removed": "E-mail address removed.",
+    "unavailable": "E-mail is not set up in this panel yet. Please ask whoever runs it."
   }
 }

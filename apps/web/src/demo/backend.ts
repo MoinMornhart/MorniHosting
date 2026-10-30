@@ -3,7 +3,12 @@ import {
   NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
   type Changelog,
+  type ConfirmResult,
+  type MailSettingsView,
+  type MailTestResult,
   type ConnectionInfo,
+  type DdosHostStatus,
+  type DdosStatus,
   type InstalledContent,
   type NetbirdServiceInfo,
   type DnsStatus,
@@ -123,7 +128,20 @@ const adminMe = read<MeResponse>('/api/auth/me');
 const roles = read<RoleEntry[]>('/api/roles');
 const state = {
   userId: null as number | null,
-  users: read<UserListEntry[]>('/api/users'),
+  users: read<UserListEntry[]>('/api/users').map((u) => ({ ...u, email: u.email ?? null })),
+  mail: {
+    configured: true,
+    passwordSet: true,
+    linksPossible: true,
+    host: 'mail.inwx.de',
+    port: 587,
+    security: 'starttls',
+    user: 'noreply@mornihosting.de',
+    from: 'MorniHosting <noreply@mornihosting.de>',
+    registration: true,
+    registrationOrders: true,
+    crashMails: false,
+  } as MailSettingsView,
   passwords: new Map<string, string>([
     [DEMO_USER, DEMO_PASSWORD],
     ['lena', 'lena-passwort-1'],
@@ -172,7 +190,77 @@ const state = {
   ),
   /** Demo servers made with the wizard borrow pages from a recorded server of the same kind. */
   templates: new Map<string, string>(),
+  ddos: { enabled: false, state: 'off', hostInstalled: true, host: null, rateLimit: null } as DdosStatus,
 };
+
+/** The host script of the DDoS protection, played back: what it reports in status.json. */
+const DEMO_DDOS_HOST: DdosHostStatus = {
+  active: true,
+  ipv4: true,
+  ipv6: true,
+  docker: true,
+  sysctl: true,
+  tcpPorts: ['25565', '25566', '443', '80', '8080'],
+  udpPorts: ['19132', '24454'],
+  limits: {
+    tcpNewPerMinute: 120,
+    tcpBurst: 60,
+    tcpConnections: 64,
+    udpPacketsPerSecond: 4000,
+    udpBurst: 8000,
+  },
+  dropped: { tcpRate: 0, tcpConnections: 0, udpRate: 0, invalid: 0 },
+  error: null,
+  at: nowIso(),
+};
+
+/** While the protection is on, a few made-up attackers keep it busy. */
+function ddosNow(): DdosStatus {
+  const host = state.ddos.host;
+  if (state.ddos.state !== 'active' || !host) return state.ddos;
+  const grow = (n: number, by: number): number => n + Math.round(Math.random() * by);
+  state.ddos = {
+    ...state.ddos,
+    host: {
+      ...host,
+      at: nowIso(),
+      dropped: {
+        tcpRate: grow(host.dropped.tcpRate, 40),
+        tcpConnections: grow(host.dropped.tcpConnections, 6),
+        udpRate: grow(host.dropped.udpRate, 2500),
+        invalid: grow(host.dropped.invalid, 12),
+      },
+    },
+  };
+  return state.ddos;
+}
+
+function setDdos(body: Readonly<Record<string, unknown>>): Reply {
+  if (typeof body['rateLimit'] === 'number') state.ddos = { ...state.ddos, rateLimit: body['rateLimit'] };
+  const enabled = body['enabled'];
+  if (typeof enabled === 'boolean' && enabled !== state.ddos.enabled) {
+    state.ddos = { ...state.ddos, enabled, state: 'waiting' };
+    // The systemd unit on the host picks the wish up within seconds.
+    window.setTimeout(() => {
+      state.ddos = enabled
+        ? {
+            ...state.ddos,
+            state: 'active',
+            host: {
+              ...DEMO_DDOS_HOST,
+              at: nowIso(),
+              dropped: { tcpRate: 18, tcpConnections: 2, udpRate: 3120, invalid: 7 },
+            },
+          }
+        : {
+            ...state.ddos,
+            state: 'off',
+            host: state.ddos.host && { ...state.ddos.host, active: false, at: nowIso() },
+          };
+    }, 2500);
+  }
+  return ok(state.ddos);
+}
 
 const userById = (id: number | null): UserListEntry | undefined => state.users.find((u) => u.id === id);
 
@@ -710,6 +798,10 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
         defaultLocale: 'de',
         passkeys: 'ok',
         panelDomain: state.settings.panelDomain || null,
+        mail: {
+          registration: state.mail.configured && state.mail.registration,
+          passwordReset: state.mail.configured,
+        },
       } satisfies SystemStatus),
   ],
   ['GET', '/api/auth/me', () => ok(meNow())],
@@ -752,6 +844,57 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/account/passkeys', () => ok(state.passkeys.get(state.userId ?? -1) ?? [])],
+  ['GET', '/api/mail', () => ok(state.mail)],
+  [
+    'PUT',
+    '/api/mail',
+    ({ body }) => {
+      state.mail = {
+        ...(body as unknown as MailSettingsView),
+        configured: true,
+        passwordSet: state.mail.passwordSet || Boolean(body['password']),
+        linksPossible: true,
+      };
+      return ok(state.mail);
+    },
+  ],
+  [
+    'DELETE',
+    '/api/mail',
+    () => {
+      state.mail = { ...state.mail, configured: false, passwordSet: false, registration: false };
+      return noContent();
+    },
+  ],
+  [
+    'POST',
+    '/api/mail/test',
+    ({ body }) => {
+      const to = String(body['to'] ?? '') || meNow()?.user.email || 'philip@mornihosting.de';
+      return ok({ sentTo: to } satisfies MailTestResult);
+    },
+  ],
+  ['POST', '/api/auth/register', () => noContent()],
+  ['POST', '/api/auth/confirm', () => ok({ kind: 'register' } satisfies ConfirmResult)],
+  ['POST', '/api/auth/forgot', () => noContent()],
+  ['POST', '/api/auth/reset', () => noContent()],
+  [
+    'PUT',
+    '/api/account/email',
+    ({ body }) => {
+      const email = String(body['email'] ?? '');
+      state.users = state.users.map((u) => (u.id === state.userId ? { ...u, email } : u));
+      return noContent();
+    },
+  ],
+  [
+    'DELETE',
+    '/api/account/email',
+    () => {
+      state.users = state.users.map((u) => (u.id === state.userId ? { ...u, email: null } : u));
+      return noContent();
+    },
+  ],
   ['PUT', '/api/account/minecraft', ({ body }) => linkMinecraft(String(body['name'] ?? ''))],
   ['DELETE', '/api/account/minecraft', () => linkMinecraft(null)],
   ['POST', '/api/account/passkeys/options', () => ok({ challenge: randomText(32) })],
@@ -815,6 +958,8 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/system/update', () => ok(state.update)],
+  ['GET', '/api/ddos', () => ok(ddosNow())],
+  ['PUT', '/api/ddos', ({ body }) => setDdos(body)],
   [
     'GET',
     '/api/system/changelog',
@@ -886,6 +1031,7 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
         isAdmin: body['isAdmin'] === true,
         canCreateServers: body['isAdmin'] === true || body['canCreateServers'] === true,
         minecraft: null,
+        email: String(body['email'] ?? '') || null,
         locale: 'de',
         theme: 'dark',
         totpEnabled: false,
@@ -1149,6 +1295,10 @@ const PUBLIC_PATHS: readonly string[] = [
   '/api/auth/logout',
   '/api/auth/passkey/options',
   '/api/auth/passkey/login',
+  '/api/auth/register',
+  '/api/auth/confirm',
+  '/api/auth/forgot',
+  '/api/auth/reset',
 ];
 const SERVER_PREFIX = '/api/servers/';
 // A numeric id at the end of a path: "12" matches, "files" and "12a" do not.

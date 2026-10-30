@@ -70,6 +70,10 @@ import { registerNetbirdRoutes } from './netbird/routes.js';
 import { createMinecraftLinkService } from './minecraft/service.js';
 import { registerMinecraftRoutes } from './minecraft/routes.js';
 import type { Resolver } from './lib/net-guard.js';
+import { createDdosService } from './ddos/service.js';
+import { registerDdosRoutes } from './ddos/routes.js';
+import { createMailService, type MailService, type TransportFactory } from './mail/service.js';
+import { registerMailRoutes } from './mail/routes.js';
 
 export interface BuildOptions {
   readonly config: Config;
@@ -78,10 +82,13 @@ export interface BuildOptions {
   readonly logger?: boolean;
   /** DNS lookup for webhook targets (tests answer without a network). */
   readonly resolver?: Resolver;
+  /** Tests catch outgoing mails here instead of reaching a mail server. */
+  readonly mailTransport?: TransportFactory;
 }
 
 export interface BuiltApp {
   readonly app: Api;
+  readonly mail: MailService;
   readonly ctx: AppContext;
   readonly servers: ServerService;
   /** Own-domain DNS automation; tests trigger its IP check directly. */
@@ -160,6 +167,9 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const https = createHttpsGateway(ctx, () => dns.status().domain);
   proxies.isGateway = https.isGateway;
   const minecraftLink = createMinecraftLinkService(ctx, servers);
+  const ddos = createDdosService(ctx, servers);
+  const mail = createMailService(ctx, options.mailTransport);
+  mail.init(servers);
 
   await app.register(helmet, {
     contentSecurityPolicy: {
@@ -230,7 +240,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     return reply.code(HTTP_INTERNAL).send({ error: 'internal' });
   });
 
-  registerAuthRoutes(app, ctx);
+  registerAuthRoutes(app, ctx, mail);
   registerPasskeyRoutes(app, ctx);
   registerServerRoutes(app, ctx, servers);
   registerImportRoutes(app, ctx, servers);
@@ -247,11 +257,13 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
   registerWebhookRoutes(app, webhooks);
-  registerUserRoutes(app, ctx);
+  registerMailRoutes(app, ctx, mail);
+  registerUserRoutes(app, ctx, mail);
   registerTokenRoutes(app, ctx);
   registerAuditRoutes(app, ctx);
   registerSettingsRoutes(app, ctx);
   registerSystemRoutes(app, createUpdateService(ctx));
+  registerDdosRoutes(app, ddos);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));
@@ -269,6 +281,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const intervals: NodeJS.Timeout[] = [];
   return {
     app,
+    mail,
     ctx,
     servers,
     dns,
@@ -276,9 +289,12 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       sampleHostCpu();
       intervals.push(setInterval(sampleHostCpu, HOST_SAMPLE_SECONDS * MS_PER_SECOND));
       intervals.push(setInterval(() => ctx.sessions.purgeExpired(), MS_PER_HOUR));
+      mail.purgeStale();
+      intervals.push(setInterval(() => mail.purgeStale(), MS_PER_HOUR));
       files.purgeOld();
       intervals.push(setInterval(() => files.purgeOld(), MS_PER_HOUR));
       backups.init();
+      ddos.init();
       void https.init();
       webhooks.init();
       await servers.init();

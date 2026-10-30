@@ -134,6 +134,12 @@ if [[ ! -e /usr/bin/update || -L /usr/bin/update ]]; then
 fi
 msg_ok "Updates per Knopf im Panel oder mit dem Befehl: update"
 
+# DDoS-Schutz: Das Panel schreibt nur an/aus, die Firewall-Regeln setzt scripts/ddos-guard.sh als root.
+msg_info "DDoS-Schutz wird eingerichtet (eingeschaltet wird er im Panel)"
+chmod +x "${INSTALL_DIR}/scripts/ddos-guard.sh"
+"${INSTALL_DIR}/scripts/ddos-guard.sh" install >/dev/null
+msg_ok "DDoS-Schutz bereit: Admin-Bereich → DDoS-Schutz"
+
 PORT="$(grep -E '^MH_PANEL_PORT=' .env | cut -d= -f2)"
 printf '\n %s🎉 Fertig!%s Öffne im Browser: %shttp://%s:%s%s\n' "${GN}" "${CL}" "${BL}" "${LAN_IP:-<IP>}" "${PORT:-8080}" "${CL}"
 printf '    Der Einrichtungs-Assistent führt dich durch die ersten Schritte.\n\n'

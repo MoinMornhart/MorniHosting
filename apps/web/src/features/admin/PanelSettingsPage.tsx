@@ -1,5 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowUpCircle, ExternalLink, Globe, KeyRound, Network, Save, SlidersHorizontal } from 'lucide-react';
+import {
+  ArrowUpCircle,
+  ExternalLink,
+  Globe,
+  KeyRound,
+  Mail,
+  Network,
+  Save,
+  Shield,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
@@ -18,11 +28,13 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { updateQuery } from '@/features/shell/UpdateCard';
 import { useSession } from '@/features/auth/session';
+import { MailCard } from './MailCard';
 import { NetBirdGuide } from './NetBirdGuide';
 import { DnsDomainCard } from './DnsDomainCard';
 import { NetbirdAutomationCard } from './NetbirdAutomationCard';
 import { PasswordResetCard } from './PasswordResetCard';
 import { UpdateSection } from './UpdateSection';
+import { DdosSection } from './DdosSection';
 
 const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = { de: 'Deutsch', en: 'English' };
 /** The admin area's tabs; the address bar (#update …) opens one directly. */
@@ -30,6 +42,8 @@ const TABS = [
   { key: 'domain', icon: Globe },
   { key: 'netbird', icon: Network },
   { key: 'update', icon: ArrowUpCircle },
+  { key: 'ddos', icon: Shield },
+  { key: 'mail', icon: Mail },
   { key: 'passwords', icon: KeyRound },
   { key: 'settings', icon: SlidersHorizontal },
 ] as const;
@@ -370,6 +384,8 @@ export function PanelSettingsPage(): ReactElement {
       </>
     ),
     update: <UpdateSection />,
+    ddos: <DdosSection />,
+    mail: <MailCard />,
     passwords: <PasswordResetCard />,
     settings: settingsForm,
   };

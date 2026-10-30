@@ -56,5 +56,6 @@ export function toUserInfo(row: UserRow): UserInfo {
     disabled: row.disabled,
     minecraft:
       row.minecraftName && row.minecraftUuid ? { name: row.minecraftName, uuid: row.minecraftUuid } : null,
+    email: row.email,
   };
 }
