@@ -508,7 +508,9 @@
     "dns_no_public_ip": "Deine öffentliche IP lässt sich gerade nicht ermitteln (api.ipify.org antwortet nicht). Das Panel versucht es alle 5 Minuten wieder.",
     "dns_not_configured": "Es ist weder NetBird noch eine eigene Domain verbunden (Admin-Bereich).",
     "dns_failed": "Die DNS-Einträge konnten nicht angelegt werden.",
-    "dns_inwx_2fa": "Bei diesem INWX-Konto ist die Zwei-Faktor-Anmeldung an. Trag den 2FA-Schlüssel ein (oder nutze ein Unterkonto ohne 2FA)."
+    "dns_inwx_2fa": "Bei diesem INWX-Konto ist die Zwei-Faktor-Anmeldung an. Trag den 2FA-Schlüssel ein (oder nutze ein Unterkonto ohne 2FA).",
+    "https_needs_domain": "Verbinde zuerst deine eigene Domain.",
+    "https_failed": "HTTPS ließ sich nicht starten: {{message}}"
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -1406,7 +1408,9 @@
       "account_minecraft_unlink": "Minecraft-Konto getrennt",
       "dns_configure": "Eigene Domain verbunden",
       "dns_disconnect": "Eigene Domain getrennt",
-      "dns_server": "Adresse unter eigener Domain geändert"
+      "dns_server": "Adresse unter eigener Domain geändert",
+      "https_enable": "HTTPS eingeschaltet",
+      "https_disable": "HTTPS ausgeschaltet"
     }
   },
   "account": {
@@ -1667,5 +1671,15 @@
     "inwxUser": "INWX-Benutzername",
     "inwxPass": "INWX-Passwort",
     "inwxOtp": "2FA-Schlüssel (nur wenn 2FA an ist)"
+  },
+  "https": {
+    "title": "HTTPS für das Panel",
+    "text": "Ein Klick startet einen kleinen Webserver (Caddy), der sich das Zertifikat selbst holt. Danach öffnet https://{{domain}} das Panel, und jede Adresse darunter (z. B. survival.{{domain}}) führt im Browser ebenfalls dorthin. Vorher in der Fritzbox TCP 80 und 443 an diesen Rechner freigeben.",
+    "enable": "HTTPS einschalten",
+    "disable": "HTTPS ausschalten",
+    "running": "Läuft",
+    "stopped": "Gestoppt",
+    "on": "HTTPS läuft – das Zertifikat kommt beim ersten Aufruf.",
+    "off": "HTTPS ist aus."
   }
 }

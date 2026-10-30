@@ -508,7 +508,9 @@
     "dns_no_public_ip": "Your public IP cannot be found right now (api.ipify.org does not answer). The panel tries again every 5 minutes.",
     "dns_not_configured": "Neither NetBird nor an own domain is connected (admin area).",
     "dns_failed": "The DNS records could not be created.",
-    "dns_inwx_2fa": "This INWX account uses two-factor login. Enter the 2FA secret (or use a sub-account without 2FA)."
+    "dns_inwx_2fa": "This INWX account uses two-factor login. Enter the 2FA secret (or use a sub-account without 2FA).",
+    "https_needs_domain": "Connect your own domain first.",
+    "https_failed": "HTTPS could not start: {{message}}"
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1406,7 +1408,9 @@
       "account_minecraft_unlink": "Minecraft account unlinked",
       "dns_configure": "Own domain connected",
       "dns_disconnect": "Own domain disconnected",
-      "dns_server": "Address under own domain changed"
+      "dns_server": "Address under own domain changed",
+      "https_enable": "HTTPS turned on",
+      "https_disable": "HTTPS turned off"
     }
   },
   "account": {
@@ -1667,5 +1671,15 @@
     "inwxUser": "INWX user name",
     "inwxPass": "INWX password",
     "inwxOtp": "2FA secret (only if 2FA is on)"
+  },
+  "https": {
+    "title": "HTTPS for the panel",
+    "text": "One click starts a small web server (Caddy) that fetches the certificate by itself. Then https://{{domain}} opens the panel, and every address below it (e.g. survival.{{domain}}) leads there in the browser too. First forward TCP 80 and 443 to this machine in your router.",
+    "enable": "Turn on HTTPS",
+    "disable": "Turn off HTTPS",
+    "running": "Running",
+    "stopped": "Stopped",
+    "on": "HTTPS is running – the certificate arrives on the first visit.",
+    "off": "HTTPS is off."
   }
 }

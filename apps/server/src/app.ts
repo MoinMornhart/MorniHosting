@@ -63,6 +63,8 @@ import { registerWebSocket } from './ws.js';
 import { createNetbirdAutomation } from './netbird/service.js';
 import { createDnsAutomation, type DnsAutomation } from './dns/service.js';
 import { registerDnsRoutes } from './dns/routes.js';
+import { createHttpsGateway } from './https/gateway.js';
+import { registerHttpsRoutes } from './https/routes.js';
 import { registerNetbirdRoutes } from './netbird/routes.js';
 import { createMinecraftLinkService } from './minecraft/service.js';
 import { registerMinecraftRoutes } from './minecraft/routes.js';
@@ -108,9 +110,11 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   fs.mkdirSync(config.dataDir, { recursive: true });
   const database = openDatabase(path.join(config.dataDir, 'panel.db'));
 
+  // The visitor's real IP comes from X-Forwarded-For only behind a proxy the admin trusts, or the own HTTPS gateway.
+  const proxies = { isGateway: (_address: string): boolean => false };
   const app = Fastify({
     logger: options.logger === false ? false : { level: config.logLevel },
-    trustProxy: config.trustProxy,
+    trustProxy: (address: string) => config.trustProxy || proxies.isGateway(address),
     bodyLimit: BODY_LIMIT_MB * BYTES_PER_MB,
   }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -152,6 +156,8 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const webhooks = createWebhookService(ctx, options.resolver);
   const netbird = createNetbirdAutomation(ctx, servers);
   const dns = createDnsAutomation(ctx, servers);
+  const https = createHttpsGateway(ctx, () => dns.status().domain);
+  proxies.isGateway = https.isGateway;
   const minecraftLink = createMinecraftLinkService(ctx, servers);
 
   await app.register(helmet, {
@@ -234,6 +240,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerVoiceChatRoutes(app, ctx, createVoiceChatService(ctx, servers, market));
   registerNetbirdRoutes(app, netbird, dns);
   registerDnsRoutes(app, dns);
+  registerHttpsRoutes(app, https);
   registerMinecraftRoutes(app, minecraftLink);
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
@@ -270,6 +277,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       files.purgeOld();
       intervals.push(setInterval(() => files.purgeOld(), MS_PER_HOUR));
       backups.init();
+      void https.init();
       webhooks.init();
       await servers.init();
       schedules.init();

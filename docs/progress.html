@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T10:58:54+00:00",
-  "now": "INWX fertig. Gerade: HTTPS – jede Adresse unter mornihosting.de soll das Panel öffnen.",
+  "updated": "2026-10-30T11:05:42+00:00",
+  "now": "HTTPS fertig. Gerade: Startseite und Anmeldeseite im ggdehosting-Stil.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -238,10 +238,15 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "laeuft",
-      "detail": "INWX ist angebunden: Das Panel meldet sich bei INWX an und trägt mornihosting.de und *.mornihosting.de auf deine öffentliche IP ein (Parkseiten-Einträge von INWX fliegen raus), dazu pro Server einen SRV-Eintrag für Java. Als Nächstes: HTTPS, damit jede Adresse unter mornihosting.de die Anmeldeseite öffnet, dann Startseite/Anmeldung und Bestellung wie bei ggdehosting."
+      "detail": "Fertig: INWX angebunden, mornihosting.de und *.mornihosting.de zeigen auf deine IP, HTTPS per Klick (Caddy holt die Zertifikate selbst, jede Adresse unter mornihosting.de führt zum Panel). Als Nächstes: Startseite und Anmeldeseite im ggdehosting-Stil, dann die Server-Bestellung."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p12-https.webp",
+      "caption": "mornihosting.de · HTTPS mit einem Klick: https://mornihosting.de öffnet das Panel",
+      "time": "2026-10-30T13:05:00+01:00"
+    },
     {
       "img": "progress/p12-inwx.webp",
       "caption": "mornihosting.de · INWX im Admin-Bereich: Benutzername, Passwort, optional 2FA-Schlüssel",
@@ -296,25 +301,20 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p7-update.webp",
       "caption": "Phase 7 · Neue Version? Ein Klick, die Minecraft-Server laufen weiter (Beispiel)",
       "time": "2026-10-28T02:15:00+01:00"
-    },
-    {
-      "img": "progress/p7-stats.webp",
-      "caption": "Phase 7 · Verlauf über 24 Stunden: CPU, RAM, TPS und Spieler",
-      "time": "2026-10-28T02:15:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "INWX in apps/server/src/dns/providers.ts (Anmeldung, Einträge, 2FA)"
+      "path": "apps/server/src/https/ (gateway.ts, routes.ts) – Caddy auf 80/443, /api/tls/allowed"
     },
     {
       "tag": "geändert",
-      "path": "apps/server/src/dns/service.ts (Domain + Platzhalter-Eintrag), DnsDomainCard.tsx (INWX-Felder)"
+      "path": "Docker-Treiber (eigener Startbefehl, Neustart-Regel, IP), app.ts (echte Besucher-IP hinter Caddy)"
     },
     {
       "tag": "geändert",
-      "path": "apps/server/test/dns.test.ts (8 Tests)"
+      "path": "DnsDomainCard.tsx (HTTPS-Schalter), Tests 9/9"
     }
   ],
   "eta": "2026-10-30T17:45:00+01:00",
@@ -330,12 +330,12 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "mornihosting.de und *.mornihosting.de zeigen auf deine öffentliche IP"
     },
     {
-      "status": "current",
+      "status": "done",
       "until": "2026-10-30T14:15:00+01:00",
       "title": "HTTPS: jede Adresse unter mornihosting.de öffnet das Panel (Zertifikat automatisch)"
     },
     {
-      "status": "",
+      "status": "current",
       "until": "2026-10-30T14:45:00+01:00",
       "title": "Startseite und Anmeldeseite im ggdehosting-Stil"
     },

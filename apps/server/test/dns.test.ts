@@ -1,6 +1,8 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- tests compare against literal expected values */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { DnsStatus, ServerDetail, ServerSummary } from '@mornihosting/shared';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { DnsStatus, HttpsStatus, ServerDetail, ServerSummary } from '@mornihosting/shared';
 import { createDnsClient } from '../src/dns/providers.js';
 import { authHeaders, createTestApp, setupAdmin, type Session, type TestApp } from './helpers.js';
 
@@ -194,6 +196,28 @@ describe('own domain without NetBird (DNS)', () => {
     expect(fake.serverRecords()).toHaveLength(2);
     await call('DELETE', `/api/servers/${other.id}`);
     await vi.waitFor(() => expect(fake.serverRecords()).toHaveLength(0));
+  });
+
+  test('HTTPS: Caddy runs on 80/443, certificates only for the domain and names right below it', async () => {
+    expect((await call('PUT', '/api/https', { enabled: true })).json()).toMatchObject({
+      error: 'https_needs_domain',
+    });
+    await connect();
+    const on = (await call('PUT', '/api/https', { enabled: true })).json<HttpsStatus>();
+    expect(on).toMatchObject({ enabled: true, running: true, domain: ZONE.name, error: null });
+    const config = fs.readFileSync(path.join(t.dataDir, 'https', 'Caddyfile'), 'utf8');
+    expect(config).toContain(`${ZONE.name} {`);
+    expect(config).toContain('ask http://mornihosting:8080/api/tls/allowed');
+    expect(t.ctx.settings.get().panelDomain).toBe(ZONE.name);
+    const allowed = async (domain: string) =>
+      (await t.app.inject({ method: 'GET', url: `/api/tls/allowed?domain=${domain}` })).statusCode;
+    expect(await allowed(ZONE.name)).toBe(200);
+    expect(await allowed(`reich.${ZONE.name}`)).toBe(200);
+    expect(await allowed(`a.b.${ZONE.name}`)).toBe(404);
+    expect(await allowed('fremd.de')).toBe(404);
+    const off = (await call('PUT', '/api/https', { enabled: false })).json<HttpsStatus>();
+    expect(off).toMatchObject({ enabled: false, running: false });
+    expect(await allowed(ZONE.name)).toBe(404);
   });
 
   test('only one of NetBird and DNS; disconnecting removes the records', async () => {

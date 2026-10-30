@@ -14,6 +14,10 @@ export interface ContainerSpec {
   /** Server folder as the panel sees it, e.g. /data/servers/abc. */
   readonly dataDir: string;
   readonly labels: Readonly<Record<string, string>>;
+  /** Replaces the image's start command (e.g. the HTTPS gateway runs Caddy with its own config). */
+  readonly command?: readonly string[];
+  /** Helpers like the HTTPS gateway come back after a reboot; Minecraft servers are started by the panel. */
+  readonly restart?: 'no' | 'unless-stopped';
 }
 
 export interface ContainerState {
@@ -23,6 +27,8 @@ export interface ContainerState {
   readonly oomKilled: boolean;
   readonly startedAt: string | null;
   readonly finishedAt: string | null;
+  /** Address on the Minecraft network, while running. */
+  readonly ip: string | null;
 }
 
 export interface ContainerStats {

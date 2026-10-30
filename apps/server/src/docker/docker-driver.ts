@@ -40,7 +40,7 @@ function connectionOptions(dockerHost: string): Docker.DockerOptions {
   };
 }
 
-function toState(info: Docker.ContainerInspectInfo): ContainerState {
+function toState(info: Docker.ContainerInspectInfo, network: string): ContainerState {
   const s = info.State;
   return {
     running: s.Running,
@@ -49,6 +49,7 @@ function toState(info: Docker.ContainerInspectInfo): ContainerState {
     oomKilled: s.OOMKilled,
     startedAt: s.StartedAt && !s.StartedAt.startsWith('0001') ? s.StartedAt : null,
     finishedAt: s.FinishedAt && !s.FinishedAt.startsWith('0001') ? s.FinishedAt : null,
+    ip: info.NetworkSettings.Networks[network]?.IPAddress || null,
   };
 }
 
@@ -153,6 +154,7 @@ export function createDockerDriver(config: Config): DockerDriver {
         name: spec.name,
         Image: spec.image,
         Env: Object.entries(spec.env).map(([k, v]) => `${k}=${v}`),
+        ...(spec.command ? { Cmd: [...spec.command] } : {}),
         Labels: { ...spec.labels, [MANAGED_LABEL]: 'true' },
         ExposedPorts: exposed,
         OpenStdin: true,
@@ -163,7 +165,7 @@ export function createDockerDriver(config: Config): DockerDriver {
           PortBindings: bindings,
           Memory: spec.memoryLimitBytes,
           NetworkMode: config.mcNetwork,
-          RestartPolicy: { Name: 'no' },
+          RestartPolicy: { Name: spec.restart ?? 'no' },
           SecurityOpt: ['no-new-privileges:true'],
           LogConfig: { Type: 'json-file', Config: { 'max-size': LOG_MAX_SIZE, 'max-file': LOG_MAX_FILES } },
           Init: true,
@@ -198,7 +200,7 @@ export function createDockerDriver(config: Config): DockerDriver {
     },
     inspect: async (id) => {
       try {
-        return toState(await docker.getContainer(id).inspect());
+        return toState(await docker.getContainer(id).inspect(), config.mcNetwork);
       } catch (err) {
         if (statusOf(err) === HTTP_NOT_FOUND) return null;
         throw err;

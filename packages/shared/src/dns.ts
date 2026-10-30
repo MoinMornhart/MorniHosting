@@ -33,6 +33,20 @@ export interface DnsZoneOption {
   readonly name: string;
 }
 
+/** HTTPS for the own domain: a Caddy helper on ports 80/443 in front of the panel. */
+export interface HttpsStatus {
+  readonly enabled: boolean;
+  /** The domain the panel is (or would be) reached at, e.g. "mornihosting.de". */
+  readonly domain: string | null;
+  readonly running: boolean;
+  readonly error: {
+    readonly code: string;
+    readonly params: Readonly<Record<string, string | number>>;
+  } | null;
+}
+
+export const httpsSchema = z.object({ enabled: z.boolean() });
+
 export interface DnsStatus {
   readonly configured: boolean;
   readonly provider: DnsProvider | null;
