@@ -15,16 +15,16 @@ Das Passwort wird verschlüsselt gespeichert (wie der NetBird-Schlüssel) und ni
 
 ## Welche Mails gibt es?
 
-| Mail                    | Wann                                                                                | Link                                  |
-| ----------------------- | ----------------------------------------------------------------------------------- | ------------------------------------- |
-| Test                    | Knopf im Admin-Bereich                                                              | –                                     |
-| Willkommen              | Ein Admin legt einen Benutzer mit E-Mail-Adresse an                                 | Zum Panel (kein Passwort in der Mail) |
-| E-Mail bestätigen       | Registrierung auf der Startseite                                                    | 24 Stunden, einmalig                  |
-| Schon ein Konto         | Registrierung mit einer Adresse, die es schon gibt                                  | Zur Anmeldung                         |
-| Neue Adresse bestätigen | Benutzer ändert die Adresse unter „Mein Konto“                                      | 24 Stunden, einmalig                  |
-| Passwort zurücksetzen   | „Passwort vergessen?“ auf der Anmeldeseite                                          | 1 Stunde, einmalig                    |
-| Server bestellt         | Ein Server wird angelegt (Name, Paket, Software, Adresse, Link)                     | Zur Server-Seite                      |
-| Server abgestürzt       | Nur wenn eingeschaltet; an Admins mit Adresse, höchstens alle 15 Minuten pro Server | Zur Server-Seite                      |
+| Mail                                                         | Wann                                                                                | Link                                  |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------- |
+| Test                                                         | Knopf im Admin-Bereich                                                              | –                                     |
+| Willkommen („Du bist auserwählt 👑“, absichtlich großspurig) | Ein Admin legt einen Benutzer mit E-Mail-Adresse an                                 | Zum Panel (kein Passwort in der Mail) |
+| E-Mail bestätigen                                            | Registrierung auf der Startseite                                                    | 24 Stunden, einmalig                  |
+| Schon ein Konto                                              | Registrierung mit einer Adresse, die es schon gibt                                  | Zur Anmeldung                         |
+| Neue Adresse bestätigen                                      | Benutzer ändert die Adresse unter „Mein Konto“                                      | 24 Stunden, einmalig                  |
+| Passwort zurücksetzen                                        | „Passwort vergessen?“ auf der Anmeldeseite                                          | 1 Stunde, einmalig                    |
+| Server bestellt                                              | Ein Server wird angelegt (Name, Paket, Software, Adresse, Link)                     | Zur Server-Seite                      |
+| Server abgestürzt                                            | Nur wenn eingeschaltet; an Admins mit Adresse, höchstens alle 15 Minuten pro Server | Zur Server-Seite                      |
 
 Alle Mails gibt es auf Deutsch und Englisch (nach der Sprache des Benutzers), als schlichtes HTML plus Text-Fassung, ohne Bilder von außen.
 

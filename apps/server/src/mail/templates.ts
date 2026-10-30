@@ -54,7 +54,7 @@ const PREHEADER_MAX = 140;
 /** The symbol in the circle at the top of each mail, and whether it is good news or a warning. */
 const LOOK: Readonly<Record<MailKind, { readonly icon: string; readonly warn?: boolean }>> = {
   test: { icon: '🎉' },
-  welcome: { icon: '👋' },
+  welcome: { icon: '👑' },
   register: { icon: '📬' },
   already_registered: { icon: '🔐' },
   email_change: { icon: '✉️' },
@@ -161,9 +161,12 @@ const shell = (kind: MailKind, body: Body, locale: Locale, host: string | null):
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px">
 <tr><td bgcolor="${EMERALD_DEEP}" style="background:${EMERALD_DEEP};background-image:linear-gradient(135deg,#064e3b 0%,${EMERALD_DEEP} 45%,${EMERALD} 100%);border-radius:20px 20px 0 0;padding:26px 32px 58px" class="mh-pad">
 <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-<td valign="middle" style="width:38px;height:38px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:11px;text-align:center;font-size:20px;font-weight:800;line-height:38px;color:#ffffff">M</td>
+<td valign="middle" width="40" style="width:40px;height:40px;background:#10b981;background-image:linear-gradient(135deg,#34d399 0%,#047857 100%);border:1px solid rgba(255,255,255,.3);border-radius:10px;text-align:center;vertical-align:middle">
+<div style="font-size:19px;font-weight:900;line-height:20px;color:#ffffff;padding-top:4px">M</div>
+<div style="width:22px;height:5px;margin:3px auto 0;background:#ffffff;border-radius:2px;text-align:left;line-height:5px;font-size:0"><span style="display:inline-block;width:3px;height:3px;margin:1px 0 0 3px;background:#10b981;border-radius:50%"></span></div>
+</td>
 <td valign="middle" style="padding-left:12px"><div style="font-size:19px;font-weight:800;letter-spacing:.2px;color:#ffffff;line-height:1.1">MorniHosting</div>
-<div style="font-size:12px;color:#a7f3d0;line-height:1.4;margin-top:2px">${locale === 'de' ? 'Dein Minecraft-Server' : 'Your Minecraft server'}</div></td>
+<div style="font-size:12px;color:#a7f3d0;line-height:1.4;margin-top:2px">${locale === 'de' ? 'Dein Game-Server' : 'Your game server'}</div></td>
 </tr></table></td></tr>
 <tr><td class="mh-card mh-pad" style="background:#ffffff;border:1px solid ${LINE};border-top:0;border-radius:0 0 20px 20px;padding:0 32px 32px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding-top:0">
@@ -210,14 +213,20 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
       paragraphs: ['Diese Test-Mail ist angekommen. Dein Panel kann ab jetzt E-Mails verschicken.'],
     }),
     welcome: (v) => ({
-      subject: 'Willkommen bei MorniHosting',
-      heading: 'Willkommen bei MorniHosting',
+      subject: 'Glückwunsch, du bist auserwählt 👑',
+      heading: 'Du bist drin. Natürlich bist du drin.',
       paragraphs: [
-        hi.de(v.name),
-        'für dich wurde ein Zugang angelegt. Deinen Benutzernamen und das Passwort bekommst du von der Person, die ihn angelegt hat – aus Sicherheitsgründen steht kein Passwort in dieser Mail.',
+        `Ey ${v.name},`,
+        'halt dich fest: Von acht Milliarden Menschen auf diesem Planeten bist du einer der ganz wenigen besonderen Drecksäcke, die Zugriff auf MorniHosting bekommen. Nicht jeder. Nicht dein Nachbar. Nicht mal dein Lieblings-Streamer. Du.',
+        'Und das hier ist kein 08/15-Hoster für das gemeine Volk. Das ist der richtig geile Scheiß: Server mit einem Klick, eigene Adresse, Backups, Mods, Live-Konsole – auf eigener Hardware, handverlesen, streng limitiert. Andere zahlen dafür monatlich und kriegen weniger.',
+        'Also: Benimm dich wie ein VIP, bau was Legendäres und erzähl allen davon, die NICHT reindürfen. Machama, hippie hoppa! 🚀',
       ],
-      rows: [['Benutzername', v['username'] ?? '']],
-      ...(v.link ? { button: { label: 'Zum Panel', url: v.link } } : {}),
+      rows: [
+        ['Dein Benutzername', v['username'] ?? ''],
+        ['Status', 'Auserwählt. Elite. Unantastbar.'],
+      ],
+      ...(v.link ? { button: { label: 'Ab in den VIP-Bereich', url: v.link } } : {}),
+      note: 'Dein Passwort steht natürlich nicht in dieser Mail – das bekommst du persönlich überreicht. VIP-Behandlung eben.',
     }),
     register: (v) => ({
       subject: 'Bitte bestätige deine E-Mail-Adresse',
@@ -296,14 +305,20 @@ const COPY: Readonly<Record<Locale, Readonly<Record<MailKind, Copy>>>> = {
       paragraphs: ['This test mail arrived. Your panel can send e-mails from now on.'],
     }),
     welcome: (v) => ({
-      subject: 'Welcome to MorniHosting',
-      heading: 'Welcome to MorniHosting',
+      subject: 'Congratulations, you have been chosen 👑',
+      heading: 'You are in. Of course you are in.',
       paragraphs: [
-        hi.en(v.name),
-        'an account was created for you. You get your username and password from the person who created it – for safety there is no password in this mail.',
+        `Yo ${v.name},`,
+        'brace yourself: out of eight billion people on this planet, you are one of the very few special bastards who get access to MorniHosting. Not everyone. Not your neighbour. Not even your favourite streamer. You.',
+        'And this is no run-of-the-mill hoster for the common folk. This is the really good stuff: servers in one click, your own address, backups, mods, live console – on private hardware, hand-picked, strictly limited. Other people pay monthly for less.',
+        'So: act like a VIP, build something legendary and tell everyone who is NOT allowed in. Machama, hippie hoppa! 🚀',
       ],
-      rows: [['Username', v['username'] ?? '']],
-      ...(v.link ? { button: { label: 'Open the panel', url: v.link } } : {}),
+      rows: [
+        ['Your username', v['username'] ?? ''],
+        ['Status', 'Chosen. Elite. Untouchable.'],
+      ],
+      ...(v.link ? { button: { label: 'Enter the VIP area', url: v.link } } : {}),
+      note: 'Your password is of course not in this mail – you get it handed over in person. VIP treatment.',
     }),
     register: (v) => ({
       subject: 'Please confirm your e-mail address',

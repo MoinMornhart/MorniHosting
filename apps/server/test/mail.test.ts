@@ -220,7 +220,7 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
       locale: 'de',
     });
     await waitFor(() => sent.length === 1);
-    expect(lastMail().subject).toBe('Willkommen bei MorniHosting');
+    expect(lastMail().subject).toBe('Glückwunsch, du bist auserwählt 👑');
     expect(lastMail().text).not.toContain('oldpassword1');
     const before = await login(t, 'lena', 'oldpassword1');
 
