@@ -1,7 +1,13 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- tests compare against literal expected values */
 import { sql } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import type { MailStatus, ServerSummary, UserInfo } from '@mornihosting/shared';
+import type {
+  MailSettingsView,
+  MailStatus,
+  MailTestResult,
+  ServerSummary,
+  UserInfo,
+} from '@mornihosting/shared';
 import { mailTokens } from '../src/db/schema.js';
 import type { OutgoingMail, SmtpConfig } from '../src/mail/service.js';
 import {
@@ -32,6 +38,10 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
   let sent: OutgoingMail[];
   let configs: SmtpConfig[];
   let failNext = false;
+  let verifyError: unknown = null;
+  /** Ports that get no answer, like 587 on a Stalwart that only listens on 465. */
+  let silentPorts: number[] = [];
+  let dialled: string[] = [];
 
   const post = (url: string, payload: object, session?: Session) =>
     t.app.inject({ method: 'POST', url, payload, ...(session ? { headers: authHeaders(session) } : {}) });
@@ -54,12 +64,27 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
     sent = [];
     configs = [];
     failNext = false;
+    verifyError = null;
+    silentPorts = [];
+    dialled = [];
     t = await createTestApp(
       {},
       {
+        mailNetwork: {
+          lookup: async (host) =>
+            host.endsWith('.test') ? '203.0.113.7' : Promise.reject(new Error('ENOTFOUND')),
+          connect: async (address, port) => {
+            dialled.push(`${address}:${port}`);
+            if (silentPorts.includes(port)) throw Object.assign(new Error('timeout'), { code: 'ETIMEDOUT' });
+          },
+        },
         mailTransport: (config) => {
           configs.push(config);
           return {
+            verify: async () => {
+              if (verifyError) throw verifyError;
+              return true;
+            },
             sendMail: async (mail) => {
               if (failNext) throw new Error('535 login failed\r\nBcc: evil@example.test');
               sent.push(mail);
@@ -110,14 +135,72 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
   test('test mail: arrives as HTML and text; a failure is reported without the extra header line', async () => {
     await configure();
     const ok = await asAdmin('POST', '/api/mail/test', { to: 'me@example.test' });
-    expect(ok.json()).toEqual({ sentTo: 'me@example.test' });
+    expect(ok.json()).toMatchObject({ ok: true, sentTo: 'me@example.test', problem: null, switchedTo: null });
+    expect(ok.json<MailTestResult>().steps.map((s) => `${s.step}:${s.state}`)).toEqual([
+      'dns:ok',
+      'connect:ok',
+      'tls:ok',
+      'login:ok',
+      'send:ok',
+    ]);
     expect(lastMail()).toMatchObject({ to: 'me@example.test', from: SMTP.from });
     expect(lastMail().html).toContain('#10b981');
     expect(lastMail().html).not.toMatch(/<img|https?:\/\/(?!mornihosting)/);
     failNext = true;
     const bad = await asAdmin('POST', '/api/mail/test', { to: 'me@example.test' });
-    expect(bad.statusCode).toBe(400);
+    expect(bad.json()).toMatchObject({ ok: false, problem: 'other' });
+    expect(bad.json<MailTestResult>().steps.at(-1)).toEqual({ step: 'send', state: 'failed' });
     expect(JSON.stringify(bad.json())).not.toMatch(/[\r\n]/);
+  });
+
+  test('test mail: 587 gets no answer → 465 with TLS is found, saved and used', async () => {
+    await configure();
+    silentPorts = [587];
+    const res = (await asAdmin('POST', '/api/mail/test', { to: 'me@example.test' })).json<MailTestResult>();
+    expect(res).toMatchObject({ ok: true, switchedTo: { port: 465, security: 'tls' } });
+    expect(res.attempts).toEqual([
+      { port: 587, security: 'starttls', problem: 'timeout' },
+      { port: 465, security: 'tls', problem: null },
+    ]);
+    expect(lastMail().to).toBe('me@example.test');
+    const view = (await asAdmin('GET', '/api/mail')).json<MailSettingsView>();
+    expect(view).toMatchObject({ port: 465, security: 'tls', passwordSet: true, registration: true });
+  });
+
+  test('test mail: wrong password is named as such and no other port is tried', async () => {
+    await configure();
+    verifyError = Object.assign(new Error('Invalid login: 535 5.7.8 Authentication failed'), {
+      code: 'EAUTH',
+      responseCode: 535,
+    });
+    const res = (await asAdmin('POST', '/api/mail/test', { to: 'me@example.test' })).json<MailTestResult>();
+    expect(res).toMatchObject({ ok: false, problem: 'login', switchedTo: null });
+    expect(res.attempts).toHaveLength(1);
+    expect(res.steps.map((s) => `${s.step}:${s.state}`)).toEqual([
+      'dns:ok',
+      'connect:ok',
+      'tls:ok',
+      'login:failed',
+      'send:skipped',
+    ]);
+    expect(JSON.stringify(res)).not.toContain('smtp-secret-pw');
+  });
+
+  test('internal IP: dials the IP, keeps the name for the certificate; old settings without it still load', async () => {
+    t.ctx.settings.setValue('mail', { ...SMTP, password: undefined, passwordSealed: '' });
+    expect((await asAdmin('GET', '/api/mail')).json<MailSettingsView>().internalHost).toBe('');
+    await configure({
+      host: 'mail.pmornhart.de',
+      internalHost: '192.168.178.116',
+      port: 465,
+      security: 'tls',
+    });
+    const res = (await asAdmin('POST', '/api/mail/test', { to: 'me@example.test' })).json<MailTestResult>();
+    expect(res.ok).toBe(true);
+    expect(res.steps[0]).toEqual({ step: 'dns', state: 'ok', detail: '192.168.178.116' });
+    expect(res.steps[2]).toEqual({ step: 'tls', state: 'ok', detail: 'mail.pmornhart.de' });
+    expect(dialled.at(-1)).toBe('192.168.178.116:465');
+    expect(configs.at(-1)).toMatchObject({ host: 'mail.pmornhart.de', internalHost: '192.168.178.116' });
   });
 
   test('sign-up: mail link is required before the first login, only standard rights', async () => {

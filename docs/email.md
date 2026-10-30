@@ -48,6 +48,9 @@ Wer als Admin Benutzer anlegt, kann die Adresse gleich mit eintragen (jede Adres
 
 ## Fehlersuche
 
+- **Test-Mail senden** zeigt jeden Schritt: Adresse (DNS) → Verbindung zum Port → Verschlüsselung und Zertifikat → Anmeldung → Versand, mit Ursache und Tipp beim ersten Fehler. Jeder Schritt wartet höchstens 10 Sekunden.
+- Antwortet der eingestellte Port nicht (geschlossen, keine Antwort, falsche Verschlüsselung), probiert der Test selbst **465/TLS** und **587/STARTTLS** und speichert die Kombination, die bis zur Anmeldung klappt.
+- **Server-Adresse intern (IP):** Das Panel verbindet sich mit dieser IP, SNI und Zertifikatsprüfung laufen gegen den Namen bei „Mailserver“. Für Mailserver im Heimnetz, deren Name von außen woanders hinzeigt. Anleitung für Stalwart im README.
 - „Die Mail konnte nicht verschickt werden“: die Meldung des Mailservers steht dahinter (falsches Passwort, falscher Port, Verschlüsselung passt nicht zum Port).
 - Registrierung und „Passwort vergessen“ erscheinen erst, wenn **Mailserver und Panel-Domain** eingetragen sind.
 - Landet nichts im Postfach: Spam-Ordner prüfen; bei eigener Domain helfen SPF/DKIM-Einträge, die das Postfach-Angebot (INWX, IONOS) beschreibt.

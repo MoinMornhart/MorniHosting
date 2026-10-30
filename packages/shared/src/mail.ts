@@ -19,6 +19,11 @@ const SENDER_PATTERN = /^([^<>"\r\n]+ <[^ @<>"\r\n]+@[^ @<>"\r\n]+>|[^ @<>"\r\n]
 
 export const mailSettingsSchema = z.object({
   host: z.string().trim().min(1).max(HOST_MAX),
+  /**
+   * Optional address the panel really connects to (e.g. 192.168.178.116 for a mail server in the home network).
+   * The certificate is still checked against `host`, so TLS stays fully verified.
+   */
+  internalHost: z.string().trim().max(HOST_MAX).default(''),
   port: z.number().int().min(1).max(PORT_MAX),
   security: z.enum(MAIL_SECURITY),
   user: z.string().trim().max(CREDENTIAL_MAX),
@@ -41,8 +46,53 @@ export interface MailSettingsView extends Omit<MailSettingsInput, 'password'> {
 }
 
 export const mailTestSchema = z.object({ to: emailSchema.optional() });
+
+/** The test mail runs these steps in order and reports each one. */
+export const MAIL_STEPS = ['dns', 'connect', 'tls', 'login', 'send'] as const;
+export type MailStep = (typeof MAIL_STEPS)[number];
+export type MailStepState = 'ok' | 'failed' | 'skipped';
+/** What went wrong, each with its own explanation and tip in the panel. */
+export const MAIL_PROBLEMS = [
+  'unreachable',
+  'port_closed',
+  'timeout',
+  'wrong_security',
+  'tls',
+  'login',
+  'sender',
+  'recipient',
+  'other',
+] as const;
+export type MailProblem = (typeof MAIL_PROBLEMS)[number];
+
+export interface MailStepResult {
+  readonly step: MailStep;
+  readonly state: MailStepState;
+  /** Short facts such as the address used; never a password. */
+  readonly detail?: string;
+}
+
+export interface MailEndpoint {
+  readonly port: number;
+  readonly security: MailSecurity;
+}
+
+export interface MailAttempt extends MailEndpoint {
+  readonly problem: MailProblem | null;
+}
+
 export interface MailTestResult {
+  readonly ok: boolean;
   readonly sentTo: string;
+  /** Steps of the last attempt (the one that worked, or the saved settings when none did). */
+  readonly steps: readonly MailStepResult[];
+  readonly problem: MailProblem | null;
+  /** The mail server's own words, shortened; empty when there are none. */
+  readonly message: string;
+  /** Every port/encryption tried, the saved one first. */
+  readonly attempts: readonly MailAttempt[];
+  /** Set when another port/encryption worked; it was saved in place of the old one. */
+  readonly switchedTo: MailEndpoint | null;
 }
 
 export const registerSchema = z.object({

@@ -142,7 +142,8 @@ const state = {
     configured: true,
     passwordSet: true,
     linksPossible: true,
-    host: 'mail.inwx.de',
+    host: 'mail.pmornhart.de',
+    internalHost: '',
     port: 587,
     security: 'starttls',
     user: 'noreply@mornihosting.de',
@@ -922,7 +923,26 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     '/api/mail/test',
     ({ body }) => {
       const to = String(body['to'] ?? '') || meNow()?.user.email || 'philip@mornihosting.de';
-      return ok({ sentTo: to } satisfies MailTestResult);
+      // Like a mail server that only listens on 465: the saved 587 gets no answer, 465 with TLS is found and kept.
+      const silent = state.mail.port !== 465; // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP with implicit TLS
+      const tried = { port: state.mail.port, security: state.mail.security, problem: 'timeout' as const };
+      if (silent) state.mail = { ...state.mail, port: 465, security: 'tls' }; // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP with implicit TLS
+      const target = state.mail.internalHost || state.mail.host;
+      return ok({
+        ok: true,
+        sentTo: to,
+        steps: [
+          { step: 'dns', state: 'ok', detail: state.mail.internalHost || `${target} → 192.168.178.116` },
+          { step: 'connect', state: 'ok', detail: `${state.mail.internalHost || '192.168.178.116'}:465` },
+          { step: 'tls', state: 'ok', detail: state.mail.host },
+          { step: 'login', state: 'ok', detail: state.mail.user },
+          { step: 'send', state: 'ok' },
+        ],
+        problem: null,
+        message: '',
+        attempts: silent ? [tried, { port: 465, security: 'tls', problem: null }] : [], // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP with implicit TLS
+        switchedTo: silent ? { port: 465, security: 'tls' } : null, // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP with implicit TLS
+      } satisfies MailTestResult);
     },
   ],
   ['POST', '/api/auth/register', () => noContent()],

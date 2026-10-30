@@ -2042,7 +2042,7 @@
     "hostHint": "Die Adresse des Ausgangsservers, z. B. smtp.example.de.",
     "port": "Port",
     "security": "Verschlüsselung",
-    "securityHint": "„STARTTLS“ (Port 587) ist heute üblich, „TLS“ (Port 465) auch. „Keine“ nur im eigenen Netz.",
+    "securityHint": "„TLS“ (Port 465) und „STARTTLS“ (Port 587) sind beide sicher. Weißt du es nicht genau? Der Test unten probiert beide aus. „Keine“ nur im eigenen Netz.",
     "securityKinds": {
       "starttls": "STARTTLS (587)",
       "tls": "TLS (465)",
@@ -2072,7 +2072,58 @@
     "helpTitle": "Woher bekomme ich einen Mailserver?",
     "helpInwx": "INWX: Im Kundenmenü ein Postfach für noreply@deine-domain anlegen. Server und Port stehen dort in den Postfach-Angaben (meist mail.inwx.de, Port 587).",
     "helpIonos": "IONOS: Ein Postfach anlegen. Server smtp.ionos.de, Port 587, Benutzer ist die ganze Adresse.",
-    "helpGmail": "Gmail: smtp.gmail.com, Port 587. Du brauchst ein „App-Passwort“ (Google-Konto → Sicherheit → 2-Schritt-Bestätigung → App-Passwörter), nicht dein normales Passwort."
+    "helpGmail": "Gmail: smtp.gmail.com, Port 587. Du brauchst ein „App-Passwort“ (Google-Konto → Sicherheit → 2-Schritt-Bestätigung → App-Passwörter), nicht dein normales Passwort.",
+    "internalHost": "Server-Adresse intern (IP)",
+    "internalHostHint": "Optional. Steht der Mailserver bei dir im Heimnetz, trag hier seine IP ein (z. B. 192.168.178.116). Das Panel verbindet sich dann mit dieser IP, prüft das Zertifikat aber weiter gegen den Namen oben.",
+    "testRunning": "Wird geprüft …",
+    "switched": "Port {{old}} hat nicht geantwortet, Port {{port}} mit {{security}} schon. Das ist jetzt gespeichert.",
+    "tried": "Ausprobiert: {{list}}",
+    "serverSaid": "Antwort",
+    "steps": {
+      "dns": "Adresse gefunden (DNS)",
+      "connect": "Verbindung zum Port",
+      "tls": "Verschlüsselung (TLS) und Zertifikat",
+      "login": "Anmeldung",
+      "send": "Mail verschickt"
+    },
+    "problems": {
+      "unreachable": {
+        "title": "Mailserver nicht gefunden",
+        "tip": "Der Name lässt sich nicht auflösen oder der Rechner antwortet nicht. Läuft der Mailserver bei dir im Heimnetz, trag unten bei „Server-Adresse intern (IP)“ seine IP ein. Ein Eintrag in /etc/hosts hilft nicht, weil das Panel in einem eigenen Container läuft."
+      },
+      "port_closed": {
+        "title": "Port geschlossen",
+        "tip": "Der Mailserver ist erreichbar, nimmt auf Port {{port}} aber nichts an. Prüfe, auf welchen Ports er lauscht (Stalwart: meist 465 mit TLS) und ob eine Firewall dazwischen ist."
+      },
+      "timeout": {
+        "title": "Keine Antwort (nach 10 Sekunden)",
+        "tip": "Auf Port {{port}} kam nichts zurück. Oft zeigt der Name von außen auf einen anderen Rechner (z. B. NetBird) oder eine Firewall verwirft die Verbindung. Trag die interne IP des Mailservers ein und probier Port 465 mit TLS."
+      },
+      "wrong_security": {
+        "title": "Verschlüsselung passt nicht zum Port",
+        "tip": "Port 465 braucht „TLS“, Port 587 braucht „STARTTLS“. Stell die Verschlüsselung passend zum Port ein."
+      },
+      "tls": {
+        "title": "Zertifikat passt nicht",
+        "tip": "Die sichere Verbindung steht nicht: Das Zertifikat passt nicht zum Namen, ist abgelaufen oder selbst ausgestellt. Trag bei „Mailserver“ genau den Namen aus dem Zertifikat ein (z. B. mail.pmornhart.de) und die IP nur ins Feld „intern“. Die Prüfung bleibt aus Sicherheitsgründen an."
+      },
+      "login": {
+        "title": "Anmeldung abgelehnt",
+        "tip": "Benutzer oder Passwort stimmen nicht. Bei Stalwart ist der Benutzer meist die ganze Adresse, z. B. noreply@mornihosting.de. Gib das Passwort neu ein, speichere und teste noch einmal."
+      },
+      "sender": {
+        "title": "Absender abgelehnt",
+        "tip": "Der Mailserver erlaubt diesem Konto nicht, als {{from}} zu senden. Nimm als Absender die Adresse des Kontos oder erlaube sie im Mailserver für dieses Konto."
+      },
+      "recipient": {
+        "title": "Empfänger abgelehnt",
+        "tip": "Der Mailserver nimmt diese Empfänger-Adresse nicht an. Prüfe die Schreibweise oder probier eine andere Adresse."
+      },
+      "other": {
+        "title": "Unerwarteter Fehler",
+        "tip": "Das passt in keine bekannte Ursache. Die Antwort unten hilft beim Suchen."
+      }
+    }
   },
   "mailPages": {
     "backToLogin": "Zurück zur Anmeldung",
