@@ -4,14 +4,14 @@ Neben Minecraft hostet MorniHosting sechs weitere Spiele. Du bestellst sie genau
 das Spiel wählen, Paket und Version auswählen, Namen vergeben, fertig. Konsole, Dateien, Backups, Zeitpläne
 und die Adresse `name.mornihosting.de` funktionieren wie bei Minecraft.
 
-| Spiel | Image | Ports | Konsole im Panel | RAM (empfohlen) |
-|---|---|---|---|---|
-| Factorio | `factoriotools/factorio:stable` / `latest` | 34197/UDP | ja (RCON) | 3 GB |
-| Counter-Strike 2 | `joedwards32/cs2` | 27015/UDP | ja (RCON) | 3 GB |
-| Garry's Mod | `ceifa/garrysmod` | 27015/UDP | ja (RCON) | 2 GB |
-| Satisfactory | `wolveix/satisfactory-server` | 7777/UDP+TCP, 8888/TCP | nein (im Spiel) | 12 GB |
-| Euro Truck Simulator 2 | `gameservermanagers/gameserver:ets2` (LinuxGSM) | 27015/UDP, 27016/UDP | nein | 2 GB |
-| Hytale | `ghcr.io/pmornhart/mornihosting-hytale` (eigenes Rezept) | 5520/UDP | ja (Eingabe) | 6 GB |
+| Spiel                  | Image                                                    | Ports                  | Konsole im Panel | RAM (empfohlen) |
+| ---------------------- | -------------------------------------------------------- | ---------------------- | ---------------- | --------------- |
+| Factorio               | `factoriotools/factorio:stable` / `latest`               | 34197/UDP              | ja (RCON)        | 3 GB            |
+| Counter-Strike 2       | `joedwards32/cs2`                                        | 27015/UDP              | ja (RCON)        | 3 GB            |
+| Garry's Mod            | `ceifa/garrysmod`                                        | 27015/UDP              | ja (RCON)        | 2 GB            |
+| Satisfactory           | `wolveix/satisfactory-server`                            | 7777/UDP+TCP, 8888/TCP | nein (im Spiel)  | 12 GB           |
+| Euro Truck Simulator 2 | `gameservermanagers/gameserver:ets2` (LinuxGSM)          | 27015/UDP, 27016/UDP   | nein             | 2 GB            |
+| Hytale                 | `ghcr.io/pmornhart/mornihosting-hytale` (eigenes Rezept) | 5520/UDP               | ja (Eingabe)     | 6 GB            |
 
 Im Router gibst du die Ports aus der Tabelle frei (bei mehreren Servern desselben Spiels die Ports, die
 im Kopf der Server-Seite stehen). Mit eigener Domain legt das Panel nur einen A-Eintrag an; einen SRV-Eintrag
