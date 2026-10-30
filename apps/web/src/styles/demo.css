@@ -1,0 +1,11 @@
+/*
+ * The demo runs inside the Claude app, which gives the page and its buttons its own text colours. Those
+ * rules sit outside Tailwind's layers and would beat the panel's colours, so the demo marks every Tailwind
+ * utility as important, and buttons without their own text colour take their card's colour again.
+ */
+@import 'tailwindcss' important;
+@import './panel.css';
+
+button:not([class*='text-']) {
+  color: inherit;
+}

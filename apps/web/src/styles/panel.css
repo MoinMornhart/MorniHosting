@@ -1,0 +1,194 @@
+/* The panel's look: fonts, colour tokens and base rules. Tailwind itself comes from globals.css or demo.css. */
+@import 'tw-animate-css';
+@import '@fontsource-variable/manrope';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@xterm/xterm/css/xterm.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Design A · Smaragd: green-tinted graphite, emerald accent, soft cards with 16px corners. */
+:root {
+  --background: #f2f6f4;
+  --foreground: #0f1f18;
+  --card: #ffffff;
+  --card-foreground: #0f1f18;
+  --popover: #ffffff;
+  --popover-foreground: #0f1f18;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-foreground: #ffffff;
+  --secondary: #f6faf8;
+  --secondary-foreground: #0f1f18;
+  --muted: #ebf2ee;
+  --muted-foreground: #4f6258;
+  --accent: #d8f3e8;
+  --accent-foreground: #0f1f18;
+  --destructive: #b42323;
+  --destructive-soft: #fde4e4;
+  --warning: #9a5b00;
+  --warning-soft: #fdf0d8;
+  --success: #067a55;
+  --success-soft: #d8f3e8;
+  --neutral-soft: #e8efeb;
+  --border: #e2eae5;
+  --input: #cfdcd5;
+  --ring: #059669;
+  --sidebar: #f2f6f4;
+  --console: #0f1a15;
+  --console-foreground: #d4e2db;
+  --shadow-card: 0 1px 2px rgba(15, 40, 28, 0.05), 0 8px 24px rgba(15, 40, 28, 0.07);
+  --shadow-float: 0 12px 40px rgba(15, 40, 28, 0.16);
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0e1512;
+  --foreground: #e9f1ed;
+  --card: #151e1a;
+  --card-foreground: #e9f1ed;
+  --popover: #1b2621;
+  --popover-foreground: #e9f1ed;
+  --primary: #10b981;
+  --primary-hover: #34d399;
+  --primary-foreground: #032015;
+  --secondary: #1b2621;
+  --secondary-foreground: #e9f1ed;
+  --muted: #223029;
+  --muted-foreground: #a2b5ab;
+  --accent: rgba(16, 185, 129, 0.14);
+  --accent-foreground: #e9f1ed;
+  --destructive: #fb8a8a;
+  --destructive-soft: rgba(251, 138, 138, 0.13);
+  --warning: #f6b54e;
+  --warning-soft: rgba(246, 181, 78, 0.14);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.13);
+  --neutral-soft: rgba(162, 181, 171, 0.12);
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.13);
+  --ring: #34d399;
+  --sidebar: #0e1512;
+  --console: #0a0f0d;
+  --console-foreground: #cfd8d3;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-float: 0 16px 48px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-console: var(--console);
+  --color-console-foreground: var(--console-foreground);
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --font-sans: 'Manrope Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv11';
+  }
+  /*
+   * The app and everything it opens on top (menus, dialogs, toasts) also take the text colour themselves.
+   * Some viewers (the demo inside the Claude app on iPhone) set a dark text colour on the page itself, which
+   * would otherwise win over the body rule above and leave inherited text black on the dark design.
+   */
+  body > * {
+    @apply text-foreground;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  /*
+   * A grid without its own columns gets one column as wide as the grid itself. Otherwise a long text
+   * (a server name, a command) widens the column past its card and spills out of it.
+   * Any grid-cols-* utility still wins, because utilities come after this layer.
+   */
+  :where(.grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* The terminal fills its frame; xterm brings its own scrollbar. */
+.xterm .xterm-viewport {
+  background-color: transparent !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The little scenes on the game cards float gently; hovering the card lifts them a bit more. */
+@keyframes art-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.art-float {
+  animation: art-float 5s ease-in-out infinite;
+}
+.group:hover .art-float {
+  animation-duration: 2.4s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-float {
+    animation: none;
+  }
+}

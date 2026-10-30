@@ -22,7 +22,13 @@ export default defineConfig(({ mode }) => {
         { find: /^@\//, replacement: `${src}/` },
         // The demo's sealed frame refuses real passkeys; a marked pretend dialog stands in.
         ...(demo
-          ? [{ find: '@simplewebauthn/browser', replacement: path.join(src, 'demo/webauthn-shim.ts') }]
+          ? [
+              { find: '@simplewebauthn/browser', replacement: path.join(src, 'demo/webauthn-shim.ts') },
+              // The demo's stylesheet gives the panel's colours priority over the Claude app's own.
+              // "./styles/globals.css" matches; "./styles/panel.css" does not.
+              // https://regex101.com/?flavor=javascript&regex=%5E%5C.%5C%2Fstyles%5C%2Fglobals%5C.css%24&testString=.%2Fstyles%2Fglobals.css%0A.%2Fstyles%2Fpanel.css
+              { find: /^\.\/styles\/globals\.css$/, replacement: path.join(src, 'styles/demo.css') },
+            ]
           : []),
       ],
     },

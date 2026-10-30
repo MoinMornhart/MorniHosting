@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 import { Badge, GameScene, type GameKind } from './art';
-import { ProjectLogo } from './project-logo';
+import { GameArt, ProjectLogo } from './project-logo';
 
 /**
  * A game as a big picture card, like a hoster's game list: the scene fills the card, the name sits large on top
@@ -17,7 +18,16 @@ export function GameCard({ game, onStart }: { game: GameKind; onStart: () => voi
       className="group grid grid-rows-[auto_1fr] overflow-hidden rounded-[18px] border border-border bg-card text-left shadow-card transition hover:-translate-y-1 hover:border-primary hover:shadow-xl"
     >
       <span className="relative block h-48 overflow-hidden">
-        <GameScene game={game} className="absolute inset-0 h-full -translate-y-3 scale-110" />
+        <GameArt
+          game={game}
+          className={cn(
+            'absolute inset-0 size-full transition-transform duration-500 group-hover:scale-105',
+            // The GeyserMC logo is a cut-out: it sits on a night sky above the title.
+            game === 'crossplay' &&
+              'bg-[radial-gradient(ellipse_at_50%_30%,#1f5a6e,#0b1d2a_60%,#050b12)] object-contain px-6 pb-16 pt-4',
+          )}
+          fallback={<GameScene game={game} className="absolute inset-0 h-full -translate-y-3 scale-110" />}
+        />
         <span
           aria-hidden
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent"

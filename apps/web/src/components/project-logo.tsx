@@ -43,3 +43,37 @@ export function ProjectLogo({
     />
   );
 }
+
+/**
+ * Background pictures for the game cards, from the publishers' own sites (minecraft.net, geysermc.org).
+ * Nothing is copied into this repository; offline or in the demo the drawn scene shows.
+ */
+/** The panel fetches them once from minecraft.net and geysermc.org and serves them from its data folder. */
+const GAME_ART = {
+  java: '/api/game-art/java',
+  bedrock: '/api/game-art/bedrock',
+  crossplay: '/api/game-art/crossplay',
+} as const;
+
+export function GameArt({
+  game,
+  fallback,
+  className,
+}: {
+  game: keyof typeof GAME_ART;
+  fallback: ReactNode;
+  className?: string;
+}): ReactElement {
+  const [failed, setFailed] = useState(false);
+  if (DEMO || failed) return <>{fallback}</>;
+  return (
+    <img
+      src={GAME_ART[game]}
+      alt=""
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className={cn('object-cover', className)}
+    />
+  );
+}
