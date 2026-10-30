@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SOFTWARE, type ConnectionInfo, type ReachabilityResult } from '@mornihosting/shared';
+import { SOFTWARE, gameOf, type ConnectionInfo, type ReachabilityResult } from '@mornihosting/shared';
 import type { SettingsService } from '../settings/service.js';
 import { createCache, fetchJson, fetchResponse } from '../lib/http-client.js';
 import { MS_PER_MINUTE, nowIso } from '../lib/units.js';
@@ -73,6 +73,12 @@ export async function checkReachability(
   }
   // Through the domain friends use the tunnel's port; through the bare public IP the server port.
   const target = `${host}:${info.domain ? info.sharePort : row.port}`;
+  // mcsrvstat.us only speaks Minecraft; other games stay "unknown".
+  if (gameOf(row.software)) {
+    const result: ReachabilityResult = { status: 'unknown', checkedAt: nowIso(), target };
+    reachability.set(row.id, result);
+    return result;
+  }
   const base =
     row.edition === 'bedrock' ? 'https://api.mcsrvstat.us/bedrock/3/' : 'https://api.mcsrvstat.us/3/';
   try {

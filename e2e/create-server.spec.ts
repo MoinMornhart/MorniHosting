@@ -37,3 +37,21 @@ test('order a Paper server like at a hoster and see it running', async ({ page }
   await page.getByRole('link', { name: 'Konsole', exact: true }).click();
   await expect(page.locator('.xterm-rows')).toContainText('Done', { timeout: 10_000 });
 });
+
+test('order a Factorio server and use its console', async ({ page }) => {
+  await page.goto('/servers/new');
+  await page.getByRole('button', { name: /Factorio/ }).click();
+  await page.getByRole('button', { name: /3 GB RAM/ }).click();
+  await page.getByRole('button', { name: /Stabil/ }).click();
+  await page.getByLabel('Servername auswählen').fill('e2e-fabrik');
+  await page.getByText('Ich halte mich an die Nutzungsbedingungen').click();
+  await page.getByRole('button', { name: 'Server erstellen' }).click();
+
+  await page.waitForURL(SERVER_PAGE);
+  await expect(page.getByRole('heading', { name: 'e2e-fabrik' })).toBeVisible();
+  // Minecraft-only tabs are gone.
+  await expect(page.getByRole('link', { name: 'Spieler', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Starten' }).first().click();
+  await waitForState(page, 'Läuft');
+  await expect(page.locator('.xterm-rows')).toContainText('to(InGame)', { timeout: 10_000 });
+});

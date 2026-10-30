@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { GAME_ART_SOURCES } from '@mornihosting/shared';
+import { GAME_ART_IDS, GAME_ART_SOURCES } from '@mornihosting/shared';
 import { z } from 'zod';
 import type { Api, AppContext } from '../context.js';
 import { notFound } from '../lib/errors.js';
@@ -16,7 +16,7 @@ const MAX_MB = 4;
 const MAX_BYTES = MAX_MB * BYTES_PER_MB;
 const CACHE_SECONDS = 86400;
 const IMAGE_TYPE = 'image/';
-const params = z.object({ game: z.enum(['java', 'bedrock', 'crossplay']) });
+const params = z.object({ game: z.enum(GAME_ART_IDS) });
 
 export function registerGameArtRoutes(app: Api, ctx: AppContext): void {
   const dir = path.join(ctx.config.dataDir, 'game-art');
@@ -28,7 +28,9 @@ export function registerGameArtRoutes(app: Api, ctx: AppContext): void {
     if (fs.existsSync(file) && fs.existsSync(typeFile))
       return { file, type: fs.readFileSync(typeFile, 'utf8') };
     try {
-      const response = await fetchResponse(SOURCES[game], { headers: { accept: 'image/*' } });
+      const url = SOURCES[game];
+      if (!url) return null;
+      const response = await fetchResponse(url, { headers: { accept: 'image/*' } });
       const type = response.headers.get('content-type') ?? '';
       const data = Buffer.from(await response.arrayBuffer());
       if (!type.startsWith(IMAGE_TYPE) || data.length > MAX_BYTES) return null;

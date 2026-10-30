@@ -95,6 +95,8 @@ if grep -q '^MH_IMAGE_TAG=' .env; then
   docker compose up -d --quiet-pull >/dev/null
 else
   MH_BUILD_VERSION="$(git describe --tags --always 2>/dev/null || echo dev)" docker compose up -d --build >/dev/null
+  # Hytale hat kein offizielles Image: das kleine Rezept aus images/hytale wird mitgebaut.
+  docker build --quiet -t ghcr.io/pmornhart/mornihosting-hytale:latest images/hytale >/dev/null || true
 fi
 msg_ok "Panel läuft"
 

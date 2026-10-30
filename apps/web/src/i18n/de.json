@@ -475,6 +475,12 @@
     "self_update_unavailable": "Das automatische Update ist auf diesem System nicht eingerichtet.",
     "world_not_found": "Diese Welt gibt es nicht.",
     "geyser_java_only": "Bedrock-Server brauchen das nicht: Bedrock-Spieler können direkt beitreten.",
+    "game_files_missing": "Es fehlen noch Dateien aus dem Spiel: {{files}}. Lade sie unter Einstellungen hoch.",
+    "game_setting_unknown": "Diese Einstellung gibt es bei diesem Spiel nicht ({{key}}).",
+    "game_setting_invalid": "Der Wert für „{{key}}“ passt nicht. Erlaubt sind Buchstaben, Zahlen und einfache Zeichen wie - _ . : /",
+    "minecraft_only": "Das gibt es nur bei Minecraft-Servern.",
+    "not_a_game": "Das ist ein Minecraft-Server – seine Einstellungen findest du unter Spiel-Einstellungen.",
+    "console_unavailable": "Dieses Spiel hat keine Konsole, in die das Panel tippen kann. Verwalte es im Spiel selbst.",
     "bedrock_port_taken": "Port 19132 (UDP) ist schon belegt.",
     "icon_not_png": "Das Bild konnte nicht gelesen werden.",
     "icon_wrong_size": "Das Server-Bild muss 64 × 64 Pixel groß sein.",
@@ -2116,5 +2122,168 @@
     "remove": "Entfernen",
     "removed": "E-Mail-Adresse entfernt.",
     "unavailable": "E-Mail ist in diesem Panel noch nicht eingerichtet. Frag bitte die Person, die es betreibt."
+  },
+  "games": {
+    "versionTitle": "Server-Version",
+    "moreTitle": "Weitere Spiele",
+    "orderTitle": "{{game}} Server",
+    "dedicated": "Eigener Server",
+    "performanceText": "Wie viel Arbeitsspeicher (RAM) dein Server bekommt. Mehr RAM = größere Welten und mehr Spieler.",
+    "versionText": "Welche Version des Servers laufen soll. Du kannst das später in den Einstellungen ändern.",
+    "versions": {
+      "stable": "Stabil",
+      "stableText": "Die empfohlene, getestete Version.",
+      "latest": "Neueste",
+      "latestText": "Die allerneueste Version – kann noch Fehler haben.",
+      "steam": "Immer aktuell",
+      "steamText": "Der Server holt sich bei jedem Start die neueste Version von Steam.",
+      "official": "Offizielle Version",
+      "officialText": "Der Server lädt die Dateien mit dem offiziellen Hytale-Downloader."
+    },
+    "addressReady": "Deine Freunde verbinden sich mit {{address}}.",
+    "settingsTitle": "Spiel-Einstellungen",
+    "settingsText": "Alles hier ist freiwillig. Du kannst es auch später in den Einstellungen des Servers ausfüllen.",
+    "settingsCardText": "Einstellungen, die {{game}} selbst braucht. Passwörter und Schlüssel speichert das Panel verschlüsselt und zeigt sie nie wieder an.",
+    "downloadNote": "Beim ersten Start lädt der Server etwa {{gb}} GB herunter. Das kann ein paar Minuten dauern.",
+    "terms": "Ich halte mich an die Nutzungsbedingungen von {{game}}.",
+    "whereToFind": "Wo finde ich das?",
+    "secretStored": "gespeichert – zum Ändern neu eingeben",
+    "saved": "Gespeichert. Gilt ab dem nächsten Start.",
+    "save": "Speichern",
+    "restartHint": "Änderungen gelten ab dem nächsten Neustart des Servers.",
+    "ports": {
+      "api": "API",
+      "messaging": "Messaging",
+      "query": "Query"
+    },
+    "factorio": {
+      "kicker": "Fabrik-Aufbau",
+      "text": "Baut zusammen riesige Fabriken – mit Förderbändern, Zügen und Space Age.",
+      "about": "Ein eigener Factorio-Server: Er läuft auch, wenn du offline bist, und speichert die Karte automatisch.",
+      "memoryHint": "Für die meisten Fabriken reichen {{gb}} GB. Riesige Megabasen oder viele Mods brauchen mehr.",
+      "fields": {
+        "username": "Factorio-Benutzername",
+        "usernameHint": "Nur nötig, wenn das Panel Mods automatisch aktualisieren soll.",
+        "token": "Factorio-Token",
+        "tokenHint": "Ein Schlüssel aus deinem Factorio-Konto (kein Passwort). Er bleibt verschlüsselt.",
+        "updateMods": "Mods beim Start aktualisieren",
+        "updateModsHint": "Lädt vor jedem Start neue Versionen deiner Mods. Braucht Benutzername und Token.",
+        "spaceAge": "Space Age einschalten",
+        "spaceAgeHint": "Die Erweiterung Space Age (mit Qualität und erhöhten Schienen). Jeder Spieler braucht sie dann auch."
+      }
+    },
+    "moreSettings": "Weitere Einstellungen",
+    "cs2": {
+      "kicker": "Taktik-Shooter",
+      "text": "Euer eigener Counter-Strike-2-Server – Wettkampf, Deathmatch oder Workshop-Karten.",
+      "about": "Ein eigener Counter-Strike-2-Server. Ohne Steam-Token (GSLT) können nur Freunde über die Adresse beitreten, mit Token taucht er auch in der Server-Liste auf.",
+      "memoryHint": "{{gb}} GB reichen für 5 gegen 5. Für Community-Server mit vielen Spielern nimm mehr.",
+      "fields": {
+        "serverName": "Servername im Spiel",
+        "serverNameHint": "So heißt der Server in der Server-Liste.",
+        "password": "Beitritts-Passwort",
+        "passwordHint": "Wer beitreten will, braucht dieses Passwort. Leer = jeder mit der Adresse.",
+        "gameMode": "Spielmodus",
+        "gameModeHint": "Wie gespielt wird. Lässt sich später jederzeit ändern.",
+        "startMap": "Startkarte",
+        "startMapHint": "Die Karte nach dem Start, z. B. de_inferno, de_mirage oder de_dust2.",
+        "maxPlayers": "Maximale Spieler",
+        "maxPlayersHint": "Wie viele gleichzeitig spielen dürfen (Standard 10).",
+        "gslt": "Steam-Token (GSLT)",
+        "gsltHint": "Ein „Game Server Login Token“ von Steam, mit App-ID 730. Nur nötig, damit der Server öffentlich in der Liste erscheint.",
+        "workshopCollection": "Workshop-Sammlung",
+        "workshopCollectionHint": "Die Nummer einer Steam-Workshop-Sammlung mit Karten (aus der Adresse der Sammlung, nach „id=“)."
+      },
+      "options": {
+        "gameMode": {
+          "competitive": "Wettkampf (5 gegen 5)",
+          "casual": "Gelegenheitsspiel",
+          "deathmatch": "Deathmatch",
+          "wingman": "Wingman (2 gegen 2)",
+          "armsrace": "Waffenwettlauf"
+        }
+      }
+    },
+    "gmod": {
+      "kicker": "Sandkasten",
+      "text": "Bauen, Unsinn treiben oder Trouble in Terrorist Town – mit Addons aus dem Workshop.",
+      "about": "Ein eigener Garry's-Mod-Server. Addons und Karten kommen am einfachsten über eine Steam-Workshop-Sammlung.",
+      "memoryHint": "{{gb}} GB reichen für die meisten Server. Viele Addons brauchen mehr.",
+      "fields": {
+        "serverName": "Servername im Spiel",
+        "serverNameHint": "So heißt der Server in der Server-Liste.",
+        "gamemode": "Spielmodus",
+        "gamemodeHint": "z. B. sandbox oder terrortown (TTT). Andere Modi kommen über die Workshop-Sammlung.",
+        "workshopCollection": "Workshop-Sammlung",
+        "workshopCollectionHint": "Die Nummer deiner Steam-Workshop-Sammlung (aus der Adresse, nach „id=“). Der Server lädt alle Addons daraus.",
+        "authKey": "Steam-Web-API-Schlüssel",
+        "authKeyHint": "Braucht der Server, um die Workshop-Sammlung herunterzuladen. Bleibt verschlüsselt.",
+        "map": "Startkarte",
+        "mapHint": "Die Karte nach dem Start, z. B. gm_construct oder gm_flatgrass.",
+        "maxPlayers": "Maximale Spieler",
+        "maxPlayersHint": "Wie viele gleichzeitig spielen dürfen (Standard 16).",
+        "password": "Beitritts-Passwort",
+        "passwordHint": "Ohne Leerzeichen. Leer = jeder mit der Adresse kann beitreten.",
+        "gslt": "Steam-Token (GSLT)",
+        "gsltHint": "Ein „Game Server Login Token“ mit App-ID 4000. Nur nötig, damit der Server dauerhaft in der Liste erscheint."
+      }
+    },
+    "noConsole": "Dieses Spiel hat keine Konsole fürs Panel. Du verwaltest den Server im Spiel selbst.",
+    "satisfactory": {
+      "kicker": "Fabrik-Aufbau in 3D",
+      "text": "Baut zusammen eine riesige Fabrik auf einem fremden Planeten – bis zu 8 Spieler.",
+      "about": "Ein eigener Satisfactory-Server. Nach dem ersten Start fügst du ihn im Spiel unter „Server Manager“ mit der Adresse hinzu und legst dort Namen und Admin-Passwort fest. Läuft der Rechner auf Proxmox, stell den CPU-Typ der VM auf „host“ – sonst startet der Server nicht.",
+      "memoryHint": "Satisfactory braucht viel Arbeitsspeicher: {{gb}} GB sind ein guter Start, große Fabriken brauchen 16 GB.",
+      "fields": {
+        "maxPlayers": "Maximale Spieler",
+        "maxPlayersHint": "Wie viele gleichzeitig spielen dürfen (Standard 4, offiziell bis 8).",
+        "autosaves": "Anzahl Autosaves",
+        "autosavesHint": "Wie viele automatische Spielstände behalten werden.",
+        "experimental": "Experimentelle Version",
+        "experimentalHint": "Lädt den Experimental-Zweig von Steam. Alle Spieler brauchen dann auch Experimental."
+      }
+    },
+    "files": {
+      "uploaded": "Hochgeladen.",
+      "done": "Alles da – der Server kann starten.",
+      "upload": "Dateien hochladen",
+      "replace": "Neue Dateien hochladen"
+    },
+    "ets2": {
+      "kicker": "Konvoi-Fahren",
+      "text": "Fahrt zusammen im Konvoi durch Europa – mit eigenem Server, auch wenn du offline bist.",
+      "about": "Ein eigener Konvoi-Server für Euro Truck Simulator 2 (bis zu 8 Fahrer). Vor dem ersten Start brauchst du zwei Dateien, die nur das Spiel selbst erzeugen kann – das Panel zeigt dir, wie.",
+      "memoryHint": "{{gb}} GB reichen für einen Konvoi mit 8 Fahrern.",
+      "filesTitle": "Server-Pakete aus dem Spiel",
+      "filesText": "Der Server braucht deine Karten- und DLC-Liste aus dem Spiel. So bekommst du die zwei Dateien:",
+      "filesSteps": [
+        "Starte Euro Truck Simulator 2 und lade dein Profil.",
+        "Öffne die Datei config.cfg in „Dokumente/Euro Truck Simulator 2“ und setze uset g_console auf \"1\".",
+        "Drücke im Spiel die Taste ^ (links neben der 1), tippe export_server_packages und drücke Enter.",
+        "In „Dokumente/Euro Truck Simulator 2“ liegen jetzt server_packages.sii und server_packages.dat – lade beide hier hoch."
+      ],
+      "fields": {
+        "lobbyName": "Name des Konvois",
+        "lobbyNameHint": "So heißt der Server in der Konvoi-Liste im Spiel.",
+        "password": "Beitritts-Passwort",
+        "passwordHint": "Wer mitfahren will, braucht dieses Passwort. Leer = jeder.",
+        "maxPlayers": "Maximale Fahrer",
+        "maxPlayersHint": "Wie viele gleichzeitig fahren dürfen (höchstens 8).",
+        "welcome": "Willkommensnachricht",
+        "welcomeHint": "Erscheint im Chat, wenn jemand beitritt.",
+        "logonToken": "Steam-Token",
+        "logonTokenHint": "Optional: Ein „Game Server Login Token“ mit App-ID 227300. Damit behält der Server dauerhaft dieselbe Kennung."
+      }
+    },
+    "hytale": {
+      "kicker": "Abenteuer & Bauen",
+      "text": "Erkundet, baut und kämpft zusammen in der Welt von Hytale.",
+      "about": "Ein eigener Hytale-Server. Beim ersten Start erscheint in der Konsole ein Link: Öffne ihn und melde dich mit deinem Hytale-Konto an, damit der Server die offiziellen Dateien laden darf. Danach tippst du in die Konsole /auth login device und meldest den Server genauso an.",
+      "memoryHint": "{{gb}} GB sind ein guter Start. Große Welten oder viele Spieler brauchen mehr.",
+      "fields": {
+        "autoUpdate": "Bei jedem Start aktualisieren",
+        "autoUpdateHint": "Lädt vor jedem Start die neueste Server-Version herunter. Aus = nur beim ersten Start."
+      }
+    }
   }
 }

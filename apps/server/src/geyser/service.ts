@@ -54,7 +54,7 @@ export function createGeyserService(
 ): GeyserService {
   const pluginsFor = (serverId: string): GeyserPlugins => {
     const row = servers.row(serverId);
-    if (row.edition === 'bedrock') throw badRequest('geyser_java_only');
+    if (row.edition !== 'java') throw badRequest('geyser_java_only');
     const plugins = PLUGINS[row.software];
     if (!plugins) throw badRequest('geyser_unsupported');
     return plugins;

@@ -16,6 +16,8 @@ export const PROJECT_LOGOS = Object.freeze({
 });
 export type LogoProject = keyof typeof PROJECT_LOGOS;
 
+import { GAME_IDS, GAMES, steamHeaderUrl, type GameId } from './games.js';
+
 /**
  * Background pictures for the game cards: Mojang's key art as the Minecraft Wiki hosts it, and the GeyserMC
  * logo from geysermc.org. (minecraft.net itself refuses automated downloads.)
@@ -25,5 +27,14 @@ export const GAME_ART_SOURCES = Object.freeze({
   bedrock:
     'https://minecraft.wiki/images/thumb/Minecraft_Java_%26_Bedrock_Edition_key_art.jpg/1200px-Minecraft_Java_%26_Bedrock_Edition_key_art.jpg',
   crossplay: 'https://geysermc.org/img/geyser-1760-860.png',
+  // Other games: the header picture of their Steam store page.
+  // Games without one (Hytale is not on Steam) show their drawn scene.
+  ...(Object.fromEntries(
+    GAME_IDS.flatMap((id) => {
+      const url = steamHeaderUrl(GAMES[id]);
+      return url ? [[id, url]] : [];
+    }),
+  ) as Partial<Record<GameId, string>>),
 });
 export type GameArtId = keyof typeof GAME_ART_SOURCES;
+export const GAME_ART_IDS = Object.keys(GAME_ART_SOURCES) as [GameArtId, ...GameArtId[]];

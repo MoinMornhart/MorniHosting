@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { and, desc, eq, inArray } from 'drizzle-orm';
-import { SOFTWARE, type BackupEntry, type BackupSettings } from '@mornihosting/shared';
+import { SOFTWARE, gameOf, type BackupEntry, type BackupSettings } from '@mornihosting/shared';
 import type { Actor } from '../audit/service.js';
 import type { AppContext } from '../context.js';
 import { backups, DEFAULT_BACKUP_SETTINGS, servers as serverTable } from '../db/schema.js';
@@ -103,11 +103,26 @@ export function createBackupService(ctx: AppContext, servers: ServerService): Ba
         .run();
   };
 
+  /** Other games only get their save command (if any); there is nothing to resume. */
+  const saveGame = async (serverId: string, command: string | undefined): Promise<() => Promise<void>> => {
+    if (command) {
+      try {
+        await servers.quietCommand(serverId, command);
+        await sleep(SAVE_SETTLE_SECONDS * MS_PER_SECOND);
+      } catch (err) {
+        ctx.log.warn({ err, serverId, command }, 'backup: save command failed');
+      }
+    }
+    return async () => undefined;
+  };
+
   /** Asks the game to write everything to disk and pause saving; returns how to resume. */
   const pauseSaving = async (serverId: string): Promise<() => Promise<void>> => {
     const row = servers.row(serverId);
     const software = SOFTWARE[row.software];
     if (!servers.isRunning(serverId) || software.proxy) return async () => undefined;
+    const game = gameOf(row.software);
+    if (game) return saveGame(serverId, game.saveCommand);
     const bedrock = row.edition === 'bedrock';
     const quiet = async (command: string): Promise<void> => {
       try {

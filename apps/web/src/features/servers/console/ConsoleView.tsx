@@ -7,7 +7,7 @@ import { ArrowDownToLine, Copy, Eraser, Search, SendHorizontal } from 'lucide-re
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type { Edition } from '@mornihosting/shared';
+import { GAMES, isGameId, type Edition } from '@mornihosting/shared';
 import { copyText } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -159,7 +159,8 @@ export function ConsoleView({
 
   const submit = (e: FormEvent): void => {
     e.preventDefault();
-    const cmd = command.trim().replace(/^\//, ''); // eslint-disable-line ts-patterns/require-regex-example -- drops one leading slash: "/list" → "list"
+    // Minecraft takes commands without the slash; other games (Factorio "/players") need it.
+    const cmd = isGameId(edition) ? command.trim() : command.trim().replace(/^\//, ''); // eslint-disable-line ts-patterns/require-regex-example -- drops one leading slash: "/list" → "list"
     if (!cmd) return;
     const next = [...history.filter((h) => h !== cmd), cmd];
     setHistory(next);
@@ -171,10 +172,11 @@ export function ConsoleView({
   };
 
   const suggestions = command
-    ? completions(command, edition === 'bedrock' ? BEDROCK_COMMANDS : JAVA_COMMANDS, players).slice(
-        0,
-        MAX_SUGGESTIONS,
-      )
+    ? completions(
+        command,
+        isGameId(edition) ? [] : edition === 'bedrock' ? BEDROCK_COMMANDS : JAVA_COMMANDS,
+        players,
+      ).slice(0, MAX_SUGGESTIONS)
     : [];
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
@@ -216,8 +218,11 @@ export function ConsoleView({
     if (await copyText(feed.lines.map(stripAnsi).join('\n'))) toast.success(t('console.copiedAll'));
   };
 
+  // Some games (Satisfactory, ETS2) have no console the panel can type into; they are managed in game.
+  const noConsole = isGameId(edition) && GAMES[edition].console === 'none';
   let hint: string | null = null;
-  if (!running) hint = t('console.notRunning');
+  if (noConsole) hint = t('games.noConsole');
+  else if (!running) hint = t('console.notRunning');
   else if (!canSend) hint = t('console.noCommandPermission');
 
   return (
@@ -294,7 +299,7 @@ export function ConsoleView({
           <Input
             id={`cmd-${serverId}`}
             value={command}
-            disabled={!running || !canSend}
+            disabled={!running || !canSend || noConsole}
             autoComplete="off"
             spellCheck={false}
             placeholder={hint ?? t('console.placeholder')}

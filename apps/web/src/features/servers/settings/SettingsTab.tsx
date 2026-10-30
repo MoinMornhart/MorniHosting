@@ -1,10 +1,12 @@
 import { useEffect, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
-import { SOFTWARE } from '@mornihosting/shared';
+import { SOFTWARE, isGameId } from '@mornihosting/shared';
 import { EmptyState } from '@/components/page';
 import { TabIntro } from '@/components/tab-intro';
 import { useServer } from '../ServerLayout';
+import { GameFilesCard } from './GameFilesCard';
+import { GameSettingsCard } from './GameSettingsCard';
 import { GeneralCard } from './GeneralCard';
 import { IconCard } from './IconCard';
 import { PropertiesCard } from './PropertiesCard';
@@ -18,6 +20,8 @@ export default function SettingsTab(): ReactElement {
   const { server, can } = useServer();
   const { hash } = useLocation();
   const proxy = SOFTWARE[server.software].proxy;
+  // Other games have their own settings instead of server.properties, worlds and the server picture.
+  const otherGame = isGameId(server.software);
 
   useEffect(() => {
     if (!hash) return;
@@ -26,7 +30,9 @@ export default function SettingsTab(): ReactElement {
 
   if (!can('config')) return <EmptyState title={t('server.noPermission')} />;
   // Bedrock players and voice chat live in the network tab, deleting in "Advanced".
-  const sections = SECTIONS.filter((s) => !proxy || (s !== 'game' && s !== 'worlds'));
+  const sections = SECTIONS.filter(
+    (s) => (!proxy || (s !== 'game' && s !== 'worlds')) && (!otherGame || s === 'general' || s === 'game'),
+  );
   return (
     <>
       <TabIntro title={t('server.tabs.settings')} text={t('settings.intro')} />
@@ -49,19 +55,27 @@ export default function SettingsTab(): ReactElement {
           <section id="s-general" className="scroll-mt-4">
             <GeneralCard key={`${server.id}-${server.memoryMb}-${server.version}`} server={server} />
           </section>
-          {proxy ? null : (
+          {otherGame ? (
+            <section id="s-game" className="grid scroll-mt-4 gap-5">
+              <GameFilesCard server={server} />
+              <GameSettingsCard server={server} />
+            </section>
+          ) : null}
+          {proxy || otherGame ? null : (
             <section id="s-game" className="scroll-mt-4">
               <PropertiesCard server={server} />
             </section>
           )}
-          {proxy ? null : (
+          {proxy || otherGame ? null : (
             <section id="s-worlds" className="scroll-mt-4">
               <WorldsCard server={server} />
             </section>
           )}
-          <section id="s-icon" className="scroll-mt-4">
-            <IconCard server={server} />
-          </section>
+          {otherGame ? null : (
+            <section id="s-icon" className="scroll-mt-4">
+              <IconCard server={server} />
+            </section>
+          )}
         </div>
       </div>
     </>
