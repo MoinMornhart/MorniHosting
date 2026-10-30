@@ -132,7 +132,7 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T20:55:04+00:00",
+  "updated": "2026-10-30T21:07:22+00:00",
   "now": "Drei Sitzungen arbeiten parallel (Spiele, DDoS, E-Mail); ich sammle ihre Stände hier ein.",
   "steps": [
     {
@@ -312,8 +312,8 @@ footer { color: var(--muted); font-size: 13px; }
     },
     {
       "title": "DDoS-Schutz",
-      "status": "läuft",
-      "detail": "Eigene Sitzung „MorniHosting · DDoS-Schutz“ (Opus), Branch claude/ddos-schutz: Host-Firewall-Regeln pro IP, Schalter und Status im Admin-Bereich."
+      "status": "fertig",
+      "detail": "Fertig auf claude/ddos-schutz: Host-Skript mit Firewall-Kette (Grenzen pro Absender für neue/gleichzeitige Verbindungen und UDP-Fluten, SYN-Cookies, IPv4+IPv6), läuft über systemd, Admin-Reiter mit Schalter, Zählern und ehrlichem Hinweis auf TCPShield/Cloudflare für große Angriffe. 209 Tests grün, mit echtem iptables getestet. Nach dem Merge muss Philip einmal auf dem Proxmox-Host einen modprobe-Befehl ausführen."
     },
     {
       "title": "E-Mails",
@@ -327,6 +327,11 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p22-ddos.webp",
+      "caption": "DDoS-Schutz im Admin-Bereich",
+      "time": "2026-10-30T21:07:22+00:00"
+    },
     {
       "img": "progress/p21-logo.webp",
       "caption": "Neues neutrales Logo – Startseite, Panel, alle Größen",
@@ -381,11 +386,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p14-servers.webp",
       "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
       "time": "2026-10-30T13:55:00+01:00"
-    },
-    {
-      "img": "progress/p14-games.webp",
-      "caption": "Eigene Grafiken · Spiele-Karten mit schwebenden Szenen",
-      "time": "2026-10-30T13:55:00+01:00"
     }
   ],
   "files": [
@@ -410,7 +410,7 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Weitere Spiele (Factorio zuerst)"
     },
     {
-      "status": "current",
+      "status": "done",
       "until": "",
       "title": "DDoS-Schutz"
     },
