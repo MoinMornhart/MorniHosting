@@ -514,18 +514,41 @@
     "https_failed": "HTTPS could not start: {{message}}"
   },
   "update": {
-    "available": "Version {{version}} is available",
-    "text": "New features and fixes. Your servers keep running during the update.",
+    "text": "Your Minecraft servers keep running during the update.",
     "now": "Update now",
     "running": "Updating …",
-    "started": "Update started. The panel will be back in a moment.",
-    "howTo": "How to update",
+    "started": "Update started. The panel will be back in a few minutes.",
     "title": "Updates",
     "upToDate": "Up to date",
-    "current": "Installed: version {{version}}",
-    "checked": "checked {{when}}",
-    "manual": "The host updater is not set up. Update on the host with one of these commands (Proxmox container or your own server):",
-    "releaseNotes": "What's new?"
+    "manual": "The updater on the machine is not set up. Update there with one of these commands (Proxmox container or own server):",
+    "intro": "MorniHosting follows the newest state on GitHub. See what's new here and install it with one click.",
+    "behind_one": "1 change available",
+    "behind_other": "{{count}} changes available",
+    "newer": "New version available",
+    "checkFailed": "Check not possible right now",
+    "installed": "Installed",
+    "newest": "Newest version",
+    "lastCheck": "Last checked",
+    "checkNow": "Check now",
+    "whatsNew": "What's new?",
+    "allChanges": "All changes on GitHub",
+    "retry": "Try again",
+    "show": "Show",
+    "restarting": "The panel is restarting – almost there …",
+    "finished": "Update done – now running {{version}}.",
+    "done": "Update done ({{when}}). Everything is running again.",
+    "failed": "The update did not work. The panel keeps running the old version. The log below shows what went wrong.",
+    "stuck": "The updater on your machine did not respond.",
+    "stuckText": "It is probably not set up or not running. Run the update once by hand on the machine (Proxmox container or own server) – then the button works again:",
+    "state": {
+      "requested": "Update requested – the updater on your machine takes over in a moment …",
+      "running": "Updating …"
+    },
+    "steps": {
+      "pull": "Fetch new code",
+      "build": "Build the panel (a few minutes)",
+      "restart": "Restart the panel"
+    }
   },
   "players": {
     "online": "Online now",
@@ -1475,18 +1498,18 @@
   },
   "admin": {
     "title": "Admin area",
-    "subtitle": "Admins only: domain, updates, passwords and settings for the whole panel.",
+    "subtitle": "Everything that concerns the whole panel – sorted by topic.",
     "sections": {
-      "domain": "Domain",
+      "domain": "Domain & HTTPS",
       "update": "Updates",
       "passwords": "Passwords",
       "settings": "Settings",
       "netbird": "NetBird"
     },
-    "domainTitle": "Domain",
+    "domainTitle": "Panel address by hand",
     "domainSet": "Set",
     "domainNone": "None yet",
-    "domainText": "Do you have your own domain? Enter it here. Then you open the panel at https://your-domain and passkey sign-in works.",
+    "domainText": "Only needed if you run the panel behind your own reverse proxy. With “Own domain” and HTTPS above, MorniHosting fills this in itself.",
     "panelDomain": "Panel address",
     "panelDomainHint": "Just the name, e.g. panel.myname.com. Passkeys will belong to this address.",
     "domainActive": "✅ You are connected through this domain with HTTPS right now. Passkeys work.",
@@ -1498,7 +1521,16 @@
     "guides": {
       "proxy": "Own reverse proxy",
       "netbird": "NetBird"
-    }
+    },
+    "sectionText": {
+      "domain": "Your own domain: server addresses like name.example.com, HTTPS and the panel's address.",
+      "netbird": "For servers without port forwarding: NetBird connects them to your domain.",
+      "update": "Install new features and fixes with one click.",
+      "passwords": "Someone forgot their password? Reset it here.",
+      "settings": "Home network addresses, CurseForge key, time zone and language."
+    },
+    "netbirdManual": "Set up NetBird by hand",
+    "netbirdManualHint": "Only needed if you don't use the automation above. Tap to open."
   },
   "passwordReset": {
     "cardTitle": "Reset passwords",

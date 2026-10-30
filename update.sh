@@ -32,21 +32,37 @@ fi
 
 VOLUME_DIR="$(docker volume inspect -f '{{ .Mountpoint }}' "${VOLUME_NAME}" 2>/dev/null || true)"
 STATUS_FILE="${VOLUME_DIR:+${VOLUME_DIR}/update/status.json}"
+LOG_FILE="${VOLUME_DIR:+${VOLUME_DIR}/update/log.txt}"
+STEP="null"
 
+# Für das Panel: Zustand (running/done/failed) und Schritt (pull/build/restart) in status.json.
 write_status() {
   [[ -n "${STATUS_FILE}" ]] || return 0
   mkdir -p "$(dirname "${STATUS_FILE}")"
-  printf '{"state":"%s","at":"%s"}\n' "$1" "$(date -Iseconds)" >"${STATUS_FILE}"
+  printf '{"state":"%s","step":%s,"at":"%s"}\n' "$1" "${STEP}" "$(date -Iseconds)" >"${STATUS_FILE}"
   chown "${PANEL_UID}:${PANEL_UID}" "${STATUS_FILE}" 2>/dev/null || true
 }
+step() {
+  STEP="\"$1\""
+  write_status "running"
+}
 
-# The request file must go first: while it exists, systemd would start this script again and again.
+# Alles, was das Skript ausgibt, landet auch in log.txt – das Panel zeigt die letzten Zeilen an.
+# Nach dem Neustart mit der neuen Fassung (MH_UPDATE_PULLED) läuft die Umleitung schon.
+if [[ -n "${LOG_FILE}" && -z "${MH_UPDATE_PULLED:-}" ]]; then
+  mkdir -p "$(dirname "${LOG_FILE}")"
+  : >"${LOG_FILE}"
+  chown "${PANEL_UID}:${PANEL_UID}" "${LOG_FILE}" 2>/dev/null || true
+  exec > >(tee -a "${LOG_FILE}") 2>&1
+fi
+
+# Erst "läuft" melden, dann die Anfrage wegnehmen: Solange sie da ist, startet systemd das Skript immer wieder.
+step "pull"
 if [[ -n "${VOLUME_DIR}" ]]; then
   rm -f "${VOLUME_DIR}/update/request.json"
 fi
 
 trap 'write_status "failed"; msg_error "Update fehlgeschlagen in Zeile ${LINENO}. Das Panel läuft in der alten Version weiter."' ERR
-write_status "running"
 cd "${INSTALL_DIR}"
 
 if [[ -d .git && -z "${MH_UPDATE_PULLED:-}" ]]; then
@@ -61,14 +77,25 @@ if NB_API="$(bash scripts/netbird-env.sh)" && [[ -n "${NB_API}" ]]; then
   msg_ok "NetBird-Server dieses Rechners: ${NB_API}"
 fi
 
-msg_info "Neues Panel-Image wird geladen"
-if docker compose pull --quiet panel 2>/dev/null; then
+step "build"
+# Das Panel folgt dem Stand von main: gebaut wird aus genau dem eben geholten Code. Ein fertiges Image
+# (ghcr.io) nur, wenn in der .env ausdrücklich MH_IMAGE_TAG steht.
+if grep -q '^MH_IMAGE_TAG=' .env 2>/dev/null; then
+  msg_info "Neues Panel-Image wird geladen"
+  docker compose pull --quiet panel
+  step "restart"
   docker compose up -d --quiet-pull >/dev/null
 else
-  MH_BUILD_VERSION="$(git describe --tags --always 2>/dev/null || echo dev)" docker compose up -d --build >/dev/null
+  msg_info "Neues Panel wird gebaut (dauert ein paar Minuten)"
+  MH_BUILD_VERSION="$(git describe --tags --always 2>/dev/null || echo dev)" docker compose build --quiet panel
+  msg_ok "Panel gebaut"
+  step "restart"
+  msg_info "Panel wird neu gestartet"
+  docker compose up -d >/dev/null
 fi
 msg_ok "Panel neu gestartet"
 
 docker image prune -f >/dev/null 2>&1 || true
+STEP="null"
 write_status "done"
 msg_ok "Fertig. Deine Minecraft-Server sind die ganze Zeit weitergelaufen."

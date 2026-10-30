@@ -3,6 +3,7 @@ import { ArrowDownToLine } from 'lucide-react';
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { SOFTWARE, type ServerDetail, type ServerSummary } from '@mornihosting/shared';
+import { CommandLine } from '@/components/command-line';
 import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,12 +81,7 @@ function Value({ children }: { children: string }): ReactElement {
 }
 
 function Block({ children }: { children: string }): ReactElement {
-  return (
-    <div className="flex items-start gap-2 rounded-[10px] bg-secondary px-3 py-2">
-      <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre font-mono text-[13px]">{children}</pre>
-      <CopyButton text={children} className="size-7" />
-    </div>
-  );
+  return <CommandLine text={children} block={children.includes('\n')} />;
 }
 
 function Step({ n, title, children }: { n: number; title: string; children: ReactNode }): ReactElement {

@@ -56,7 +56,7 @@ type Handler = (request: Request) => Reply | Promise<Reply>;
 
 export const DEMO_USER = 'philip';
 export const DEMO_PASSWORD = 'minecraft1';
-const LATEST_VERSION = '1.1.0';
+const LATEST_VERSION = 'b886c33';
 const CSRF = 'demo';
 
 const recording = JSON.parse(recordingText) as Recording;
@@ -136,15 +136,27 @@ const state = {
   ]),
   settings: read<PanelSettings>('/api/settings'),
   update: {
-    current: '1.0.0',
+    current: 'a1b2c3d',
     latest: LATEST_VERSION,
+    latestDate: nowIso(),
     available: true,
-    notes:
-      '## Neu\n- Anmelden mit Passkey\n- Admin-Bereich mit Domain, Updates und Passwörtern\n\n## Verbessert\n- Statistik zeigt auch TPS',
-    url: 'https://github.com/pmornhart/MorniHosting/releases',
+    behind: 4,
+    changes: [
+      { sha: 'd2f2b38', title: 'Joinen mit name.mornihosting.de, Doku zur eigenen Domain', date: nowIso() },
+      {
+        sha: '739bf54',
+        title: 'Server bestellen wie bei einem Hoster: Pakete, Name, Add-ons',
+        date: nowIso(),
+      },
+      { sha: '5c1e0aa', title: 'HTTPS für die eigene Domain: jede Adresse führt zum Panel', date: nowIso() },
+      { sha: '3f9d210', title: 'INWX als DNS-Anbieter', date: nowIso() },
+    ],
+    url: 'https://github.com/pmornhart/MorniHosting/commits/main',
     checkedAt: nowIso(),
+    checkFailed: false,
     canSelfUpdate: true,
     updating: false,
+    run: null,
   } satisfies UpdateInfo as UpdateInfo,
   servers: new Map<string, ServerDetail>(
     read<ServerDetail[]>('/api/servers').map((s) => [
@@ -731,18 +743,34 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     'POST',
     '/api/system/update',
     () => {
-      state.update = { ...state.update, updating: true };
-      after(6000, () => {
+      // The host updater, played back: fetch code, build, restart – with its output in the log.
+      const log: string[] = [];
+      const step = (
+        state_: 'requested' | 'running' | 'done',
+        at: 'pull' | 'build' | 'restart' | null,
+        line?: string,
+      ) => {
+        if (line) log.push(line);
         state.update = {
           ...state.update,
-          current: state.update.latest ?? LATEST_VERSION,
-          available: false,
-          updating: false,
+          updating: state_ !== 'done',
+          run: { state: state_, step: at, at: nowIso(), log: [...log] },
         };
+      };
+      step('requested', null);
+      after(1500, () => step('running', 'pull', ' … Neuer Code wird geholt'));
+      after(3000, () => step('running', 'build', ` ✔ Code aktuell (${LATEST_VERSION})`));
+      after(3200, () => step('running', 'build', ' … Neues Panel wird gebaut (dauert ein paar Minuten)'));
+      after(7000, () => step('running', 'restart', ' ✔ Panel gebaut'));
+      after(7200, () => step('running', 'restart', ' … Panel wird neu gestartet'));
+      after(9000, () => {
+        step('done', null, ' ✔ Fertig. Deine Minecraft-Server sind die ganze Zeit weitergelaufen.');
+        state.update = { ...state.update, current: LATEST_VERSION, available: false, behind: 0, changes: [] };
       });
       return ok(state.update);
     },
   ],
+  ['POST', '/api/system/update/check', () => ok({ ...state.update, checkedAt: nowIso() })],
   ['GET', '/api/users', () => ok(state.users)],
   [
     'POST',

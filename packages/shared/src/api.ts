@@ -708,16 +708,42 @@ export interface PanelSettings {
   readonly checkUpdates: boolean;
 }
 
+/** One change on the update branch, newest first: the first line of its commit message. */
+export interface UpdateChange {
+  readonly sha: string;
+  readonly title: string;
+  readonly date: string;
+}
+
+/** Where an update stands: asked for, running on the host (with its step), finished or failed. */
+export interface UpdateRun {
+  readonly state: 'requested' | 'stuck' | 'running' | 'done' | 'failed';
+  /** pull = new code, build = new panel image, restart = panel restarts. */
+  readonly step: 'pull' | 'build' | 'restart' | null;
+  readonly at: string;
+  /** The last lines the host updater printed. */
+  readonly log: readonly string[];
+}
+
 export interface UpdateInfo {
+  /** The running version: a commit ("b886c33"), a release ("1.2.0") or "dev". */
   readonly current: string;
+  /** Short commit of the newest version on the update branch. */
   readonly latest: string | null;
+  readonly latestDate: string | null;
   readonly available: boolean;
-  readonly notes: string | null;
+  /** How many changes the running panel is behind. */
+  readonly behind: number;
+  readonly changes: readonly UpdateChange[];
+  /** All changes on GitHub. */
   readonly url: string | null;
   readonly checkedAt: string | null;
+  /** The last check failed (no internet, GitHub limit); the panel tries again later. */
+  readonly checkFailed: boolean;
   /** True when the host updater (install.sh) is installed and listening. */
   readonly canSelfUpdate: boolean;
   readonly updating: boolean;
+  readonly run: UpdateRun | null;
 }
 
 export type { ScheduleAction, ScheduleSpec, ServerPermission, SoftwareId, Edition, JavaTag };

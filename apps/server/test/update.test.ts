@@ -5,22 +5,58 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { UpdateInfo } from '@mornihosting/shared';
 import { authHeaders, createTestApp, setupAdmin, type Session, type TestApp } from './helpers.js';
 
-describe('panel updates', () => {
+const HEAD = 'b886c33f113e8d3334a7c20776e5da54a1bbe712';
+const RUNNING = 'a1b2c3d';
+const commit = (sha: string, message: string, date: string) => ({
+  sha,
+  commit: { message, committer: { date } },
+});
+
+/** GitHub as far as the update check needs it: the newest commit on main and the comparison. */
+function fakeGithub() {
+  const asked: string[] = [];
+  const handle = vi.fn(async (input: string | URL | Request) => {
+    const url = String(input);
+    asked.push(url);
+    if (url.endsWith('/commits/main'))
+      return Response.json(commit(HEAD, 'Fortschrittsseite: fertig', '2026-10-30T11:44:00Z'));
+    if (url.includes('/compare/')) {
+      return Response.json({
+        ahead_by: 3,
+        html_url: 'https://github.com/pmornhart/MorniHosting/compare/a1b2c3d...b886c33',
+        commits: [
+          commit(
+            '1111111aaaa',
+            'Server bestellen wie bei einem Hoster\n\nPakete, Name, Add-ons',
+            '2026-10-30T11:20:00Z',
+          ),
+          commit('2222222bbbb', 'Merge pull request #17 from pmornhart/claude/x', '2026-10-30T11:43:00Z'),
+          commit(HEAD, 'Fortschrittsseite: fertig', '2026-10-30T11:44:00Z'),
+        ],
+      });
+    }
+    return new Response('{}', { status: 404 });
+  });
+  return { handle, asked };
+}
+
+describe('panel updates (follow the main branch)', () => {
   let t: TestApp;
   let s: Session;
-  const github = vi.fn(async () =>
-    Response.json({
-      tag_name: 'v9.9.9',
-      html_url: 'https://github.com/x/y/releases/v9.9.9',
-      body: 'Neu: alles',
-    }),
-  );
-  const call = async (method: 'GET' | 'POST') =>
-    t.app.inject({ method, url: '/api/system/update', headers: authHeaders(s) });
+  let github: ReturnType<typeof fakeGithub>;
+  const call = async (method: 'GET' | 'POST', url = '/api/system/update') =>
+    t.app.inject({ method, url, headers: authHeaders(s) });
+  const restart = async (version: string) => {
+    await t.cleanup();
+    t = await createTestApp({ MH_VERSION: version });
+    s = await setupAdmin(t);
+  };
+  const updateDir = () => path.join(t.dataDir, 'update');
 
   beforeEach(async () => {
-    vi.stubGlobal('fetch', github);
-    t = await createTestApp();
+    github = fakeGithub();
+    vi.stubGlobal('fetch', github.handle);
+    t = await createTestApp({ MH_VERSION: RUNNING });
     s = await setupAdmin(t);
   });
   afterEach(async () => {
@@ -28,48 +64,105 @@ describe('panel updates', () => {
     await t.cleanup();
   });
 
-  test('finds a newer release and hands the update to the host updater', async () => {
+  test('lists what is new since the running commit, without merge commits, newest first', async () => {
     const info = (await call('GET')).json<UpdateInfo>();
     expect(info).toMatchObject({
-      current: '0.0.0-test',
-      latest: '9.9.9',
+      current: RUNNING,
+      latest: 'b886c33',
       available: true,
+      behind: 3,
       canSelfUpdate: false,
-      notes: 'Neu: alles',
+      checkFailed: false,
+      run: null,
     });
-    expect((await call('POST')).json()).toMatchObject({ error: 'self_update_unavailable' });
+    expect(info.changes.map((c) => c.title)).toEqual([
+      'Fortschrittsseite: fertig',
+      'Server bestellen wie bei einem Hoster',
+    ]);
+    expect(github.asked.at(-1)).toContain(`/compare/${RUNNING}...${HEAD}`);
+  });
 
-    const dir = path.join(t.dataDir, 'update');
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'agent.json'), '{"installedAt":"2026-10-28"}');
-    expect((await call('POST')).json<UpdateInfo>()).toMatchObject({ updating: true });
-    expect(JSON.parse(fs.readFileSync(path.join(dir, 'request.json'), 'utf8'))).toMatchObject({
-      version: '9.9.9',
+  test('the update button hands over to the host updater, whose steps and output show up', async () => {
+    expect((await call('POST')).json()).toMatchObject({ error: 'self_update_unavailable' });
+    fs.mkdirSync(updateDir(), { recursive: true });
+    fs.writeFileSync(path.join(updateDir(), 'agent.json'), '{"installedAt":"2026-10-28"}');
+
+    expect((await call('POST')).json<UpdateInfo>()).toMatchObject({
+      updating: true,
+      run: { state: 'requested' },
+    });
+    expect(JSON.parse(fs.readFileSync(path.join(updateDir(), 'request.json'), 'utf8'))).toMatchObject({
+      version: 'b886c33',
       by: 'philip',
     });
-    expect(github).toHaveBeenCalledTimes(1);
+
+    // update.sh takes the request, reports its step and prints with colours.
+    fs.rmSync(path.join(updateDir(), 'request.json'));
+    fs.writeFileSync(
+      path.join(updateDir(), 'status.json'),
+      JSON.stringify({ state: 'running', step: 'build', at: new Date().toISOString() }),
+    );
+    fs.writeFileSync(
+      path.join(updateDir(), 'log.txt'),
+      '\u001b[32m ✔\u001b[0m Code aktuell (b886c33)\n\n …  Panel wird gebaut\n',
+    );
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({
+      updating: true,
+      run: { state: 'running', step: 'build', log: [' ✔ Code aktuell (b886c33)', ' …  Panel wird gebaut'] },
+    });
+
+    fs.writeFileSync(
+      path.join(updateDir(), 'status.json'),
+      JSON.stringify({ state: 'done', step: null, at: new Date().toISOString() }),
+    );
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ updating: false, run: { state: 'done' } });
   });
 
-  test('a panel built from source before any release takes the first release', async () => {
-    await t.cleanup();
-    t = await createTestApp({ MH_VERSION: 'dev' });
-    s = await setupAdmin(t);
-    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ current: 'dev', available: true });
+  test('a request nobody picks up is shown as stuck', async () => {
+    fs.mkdirSync(updateDir(), { recursive: true });
+    fs.writeFileSync(path.join(updateDir(), 'agent.json'), '{}');
+    fs.writeFileSync(
+      path.join(updateDir(), 'request.json'),
+      JSON.stringify({ requestedAt: '2026-10-30T08:00:00Z' }),
+    );
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({
+      updating: false,
+      run: { state: 'stuck' },
+    });
   });
 
-  test('an older or equal release is no update', async () => {
-    await t.cleanup();
-    t = await createTestApp({ MH_VERSION: '9.9.9' });
-    s = await setupAdmin(t);
-    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ available: false });
+  test('the newest commit itself, a release and an unknown build', async () => {
+    await restart('b886c33');
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ available: false, behind: 0 });
+    expect(github.asked.some((u) => u.includes('/compare/'))).toBe(false);
+
+    await restart('v1.0.0-3-ga1b2c3d');
+    await call('GET');
+    expect(github.asked.at(-1)).toContain(`/compare/a1b2c3d...${HEAD}`);
+
+    await restart('1.0.0');
+    await call('GET');
+    expect(github.asked.at(-1)).toContain(`/compare/v1.0.0...${HEAD}`);
+
+    await restart('dev');
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ available: true, latest: 'b886c33' });
   });
 
-  test('no release yet, or checks switched off, means no update', async () => {
+  test('a failed check is not repeated at once; "check now" asks again', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => new Response('{}', { status: 404 })),
+      vi.fn(async () => new Response('{}', { status: 403 })),
     );
-    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ latest: null, available: false });
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ checkFailed: true, available: false });
+    vi.stubGlobal('fetch', github.handle);
+    expect((await call('GET')).json<UpdateInfo>()).toMatchObject({ checkFailed: true });
+    expect((await call('POST', '/api/system/update/check')).json<UpdateInfo>()).toMatchObject({
+      checkFailed: false,
+      available: true,
+    });
+  });
+
+  test('checks switched off means no update', async () => {
     await t.app.inject({
       method: 'PUT',
       url: '/api/settings',
