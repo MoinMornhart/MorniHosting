@@ -70,6 +70,8 @@ import { registerNetbirdRoutes } from './netbird/routes.js';
 import { createMinecraftLinkService } from './minecraft/service.js';
 import { registerMinecraftRoutes } from './minecraft/routes.js';
 import type { Resolver } from './lib/net-guard.js';
+import { createDdosService } from './ddos/service.js';
+import { registerDdosRoutes } from './ddos/routes.js';
 
 export interface BuildOptions {
   readonly config: Config;
@@ -160,6 +162,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const https = createHttpsGateway(ctx, () => dns.status().domain);
   proxies.isGateway = https.isGateway;
   const minecraftLink = createMinecraftLinkService(ctx, servers);
+  const ddos = createDdosService(ctx, servers);
 
   await app.register(helmet, {
     contentSecurityPolicy: {
@@ -252,6 +255,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerAuditRoutes(app, ctx);
   registerSettingsRoutes(app, ctx);
   registerSystemRoutes(app, createUpdateService(ctx));
+  registerDdosRoutes(app, ddos);
   registerWebSocket(app, ctx, servers);
 
   const hasWeb = fs.existsSync(path.join(config.webDir, 'index.html'));
@@ -279,6 +283,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       files.purgeOld();
       intervals.push(setInterval(() => files.purgeOld(), MS_PER_HOUR));
       backups.init();
+      ddos.init();
       void https.init();
       webhooks.init();
       await servers.init();

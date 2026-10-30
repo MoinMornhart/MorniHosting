@@ -1476,8 +1476,93 @@
       "dns_disconnect": "Eigene Domain getrennt",
       "dns_server": "Adresse unter eigener Domain geändert",
       "https_enable": "HTTPS eingeschaltet",
-      "https_disable": "HTTPS ausgeschaltet"
+      "https_disable": "HTTPS ausgeschaltet",
+      "ddos_update": "DDoS-Schutz geändert"
     }
+  },
+  "ddos": {
+    "title": "DDoS-Schutz",
+    "headline": {
+      "active": "Schutz ist aktiv",
+      "off": "Schutz ist aus",
+      "switchingOn": "Wird eingeschaltet …",
+      "switchingOff": "Wird ausgeschaltet …",
+      "stuck": "Der Rechner antwortet nicht",
+      "failed": "Schutz ließ sich nicht einschalten",
+      "no_host": "Es fehlt noch ein Teil auf dem Rechner"
+    },
+    "state": {
+      "active": "Aktiv",
+      "off": "Aus",
+      "waiting": "Gleich so weit",
+      "stuck": "Keine Antwort",
+      "failed": "Fehler",
+      "no_host": "Nicht eingerichtet"
+    },
+    "stateText": {
+      "active": "Wer zu viele Verbindungen oder Pakete schickt, wird gebremst. Normale Spieler merken davon nichts.",
+      "off": "Schalte ihn ein, damit einzelne Störenfriede deine Server nicht lahmlegen können.",
+      "waiting": "Der Rechner übernimmt die Einstellung in wenigen Sekunden.",
+      "stuck": "Der Helfer auf dem Rechner hat sich seit ein paar Minuten nicht gemeldet.",
+      "failed": "Die Firewall-Regeln konnten nicht gesetzt werden. Deine Server laufen ganz normal weiter.",
+      "no_host": "Das Panel darf aus Sicherheitsgründen nicht selbst an die Firewall. Das macht ein kleiner Helfer auf dem Rechner."
+    },
+    "switch": "DDoS-Schutz einschalten",
+    "switchHint": "Bremst pro Absender: zu viele neue Verbindungen, zu viele gleichzeitig, UDP-Fluten (Bedrock, Voice-Chat) und kaputte Pakete. Heimnetz und NetBird bleiben frei.",
+    "installTitle": "Helfer auf dem Rechner einrichten",
+    "stuckTitle": "Helfer auf dem Rechner prüfen",
+    "installText": "Einmal auf dem Rechner (bzw. im Proxmox-Container) eingeben – ein Update richtet ihn auch ein:",
+    "error": {
+      "rules_failed": "Die Firewall-Regeln wurden abgelehnt.",
+      "iptables_missing": "Auf dem Rechner fehlt iptables."
+    },
+    "errorHint": "Meist fehlt ein Kernel-Modul (xt_hashlimit, xt_connlimit). Im Proxmox-Container lädt es der Proxmox-Host: dort einmal „modprobe -a xt_hashlimit xt_connlimit xt_conntrack xt_comment“ ausführen, dann den Schalter aus- und wieder einschalten.",
+    "dropped": {
+      "tcpRate": "zu viele neue Verbindungen",
+      "tcpConnections": "zu viele gleichzeitig",
+      "udpRate": "UDP-Flut (Bedrock, Voice)",
+      "invalid": "kaputte Pakete"
+    },
+    "checked": "Zuletzt geprüft {{when}}",
+    "families": {
+      "both": "IPv4 und IPv6",
+      "v4": "IPv4"
+    },
+    "noDocker": "Docker wurde noch nicht gefunden – die Server-Ports sind erst geschützt, wenn Docker läuft (passiert automatisch innerhalb einer Minute).",
+    "noSysctl": "SYN-Cookies und die größere Verbindungstabelle bestimmt hier der Host (z. B. Proxmox). Die Firewall-Regeln wirken trotzdem.",
+    "limitsTitle": "Welche Grenzen gelten?",
+    "limits": {
+      "tcpNew": "Höchstens {{count}} neue Verbindungen pro Minute und Absender (bis zu {{burst}} auf einmal) – genug für eine ganze Familie hinter einem Anschluss.",
+      "tcpConnections": "Höchstens {{count}} offene Verbindungen gleichzeitig pro Absender (ein Spieler braucht eine).",
+      "udp": "Höchstens {{count}} UDP-Pakete pro Sekunde und Absender (ein Bedrock-Spieler schickt etwa 100, Voice-Chat etwa 50).",
+      "invalid": "Kaputte TCP-Pakete, die zu keiner Verbindung gehören, werden verworfen; SYN-Cookies fangen SYN-Fluten ab.",
+      "trusted": "Nie gebremst: dein Heimnetz, Docker intern und NetBird."
+    },
+    "limitsChange": "Eigene Grenzen trägst du auf dem Rechner in diese Datei ein:",
+    "honestTitle": "Was der Schutz kann – und was nicht",
+    "honestText": "Er hilft gegen einzelne Störenfriede und kleine Fluten: Bots, die tausendfach verbinden, oder jemand, der deinen Bedrock-Port zuschüttet. Gegen große Angriffe, die deinen ganzen Internetanschluss verstopfen, hilft nichts, was bei dir zu Hause läuft – dann ist die Leitung voll, bevor ein Paket deinen Rechner erreicht. Dagegen hilft nur ein Dienst, der vor deinem Anschluss steht:",
+    "providers": {
+      "tcpshield": {
+        "name": "TCPShield",
+        "text": "Speziell für Minecraft Java, kostenloser Einstieg. Spieler verbinden sich mit TCPShield, das nur saubere Verbindungen zu dir weiterreicht."
+      },
+      "cloudflare": {
+        "name": "Cloudflare Spectrum",
+        "text": "Schützt beliebige TCP/UDP-Ports, auch Bedrock. Kostet Geld; für das Panel reicht Cloudflare (HTTPS) schon kostenlos."
+      },
+      "netbird": {
+        "name": "NetBird-Proxy auf einem Mietserver",
+        "text": "Läuft dein NetBird auf einem gemieteten Server, sieht die Welt nur dessen Adresse. Viele Anbieter (z. B. IONOS, Hetzner) filtern große Angriffe dort schon ab."
+      }
+    },
+    "rateTitle": "Spam-Grenze in Minecraft",
+    "ratePill": "{{count}} Pakete/s",
+    "off": "Aus",
+    "rateText": "Minecraft kann Spieler rauswerfen, die extrem viele Pakete schicken (z. B. mit Cheat-Programmen). Ein normales Spiel schickt weit weniger.",
+    "rateSwitch": "Spam-Grenze einschalten",
+    "rateHint": "Gilt für alle Java-Server ab dem nächsten Start (in server.properties: rate-limit).",
+    "rateValue": "Pakete pro Sekunde und Spieler",
+    "rateValueHint": "Zwischen {{min}} und {{max}}. 500 ist großzügig."
   },
   "account": {
     "subtitle": "Dein Name, dein Passwort, deine Passkeys und die Zwei-Faktor-Anmeldung.",
@@ -1546,7 +1631,8 @@
       "update": "Updates",
       "passwords": "Passwörter",
       "settings": "Einstellungen",
-      "netbird": "NetBird"
+      "netbird": "NetBird",
+      "ddos": "DDoS-Schutz"
     },
     "domainTitle": "Panel-Adresse von Hand",
     "domainSet": "Eingetragen",
@@ -1569,7 +1655,8 @@
       "netbird": "Für Server ohne Portfreigabe: NetBird verbindet sie mit deiner Domain.",
       "update": "Neue Funktionen und Fehlerbehebungen mit einem Klick einspielen.",
       "passwords": "Jemand hat sein Passwort vergessen? Hier setzt du es zurück.",
-      "settings": "Adressen im Heimnetz, CurseForge-Schlüssel, Zeitzone und Sprache."
+      "settings": "Adressen im Heimnetz, CurseForge-Schlüssel, Zeitzone und Sprache.",
+      "ddos": "Schützt deine Server und das Panel vor Flut-Angriffen, so gut das zu Hause geht."
     },
     "netbirdManual": "NetBird von Hand einrichten",
     "netbirdManualHint": "Nur nötig, wenn du die Automatik oben nicht nutzt. Zum Aufklappen tippen."

@@ -4,6 +4,8 @@ import {
   PORT_VOICE_CHAT,
   type Changelog,
   type ConnectionInfo,
+  type DdosHostStatus,
+  type DdosStatus,
   type InstalledContent,
   type NetbirdServiceInfo,
   type DnsStatus,
@@ -172,7 +174,77 @@ const state = {
   ),
   /** Demo servers made with the wizard borrow pages from a recorded server of the same kind. */
   templates: new Map<string, string>(),
+  ddos: { enabled: false, state: 'off', hostInstalled: true, host: null, rateLimit: null } as DdosStatus,
 };
+
+/** The host script of the DDoS protection, played back: what it reports in status.json. */
+const DEMO_DDOS_HOST: DdosHostStatus = {
+  active: true,
+  ipv4: true,
+  ipv6: true,
+  docker: true,
+  sysctl: true,
+  tcpPorts: ['25565', '25566', '443', '80', '8080'],
+  udpPorts: ['19132', '24454'],
+  limits: {
+    tcpNewPerMinute: 120,
+    tcpBurst: 60,
+    tcpConnections: 64,
+    udpPacketsPerSecond: 4000,
+    udpBurst: 8000,
+  },
+  dropped: { tcpRate: 0, tcpConnections: 0, udpRate: 0, invalid: 0 },
+  error: null,
+  at: nowIso(),
+};
+
+/** While the protection is on, a few made-up attackers keep it busy. */
+function ddosNow(): DdosStatus {
+  const host = state.ddos.host;
+  if (state.ddos.state !== 'active' || !host) return state.ddos;
+  const grow = (n: number, by: number): number => n + Math.round(Math.random() * by);
+  state.ddos = {
+    ...state.ddos,
+    host: {
+      ...host,
+      at: nowIso(),
+      dropped: {
+        tcpRate: grow(host.dropped.tcpRate, 40),
+        tcpConnections: grow(host.dropped.tcpConnections, 6),
+        udpRate: grow(host.dropped.udpRate, 2500),
+        invalid: grow(host.dropped.invalid, 12),
+      },
+    },
+  };
+  return state.ddos;
+}
+
+function setDdos(body: Readonly<Record<string, unknown>>): Reply {
+  if (typeof body['rateLimit'] === 'number') state.ddos = { ...state.ddos, rateLimit: body['rateLimit'] };
+  const enabled = body['enabled'];
+  if (typeof enabled === 'boolean' && enabled !== state.ddos.enabled) {
+    state.ddos = { ...state.ddos, enabled, state: 'waiting' };
+    // The systemd unit on the host picks the wish up within seconds.
+    window.setTimeout(() => {
+      state.ddos = enabled
+        ? {
+            ...state.ddos,
+            state: 'active',
+            host: {
+              ...DEMO_DDOS_HOST,
+              at: nowIso(),
+              dropped: { tcpRate: 18, tcpConnections: 2, udpRate: 3120, invalid: 7 },
+            },
+          }
+        : {
+            ...state.ddos,
+            state: 'off',
+            host: state.ddos.host && { ...state.ddos.host, active: false, at: nowIso() },
+          };
+    }, 2500);
+  }
+  return ok(state.ddos);
+}
 
 const userById = (id: number | null): UserListEntry | undefined => state.users.find((u) => u.id === id);
 
@@ -815,6 +887,8 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/system/update', () => ok(state.update)],
+  ['GET', '/api/ddos', () => ok(ddosNow())],
+  ['PUT', '/api/ddos', ({ body }) => setDdos(body)],
   [
     'GET',
     '/api/system/changelog',
