@@ -1738,16 +1738,19 @@
     "gamesText": "Pick what you start with – version and software can be changed any time.",
     "games": {
       "java": {
-        "title": "Minecraft Java",
-        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac."
+        "title": "Minecraft Java Edition",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac.",
+        "edition": "Java Edition"
       },
       "bedrock": {
-        "title": "Minecraft Bedrock",
-        "text": "For phone, console and Windows – the store edition."
+        "title": "Minecraft Bedrock Edition",
+        "text": "For phone, console and Windows – the store edition.",
+        "edition": "Bedrock Edition"
       },
       "crossplay": {
-        "title": "Minecraft Crossplay",
-        "text": "A Java server that Bedrock players can join too (Geyser)."
+        "title": "Minecraft Geyser",
+        "text": "Java server Bedrock players can join too – phone, console and PC together.",
+        "edition": "Geyser"
       }
     },
     "free": "Free",
@@ -1779,7 +1782,7 @@
     "title": {
       "java": "Minecraft: Java Edition server",
       "bedrock": "Minecraft: Bedrock Edition server",
-      "crossplay": "Minecraft crossplay server (Java + Bedrock)"
+      "crossplay": "Minecraft Geyser server (Java + Bedrock)"
     },
     "backToGames": "Back to the game selection",
     "performance": "Choose performance",

@@ -1,7 +1,6 @@
 import { useId, type ReactElement, type ReactNode } from 'react';
 import { hashString } from '@/lib/pixel';
 import { McBlock } from './mc-block';
-import { ProjectLogo } from './project-logo';
 import { cn } from '@/lib/utils';
 
 /**
@@ -448,16 +447,6 @@ export function GameScene({ game, className }: { game: GameKind; className?: str
         <circle cx="80" cy="40" r="46" fill={`url(#${id}glow)`} />
         <g className="art-float">{scene.art}</g>
       </svg>
-      {game === 'crossplay' ? (
-        <span className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-black/45 py-1 pl-1 pr-2.5 text-[11px] font-semibold text-white backdrop-blur">
-          <ProjectLogo
-            project="geyser"
-            className="size-5 rounded-full"
-            fallback={<Badge glyph="crossplay" className="size-5" />}
-          />
-          Geyser
-        </span>
-      ) : null}
     </div>
   );
 }

@@ -20,7 +20,7 @@ test('order a Paper server like at a hoster and see it running', async ({ page }
     }),
   );
   await page.goto('/servers/new');
-  await page.getByRole('button', { name: 'Minecraft Java' }).click();
+  await page.getByRole('button', { name: 'Java Edition' }).click();
   await page.getByRole('button', { name: '4 GB RAM' }).click();
   await page.getByRole('button', { name: PAPER_CHOICE }).click();
   await expect(page.getByText('1.21.4').first()).toBeVisible();

@@ -34,7 +34,8 @@ import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge, Gem, GameScene, type GemTier } from '@/components/art';
+import { Badge, Gem, type GemTier } from '@/components/art';
+import { GameCard } from '@/components/game-card';
 import { blockOf, McBlock } from '@/components/mc-block';
 import { hasProjectLogo, ProjectLogo } from '@/components/project-logo';
 import { api } from '@/lib/api';
@@ -151,26 +152,7 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         {GAMES.map((g) => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => onPick(g)}
-            className="group grid overflow-hidden rounded-[16px] border border-border bg-card text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
-          >
-            <GameScene game={g} className="h-32" />
-            <span className="grid gap-4 p-5">
-              <span>
-                <span className="block text-lg font-bold">{t(`landing.games.${g}.title`)}</span>
-                <span className="block text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</span>
-              </span>
-              <span className="flex items-center justify-between text-sm font-semibold">
-                {t('landing.free')}
-                <span className="rounded-[10px] bg-primary px-3 py-1.5 text-primary-foreground">
-                  {t('landing.start')}
-                </span>
-              </span>
-            </span>
-          </button>
+          <GameCard key={g} game={g} onStart={() => onPick(g)} />
         ))}
       </div>
       <Button asChild variant="ghost" className="justify-self-start">
@@ -183,11 +165,11 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
   );
 }
 
-/** A small tile for an add-on without its own logo. */
-function AddOnMark({ icon: Icon }: { icon: typeof Archive }): ReactElement {
+/** Every add-on shows its picture in the same tile: the project's logo, or a symbol when it has none. */
+function AddOnTile({ children }: { children: ReactNode }): ReactElement {
   return (
-    <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-gradient-to-br from-emerald-400 to-emerald-700 text-white shadow-sm">
-      <Icon className="size-5" aria-hidden />
+    <span className="grid size-11 shrink-0 place-items-center rounded-[12px] border border-border bg-background shadow-sm">
+      {children}
     </span>
   );
 }
@@ -195,7 +177,12 @@ function AddOnMark({ icon: Icon }: { icon: typeof Archive }): ReactElement {
 /** The software's own logo where its project allows it (Paper, Velocity), otherwise its Minecraft block. */
 function SoftwareIcon({ id }: { id: SoftwareId }): ReactElement {
   const block = <McBlock kind={blockOf(id)} className="size-6" />;
-  return hasProjectLogo(id) ? <ProjectLogo project={id} className="size-5" fallback={block} /> : block;
+  // Same box for every software, so logos and blocks line up.
+  return (
+    <span className="grid size-6 shrink-0 place-items-center">
+      {hasProjectLogo(id) ? <ProjectLogo project={id} className="size-5" fallback={block} /> : block}
+    </span>
+  );
 }
 
 function AddOn({
@@ -613,11 +600,13 @@ export function CreateServerPage(): ReactElement {
             {edition === 'java' ? (
               <AddOn
                 icon={
-                  <ProjectLogo
-                    project="geyser"
-                    className="size-9 rounded-[8px]"
-                    fallback={<Badge glyph="crossplay" className="size-9" />}
-                  />
+                  <AddOnTile>
+                    <ProjectLogo
+                      project="geyser"
+                      className="size-7 rounded-[6px]"
+                      fallback={<Badge glyph="crossplay" className="size-7" />}
+                    />
+                  </AddOnTile>
                 }
                 title={t('order.geyser')}
                 text={geyserPossible ? t('order.geyserText') : t('order.notForSoftware')}
@@ -629,11 +618,13 @@ export function CreateServerPage(): ReactElement {
             ) : null}
             <AddOn
               icon={
-                <ProjectLogo
-                  project="voicechat"
-                  className="size-9 rounded-[8px]"
-                  fallback={<AddOnMark icon={Mic} />}
-                />
+                <AddOnTile>
+                  <ProjectLogo
+                    project="voicechat"
+                    className="size-7 rounded-[6px]"
+                    fallback={<Mic className="size-5 text-primary" aria-hidden />}
+                  />
+                </AddOnTile>
               }
               title={t('order.voice')}
               text={voicePossible ? t('order.voiceText') : t('order.notForSoftware')}
@@ -642,7 +633,11 @@ export function CreateServerPage(): ReactElement {
               onChange={(on) => setAddOns({ ...addOns, voice: on })}
             />
             <AddOn
-              icon={<AddOnMark icon={Archive} />}
+              icon={
+                <AddOnTile>
+                  <Archive className="size-5 text-primary" aria-hidden />
+                </AddOnTile>
+              }
               title={t('order.backups')}
               text={t('order.backupsText', { time: BACKUP_TIME })}
               on={addOns.backups}
