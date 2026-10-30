@@ -7,6 +7,7 @@ import {
   JAVA_TAGS,
   SOFTWARE,
   compareMcVersions,
+  isGameId,
   javaTagFor,
   recommendedMemoryMb,
   type JavaTag,
@@ -178,7 +179,10 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Field id="s-version" label={t('settings.general.version')}>
+          <Field
+            id="s-version"
+            label={isGameId(server.software) ? t('games.versionTitle') : t('settings.general.version')}
+          >
             <Select value={draft.version} onValueChange={(v) => set('version', v)}>
               <SelectTrigger id="s-version">
                 <SelectValue />

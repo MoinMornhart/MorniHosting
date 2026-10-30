@@ -1,5 +1,5 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
-import { PROJECT_LOGOS, type LogoProject } from '@mornihosting/shared';
+import { GAME_ART_IDS, PROJECT_LOGOS, type GameArtId, type LogoProject } from '@mornihosting/shared';
 import demoImages from 'virtual:demo-images';
 import { cn } from '@/lib/utils';
 
@@ -39,11 +39,10 @@ export function ProjectLogo({
 }
 
 /** Game card pictures: the panel fetches them once (see GAME_ART_SOURCES) and serves them from its data folder. */
-const GAME_ART = {
-  java: '/api/game-art/java',
-  bedrock: '/api/game-art/bedrock',
-  crossplay: '/api/game-art/crossplay',
-} as const;
+const GAME_ART = Object.fromEntries(GAME_ART_IDS.map((id) => [id, `/api/game-art/${id}`])) as Record<
+  GameArtId,
+  string
+>;
 
 export function GameArt({
   game,

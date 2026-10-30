@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { compareMcVersions, type SoftwareId, type VersionOption } from '@mornihosting/shared';
+import {
+  GAME_IDS,
+  GAMES,
+  compareMcVersions,
+  type GameId,
+  type SoftwareId,
+  type VersionOption,
+} from '@mornihosting/shared';
 import { createCache, fetchJson, upstreamToAppError } from '../lib/http-client.js';
 import { MS_PER_HOUR } from '../lib/units.js';
 
@@ -40,6 +47,7 @@ export function minecraftVersionForNeoForge(neo: string): string | null {
 }
 
 const LOADERS: Readonly<Record<SoftwareId, () => Promise<VersionOption[]>>> = {
+  ...gameLoaders(),
   vanilla: async () => {
     const data = mojangSchema.parse(
       await fetchJson('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'),
@@ -83,6 +91,14 @@ const LOADERS: Readonly<Record<SoftwareId, () => Promise<VersionOption[]>>> = {
   ],
   custom: async () => [],
 };
+
+/** Other games pick an image tag (e.g. "stable", "latest"), listed in the catalog. */
+function gameLoaders(): Record<GameId, () => Promise<VersionOption[]>> {
+  return Object.fromEntries(GAME_IDS.map((id) => [id, async () => [...GAMES[id].versions]])) as Record<
+    GameId,
+    () => Promise<VersionOption[]>
+  >;
+}
 
 async function fillVersions(project: 'paper' | 'velocity'): Promise<VersionOption[]> {
   const data = fillSchema.parse(await fetchJson(`https://fill.papermc.io/v3/projects/${project}`));

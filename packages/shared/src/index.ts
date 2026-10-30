@@ -6,3 +6,5 @@ export * from './schedule.js';
 export * from './software.js';
 export * from './dns.js';
 export * from './branding.js';
+export * from './games.js';
+export * from './game-demo.js';

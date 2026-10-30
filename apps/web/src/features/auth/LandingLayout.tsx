@@ -3,13 +3,15 @@ import { Archive, Blocks, Globe, LogIn, Plus, Puzzle, Rocket, ShieldCheck, Uploa
 import type { ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
+import { GAME_IDS } from '@mornihosting/shared';
 import { GameCard } from '@/components/game-card';
 import { BrandMark } from '@/components/server-visuals';
 import { Button } from '@/components/ui/button';
 import { statusQuery } from './session';
 
 /** The games on offer, like a hoster's shop: Java, Bedrock and both together (Geyser). */
-const GAMES = ['java', 'bedrock', 'crossplay'] as const;
+// Minecraft first, then every other game from the catalog.
+const GAMES = ['java', 'bedrock', 'crossplay', ...GAME_IDS] as const;
 
 const FEATURES = [
   { key: 'mods', icon: Puzzle },

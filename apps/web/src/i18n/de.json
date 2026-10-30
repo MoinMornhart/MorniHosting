@@ -472,6 +472,11 @@
     "self_update_unavailable": "Das automatische Update ist auf diesem System nicht eingerichtet.",
     "world_not_found": "Diese Welt gibt es nicht.",
     "geyser_java_only": "Bedrock-Server brauchen das nicht: Bedrock-Spieler können direkt beitreten.",
+    "game_setting_unknown": "Diese Einstellung gibt es bei diesem Spiel nicht ({{key}}).",
+    "game_setting_invalid": "Der Wert für „{{key}}“ passt nicht. Erlaubt sind Buchstaben, Zahlen und einfache Zeichen wie - _ . : /",
+    "minecraft_only": "Das gibt es nur bei Minecraft-Servern.",
+    "not_a_game": "Das ist ein Minecraft-Server – seine Einstellungen findest du unter Spiel-Einstellungen.",
+    "console_unavailable": "Dieses Spiel hat keine Konsole, in die das Panel tippen kann. Verwalte es im Spiel selbst.",
     "bedrock_port_taken": "Port 19132 (UDP) ist schon belegt.",
     "icon_not_png": "Das Bild konnte nicht gelesen werden.",
     "icon_wrong_size": "Das Server-Bild muss 64 × 64 Pixel groß sein.",
@@ -1917,5 +1922,47 @@
     "updateDot": "Update verfügbar",
     "failed": "GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.",
     "all": "Alle Änderungen auf GitHub"
+  },
+  "games": {
+    "versionTitle": "Server-Version",
+    "moreTitle": "Weitere Spiele",
+    "orderTitle": "{{game}} Server",
+    "dedicated": "Eigener Server",
+    "performanceText": "Wie viel Arbeitsspeicher (RAM) dein Server bekommt. Mehr RAM = größere Welten und mehr Spieler.",
+    "versionText": "Welche Version des Servers laufen soll. Du kannst das später in den Einstellungen ändern.",
+    "versions": {
+      "stable": "Stabil",
+      "stableText": "Die empfohlene, getestete Version.",
+      "latest": "Neueste",
+      "latestText": "Die allerneueste Version – kann noch Fehler haben."
+    },
+    "addressReady": "Deine Freunde verbinden sich mit {{address}}.",
+    "settingsTitle": "Spiel-Einstellungen",
+    "settingsText": "Alles hier ist freiwillig. Du kannst es auch später in den Einstellungen des Servers ausfüllen.",
+    "settingsCardText": "Einstellungen, die {{game}} selbst braucht. Passwörter und Schlüssel speichert das Panel verschlüsselt und zeigt sie nie wieder an.",
+    "downloadNote": "Beim ersten Start lädt der Server etwa {{gb}} GB herunter. Das kann ein paar Minuten dauern.",
+    "terms": "Ich halte mich an die Nutzungsbedingungen von {{game}}.",
+    "whereToFind": "Wo finde ich das?",
+    "secretStored": "gespeichert – zum Ändern neu eingeben",
+    "saved": "Gespeichert. Gilt ab dem nächsten Start.",
+    "save": "Speichern",
+    "restartHint": "Änderungen gelten ab dem nächsten Neustart des Servers.",
+    "ports": {},
+    "factorio": {
+      "kicker": "Fabrik-Aufbau",
+      "text": "Baut zusammen riesige Fabriken – mit Förderbändern, Zügen und Space Age.",
+      "about": "Ein eigener Factorio-Server: Er läuft auch, wenn du offline bist, und speichert die Karte automatisch.",
+      "memoryHint": "Für die meisten Fabriken reichen {{gb}} GB. Riesige Megabasen oder viele Mods brauchen mehr.",
+      "fields": {
+        "username": "Factorio-Benutzername",
+        "usernameHint": "Nur nötig, wenn das Panel Mods automatisch aktualisieren soll.",
+        "token": "Factorio-Token",
+        "tokenHint": "Ein Schlüssel aus deinem Factorio-Konto (kein Passwort). Er bleibt verschlüsselt.",
+        "updateMods": "Mods beim Start aktualisieren",
+        "updateModsHint": "Lädt vor jedem Start neue Versionen deiner Mods. Braucht Benutzername und Token.",
+        "spaceAge": "Space Age einschalten",
+        "spaceAgeHint": "Die Erweiterung Space Age (mit Qualität und erhöhten Schienen). Jeder Spieler braucht sie dann auch."
+      }
+    }
   }
 }

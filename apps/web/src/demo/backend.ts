@@ -1,5 +1,12 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- demo timings, made-up live values and HTTP status codes */
 import {
+  GAMES,
+  demoBootLines,
+  demoGameCommand,
+  demoJoinLine,
+  demoLeaveLine,
+  gameOf,
+  isGameId,
   NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
   type Changelog,
@@ -100,6 +107,8 @@ const NEW_SERVER_FIELDS = {
   voicePort: null,
   voicePublicPort: null,
   voiceHost: null,
+  gameSettings: null,
+  gamePorts: [],
 } as const;
 const failing = new Map(
   Object.entries(recording.fixtures)
@@ -274,8 +283,9 @@ function tick(): void {
         ? pick(PLAYERS.filter((p) => !live.players.includes(p)))
         : undefined;
     const players = [...live.players.filter((p) => p !== leaving), ...(joining ? [joining] : [])];
-    if (joining) log(id, info(`${joining} joined the game`));
-    if (leaving) log(id, info(`${leaving} left the game`));
+    const game = gameOf(server.software);
+    if (joining) log(id, game ? demoJoinLine(game, joining) : info(`${joining} joined the game`));
+    if (leaving) log(id, game ? demoLeaveLine(game, leaving) : info(`${leaving} left the game`));
     const base = server.edition === 'bedrock' ? 5 : 9;
     setLive(id, {
       players,
@@ -314,14 +324,22 @@ function startServer(serverId: string): void {
     serverId,
     `\u001b[33m[MorniHosting]\u001b[0m Server wird gestartet (${server.software} ${server.version}) …`,
   );
-  const boot = (recording.consoles[templateOf(serverId)] ?? [])
-    .filter((line) => LINE_CLOCK.test(line))
-    .slice(0, 12)
-    .map((line) => line.replace(LINE_CLOCK, ''));
-  boot.forEach((line, i) => after((i + 1) * 260, () => log(serverId, `[${clock()}]${line}`)));
+  const game = gameOf(server.software);
+  const boot = game
+    ? demoBootLines(game, { version: server.version, port: server.port }).slice(0, -1)
+    : (recording.consoles[templateOf(serverId)] ?? [])
+        .filter((line) => LINE_CLOCK.test(line))
+        .slice(0, 12)
+        .map((line) => `[${clock()}]${line.replace(LINE_CLOCK, '')}`);
+  boot.forEach((line, i) => after((i + 1) * 260, () => log(serverId, line)));
   [25, 55, 80, 95].forEach((progress, i) => after((i + 1) * STEP_MS, () => setLive(serverId, { progress })));
   after(STEP_MS * 5, () => {
-    log(serverId, info('Done (3.214s)! For help, type "help"'));
+    log(
+      serverId,
+      game
+        ? (demoBootLines(game, { version: server.version, port: server.port }).at(-1) ?? '')
+        : info('Done (3.214s)! For help, type "help"'),
+    );
     setLive(serverId, {
       state: 'running',
       progress: null,
@@ -331,14 +349,18 @@ function startServer(serverId: string): void {
       cpuPercent: 30,
       memoryMb: server.memoryMb * 0.4,
       tps: server.edition === 'java' ? 20 : null,
+      playersMax: game?.maxPlayers ?? server.live.playersMax,
     });
   });
 }
 
 function stopServer(serverId: string, then?: () => void): void {
   setLive(serverId, { state: 'stopping', progress: null });
-  log(serverId, info('Stopping the server'));
-  log(serverId, info('Saving worlds'));
+  const game = gameOf(state.servers.get(serverId)?.software ?? '');
+  const lines = game
+    ? [game.saveCommand, game.stopCommand].flatMap((c) => (c ? demoGameCommand(game, c, []).lines : []))
+    : [info('Stopping the server'), info('Saving worlds')];
+  lines.forEach((line) => log(serverId, line));
   after(STEP_MS * 2, () => {
     setLive(serverId, {
       state: 'stopped',
@@ -655,8 +677,36 @@ function signIn(user: UserListEntry): Reply {
   return ok({ status: 'ok', me: meNow() });
 }
 
+/** Fields of another game's server in the demo: its settings (secrets only as "stored") and ports. */
+function gameFields(
+  game: string,
+  body: Readonly<Record<string, unknown>>,
+  port: number,
+): Partial<ServerDetail> {
+  if (!isGameId(game)) return {};
+  const info = GAMES[game];
+  const typed = (body['gameSettings'] ?? {}) as Record<string, string>;
+  const secret = (key: string): boolean => info.fields.some((f) => f.key === key && f.kind === 'secret');
+  const filled = Object.entries(typed).filter(([, value]) => value !== '');
+  return {
+    image: `${info.image}:${String(body['version'] ?? 'stable')}`,
+    gameSettings: {
+      values: Object.fromEntries(filled.filter(([key]) => !secret(key))),
+      secretsSet: filled.filter(([key]) => secret(key)).map(([key]) => key),
+    },
+    gamePorts: info.ports.map((p, i) => ({
+      key: p.key,
+      port: i === 0 || p.sameAsMain ? port : p.defaultPort,
+      protocol: p.protocol,
+    })),
+    hasIcon: false,
+    address: `${state.settings.publicAddress || 'localhost'}:${port}`,
+  };
+}
+
 function createServer(body: Readonly<Record<string, unknown>>): Reply {
-  const edition = body['edition'] === 'bedrock' ? 'bedrock' : 'java';
+  const requested = String(body['edition'] ?? '');
+  const edition = requested === 'bedrock' || isGameId(requested) ? requested : 'java';
   const template = edition === 'bedrock' ? recording.ids.bedrock : recording.ids.survival;
   const base = state.servers.get(template);
   if (!base) return error(500, 'generic');
@@ -687,6 +737,7 @@ function createServer(body: Readonly<Record<string, unknown>>): Reply {
       memoryMb: null,
       tps: null,
     },
+    ...gameFields(edition, body, Number(body['port']) || base.port),
   };
   state.servers.set(id, server);
   state.templates.set(id, template);
@@ -1082,8 +1133,18 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     ({ params, body }) => {
       const id = params['id'] ?? '';
       const command = String(body['command'] ?? '');
-      const answer = answerFor(id, command);
+      const game = gameOf(state.servers.get(id)?.software ?? '');
       log(id, `> ${command}`);
+      if (game) {
+        const result = demoGameCommand(game, command, state.servers.get(id)?.live.players ?? []);
+        result.answer
+          .split('\n')
+          .filter(Boolean)
+          .forEach((line) => log(id, line));
+        result.lines.forEach((line) => log(id, line));
+        return ok({ answer: result.answer });
+      }
+      const answer = answerFor(id, command);
       log(id, info(answer));
       return ok({ answer });
     },

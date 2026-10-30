@@ -13,6 +13,8 @@ export interface ContainerSpec {
   readonly memoryLimitBytes: number;
   /** Server folder as the panel sees it, e.g. /data/servers/abc. */
   readonly dataDir: string;
+  /** Where the server folder appears inside the container (default /data, as the itzg images expect). */
+  readonly mountPath?: string;
   readonly labels: Readonly<Record<string, string>>;
   /** Replaces the image's start command (e.g. the HTTPS gateway runs Caddy with its own config). */
   readonly command?: readonly string[];
@@ -44,7 +46,9 @@ export interface ContainerStats {
 export type CommandChannel =
   | { readonly kind: 'rcon'; readonly host: string; readonly port: number; readonly password: string }
   | { readonly kind: 'exec'; readonly argv: readonly string[] }
-  | { readonly kind: 'stdin' };
+  | { readonly kind: 'stdin' }
+  /** The game has no console the panel can type into. */
+  | { readonly kind: 'none' };
 
 export interface ContainerEvent {
   readonly containerId: string;

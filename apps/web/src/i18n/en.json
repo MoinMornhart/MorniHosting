@@ -472,6 +472,11 @@
     "self_update_unavailable": "Automatic updates are not set up on this system.",
     "world_not_found": "This world does not exist.",
     "geyser_java_only": "Bedrock servers don't need this: Bedrock players can join directly.",
+    "game_setting_unknown": "This game has no setting called {{key}}.",
+    "game_setting_invalid": "The value for “{{key}}” does not fit. Letters, numbers and simple characters like - _ . : / are allowed.",
+    "minecraft_only": "This is only available for Minecraft servers.",
+    "not_a_game": "This is a Minecraft server – its settings are under game settings.",
+    "console_unavailable": "This game has no console the panel can type into. Manage it in the game itself.",
     "bedrock_port_taken": "Port 19132 (UDP) is already in use.",
     "icon_not_png": "The picture could not be read.",
     "icon_wrong_size": "The server picture must be 64 × 64 pixels.",
@@ -1917,5 +1922,47 @@
     "updateDot": "Update available",
     "failed": "GitHub cannot be reached right now. Try again later.",
     "all": "All changes on GitHub"
+  },
+  "games": {
+    "versionTitle": "Server version",
+    "moreTitle": "More games",
+    "orderTitle": "{{game}} server",
+    "dedicated": "Dedicated server",
+    "performanceText": "How much memory (RAM) your server gets. More RAM = bigger worlds and more players.",
+    "versionText": "Which version of the server should run. You can change it later in the settings.",
+    "versions": {
+      "stable": "Stable",
+      "stableText": "The recommended, tested version.",
+      "latest": "Latest",
+      "latestText": "The very newest version – may still have bugs."
+    },
+    "addressReady": "Your friends connect to {{address}}.",
+    "settingsTitle": "Game settings",
+    "settingsText": "Everything here is optional. You can also fill it in later in the server's settings.",
+    "settingsCardText": "Settings {{game}} itself needs. Passwords and keys are stored encrypted and never shown again.",
+    "downloadNote": "On its first start the server downloads about {{gb}} GB. That can take a few minutes.",
+    "terms": "I follow the terms of use of {{game}}.",
+    "whereToFind": "Where do I find this?",
+    "secretStored": "stored – type a new one to change it",
+    "saved": "Saved. Applies from the next start.",
+    "save": "Save",
+    "restartHint": "Changes apply from the server's next restart.",
+    "ports": {},
+    "factorio": {
+      "kicker": "Factory building",
+      "text": "Build huge factories together – with belts, trains and Space Age.",
+      "about": "Your own Factorio server: it keeps running while you are offline and saves the map automatically.",
+      "memoryHint": "{{gb}} GB is enough for most factories. Huge megabases or many mods need more.",
+      "fields": {
+        "username": "Factorio username",
+        "usernameHint": "Only needed if the panel should update mods automatically.",
+        "token": "Factorio token",
+        "tokenHint": "A key from your Factorio account (not your password). It stays encrypted.",
+        "updateMods": "Update mods on start",
+        "updateModsHint": "Downloads new versions of your mods before every start. Needs username and token.",
+        "spaceAge": "Turn on Space Age",
+        "spaceAgeHint": "The Space Age expansion (with quality and elevated rails). Every player then needs it too."
+      }
+    }
   }
 }

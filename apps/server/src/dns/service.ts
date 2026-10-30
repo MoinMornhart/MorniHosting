@@ -1,6 +1,5 @@
 import { and, eq, ne } from 'drizzle-orm';
 import {
-  SOFTWARE,
   type DnsConfigInput,
   type DnsProvider,
   type DnsStatus,
@@ -95,7 +94,8 @@ export function createDnsAutomation(
     if (!row.netbirdName) return [];
     const host = hostOf(row, cfg);
     const a: Wanted = { type: 'A', name: host, ip, content: ip };
-    if (SOFTWARE[row.software].protocol !== 'tcp') return [a];
+    // Only Minecraft Java looks up SRV records; every other game gets the name plus its port.
+    if (row.edition !== 'java') return [a];
     const srv = { priority: SRV_PRIORITY, weight: SRV_WEIGHT, port: row.port, target: host };
     return [a, { type: 'SRV', name: `_minecraft._tcp.${host}`, srv, content: `${row.port} ${host}` }];
   };

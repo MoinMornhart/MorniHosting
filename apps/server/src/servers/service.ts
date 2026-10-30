@@ -5,6 +5,8 @@ import { eq, lt, ne } from 'drizzle-orm';
 import {
   BUILTIN_ROLES,
   CREATABLE_SOFTWARE,
+  gameOf,
+  type GameInfo,
   PORT_VOICE_CHAT,
   SOFTWARE,
   SWITCHABLE_SOFTWARE,
@@ -26,12 +28,22 @@ import { HTTP_CONFLICT } from '../lib/http-status.js';
 import { BYTES_PER_MB, MS_PER_DAY, MS_PER_SECOND, nowIso, sleep } from '../lib/units.js';
 import { folderBytes } from '../lib/folder-size.js';
 import { createKeyedLock } from '../lib/locks.js';
+import {
+  decryptGameSettings,
+  gameSettingsView,
+  mergeGameSettings,
+  parseGamePlayers,
+  prepareGameFiles,
+  validateGameSettings,
+} from '../games/settings.js';
 import { analyseCrash } from './crash.js';
 import { isPanelNoise, isStartFinished, parseListAnswer, parseTps, playerEventOf } from './log-parse.js';
 import {
+  GAME_PORT_PURPOSE,
   buildContainerSpec,
   commandChannelFor,
   displayAddress,
+  gamePorts,
   imageFor,
   serverDir,
   type ServerRow,
@@ -56,6 +68,8 @@ export interface ServerService {
     creator: UserRow,
   ) => ServerSummary;
   readonly update: (id: string, patch: UpdateServerInput, actor: Actor) => ServerSummary;
+  /** Settings of another game; take effect at the next start. */
+  readonly setGameSettings: (id: string, input: Readonly<Record<string, string>>, actor: Actor) => void;
   readonly remove: (id: string, deleteFiles: boolean, actor: Actor) => Promise<void>;
   readonly start: (id: string, actor: Actor) => Promise<void>;
   readonly stop: (id: string, actor: Actor) => Promise<void>;
@@ -107,6 +121,8 @@ interface Runtime {
   stopRequested: boolean;
   /** Log lines that arrive before this time are history; they must not fire webhooks again. */
   quietUntil: number;
+  /** Another game's catalog entry (its log lines read differently), null for Minecraft. */
+  game: GameInfo | null;
 }
 
 const LOG_BUFFER_LINES = 1000;
@@ -157,7 +173,21 @@ function emptyRuntime(): Runtime {
     progress: null,
     stopRequested: false,
     quietUntil: 0,
+    game: null,
   };
+}
+
+/** Ready and join/leave lines: the game's own patterns, otherwise Minecraft's. */
+function readyLine(game: GameInfo | null, line: string): boolean {
+  return game ? game.logPatterns.ready.test(line) : isStartFinished(line);
+}
+
+function playerLine(game: GameInfo | null, line: string): { kind: 'join' | 'leave'; player: string } | null {
+  if (!game) return playerEventOf(line);
+  const joined = game.logPatterns.join ? line.match(game.logPatterns.join)?.[1] : undefined;
+  if (joined) return { kind: 'join', player: joined };
+  const left = game.logPatterns.leave ? line.match(game.logPatterns.leave)?.[1] : undefined;
+  return left ? { kind: 'leave', player: left } : null;
 }
 
 export function createServerService(ctx: AppContext): ServerService {
@@ -182,7 +212,11 @@ export function createServerService(ctx: AppContext): ServerService {
 
   const rowWithSecrets = (id: string): ServerRow => {
     const r = row(id);
-    return { ...r, rconPassword: secrets.decrypt(r.rconPassword) };
+    return {
+      ...r,
+      rconPassword: secrets.decrypt(r.rconPassword),
+      gameSettings: decryptGameSettings(r, secrets),
+    };
   };
 
   const live = (id: string): ServerLive => {
@@ -235,8 +269,8 @@ export function createServerService(ctx: AppContext): ServerService {
     if (isPanelNoise(line)) return;
     appendLog(id, line);
     const r = rt(id);
-    if (r.state === 'starting' && isStartFinished(line)) setState(id, 'running');
-    const player = playerEventOf(line);
+    if (r.state === 'starting' && readyLine(r.game, line)) setState(id, 'running');
+    const player = playerLine(r.game, line);
     if (!player) return;
     const quiet = Date.now() < r.quietUntil;
     if (player.kind === 'join') r.players.add(player.player);
@@ -257,6 +291,7 @@ export function createServerService(ctx: AppContext): ServerService {
 
   const attachLogs = async (id: string, containerId: string, tail: number | 'all'): Promise<void> => {
     detachLogs(id);
+    rt(id).game = gameOf(row(id).software);
     const stop = await docker.followLogs(containerId, tail, (line) => handleLine(id, line));
     rt(id).stopLogs = stop;
   };
@@ -287,6 +322,8 @@ export function createServerService(ctx: AppContext): ServerService {
     return name ? `${name}:${port}` : String(port);
   };
 
+  const gameOfRow = (r: ServerRow): GameInfo | null => gameOf(r.software);
+
   const summaryOf = (r: ServerRow): ServerSummary => ({
     id: r.id,
     name: r.name,
@@ -303,6 +340,12 @@ export function createServerService(ctx: AppContext): ServerService {
     createdAt: r.createdAt,
   });
 
+  /** Ports a game uses with the main port's number but the other protocol (they are not stored). */
+  const sameAsMainPorts = (o: ServerRow): { port: number; protocol: 'tcp' | 'udp' }[] =>
+    (gameOf(o.software)?.ports ?? [])
+      .filter((p) => p.sameAsMain)
+      .map((p) => ({ port: o.port, protocol: p.protocol }));
+
   const assertPortFree = (port: number, protocol: 'tcp' | 'udp', exceptId: string | null): void => {
     const others = db
       .select()
@@ -312,12 +355,38 @@ export function createServerService(ctx: AppContext): ServerService {
     const taken = others.find(
       (o) =>
         (o.port === port && SOFTWARE[o.software].protocol === protocol) ||
-        o.extraPorts.some((p) => p.port === port && p.protocol === protocol),
+        o.extraPorts.some((p) => p.port === port && p.protocol === protocol) ||
+        sameAsMainPorts(o).some((p) => p.port === port && p.protocol === protocol),
     );
     if (taken) throw conflict('port_taken', { port, server: taken.name });
   };
 
   const newId = (): string => randomBytes(ID_BYTES).toString('hex');
+
+  /** Extra ports of other games: one per catalog port besides the main one, each on a free host port. */
+  const allocateGamePorts = (game: GameInfo, mainPort: number): ServerRow['extraPorts'] =>
+    game.ports.slice(1).reduce<ServerRow['extraPorts']>((acc, p) => {
+      if (p.sameAsMain) {
+        assertPortFree(mainPort, p.protocol, null);
+        return acc;
+      }
+      const isFree = (port: number): boolean =>
+        port !== mainPort &&
+        !acc.some((a) => a.port === port && a.protocol === p.protocol) &&
+        portFree(port, p.protocol, null);
+      const port = Array.from({ length: PORT_SEARCH_LIMIT }, (_, i) => p.defaultPort + i).find(isFree);
+      if (port === undefined) throw conflict('port_taken', { port: p.defaultPort, server: '' });
+      return [...acc, { port, protocol: p.protocol, purpose: `${GAME_PORT_PURPOSE}${p.key}` }];
+    }, []);
+
+  const portFree = (port: number, protocol: 'tcp' | 'udp', exceptId: string | null): boolean => {
+    try {
+      assertPortFree(port, protocol, exceptId);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const grantOwner = (creator: UserRow, serverId: string): void => {
     if (creator.isAdmin) return;
@@ -360,6 +429,7 @@ export function createServerService(ctx: AppContext): ServerService {
     });
     if (r.containerId) await docker.removeContainer(r.containerId);
     fs.mkdirSync(serverDir(config, id), { recursive: true });
+    prepareGameFiles(serverDir(config, id), r);
     const spec = buildContainerSpec(config, r, settings.get().timezone);
     const containerId = await docker.createContainer(spec);
     db.update(servers)
@@ -408,6 +478,8 @@ export function createServerService(ctx: AppContext): ServerService {
     setState(id, 'stopping');
     panelLog(id, 'Server wird sauber heruntergefahren: Welt speichern, dann stoppen …');
     const channel = commandChannelFor(r);
+    const game = gameOf(r.software);
+    if (game) return stopGame(id, r, game);
     const isJavaServer = r.edition === 'java' && !SOFTWARE[r.software].proxy;
     try {
       if (isJavaServer) await docker.sendCommand(r.containerId, 'save-all', channel);
@@ -417,6 +489,23 @@ export function createServerService(ctx: AppContext): ServerService {
     }
     const exited = await waitForExit(r.containerId, STOP_TIMEOUT_SECONDS * MS_PER_SECOND);
     if (!exited) await docker.stop(r.containerId, DOCKER_STOP_GRACE_SECONDS);
+    setState(id, 'stopped');
+    return exited;
+  };
+
+  /** Other games: save and quit through the console if they have one, otherwise SIGTERM with time to save. */
+  const stopGame = async (id: string, r: ServerRow, game: GameInfo): Promise<boolean> => {
+    const containerId = r.containerId ?? '';
+    const channel = commandChannelFor(r);
+    try {
+      if (game.saveCommand) await docker.sendCommand(containerId, game.saveCommand, channel);
+      if (game.stopCommand) await docker.sendCommand(containerId, game.stopCommand, channel);
+    } catch (err) {
+      log.info({ err, serverId: id }, 'stop command not delivered, falling back to docker stop');
+    }
+    if (!game.stopCommand) await docker.stop(containerId, STOP_TIMEOUT_SECONDS);
+    const exited = await waitForExit(containerId, STOP_TIMEOUT_SECONDS * MS_PER_SECOND);
+    if (!exited) await docker.stop(containerId, DOCKER_STOP_GRACE_SECONDS);
     setState(id, 'stopped');
     return exited;
   };
@@ -467,6 +556,14 @@ export function createServerService(ctx: AppContext): ServerService {
     runtime.playersMax = answer.max;
   };
 
+  const syncGamePlayers = async (id: string, game: GameInfo): Promise<void> => {
+    const names = parseGamePlayers(game, await quietCommand(id, game.listCommand ?? ''));
+    if (!names) return;
+    const runtime = rt(id);
+    runtime.players = new Set(names);
+    runtime.playersMax = game.maxPlayers;
+  };
+
   const sampleTps = async (id: string, r: ServerRow): Promise<void> => {
     const command = SOFTWARE[r.software].tpsCommand;
     if (!command) return;
@@ -487,6 +584,8 @@ export function createServerService(ctx: AppContext): ServerService {
     const isRunningJava = runtime.state === 'running' && r.edition === 'java' && !SOFTWARE[r.software].proxy;
     if (isRunningJava && !(tick % TPS_EVERY_TICKS)) await sampleTps(r.id, r);
     if (isRunningJava && !(tick % LIST_EVERY_TICKS)) await syncPlayers(r.id);
+    if (runtime.state === 'running' && runtime.game?.listCommand && !(tick % LIST_EVERY_TICKS))
+      await syncGamePlayers(r.id, runtime.game);
     if (!(tick % PERSIST_EVERY_TICKS)) {
       db.insert(stats)
         .values({
@@ -630,6 +729,14 @@ export function createServerService(ctx: AppContext): ServerService {
         voiceHost: r.voiceChat ? voiceHostOf(r) : null,
         netbird: describeAddress(r),
         permissions: ctx.access.permissionsFor(user, id),
+        gameSettings: gameSettingsView(r),
+        gamePorts: gameOfRow(r)
+          ? gamePorts(r, gameOfRow(r) as GameInfo).map((p) => ({
+              key: p.key,
+              port: p.hostPort,
+              protocol: p.protocol,
+            }))
+          : [],
       };
     },
     create: async (input, actor, creator) => {
@@ -637,6 +744,10 @@ export function createServerService(ctx: AppContext): ServerService {
       if (!CREATABLE_SOFTWARE[input.edition].includes(input.software))
         throw badRequest('software_edition_mismatch');
       assertPortFree(input.port, info.protocol, null);
+      const game = gameOf(input.software);
+      if (game) validateGameSettings(game, input.gameSettings ?? {});
+      const extraPorts = game ? allocateGamePorts(game, input.port) : [];
+      const gameSettings = game ? mergeGameSettings(game, {}, input.gameSettings ?? {}, secrets) : {};
       // Only admins may publish a server through the admin's NetBird account.
       const netbirdName = creator.isAdmin ? (input.netbirdName ?? null) : null;
       if (netbirdName && db.select().from(servers).where(eq(servers.netbirdName, netbirdName)).get())
@@ -659,6 +770,8 @@ export function createServerService(ctx: AppContext): ServerService {
           rconPassword: secrets.encrypt(randomToken(RCON_PASSWORD_BYTES)),
           image: imageFor(config, base),
           netbirdName,
+          extraPorts,
+          gameSettings,
         })
         .run();
       fs.mkdirSync(serverDir(config, id), { recursive: true });
@@ -734,6 +847,22 @@ export function createServerService(ctx: AppContext): ServerService {
       if (next.port !== current.port) portsChanged(id);
       return summaryOf(row(id));
     },
+    setGameSettings: (id, input, actor) => {
+      const current = row(id);
+      const game = gameOf(current.software);
+      if (!game) throw badRequest('not_a_game');
+      validateGameSettings(game, input);
+      const gameSettings = mergeGameSettings(game, current.gameSettings, input, secrets);
+      db.update(servers).set({ gameSettings, updatedAt: nowIso() }).where(eq(servers.id, id)).run();
+      const secretKeys = new Set(game.fields.filter((f) => f.kind === 'secret').map((f) => f.key));
+      // Secrets never go into the protocol, only that they changed.
+      audit.record(
+        actor,
+        'server.update',
+        id,
+        Object.fromEntries(Object.entries(input).map(([k, v]) => [k, secretKeys.has(k) ? '***' : v])),
+      );
+    },
     remove: async (id, deleteFiles, actor) => {
       const r = row(id);
       await withLock(id, async () => {
@@ -803,6 +932,7 @@ export function createServerService(ctx: AppContext): ServerService {
     },
     command: async (id, command, actor) => {
       if (!ACTIVE_STATES.includes(rt(id).state)) throw conflict('server_not_running');
+      if (gameOf(row(id).software)?.console === 'none') throw badRequest('console_unavailable');
       appendLog(id, `${ECHO_PREFIX}${command}${ANSI_RESET}`);
       try {
         const answer = await quietCommand(id, command);

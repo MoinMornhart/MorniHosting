@@ -1,3 +1,4 @@
+import type { GameId } from '@mornihosting/shared';
 import { useId, type ReactElement, type ReactNode } from 'react';
 import logoUrl from '@/assets/logo.svg';
 import { hashString } from '@/lib/pixel';
@@ -24,7 +25,8 @@ export type Glyph =
   | 'custom'
   | 'all'
   | 'java'
-  | 'crossplay';
+  | 'crossplay'
+  | `game-${GameId}`;
 
 /** Outline of a filled shape. */
 const STROKE = {
@@ -37,6 +39,19 @@ const STROKE = {
 const LINE = { fill: 'none', ...STROKE } as const;
 
 const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
+  // Two meshing gears above a conveyor belt: building factories (no game logo).
+  'game-factorio': (
+    <>
+      <circle cx="9" cy="9" r="4.2" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <circle cx="9" cy="9" r="1.4" fill="currentColor" />
+      <path
+        d="M9 3V1.8M9 16.2V15M3 9H1.8M16.2 9H15M4.8 4.8l-.9-.9M14.1 14.1l-.9-.9M4.8 13.2l-.9.9M14.1 3.9l-.9.9"
+        {...LINE}
+      />
+      <circle cx="17" cy="13.5" r="2.6" fill="currentColor" fillOpacity="0.25" {...STROKE} />
+      <path d="M2.5 19.5h19M5 22h0M9.5 22h0M14 22h0M18.5 22h0" {...LINE} />
+    </>
+  ),
   // A paper plane.
   paper: (
     <>
@@ -174,6 +189,7 @@ const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
   all: ['#10b981', '#064e3b'],
   java: ['#22c55e', '#14532d'],
   crossplay: ['#f59e0b', '#92400e'],
+  'game-factorio': ['#f59e0b', '#7c2d12'],
 };
 
 const GLYPH_NAMES = Object.keys(TONES) as Glyph[];

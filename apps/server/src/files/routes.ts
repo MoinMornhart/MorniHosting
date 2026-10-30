@@ -20,6 +20,7 @@ import type { Api, AppContext } from '../context.js';
 import { AppError, badRequest, notFound } from '../lib/errors.js';
 import { HTTP_NO_CONTENT, HTTP_PAYLOAD_TOO_LARGE } from '../lib/http-status.js';
 import { createPlayerService } from '../servers/players.js';
+import { assertMinecraft } from '../servers/spec.js';
 import { readPropertiesFile, validateUpdates, writePropertiesFile } from '../servers/properties-file.js';
 import type { ServerService } from '../servers/service.js';
 import { createWorldService } from '../servers/worlds.js';
@@ -265,6 +266,7 @@ export function registerFileRoutes(
     async (request) => {
       allow(request, request.params.id, 'players');
       const id = request.params.id;
+      assertMinecraft(servers.row(id));
       const bedrock = servers.row(id).edition === 'bedrock';
       const key = bedrock ? 'allow-list' : 'white-list';
       writePropertiesFile(servers.dir(id), {

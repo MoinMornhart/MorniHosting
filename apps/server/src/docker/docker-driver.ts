@@ -161,7 +161,9 @@ export function createDockerDriver(config: Config): DockerDriver {
         StdinOnce: false,
         Tty: false,
         HostConfig: {
-          Binds: [`${path.posix.join(hostData, relative.split(path.sep).join('/'))}:${CONTAINER_DATA_DIR}`],
+          Binds: [
+            `${path.posix.join(hostData, relative.split(path.sep).join('/'))}:${spec.mountPath ?? CONTAINER_DATA_DIR}`,
+          ],
           PortBindings: bindings,
           Memory: spec.memoryLimitBytes,
           NetworkMode: config.mcNetwork,
@@ -245,6 +247,7 @@ export function createDockerDriver(config: Config): DockerDriver {
       }
     },
     sendCommand: async (id, command, channel) => {
+      if (channel.kind === 'none') throw new Error('this game has no console');
       if (channel.kind === 'rcon') return rconCommand(channel.host, channel.port, channel.password, command);
       const container = docker.getContainer(id);
       if (channel.kind === 'exec') {

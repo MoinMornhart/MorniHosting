@@ -136,6 +136,8 @@ export const servers = sqliteTable('servers', {
     .notNull()
     .default([]),
   extraEnv: text('extra_env', { mode: 'json' }).$type<Record<string, string>>().notNull().default({}),
+  /** Settings of other games (see GameField in games.ts); secret fields are stored encrypted. */
+  gameSettings: text('game_settings', { mode: 'json' }).$type<Record<string, string>>().notNull().default({}),
   geyser: integer('geyser', { mode: 'boolean' }).notNull().default(false),
   /** Port friends use from outside when a tunnel or proxy (NetBird, playit.gg) gives another one. */
   publicPort: integer('public_port'),

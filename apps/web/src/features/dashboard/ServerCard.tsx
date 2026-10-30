@@ -3,7 +3,7 @@ import { Clock, Play, Square, SquareTerminal, TriangleAlert } from 'lucide-react
 import type { ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
-import { SOFTWARE, type ServerAction, type ServerSummary } from '@mornihosting/shared';
+import { SOFTWARE, isGameId, type ServerAction, type ServerSummary } from '@mornihosting/shared';
 import { CopyButton } from '@/components/copy-button';
 import { PlayerHead, ServerIcon, StatePill } from '@/components/server-visuals';
 import { Sparkline } from '@/components/sparkline';
@@ -162,7 +162,8 @@ export function ServerCard({ server }: { server: ServerSummary }): ReactElement 
           <b className="block truncate text-[15px] font-bold hover:underline">{server.name}</b>
           <span className="flex items-center gap-1 text-[13px] text-muted-foreground">
             {server.software === 'bedrock' ? 'Bedrock' : SOFTWARE[server.software].label}
-            <Tag>{server.version}</Tag>· {server.edition === 'java' ? 'Java' : 'Bedrock'}
+            <Tag>{server.version}</Tag>
+            {isGameId(server.edition) ? null : `· ${server.edition === 'java' ? 'Java' : 'Bedrock'}`}
           </span>
         </Link>
         <StatePill state={live.state} />
