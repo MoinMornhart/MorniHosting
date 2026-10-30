@@ -1681,5 +1681,57 @@
     "stopped": "Gestoppt",
     "on": "HTTPS läuft – das Zertifikat kommt beim ersten Aufruf.",
     "off": "HTTPS ist aus."
+  },
+  "landing": {
+    "exampleDomain": "mornihosting.de",
+    "signIn": "Anmelden",
+    "createServer": "Server erstellen",
+    "tagline": "Dein Minecraft-Server wartet auf dich",
+    "text": "Leg jetzt los! Java, Bedrock oder beides zusammen – in einer Minute läuft dein Server, mit eigener Adresse unter {{domain}}, Mods, Backups und allem, was dazugehört.",
+    "perks": {
+      "instant": "Sofort einsatzbereit",
+      "panel": "Modernes Kontrollpanel",
+      "secure": "Sicher mit HTTPS & 2FA",
+      "fast": "Eigene Hardware, kein Teilen"
+    },
+    "showGames": "Server anzeigen",
+    "gamesTitle": "Unsere Spiele",
+    "gamesText": "Such dir aus, womit du loslegst – Version und Software kannst du jederzeit wechseln.",
+    "games": {
+      "java": {
+        "title": "Minecraft Java",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge oder Vanilla – für PC und Mac."
+      },
+      "bedrock": {
+        "title": "Minecraft Bedrock",
+        "text": "Für Handy, Konsole und Windows – die Edition aus dem Store."
+      },
+      "crossplay": {
+        "title": "Minecraft Crossplay",
+        "text": "Java-Server, auf dem auch Bedrock-Spieler mitspielen (Geyser)."
+      }
+    },
+    "free": "Kostenlos",
+    "start": "Jetzt starten",
+    "featuresTitle": "Alle Funktionen für deinen Minecraft-Server",
+    "features": {
+      "mods": {
+        "title": "Mods & Plugins mit einem Klick",
+        "text": "Modrinth, CurseForge, Hangar und SpigotMC – nur was zu deiner Version passt, Abhängigkeiten automatisch."
+      },
+      "worlds": {
+        "title": "Welten hoch- und runterladen",
+        "text": "Eigene Welten hochladen, wechseln oder neu erzeugen – direkt im Panel."
+      },
+      "subdomain": {
+        "title": "Kostenlose Subdomain",
+        "text": "Gib deinem Server einen Namen – deine Freunde joinen über name.{{domain}}."
+      },
+      "backups": {
+        "title": "Backups & Zeitpläne",
+        "text": "Sichern per Klick oder nach Plan, Neustarts mit Vorwarnung im Chat."
+      }
+    },
+    "footer": "Läuft auf deinem eigenen Server"
   }
 }

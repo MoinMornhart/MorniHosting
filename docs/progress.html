@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T11:05:42+00:00",
-  "now": "HTTPS fertig. Gerade: Startseite und Anmeldeseite im ggdehosting-Stil.",
+  "updated": "2026-10-30T11:10:09+00:00",
+  "now": "Startseite fertig. Gerade: Server bestellen wie bei ggdehosting.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -238,10 +238,15 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "laeuft",
-      "detail": "Fertig: INWX angebunden, mornihosting.de und *.mornihosting.de zeigen auf deine IP, HTTPS per Klick (Caddy holt die Zertifikate selbst, jede Adresse unter mornihosting.de führt zum Panel). Als Nächstes: Startseite und Anmeldeseite im ggdehosting-Stil, dann die Server-Bestellung."
+      "detail": "Fertig: INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite im ggdehosting-Stil (Anmeldung rechts, Spiele mit „Jetzt starten“, Funktionen). Gerade: die Server-Bestellung wie bei ggdehosting."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p12-start.webp",
+      "caption": "mornihosting.de · Neue Startseite mit Anmeldung, Spielen (Java, Bedrock, Crossplay) und Funktionen",
+      "time": "2026-10-30T13:30:00+01:00"
+    },
     {
       "img": "progress/p12-https.webp",
       "caption": "mornihosting.de · HTTPS mit einem Klick: https://mornihosting.de öffnet das Panel",
@@ -296,25 +301,20 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p7-geyser.webp",
       "caption": "Phase 7 · Bedrock-Spieler erlauben: Geyser und Floodgate mit einem Schalter",
       "time": "2026-10-28T02:15:00+01:00"
-    },
-    {
-      "img": "progress/p7-update.webp",
-      "caption": "Phase 7 · Neue Version? Ein Klick, die Minecraft-Server laufen weiter (Beispiel)",
-      "time": "2026-10-28T02:15:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/server/src/https/ (gateway.ts, routes.ts) – Caddy auf 80/443, /api/tls/allowed"
+      "path": "apps/web/src/features/auth/LandingLayout.tsx (Startseite)"
     },
     {
       "tag": "geändert",
-      "path": "Docker-Treiber (eigener Startbefehl, Neustart-Regel, IP), app.ts (echte Besucher-IP hinter Caddy)"
+      "path": "LoginPage.tsx nutzt die Startseite, Texte de/en unter landing.*"
     },
     {
       "tag": "geändert",
-      "path": "DnsDomainCard.tsx (HTTPS-Schalter), Tests 9/9"
+      "path": "e2e/passkey.spec.ts (Anmelde-Knopf im Formular)"
     }
   ],
   "eta": "2026-10-30T17:45:00+01:00",
@@ -335,12 +335,12 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "HTTPS: jede Adresse unter mornihosting.de öffnet das Panel (Zertifikat automatisch)"
     },
     {
-      "status": "current",
+      "status": "done",
       "until": "2026-10-30T14:45:00+01:00",
       "title": "Startseite und Anmeldeseite im ggdehosting-Stil"
     },
     {
-      "status": "",
+      "status": "current",
       "until": "2026-10-30T16:30:00+01:00",
       "title": "Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, unten Benutzerdefiniert, Servername .mornihosting.de, Add-ons, Bestellübersicht"
     },

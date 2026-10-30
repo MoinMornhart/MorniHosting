@@ -1681,5 +1681,57 @@
     "stopped": "Stopped",
     "on": "HTTPS is running – the certificate arrives on the first visit.",
     "off": "HTTPS is off."
+  },
+  "landing": {
+    "exampleDomain": "mornihosting.de",
+    "signIn": "Sign in",
+    "createServer": "Create server",
+    "tagline": "Your Minecraft server is waiting for you",
+    "text": "Get started! Java, Bedrock or both together – your server runs within a minute, with its own address under {{domain}}, mods, backups and everything else.",
+    "perks": {
+      "instant": "Ready instantly",
+      "panel": "Modern control panel",
+      "secure": "Secure with HTTPS & 2FA",
+      "fast": "Own hardware, no sharing"
+    },
+    "showGames": "Show servers",
+    "gamesTitle": "Our games",
+    "gamesText": "Pick what you start with – version and software can be changed any time.",
+    "games": {
+      "java": {
+        "title": "Minecraft Java",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac."
+      },
+      "bedrock": {
+        "title": "Minecraft Bedrock",
+        "text": "For phone, console and Windows – the store edition."
+      },
+      "crossplay": {
+        "title": "Minecraft Crossplay",
+        "text": "A Java server that Bedrock players can join too (Geyser)."
+      }
+    },
+    "free": "Free",
+    "start": "Start now",
+    "featuresTitle": "Everything for your Minecraft server",
+    "features": {
+      "mods": {
+        "title": "Mods & plugins in one click",
+        "text": "Modrinth, CurseForge, Hangar and SpigotMC – only what fits your version, dependencies included."
+      },
+      "worlds": {
+        "title": "Upload and download worlds",
+        "text": "Upload your own worlds, switch or create new ones – right in the panel."
+      },
+      "subdomain": {
+        "title": "Free subdomain",
+        "text": "Give your server a name – friends join via name.{{domain}}."
+      },
+      "backups": {
+        "title": "Backups & schedules",
+        "text": "Back up with a click or on a schedule, restarts with a warning in chat."
+      }
+    },
+    "footer": "Runs on your own server"
   }
 }

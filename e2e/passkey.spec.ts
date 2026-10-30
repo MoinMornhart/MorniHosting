@@ -28,7 +28,7 @@ test('add a passkey, sign out and sign in again with it', async ({ browser }) =>
   await page.goto('/login');
   await page.getByLabel('Benutzername').fill('philip');
   await page.getByLabel('Passwort').fill('supersecret123');
-  await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
+  await page.locator('form').getByRole('button', { name: 'Anmelden', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Deine Server' })).toBeVisible();
 
   await page.goto('/account');
