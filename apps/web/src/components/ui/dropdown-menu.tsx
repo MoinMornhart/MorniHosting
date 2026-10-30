@@ -6,7 +6,6 @@ const MENU_OFFSET = 6;
 
 export const DropdownMenu = Menu.Root;
 export const DropdownMenuTrigger = Menu.Trigger;
-export const DropdownMenuGroup = Menu.Group;
 
 export function DropdownMenuContent({
   className,

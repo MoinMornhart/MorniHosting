@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { useServer } from '../ServerLayout';
 import { describeSpec } from './describe';
 import { emptyInput, inputOf, ScheduleDialog } from './ScheduleDialog';
+import { TabIntro } from '@/components/tab-intro';
 
 const DEFAULT_WARN = 5;
 const BACKUP_HOURS = 6;
@@ -221,13 +222,17 @@ export default function SchedulesTab(): ReactElement {
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button onClick={() => setDialog({ entry: null })}>
-          <Plus />
-          {t('schedules.new')}
-        </Button>
-        <span className="text-[13px] text-muted-foreground">{t('schedules.timezoneNote')}</span>
-      </div>
+      <TabIntro
+        title={t('schedules.title')}
+        text={t('schedules.intro')}
+        action={
+          <Button onClick={() => setDialog({ entry: null })}>
+            <Plus />
+            {t('schedules.new')}
+          </Button>
+        }
+      />
+      <span className="text-[13px] text-muted-foreground">{t('schedules.timezoneNote')}</span>
       {presets}
       {list()}
       <ScheduleDialog

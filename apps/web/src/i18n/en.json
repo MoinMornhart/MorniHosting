@@ -57,7 +57,9 @@
   "theme": {
     "dark": "Dark",
     "light": "Light",
-    "system": "Match system"
+    "system": "Match system",
+    "toLight": "Switch to light",
+    "toDark": "Switch to dark"
   },
   "nav": {
     "main": "Main menu",
@@ -195,13 +197,19 @@
       "mods": "Mods",
       "files": "Files",
       "backups": "Backups",
-      "schedules": "Schedules",
+      "schedules": "Routines",
       "players": "Players",
-      "settings": "Settings"
+      "settings": "Settings",
+      "version": "Version",
+      "network": "Network",
+      "advanced": "Advanced"
     },
     "meta": "{{software}} {{version}} · {{edition}} · Port {{port}}",
     "notFound": "This server does not exist (anymore).",
-    "noPermission": "You do not have the rights for this on this server."
+    "noPermission": "You do not have the rights for this on this server.",
+    "connect": "Connect",
+    "portLabel": "Port",
+    "geyserPortLabel": "Geyser port"
   },
   "connection": {
     "title": "Connection",
@@ -247,7 +255,14 @@
     "last24h": "Last 24 hours",
     "last7d": "Last 7 days",
     "noData": "No measurements yet. They appear once the server runs.",
-    "title": "History"
+    "title": "History",
+    "uptime": "Uptime",
+    "disk": "Disk",
+    "netIn": "Network (in)",
+    "netOut": "Network (out)",
+    "network": "Network",
+    "netInShort": "In",
+    "netOutShort": "Out"
   },
   "console": {
     "title": "Console",
@@ -511,7 +526,13 @@
     "dns_failed": "The DNS records could not be created.",
     "dns_inwx_2fa": "This INWX account uses two-factor login. Enter the 2FA secret (or use a sub-account without 2FA).",
     "https_needs_domain": "Connect your own domain first.",
-    "https_failed": "HTTPS could not start: {{message}}"
+    "https_failed": "HTTPS could not start: {{message}}",
+    "dns_inwx_login": "INWX refused the login: user name or password is wrong. Use your INWX user name (not the email address) and check the password, e.g. by logging in on inwx.com with it. After several failed attempts INWX blocks logins for a while.",
+    "dns_inwx_2fa_wrong": "INWX refused the 2FA code. Check the 2FA secret: it is the long secret key from the setup, not the 6-digit code.",
+    "software_not_switchable": "The server cannot switch between these two programs.",
+    "software_switch_running": "Stop the server before switching the software.",
+    "software_switch_addons": "Turn off Bedrock players (Geyser) and voice chat before switching the software.",
+    "software_switch_version": "Pick a Minecraft version for the new software."
   },
   "update": {
     "text": "Your Minecraft servers keep running during the update.",
@@ -548,7 +569,13 @@
       "pull": "Fetch new code",
       "build": "Build the panel (a few minutes)",
       "restart": "Restart the panel"
-    }
+    },
+    "headline": {
+      "ok": "All up to date",
+      "new": "New version available",
+      "failed": "Check not possible right now"
+    },
+    "checkedWhen": "Last checked {{when}}."
   },
   "players": {
     "online": "Online now",
@@ -658,7 +685,9 @@
       "kickText": "They are disconnected and can join again right away.",
       "banTitle": "Ban {{name}}?",
       "banText": "They are disconnected and can't join until you lift the ban."
-    }
+    },
+    "title": "Players",
+    "intro": "Who is online, who is OP and who may join through the whitelist. Kick, ban or OP with one click."
   },
   "settings": {
     "sections": {
@@ -772,7 +801,8 @@
       "deleteFiles": "Also delete all files and worlds",
       "deleteFilesHint": "If unticked, they are moved to the panel's archive folder.",
       "deleted": "“{{name}}” was deleted"
-    }
+    },
+    "intro": "Adjust how the server starts. Changes apply after the next restart."
   },
   "props": {
     "motd": {
@@ -1010,7 +1040,15 @@
     "dropHere": "Drop to upload",
     "removed": "{{name}} is in the trash",
     "deleteTitle": "Delete {{name}}?",
-    "deleteText": "The file stays in the trash for 7 days. The plugin's settings folder is kept."
+    "deleteText": "The file stays in the trash for 7 days. The plugin's settings folder is kept.",
+    "intro": {
+      "plugins": "Plugins extend your server, e.g. with homes, protection or minigames. Find new ones with \"Add\".",
+      "mods": "Mods change the game. Players usually need the same mods in their own Minecraft."
+    },
+    "add": {
+      "plugins": "Add plugins",
+      "mods": "Add mods"
+    }
   },
   "market": {
     "sources": "Source",
@@ -1092,10 +1130,12 @@
     "excludePlaceholder": "e.g. logs/ or *.log",
     "addExclude": "Add",
     "removeExclude": "Back up {{pattern}} again",
-    "excludeHint": "Folders with a trailing / (logs/), file types with a star (*.log). You rarely need logs and cache."
+    "excludeHint": "Folders with a trailing / (logs/), file types with a star (*.log). You rarely need logs and cache.",
+    "title": "Backups",
+    "intro": "Copies of your world and files. One click brings back an earlier state."
   },
   "schedules": {
-    "new": "New schedule",
+    "new": "Create routine",
     "newTitle": "New schedule",
     "editTitle": "Edit schedule",
     "dialogText": "What should happen and when? The server then does it on its own.",
@@ -1153,7 +1193,9 @@
     "emptyText": "Let the server restart at night or back up regularly, no cron needed. Pick a quick template or create your own schedule.",
     "timezoneNote": "Times are in the panel's time zone.",
     "deleteTitle": "Delete “{{name}}”?",
-    "deleteText": "The schedule will no longer run."
+    "deleteText": "The schedule will no longer run.",
+    "title": "Routines",
+    "intro": "Create routines to automate tasks on your server: restarts, backups or regular chat messages."
   },
   "webhooks": {
     "title": "Notifications",
@@ -1660,7 +1702,8 @@
       "random": "The NetBird proxy only lets port 443 through by default, and your NetBird assigns its own port per server. Open each of these ports – in your NetBird server's docker-compose.yml under the netbird-proxy service, then run “docker compose up -d”. If your proxy allows custom ports, MorniHosting uses the servers' own ports (25565 …) automatically.",
       "firewall": "If your provider has its own firewall in the customer panel (e.g. IONOS, Hetzner), open the same ports there – no script can reach it. By hand works too: add the ports above to netbird-proxy in docker-compose.yml, or run the proxy with “network_mode: host”.",
       "auto": "Easiest: run this command once on your NetBird server. It opens 25565–25575/tcp, 19132–19140/udp and 24454–24460/udp on netbird-proxy (and in ufw/firewalld if active) and restarts only the proxy."
-    }
+    },
+    "managedDns": "Set up through your own domain."
   },
   "minecraftAccount": {
     "title": "Minecraft account",
@@ -1732,16 +1775,19 @@
     "gamesText": "Pick what you start with – version and software can be changed any time.",
     "games": {
       "java": {
-        "title": "Minecraft Java",
-        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac."
+        "title": "Minecraft Java Edition",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge or Vanilla – for PC and Mac.",
+        "edition": "Java Edition"
       },
       "bedrock": {
-        "title": "Minecraft Bedrock",
-        "text": "For phone, console and Windows – the store edition."
+        "title": "Minecraft Bedrock Edition",
+        "text": "For phone, console and Windows – the store edition.",
+        "edition": "Bedrock Edition"
       },
       "crossplay": {
-        "title": "Minecraft Crossplay",
-        "text": "A Java server that Bedrock players can join too (Geyser)."
+        "title": "Minecraft Geyser",
+        "text": "Java server Bedrock players can join too – phone, console and PC together.",
+        "edition": "Geyser"
       }
     },
     "free": "Free",
@@ -1773,7 +1819,7 @@
     "title": {
       "java": "Minecraft: Java Edition server",
       "bedrock": "Minecraft: Bedrock Edition server",
-      "crossplay": "Minecraft crossplay server (Java + Bedrock)"
+      "crossplay": "Minecraft Geyser server (Java + Bedrock)"
     },
     "backToGames": "Back to the game selection",
     "performance": "Choose performance",
@@ -1785,11 +1831,11 @@
     "customText": "Need a different size? Set the memory yourself.",
     "recommendation": "For {{software}} we recommend at least {{ram}}. The player count is a guide – many mods need more.",
     "software": "Software & version",
-    "softwareText": "The server software decides whether plugins or mods run. Not sure? Keep the preselection.",
+    "softwareText": "The server software decides whether plugins or mods run. Not sure? Paper suits most servers.",
     "version": "Minecraft version",
     "name": "Choose a server name",
     "nameText": "The address players use to connect to your server.",
-    "addressReady": "Players connect with {{hostname}}. We already filled in a name – change it now or any time later.",
+    "addressReady": "Players connect with {{hostname}}. You can change the name any time later.",
     "noDomain": "No own domain set up yet – players then connect by IP and port. You can set up a domain in the admin area.",
     "displayName": "Display name (optional)",
     "displayNameHint": "The server's name in the panel. Empty = same as the address.",
@@ -1812,7 +1858,7 @@
     "price": "Price",
     "month": "month",
     "priceNote": "Free – it's your own server.",
-    "startNow": "The server is set up and started right away",
+    "startNow": "Start the server right after ordering",
     "changeLater": "Power & add-ons can be changed any time",
     "bedrockJoin": "Bedrock players enter {{hostname}} as server address and {{port}} as port. Bedrock knows no addresses with a built-in port – only a server on 19132 works without entering a port.",
     "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled).",
@@ -1824,8 +1870,52 @@
       "emerald": "Emerald",
       "diamond": "Diamond",
       "amethyst": "Amethyst",
-      "ruby": "Ruby",
-      "netherite": "Netherite"
-    }
+      "netherite": "Netherite",
+      "redstone": "Redstone"
+    },
+    "pickPlan": "Pick a package – the player count is a guide.",
+    "pickSoftware": "Pick a server software, then the version.",
+    "pickVersion": "Pick a version",
+    "nameIdea": "Suggest a name",
+    "pickName": "Give your server a name – it becomes its address under {{domain}}. The dice suggests one."
+  },
+  "version": {
+    "title": "Minecraft version",
+    "text": "Choose server software and Minecraft version. Your world stays; the server fetches new files on its next start.",
+    "current": "Currently running {{software}}",
+    "installed": "Installed Minecraft version: {{version}}",
+    "available": "Other software",
+    "switchHint": "Click a software, pick the version and switch. Plugins and mods of the old software usually stop working – make a backup first.",
+    "stopFirst": "Stop the server to switch the software.",
+    "addOnsOff": "Turn off Bedrock players (Geyser) and voice chat in the Network tab first.",
+    "pick": "Pick a version",
+    "switch": "Switch to {{software}}",
+    "install": "Install version",
+    "saved": "{{software}} {{version}} is set. Applies on the next start.",
+    "running": "Running now",
+    "dev": "Development build"
+  },
+  "network": {
+    "title": "Network",
+    "text": "Address for your friends, reachability from outside, Bedrock players and voice chat."
+  },
+  "advanced": {
+    "title": "Advanced",
+    "text": "Details for help and support – and deleting the server.",
+    "debug": "Debug information",
+    "serverId": "Server ID",
+    "container": "Container",
+    "image": "Image",
+    "created": "Created"
+  },
+  "changelog": {
+    "title": "What's new",
+    "open": "Show version and changes",
+    "running": "Your panel runs {{version}}. These are the latest changes:",
+    "updateReady_one": "An update is ready – have a look",
+    "updateReady_other": "{{count}} changes are ready – update now",
+    "updateDot": "Update available",
+    "failed": "GitHub cannot be reached right now. Try again later.",
+    "all": "All changes on GitHub"
   }
 }

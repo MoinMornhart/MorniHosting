@@ -189,8 +189,18 @@ export const SOFTWARE: Readonly<Record<SoftwareId, SoftwareInfo>> = Object.freez
   },
 } satisfies Record<SoftwareId, SoftwareInfo>);
 
+/** Java server software a server can switch between in place (same world folder, new server jar). */
+export const SWITCHABLE_SOFTWARE: readonly SoftwareId[] = [
+  'vanilla',
+  'paper',
+  'purpur',
+  'fabric',
+  'forge',
+  'neoforge',
+];
+
 export const CREATABLE_SOFTWARE: Readonly<Record<Edition, readonly SoftwareId[]>> = Object.freeze({
-  java: ['paper', 'purpur', 'vanilla', 'fabric', 'forge', 'neoforge', 'velocity'],
+  java: ['vanilla', 'paper', 'purpur', 'fabric', 'forge', 'neoforge', 'velocity'],
   bedrock: ['bedrock'],
 });
 

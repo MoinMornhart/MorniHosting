@@ -250,8 +250,9 @@ function inwx(token: string): DnsClient {
       throw new AppError(HTTP_BAD_GATEWAY, 'dns_rejected', { message: `HTTP ${response.status}` });
     const { code, msg } = answer.data;
     if (code >= INWX_OK_FROM && code < INWX_OK_UNTIL) return answer.data.resData;
+    // INWX answers "Authentication error" for a wrong user name or password (or 2FA code).
     if (code >= INWX_AUTH_FROM && code < INWX_AUTH_UNTIL)
-      throw new AppError(HTTP_BAD_GATEWAY, 'dns_unauthorized', { host });
+      throw new AppError(HTTP_BAD_GATEWAY, 'dns_inwx_login');
     throw new InwxRefusal(code, msg);
   };
   const call = async (method: string, params: Record<string, unknown>): Promise<unknown> => {
@@ -271,7 +272,13 @@ function inwx(token: string): DnsClient {
     if (answer.tfa === undefined || String(answer.tfa) === NO_2FA) return;
     if (!otp) throw new AppError(HTTP_BAD_GATEWAY, 'dns_inwx_2fa');
     const tan = new TOTP({ secret: Secret.fromBase32(otp.replace(WHITESPACE, '').toUpperCase()) }).generate();
-    await call('account.unlock', { tan });
+    try {
+      await call('account.unlock', { tan });
+    } catch (err) {
+      if (err instanceof AppError && err.code === 'dns_inwx_login')
+        throw new AppError(HTTP_BAD_GATEWAY, 'dns_inwx_2fa_wrong');
+      throw err;
+    }
   };
   const body = (zone: string, record: DnsRecordInput): Record<string, unknown> =>
     record.type === 'A'

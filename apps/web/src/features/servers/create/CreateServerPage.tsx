@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Archive,
   ArrowLeft,
+  Mic,
   Blocks,
   Check,
   Cpu,
+  Dices,
   Gauge,
   Globe,
   Puzzle,
@@ -32,7 +35,11 @@ import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge, Gem, GameScene, glyphFor, type GemTier } from '@/components/art';
+import { Badge } from '@/components/art';
+import { GameCard } from '@/components/game-card';
+import { McBlock } from '@/components/mc-block';
+import { ProjectLogo } from '@/components/project-logo';
+import { SoftwareLogo } from '@/components/software-logo';
 import { api } from '@/lib/api';
 import { formatMemoryMb } from '@/lib/format';
 import { errorText } from '@/lib/query';
@@ -48,8 +55,14 @@ const GAMES = ['java', 'bedrock', 'crossplay'] as const;
 type Game = (typeof GAMES)[number];
 
 const MB_PER_GB = 1024;
+/**
+ * Card-like buttons take the text colour of the card. Set inline, because some app viewers (the demo inside
+ * the Claude app on iPhone) give buttons their own dark text colour that would otherwise win.
+ */
+export const OWN_TEXT_COLOUR = { color: 'inherit' } as const;
 /* eslint-disable ts-patterns/no-magic-numbers -- the package table: GB, about how many players, and its stone */
-type Tier = 'stone' | 'copper' | 'iron' | 'gold' | 'emerald' | 'diamond' | 'amethyst' | 'ruby' | 'netherite';
+type Tier =
+  'stone' | 'copper' | 'iron' | 'gold' | 'emerald' | 'diamond' | 'amethyst' | 'redstone' | 'netherite';
 /** The packages: memory and about how many players it carries (vanilla/Paper, a few plugins). */
 const PLANS: readonly { readonly gb: number; readonly players: number; readonly tier: Tier }[] = [
   { gb: 2, players: 4, tier: 'stone' },
@@ -59,23 +72,22 @@ const PLANS: readonly { readonly gb: number; readonly players: number; readonly 
   { gb: 6, players: 15, tier: 'emerald' },
   { gb: 8, players: 20, tier: 'diamond' },
   { gb: 10, players: 40, tier: 'amethyst' },
-  { gb: 12, players: 50, tier: 'ruby' },
+  { gb: 12, players: 50, tier: 'redstone' },
   { gb: 16, players: 100, tier: 'netherite' },
 ];
-/** Each package is a stone: the bigger, the rarer – with more sparkle. */
-const TIERS: Readonly<Record<Tier, GemTier>> = {
-  stone: { shades: ['#e2e8f0', '#94a3b8', '#475569'], sparkles: 0 },
-  copper: { shades: ['#fed7aa', '#ea7a3b', '#9a3412'], sparkles: 0 },
-  iron: { shades: ['#f8fafc', '#cbd5e1', '#64748b'], sparkles: 1 },
-  gold: { shades: ['#fef08a', '#facc15', '#b45309'], sparkles: 1 },
-  emerald: { shades: ['#bbf7d0', '#22c55e', '#166534'], sparkles: 1 },
-  diamond: { shades: ['#cffafe', '#22d3ee', '#0e7490'], sparkles: 2 },
-  amethyst: { shades: ['#f3e8ff', '#a855f7', '#6b21a8'], sparkles: 2 },
-  ruby: { shades: ['#ffe4e6', '#f43f5e', '#9f1239'], sparkles: 2 },
-  netherite: { shades: ['#a8a29e', '#57534e', '#1c1917'], sparkles: 3 },
+/** Each package is a Minecraft ore: the bigger, the rarer. The glow behind it takes the ore's colour. */
+const TIER_GLOW: Readonly<Record<Tier, string>> = {
+  stone: '#94a3b8',
+  copper: '#ea7a3b',
+  iron: '#e2c3a6',
+  gold: '#facc15',
+  emerald: '#22c55e',
+  diamond: '#22d3ee',
+  amethyst: '#a855f7',
+  redstone: '#ef4444',
+  netherite: '#a8a29e',
 };
 /* eslint-enable ts-patterns/no-magic-numbers */
-const FALLBACK_PLAN_GB = 2;
 /** Rough rule for a custom size between the packages: two players per GB. */
 const PLAYERS_PER_GB = 2;
 const MEMORY_STEP_MB = 512;
@@ -147,26 +159,7 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         {GAMES.map((g) => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => onPick(g)}
-            className="group grid overflow-hidden rounded-[16px] border border-border bg-card text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
-          >
-            <GameScene game={g} className="h-32" />
-            <span className="grid gap-4 p-5">
-              <span>
-                <span className="block text-lg font-bold">{t(`landing.games.${g}.title`)}</span>
-                <span className="block text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</span>
-              </span>
-              <span className="flex items-center justify-between text-sm font-semibold">
-                {t('landing.free')}
-                <span className="rounded-[10px] bg-primary px-3 py-1.5 text-primary-foreground">
-                  {t('landing.start')}
-                </span>
-              </span>
-            </span>
-          </button>
+          <GameCard key={g} game={g} onStart={() => onPick(g)} />
         ))}
       </div>
       <Button asChild variant="ghost" className="justify-self-start">
@@ -179,14 +172,29 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
   );
 }
 
+/** Every add-on shows its picture in the same tile: the project's logo, or a symbol when it has none. */
+function AddOnTile({ children }: { children: ReactNode }): ReactElement {
+  return (
+    <span className="grid size-11 shrink-0 place-items-center rounded-[12px] border border-border bg-background shadow-sm">
+      {children}
+    </span>
+  );
+}
+
+function SoftwareIcon({ id }: { id: SoftwareId }): ReactElement {
+  return <SoftwareLogo id={id} />;
+}
+
 function AddOn({
   title,
   text,
   on,
   locked,
   recommended,
+  icon,
   onChange,
 }: {
+  icon?: ReactNode;
   title: string;
   text: string;
   on: boolean;
@@ -202,6 +210,7 @@ function AddOn({
         on && 'border-primary/60 bg-accent',
       )}
     >
+      {icon}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 font-semibold">
           {title}
@@ -245,34 +254,43 @@ export function CreateServerPage(): ReactElement {
     (id) => game !== 'crossplay' || GEYSER_SOFTWARE.includes(id),
   );
   const [softwarePick, setSoftwarePick] = useState<SoftwareId | null>(null);
-  const software: SoftwareId =
-    softwarePick && softwareChoices.includes(softwarePick) ? softwarePick : (softwareChoices[0] ?? 'paper');
+  // Nothing is chosen for the person; only a single possibility (Bedrock) counts as chosen.
+  const onlyChoice = softwareChoices.length === 1 ? (softwareChoices[0] ?? null) : null;
+  const software: SoftwareId | null =
+    softwarePick && softwareChoices.includes(softwarePick) ? softwarePick : onlyChoice;
+  const portSoftware: SoftwareId = software ?? softwareChoices[0] ?? 'paper';
   const [version, setVersion] = useState('');
   const [showUnstable, setShowUnstable] = useState(false);
   const [memoryPick, setMemoryPick] = useState<number | null>(null);
   const [custom, setCustom] = useState(false);
-  const [subdomain, setSubdomain] = useState(suggestName);
+  const [subdomain, setSubdomain] = useState('');
+  const [nameIdea, setNameIdea] = useState(suggestName);
   const [displayName, setDisplayName] = useState('');
   const [portPick, setPortPick] = useState<number | null>(null);
-  const [addOns, setAddOns] = useState({ geyser: false, voice: false, backups: true });
-  const [startNow, setStartNow] = useState(true);
+  const [addOns, setAddOns] = useState({ geyser: false, voice: false, backups: false });
+  const [startNow, setStartNow] = useState(false);
   const [eula, setEula] = useState(false);
+
+  const geyserPossible = edition === 'java' && software !== null && GEYSER_SOFTWARE.includes(software);
+  const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
 
   const versions = useQuery({
     queryKey: ['versions', software],
-    queryFn: () => api<VersionOption[]>(`/api/versions/${software}`),
-    enabled: game !== null,
+    queryFn: () => api<VersionOption[]>(`/api/versions/${software ?? ''}`),
+    enabled: game !== null && software !== null,
   });
   const versionList = useMemo(
     () => (versions.data ?? []).filter((v) => showUnstable || v.stable),
     [versions.data, showUnstable],
   );
   const latestStable = versions.data?.find((v) => v.stable)?.id ?? '';
-  const chosenVersion = version || latestStable;
+  // The newest stable version is the one choice made for the person (Philip's wish); a picked one counts
+  // while the list offers it (switching Geyser on Vanilla changes the list).
+  const chosenVersion = versions.data?.some((v) => v.id === version) ? version : latestStable;
 
-  const recommendedMb = recommendedMemoryMb(software);
+  const recommendedMb = recommendedMemoryMb(portSoftware);
   const recommendedPlan = PLANS.find((p) => p.gb * MB_PER_GB >= recommendedMb) ?? PLANS[PLANS.length - 1];
-  const memoryMb = memoryPick ?? (recommendedPlan?.gb ?? FALLBACK_PLAN_GB) * MB_PER_GB;
+  const memoryMb = memoryPick;
   const hostTotal = host?.memoryTotalMb ?? FALLBACK_HOST_MB;
   const hostFree = host ? host.memoryTotalMb - host.memoryUsedMb : null;
   const maxMemory = Math.max(
@@ -280,13 +298,17 @@ export function CreateServerPage(): ReactElement {
     Math.min(MEMORY_CAP_MB, Math.floor(hostTotal / MEMORY_STEP_MB) * MEMORY_STEP_MB),
   );
   const plan = custom ? undefined : PLANS.find((p) => p.gb * MB_PER_GB === memoryMb);
-  const players = plan?.players ?? Math.max(1, Math.round((memoryMb / MB_PER_GB) * PLAYERS_PER_GB));
+  const players =
+    memoryMb === null
+      ? null
+      : (plan?.players ?? Math.max(1, Math.round((memoryMb / MB_PER_GB) * PLAYERS_PER_GB)));
+  const memoryText =
+    memoryMb === null ? '–' : `${formatMemoryMb(memoryMb)} · ~${players} ${t('order.players')}`;
+  const overHostFree = hostFree !== null && memoryMb !== null && memoryMb > hostFree;
 
-  const defaultPort = SOFTWARE[software].defaultPort;
+  const defaultPort = SOFTWARE[portSoftware].defaultPort;
   const port = portPick ?? nextFreePort(defaultPort, servers);
-  const geyserPossible = edition === 'java' && GEYSER_SOFTWARE.includes(software);
-  const voicePossible = VOICE_CHAT_SOFTWARE.includes(software);
-  const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
+  const voicePossible = software !== null && VOICE_CHAT_SOFTWARE.includes(software);
   const voice = voicePossible && addOns.voice;
   const addressName = toNetbirdName(subdomain, '');
   const name = displayName.trim() || subdomain.trim();
@@ -294,6 +316,7 @@ export function CreateServerPage(): ReactElement {
 
   const create = useMutation({
     mutationFn: async () => {
+      if (software === null || memoryMb === null) throw new Error('incomplete order');
       const body: CreateServerInput = {
         name,
         edition,
@@ -335,7 +358,13 @@ export function CreateServerPage(): ReactElement {
 
   if (!game) return <GamePicker onPick={(g) => setParams({ game: g })} />;
 
-  const ready = Boolean(chosenVersion) && Boolean(name) && eula && (!address || Boolean(addressName));
+  const ready =
+    software !== null &&
+    memoryMb !== null &&
+    Boolean(chosenVersion) &&
+    Boolean(name) &&
+    eula &&
+    (!address || Boolean(addressName));
   const features = [
     { key: 'panel', icon: Blocks },
     { key: 'instant', icon: Rocket },
@@ -348,7 +377,7 @@ export function CreateServerPage(): ReactElement {
       <header className="grid gap-3 rounded-[16px] border border-border bg-card bg-[radial-gradient(ellipse_at_0%_0%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)] p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="flex items-center gap-3 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
-            <Badge glyph={game} className="size-10" />
+            <McBlock kind={game === 'bedrock' ? 'diamond' : 'grass'} className="size-11" />
             {t(`order.title.${game}`)}
           </h1>
           <Link
@@ -388,12 +417,13 @@ export function CreateServerPage(): ReactElement {
                     type="button"
                     aria-pressed={selected}
                     disabled={tooBig}
+                    style={OWN_TEXT_COLOUR}
                     onClick={() => {
                       setCustom(false);
                       setMemoryPick(mb);
                     }}
                     className={cn(
-                      'group relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
+                      'group relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center text-foreground transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
                       selected && 'border-primary bg-accent ring-1 ring-primary',
                     )}
                   >
@@ -402,10 +432,17 @@ export function CreateServerPage(): ReactElement {
                         {t('order.recommended')}
                       </span>
                     ) : null}
-                    <Gem
-                      tier={TIERS[p.tier]}
-                      className="transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"
-                    />
+                    <span
+                      className="grid size-[76px] place-items-center rounded-full"
+                      style={{
+                        background: `radial-gradient(circle, ${TIER_GLOW[p.tier]}55, transparent 68%)`,
+                      }}
+                    >
+                      <McBlock
+                        kind={p.tier}
+                        className="size-[60px] transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"
+                      />
+                    </span>
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                       {t(`order.tiers.${p.tier}`)}
                     </span>
@@ -432,11 +469,17 @@ export function CreateServerPage(): ReactElement {
                   {t('order.custom')}
                 </span>
                 {custom ? (
-                  <span className="text-sm font-semibold">
-                    {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
-                  </span>
+                  <span className="text-sm font-semibold">{memoryText}</span>
                 ) : (
-                  <Button type="button" size="sm" variant="secondary" onClick={() => setCustom(true)}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setCustom(true);
+                      setMemoryPick(memoryMb ?? recommendedMb);
+                    }}
+                  >
                     {t('order.customize')}
                   </Button>
                 )}
@@ -444,7 +487,7 @@ export function CreateServerPage(): ReactElement {
               {custom ? (
                 <>
                   <Slider
-                    value={[memoryMb]}
+                    value={[memoryMb ?? recommendedMb]}
                     min={MEMORY_MIN_MB}
                     max={maxMemory}
                     step={MEMORY_STEP_MB}
@@ -460,18 +503,15 @@ export function CreateServerPage(): ReactElement {
                 <p className="text-sm text-muted-foreground">{t('order.customText')}</p>
               )}
             </div>
-            <p
-              className={cn(
-                'text-sm',
-                hostFree !== null && memoryMb > hostFree ? 'text-warning' : 'text-muted-foreground',
-              )}
-            >
-              {hostFree !== null && memoryMb > hostFree
-                ? t('create.ramWarn')
-                : t('order.recommendation', {
+            <p className={cn('text-sm', overHostFree ? 'text-warning' : 'text-muted-foreground')}>
+              {overHostFree ? t('create.ramWarn') : null}
+              {!overHostFree && software
+                ? t('order.recommendation', {
                     software: SOFTWARE[software].label,
                     ram: formatMemoryMb(recommendedMb),
-                  })}
+                  })
+                : null}
+              {!overHostFree && !software ? t('order.pickPlan') : null}
             </p>
           </Section>
 
@@ -488,6 +528,7 @@ export function CreateServerPage(): ReactElement {
                     key={id}
                     type="button"
                     aria-pressed={software === id}
+                    style={OWN_TEXT_COLOUR}
                     onClick={() => {
                       setSoftwarePick(id);
                       setVersion('');
@@ -499,22 +540,24 @@ export function CreateServerPage(): ReactElement {
                     )}
                     title={t(`create.software.${id}`)}
                   >
-                    <Badge glyph={glyphFor(id)} className="size-6" />
+                    <SoftwareIcon id={id} />
                     {SOFTWARE[id].label}
                   </button>
                 ))}
               </div>
             ) : null}
-            <p className="text-sm text-muted-foreground">{t(`create.software.${software}`)}</p>
+            <p className="text-sm text-muted-foreground">
+              {software ? t(`create.software.${software}`) : t('order.pickSoftware')}
+            </p>
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid min-w-[180px] gap-2 text-sm font-semibold">
                 {t('order.version')}
-                {versions.isPending ? (
+                {software && versions.isPending ? (
                   <Skeleton className="h-10" />
                 ) : (
-                  <Select value={chosenVersion} onValueChange={setVersion}>
+                  <Select value={chosenVersion} onValueChange={setVersion} disabled={!software}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder={t('order.pickVersion')} />
                     </SelectTrigger>
                     <SelectContent>
                       {versionList.map((v) => (
@@ -552,9 +595,23 @@ export function CreateServerPage(): ReactElement {
                 maxLength={40}
                 spellCheck={false}
                 autoComplete="off"
+                placeholder={nameIdea}
                 onChange={(e) => setSubdomain(e.target.value)}
                 className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-base outline-none"
               />
+              <button
+                type="button"
+                style={OWN_TEXT_COLOUR}
+                title={t('order.nameIdea')}
+                aria-label={t('order.nameIdea')}
+                onClick={() => {
+                  setSubdomain(nameIdea);
+                  setNameIdea(suggestName());
+                }}
+                className="flex items-center border-l border-input px-3 text-muted-foreground hover:text-primary"
+              >
+                <Dices className="size-4" aria-hidden />
+              </button>
               {address ? (
                 <span className="flex items-center border-l border-input bg-secondary px-3 font-mono text-sm text-muted-foreground">
                   .{address.domain}
@@ -562,7 +619,9 @@ export function CreateServerPage(): ReactElement {
               ) : null}
             </div>
             <p className="text-sm text-muted-foreground">
-              {hostname ? t('order.addressReady', { hostname }) : t('order.noDomain')}
+              {hostname ? t('order.addressReady', { hostname }) : null}
+              {address && !hostname ? t('order.pickName', { domain: address.domain }) : null}
+              {address ? null : t('order.noDomain')}
             </p>
             {hostname && (edition === 'bedrock' || geyser) ? (
               <p className="rounded-[10px] bg-secondary px-3 py-2 text-sm text-muted-foreground">
@@ -590,6 +649,15 @@ export function CreateServerPage(): ReactElement {
           >
             {edition === 'java' ? (
               <AddOn
+                icon={
+                  <AddOnTile>
+                    <ProjectLogo
+                      project="geyser"
+                      className="size-7 rounded-[6px]"
+                      fallback={<Badge glyph="crossplay" className="size-7" />}
+                    />
+                  </AddOnTile>
+                }
                 title={t('order.geyser')}
                 text={geyserPossible ? t('order.geyserText') : t('order.notForSoftware')}
                 on={geyser}
@@ -599,6 +667,15 @@ export function CreateServerPage(): ReactElement {
               />
             ) : null}
             <AddOn
+              icon={
+                <AddOnTile>
+                  <ProjectLogo
+                    project="voicechat"
+                    className="size-7 rounded-[6px]"
+                    fallback={<Mic className="size-5 text-primary" aria-hidden />}
+                  />
+                </AddOnTile>
+              }
               title={t('order.voice')}
               text={voicePossible ? t('order.voiceText') : t('order.notForSoftware')}
               on={voice}
@@ -606,6 +683,11 @@ export function CreateServerPage(): ReactElement {
               onChange={(on) => setAddOns({ ...addOns, voice: on })}
             />
             <AddOn
+              icon={
+                <AddOnTile>
+                  <Archive className="size-5 text-primary" aria-hidden />
+                </AddOnTile>
+              }
               title={t('order.backups')}
               text={t('order.backupsText', { time: BACKUP_TIME })}
               on={addOns.backups}
@@ -647,14 +729,12 @@ export function CreateServerPage(): ReactElement {
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
               <dt className="text-muted-foreground">{t('order.performance')}</dt>
-              <dd className="text-right font-semibold">
-                {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
-              </dd>
+              <dd className="text-right font-semibold">{memoryText}</dd>
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
               <dt className="text-muted-foreground">{t('order.software')}</dt>
               <dd className="text-right font-semibold">
-                {SOFTWARE[software].label} {chosenVersion}
+                {software ? `${SOFTWARE[software].label} ${chosenVersion}` : '–'}
               </dd>
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
@@ -685,7 +765,7 @@ export function CreateServerPage(): ReactElement {
             <p className="text-xs text-muted-foreground">{t('order.priceNote')}</p>
           </div>
           <label className="flex items-center gap-2.5 text-sm">
-            <Checkbox checked={startNow} onCheckedChange={(v) => setStartNow(v === true)} />
+            <Checkbox id="start-now" checked={startNow} onCheckedChange={(v) => setStartNow(v === true)} />
             {t('order.startNow')}
           </label>
           <div className="flex items-start gap-2.5 text-sm">

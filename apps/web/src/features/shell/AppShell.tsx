@@ -11,7 +11,6 @@ import {
   ScrollText,
   ShieldCheck,
   Sun,
-  SunMoon,
   UserRound,
   Users,
   WifiOff,
@@ -40,7 +39,8 @@ import { disconnect } from '@/lib/ws';
 import { setLanguage } from '@/i18n';
 import { meQuery, useSession } from '@/features/auth/session';
 import { useLiveSync, useServers } from '@/features/servers/live';
-import { applyTheme } from './theme';
+import { applyTheme, useResolvedTheme } from './theme';
+import { VersionBadge } from './VersionBadge';
 import { UpdateCard } from './UpdateCard';
 
 interface NavItem {
@@ -191,68 +191,84 @@ function UserMenu({ me }: { me: MeResponse }): ReactElement {
       navigate('/login');
     },
   });
-  const themeIcon: Readonly<Record<Theme, typeof Sun>> = { dark: Moon, light: Sun, system: SunMoon };
-  const ThemeIcon = themeIcon[me.user.theme];
+  const resolved = useResolvedTheme();
+  // One click switches between light and dark; the menu still offers "like the system".
+  const toggleTheme = (): void => {
+    const theme: Theme = resolved === 'dark' ? 'light' : 'dark';
+    applyTheme(theme);
+    saveAccount.mutate({ theme });
+  };
+  const ToggleIcon = resolved === 'dark' ? Sun : Moon;
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex w-full items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left hover:bg-secondary"
-        >
-          {/* The linked Minecraft account's head; without one a drawn face, never a stranger's skin. */}
-          <PlayerHead
-            name={me.user.minecraft?.name ?? me.user.username}
-            skin={me.user.minecraft?.uuid ?? null}
-            className="size-8 rounded-[8px]"
-          />
-          <span className="min-w-0 flex-1 text-[13px] leading-tight">
-            <b className="block truncate">{me.user.displayName}</b>
-            <span className="text-muted-foreground">
-              {me.user.isAdmin ? t('nav.administrator') : t('nav.member')}
+    <div className="flex items-center gap-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left hover:bg-secondary"
+          >
+            {/* The linked Minecraft account's head; without one a drawn face, never a stranger's skin. */}
+            <PlayerHead
+              name={me.user.minecraft?.name ?? me.user.username}
+              skin={me.user.minecraft?.uuid ?? null}
+              className="size-8 rounded-[8px]"
+            />
+            <span className="min-w-0 flex-1 text-[13px] leading-tight">
+              <b className="block truncate">{me.user.displayName}</b>
+              <span className="text-muted-foreground">
+                {me.user.isAdmin ? t('nav.administrator') : t('nav.member')}
+              </span>
             </span>
-          </span>
-          <ThemeIcon className="size-4 text-muted-foreground" aria-hidden />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="top" className="w-60">
-        <DropdownMenuItem onSelect={() => navigate('/account')}>
-          <UserRound />
-          {t('nav.account')}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>{t('nav.theme')}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          value={me.user.theme}
-          onValueChange={(value) => {
-            const theme = value as Theme; // the radio values below are exactly the Theme members
-            applyTheme(theme);
-            saveAccount.mutate({ theme });
-          }}
-        >
-          <DropdownMenuRadioItem value="dark">{t('theme.dark')}</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="light">{t('theme.light')}</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="system">{t('theme.system')}</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup
-          value={i18n.language}
-          onValueChange={(value) => {
-            const locale = value === 'en' ? 'en' : 'de';
-            setLanguage(locale);
-            saveAccount.mutate({ locale });
-          }}
-        >
-          <DropdownMenuRadioItem value="de">Deutsch</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem destructive onSelect={() => logout.mutate()}>
-          <LogOut />
-          {t('nav.logout')}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" side="top" className="w-60">
+          <DropdownMenuItem onSelect={() => navigate('/account')}>
+            <UserRound />
+            {t('nav.account')}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>{t('nav.theme')}</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={me.user.theme}
+            onValueChange={(value) => {
+              const theme = value as Theme; // the radio values below are exactly the Theme members
+              applyTheme(theme);
+              saveAccount.mutate({ theme });
+            }}
+          >
+            <DropdownMenuRadioItem value="dark">{t('theme.dark')}</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="light">{t('theme.light')}</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="system">{t('theme.system')}</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup
+            value={i18n.language}
+            onValueChange={(value) => {
+              const locale = value === 'en' ? 'en' : 'de';
+              setLanguage(locale);
+              saveAccount.mutate({ locale });
+            }}
+          >
+            <DropdownMenuRadioItem value="de">Deutsch</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem destructive onSelect={() => logout.mutate()}>
+            <LogOut />
+            {t('nav.logout')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        onClick={toggleTheme}
+        aria-label={resolved === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+        title={resolved === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+      >
+        <ToggleIcon />
+      </Button>
+    </div>
   );
 }
 
@@ -275,6 +291,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }): ReactEleme
       <div className="mt-auto grid gap-2.5">
         {me.user.isAdmin ? <UpdateCard /> : null}
         <UserMenu me={me} />
+        <VersionBadge onNavigate={onNavigate} />
       </div>
     </div>
   );

@@ -132,7 +132,7 @@ function worldsIn(dir: string): string[] {
 const countJars = (dir: string): number => list(dir).filter((f) => f.endsWith('.jar')).length;
 
 /** Removes staging folders older than an hour (abandoned imports). */
-export function cleanStaging(dataDir: string): void {
+function cleanStaging(dataDir: string): void {
   const root = stagingRoot(dataDir);
   list(root)
     .map((name) => path.join(root, name))

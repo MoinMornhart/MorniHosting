@@ -3,7 +3,7 @@ import { Archive, Blocks, Globe, LogIn, Plus, Puzzle, Rocket, ShieldCheck, Uploa
 import type { ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
-import { GameScene } from '@/components/art';
+import { GameCard } from '@/components/game-card';
 import { BrandMark } from '@/components/server-visuals';
 import { Button } from '@/components/ui/button';
 import { statusQuery } from './session';
@@ -117,22 +117,7 @@ export function LandingLayout({ children }: { children: ReactNode }): ReactEleme
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {GAMES.map((g) => (
-            <article
-              key={g}
-              className="group grid overflow-hidden rounded-[16px] border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
-            >
-              <GameScene game={g} className="h-36" />
-              <div className="grid gap-4 p-5">
-                <div>
-                  <h3 className="text-lg font-bold">{t(`landing.games.${g}.title`)}</h3>
-                  <p className="text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</p>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold">{t('landing.free')}</span>
-                  <Button onClick={() => focusLogin(`/servers/new?game=${g}`)}>{t('landing.start')}</Button>
-                </div>
-              </div>
-            </article>
+            <GameCard key={g} game={g} onStart={() => focusLogin(`/servers/new?game=${g}`)} />
           ))}
         </div>
       </section>

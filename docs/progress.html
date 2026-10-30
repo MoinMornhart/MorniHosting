@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T13:02:10+00:00",
-  "now": "PR, CI abwarten, Merge nach main",
+  "updated": "2026-10-30T17:10:26+00:00",
+  "now": "Warte auf dein Go für den Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -238,7 +238,7 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "fertig",
-      "detail": "Fertig und in main (PR #17): INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei ggdehosting, Joinen mit name.mornihosting.de (Java ohne Port, Bedrock mit Port-Hinweis). 192 Tests, 4 Playwright-Abläufe, CI grün. Philip: INWX im Admin-Bereich eintragen, HTTPS einschalten, Fritzbox TCP 80/443 freigeben."
+      "detail": "Fertig und in main (PR #17): INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei einem Hoster, Joinen mit name.mornihosting.de (Java ohne Port, Bedrock mit Port-Hinweis). 192 Tests, 4 Playwright-Abläufe, CI grün. Philip: INWX im Admin-Bereich eintragen, HTTPS einschalten, Fritzbox TCP 80/443 freigeben."
     },
     {
       "title": "Admin aufgeräumt, Update neu, Demo aktualisiert",
@@ -249,9 +249,99 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Eigene Grafiken statt Pixel-Blöcke",
       "status": "fertig",
       "detail": "Neues Logo (Smaragd-Würfel), Server als glänzende App-Icons mit eigenem Symbol je Software (Papierflieger, Flamme, Amboss, Blitz, Gamepad …), Spiele-Karten mit kleinen schwebenden Szenen, Pakete als Edelsteine von Stein bis Netherite, Benutzer mit Initialen. Alles als Vektor, scharf in jeder Größe. Demo neu veröffentlicht."
+    },
+    {
+      "title": "Minecraft-Blöcke, echte Logos, Fehler behoben",
+      "status": "fertig",
+      "detail": "Server-Icons als 3D-Minecraft-Blöcke (selbst gezeichnet), Paper-/Velocity-Logo von PaperMC, Geyser- und Voice-Chat-Logo von Modrinth (nur geladen, nicht kopiert), neues Tab-Bild. Behoben: lange Servernamen sprengten die Karte, schwarze Konsolen-Farben unsichtbar, MOTD-Vorschau mit dunklen Farben, Netherite-Stein fast schwarz. Update-Karte neu gestaltet. Spielauswahl als große Bildkarten: große Bildkarten mit „Minecraft Java Edition“, „Minecraft Bedrock Edition“, „Minecraft Geyser“ (mit Geyser-Logo); gleich große Symbole und Kacheln, Fußzeilen der Server-Karten auf einer Linie; dunkel und hell geprüft. Pakete als echte Minecraft-Erze (Stein, Kupfer, Eisen, Gold, Smaragd, Diamant, Amethyst, Redstone, Netherit). Schwarze Schrift in Karten-Knöpfen auf dem iPhone (Demo in der Claude-App) behoben."
+    },
+    {
+      "title": "Echte Spielbilder, Schrift in der Demo lesbar, Admin-Reiter ohne Strich",
+      "status": "fertig",
+      "detail": "Spielauswahl mit echten Bildern (Minecraft-Key-Art vom Minecraft Wiki, Geyser-Bild von geysermc.org, vom Panel einmal geladen und gespeichert, nicht im Repo). Schwarze bzw. unsichtbare Schrift in der Demo in der Claude-App behoben (dunkel und hell geprüft). Scroll-Strich unter den Admin-Reitern weg, neues Tab-Bild. Demo neu veröffentlicht (Version 11)."
+    },
+    {
+      "title": "Echte Software-Logos, Vanilla zuerst, nichts vorausgewählt",
+      "status": "fertig",
+      "detail": "Paper, Purpur, Fabric, Forge, NeoForge und Velocity mit ihren echten Logos (von den Projekt-Seiten geladen, in der Demo beim Bauen eingebettet, nicht im Repo). Vanilla steht vorne. Auf der Bestellseite ist nichts mehr vorausgewählt: Paket, Software, Version, Name (Würfel schlägt einen vor), Add-ons und „gleich starten“ wählst du selbst; ohne Auswahl bleibt „Server erstellen“ aus. In der Demo sind jetzt auch die echten Spielbilder zu sehen; Knopf-Text in der Claude-App überall lesbar. Demo Version 12."
+    },
+    {
+      "title": "Heller Modus, fester Kopf, neues Icon, INWX-Meldung",
+      "status": "fertig",
+      "detail": "Heller Modus in der Claude-App lesbar (Demo malt eigenen Hintergrund, Schrift und Knöpfe; folgt hell/dunkel der App). Beim Scrollen bleiben Menü, Server-Kopf und Reiter stehen. Neues Icon: Grasblock mit Pixel-„M“ auf Smaragd (Tab-Bild und Logo). Neueste Minecraft-Version wieder vorausgefüllt, sonst nichts. Vanilla überall vorne (bei Geyser nicht, braucht Plugins). Felder in den Einstellungen bündig, Hinweis „über deine eigene Domain“ statt „NetBird“. INWX: klare Meldung bei falschem Benutzernamen/Passwort bzw. 2FA-Schlüssel (INWX antwortet mit „Authentication error“)."
+    },
+    {
+      "title": "Server-Panel im neuen Design",
+      "status": "fertig",
+      "detail": "Neuer Server-Kopf: Banner mit Spielbild, Server-Bild, „Verbinden“-Feld mit Kopieren, IP/Port/Geyser-Port, Neustarten grau und Stoppen rot, Reiterleiste; bleibt beim Scrollen stehen (auch das Einstellungs-Menü). Konsole ist jetzt die Startseite mit 6 Kacheln (Laufzeit, CPU, RAM, Festplatte, Netzwerk rein/raus – Backend misst Ordnergröße und Docker-Netzwerk) und 3 Live-Diagrammen. Neue Reiter Version (Software wechseln: Vanilla, Paper, Purpur, Fabric, Forge, NeoForge – bei gestopptem Server), Netzwerk (Adresse, Erreichbarkeit, Geyser, Voice-Chat), Erweitert (Debug-Infos, Löschen). Spieler, Plugins/Mods, Backups, Routinen mit Überschrift und Hauptknopf. Hell/Dunkel mit einem Klick unten links. 195 Tests + 4 Browser-Tests grün."
+    },
+    {
+      "title": "Server-Bild-Fehler und Issues",
+      "status": "fertig",
+      "detail": "Server-Bild im Kopf wurde vom Banner verdeckt – behoben. Issue #11: 16 Befunde erledigt (ungenutzte Exporte entfernt bzw. intern gemacht, demo.css als Ausnahme). Issue #15/#7: typescript-eslint 8.72.1 erst ab 2.11. erlaubt (7-Tage-Regel), TypeScript 7 noch nicht unterstützt, @types/node bleibt 22 – als Kommentar in #15 erklärt. 195 Tests grün."
+    },
+    {
+      "title": "Version unten im Menü mit „Was ist neu“",
+      "status": "fertig",
+      "detail": "Unten links steht die laufende Version mit Commit (z. B. v1.0.0 · a1b2c3d), ein grüner Punkt zeigt ein bereites Update. Ein Klick öffnet „Was ist neu“ mit den letzten Änderungen (ohne Merge-Einträge), dem Hinweis auf ein Update und dem Link zu allen Änderungen auf GitHub. Für alle Angemeldeten, von GitHub eine Stunde zwischengespeichert. 196 Tests."
+    },
+    {
+      "title": "Demo zeigen, nach deinem Go Merge nach main",
+      "status": "läuft",
+      "detail": "Demo und Screenshots geschickt. Gemergt wird erst nach deinem Go."
+    },
+    {
+      "title": "DDoS-Schutz (eigenes Update)",
+      "status": "offen",
+      "detail": "Kommt als eigenes Update nach diesem Release (Branch claude/ddos-schutz angefangen)."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p20-version.webp",
+      "caption": "„Was ist neu“ – ein Klick auf die Version unten links",
+      "time": "2026-10-30T17:10:26+00:00"
+    },
+    {
+      "img": "progress/p19-panel.webp",
+      "caption": "Neues Server-Panel im neuen Design · links hell, rechts dunkel",
+      "time": "2026-10-30T16:44:32+00:00"
+    },
+    {
+      "img": "progress/p18-light.webp",
+      "caption": "Hell und dunkel lesbar, Server-Kopf bleibt beim Scrollen stehen, neues Icon",
+      "time": "2026-10-30T16:14:44+00:00"
+    },
+    {
+      "img": "progress/p17-order.webp",
+      "caption": "Bestellseite ohne Vorauswahl, echte Software-Logos · links dunkel, rechts hell",
+      "time": "2026-10-30T14:58:33+00:00"
+    },
+    {
+      "img": "progress/p16-games.webp",
+      "caption": "Spielauswahl mit echten Bildern · links dunkel, rechts hell",
+      "time": "2026-10-30T15:35:00+01:00"
+    },
+    {
+      "img": "progress/p15-ores.webp",
+      "caption": "Pakete als Minecraft-Erze · links dunkel, rechts hell",
+      "time": "2026-10-30T15:30:00+01:00"
+    },
+    {
+      "img": "progress/p15-blocks.webp",
+      "caption": "Server mit 3D-Minecraft-Blöcken · lange Namen werden sauber gekürzt",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
+    {
+      "img": "progress/p15-games.webp",
+      "caption": "Spielauswahl als große Bildkarten · oben dunkler, unten heller Modus",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
+    {
+      "img": "progress/p15-update.webp",
+      "caption": "Neue Update-Karte · Add-ons mit Geyser- und Voice-Chat-Logo",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
     {
       "img": "progress/p14-servers.webp",
       "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
@@ -266,83 +356,33 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p14-gems.webp",
       "caption": "Eigene Grafiken · Pakete als Edelsteine von Stein bis Netherite",
       "time": "2026-10-30T13:55:00+01:00"
-    },
-    {
-      "img": "progress/p13-update.webp",
-      "caption": "Update · Fortschritt in 3 Schritten mit Protokoll und „Was ist neu?“",
-      "time": "2026-10-30T13:12:00+01:00"
-    },
-    {
-      "img": "progress/p13-admin.webp",
-      "caption": "Admin-Bereich mit Reitern · NetBird-Karte passt wieder in den Rahmen",
-      "time": "2026-10-30T13:05:00+01:00"
-    },
-    {
-      "img": "progress/p13-demo.webp",
-      "caption": "Demo · survival.mornihosting.de ohne Port, Heimnetz-Adresse bricht sauber um",
-      "time": "2026-10-30T13:14:00+01:00"
-    },
-    {
-      "img": "progress/p12-join.webp",
-      "caption": "mornihosting.de · Adresse für Freunde: Java nur reich.mornihosting.de (SRV-Eintrag), Bedrock mit Hinweis aufs Port-Feld",
-      "time": "2026-10-30T12:30:00+01:00"
-    },
-    {
-      "img": "progress/p12-order.webp",
-      "caption": "mornihosting.de · Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, Benutzerdefiniert, Name .mornihosting.de, Add-ons, Bestellübersicht (0,00 €)",
-      "time": "2026-10-30T12:20:00+01:00"
-    },
-    {
-      "img": "progress/p12-start.webp",
-      "caption": "mornihosting.de · Neue Startseite mit Anmeldung, Spielen (Java, Bedrock, Crossplay) und Funktionen",
-      "time": "2026-10-30T12:10:00+01:00"
-    },
-    {
-      "img": "progress/p12-https.webp",
-      "caption": "mornihosting.de · HTTPS mit einem Klick: https://mornihosting.de öffnet das Panel",
-      "time": "2026-10-30T12:05:00+01:00"
-    },
-    {
-      "img": "progress/p12-inwx.webp",
-      "caption": "mornihosting.de · INWX im Admin-Bereich: Benutzername, Passwort, optional 2FA-Schlüssel",
-      "time": "2026-10-30T11:59:00+01:00"
-    },
-    {
-      "img": "progress/p11-minecraft.webp",
-      "caption": "Phase 11 · Minecraft-Konto verbunden: eigener Kopf und automatisch OP als Besitzer",
-      "time": "2026-10-28T09:25:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/web/src/components/art.tsx (Logo, Badges, Szenen, Edelsteine, Initialen)"
+      "path": "packages/shared/src/branding.ts (alle Logo- und Bildquellen an einer Stelle), apps/server/src/branding/game-art.ts (Spielbilder)"
     },
     {
       "tag": "geändert",
-      "path": "Bestellseite, Startseite, Server-Icons, Benutzerliste"
+      "path": "CreateServerPage.tsx (Logos, Vanilla zuerst, keine Vorauswahl, Namens-Würfel), project-logo.tsx, vite.config.ts (Demo bettet Bilder ein)"
     },
     {
-      "tag": "entfernt",
-      "path": "Pixel-Blöcke in lib/pixel.ts (Spielerköpfe bleiben Pixel – das sind echte Skins)"
+      "tag": "behoben",
+      "path": "styles/demo.css (Schrift in der Claude-App lesbar), PanelSettingsPage.tsx (kein Scroll-Strich)"
     }
   ],
-  "eta": "2026-10-30T14:20:00+01:00",
+  "eta": null,
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T13:45:00+01:00",
-      "title": "Eigene Grafiken zeichnen: Logo, Server-Icons, Spiele-Szenen, Edelsteine, Initialen"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T13:55:00+01:00",
-      "title": "Überall einbauen, Demo neu veröffentlichen"
+      "until": "",
+      "title": "Server-Panel im neuen Design"
     },
     {
       "status": "current",
-      "until": "2026-10-30T14:20:00+01:00",
-      "title": "Tests, PR, Merge nach main"
+      "until": "",
+      "title": "Auf dein Go warten, dann Merge nach main"
     }
   ]
 }

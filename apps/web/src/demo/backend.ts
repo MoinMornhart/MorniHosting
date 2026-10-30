@@ -2,6 +2,7 @@
 import {
   NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
+  type Changelog,
   type ConnectionInfo,
   type InstalledContent,
   type NetbirdServiceInfo,
@@ -128,7 +129,8 @@ const state = {
     ['lena', 'lena-passwort-1'],
     ['finn', 'finn-passwort-1'],
   ]),
-  theme: adminMe.user.theme,
+  // The demo follows the light or dark mode of the app it is shown in.
+  theme: 'system' as MeResponse['user']['theme'],
   passkeys: new Map<number, PasskeyEntry[]>([
     [
       adminMe.user.id,
@@ -285,6 +287,10 @@ function tick(): void {
       ),
       tps:
         server.edition === 'java' ? Math.min(20, 19.5 + Math.random() * 0.6 - players.length * 0.04) : null,
+      // Traffic grows with the players; the folder stays about the size of a small world.
+      netRxBytes: (live.netRxBytes ?? 0) + 2_000 + players.length * 9_000 * Math.random(),
+      netTxBytes: (live.netTxBytes ?? 0) + 2_000 + players.length * 60_000 * Math.random(),
+      diskMb: live.diskMb ?? (server.edition === 'java' ? 418 : 126),
     });
   });
 }
@@ -341,6 +347,8 @@ function stopServer(serverId: string, then?: () => void): void {
       cpuPercent: null,
       memoryMb: null,
       tps: null,
+      netRxBytes: null,
+      netTxBytes: null,
       startedAt: null,
     });
     log(serverId, '\u001b[33m[MorniHosting]\u001b[0m Server ist gestoppt. Die Welt ist gespeichert.');
@@ -807,6 +815,30 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/system/update', () => ok(state.update)],
+  [
+    'GET',
+    '/api/system/changelog',
+    () =>
+      ok({
+        release: '1.0.0',
+        commit: state.update.current,
+        url: 'https://github.com/pmornhart/MorniHosting/commits/main',
+        failed: false,
+        changes: [
+          ['ce95d5c', 'Server-Panel im neuen Design', 0.2],
+          ['a8a2fea', 'Heller Modus in der Claude-App, fester Server-Kopf, neues Icon, INWX-Meldung', 1],
+          ['95e46a2', 'Echte Software-Logos, Vanilla zuerst, Bestellseite ohne Vorauswahl', 2],
+          ['092c7d1', 'Echte Minecraft-Bilder bei der Spielauswahl, Schrift in der Demo lesbar', 3],
+          ['ffa4635', 'Pakete als Minecraft-Erze, schwarze Schrift auf dem iPhone behoben', 4],
+          ['e937dbc', 'Spielauswahl mit großen Bildkarten, gleich große Symbole, Karten bündig', 5],
+          ['16331a3', 'Minecraft-Blöcke als Server-Icons, Logos von Paper und Geyser', 6],
+        ].map(([sha, title, hours]) => ({
+          sha: String(sha),
+          title: String(title),
+          date: new Date(Date.now() - Number(hours) * 3_600_000).toISOString(),
+        })),
+      } satisfies Changelog),
+  ],
   [
     'POST',
     '/api/system/update',

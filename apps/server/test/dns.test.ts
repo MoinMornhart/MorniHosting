@@ -331,7 +331,7 @@ describe('INWX', () => {
       return Response.json({ code: 2303, msg: 'Object does not exist' });
     });
     const wrong = createDnsClient('inwx', JSON.stringify({ user: 'philip', pass: 'falsch' }));
-    await expect(wrong.zones()).rejects.toMatchObject({ code: 'dns_unauthorized' });
+    await expect(wrong.zones()).rejects.toMatchObject({ code: 'dns_inwx_login' });
 
     const client = createDnsClient('inwx', JSON.stringify({ user: 'philip', pass: 'geheim' }));
     expect(await client.zones()).toEqual([{ id: 'mornihosting.de', name: 'mornihosting.de' }]);

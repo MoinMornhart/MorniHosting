@@ -57,7 +57,9 @@
   "theme": {
     "dark": "Dunkel",
     "light": "Hell",
-    "system": "Wie das System"
+    "system": "Wie das System",
+    "toLight": "Hell einschalten",
+    "toDark": "Dunkel einschalten"
   },
   "nav": {
     "main": "Hauptmenü",
@@ -195,13 +197,19 @@
       "mods": "Mods",
       "files": "Dateien",
       "backups": "Backups",
-      "schedules": "Zeitpläne",
+      "schedules": "Routinen",
       "players": "Spieler",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "version": "Version",
+      "network": "Netzwerk",
+      "advanced": "Erweitert"
     },
     "meta": "{{software}} {{version}} · {{edition}} · Port {{port}}",
     "notFound": "Diesen Server gibt es nicht (mehr).",
-    "noPermission": "Dafür fehlen dir die Rechte auf diesem Server."
+    "noPermission": "Dafür fehlen dir die Rechte auf diesem Server.",
+    "connect": "Verbinden",
+    "portLabel": "Port",
+    "geyserPortLabel": "Geyser-Port"
   },
   "connection": {
     "title": "Verbindung",
@@ -247,7 +255,14 @@
     "last24h": "Letzte 24 Stunden",
     "last7d": "Letzte 7 Tage",
     "noData": "Noch keine Messwerte. Sie erscheinen, sobald der Server läuft.",
-    "title": "Verlauf"
+    "title": "Verlauf",
+    "uptime": "Laufzeit",
+    "disk": "Festplatte",
+    "netIn": "Netzwerk (eingehend)",
+    "netOut": "Netzwerk (ausgehend)",
+    "network": "Netzwerk",
+    "netInShort": "Rein",
+    "netOutShort": "Raus"
   },
   "console": {
     "title": "Konsole",
@@ -511,7 +526,13 @@
     "dns_failed": "Die DNS-Einträge konnten nicht angelegt werden.",
     "dns_inwx_2fa": "Bei diesem INWX-Konto ist die Zwei-Faktor-Anmeldung an. Trag den 2FA-Schlüssel ein (oder nutze ein Unterkonto ohne 2FA).",
     "https_needs_domain": "Verbinde zuerst deine eigene Domain.",
-    "https_failed": "HTTPS ließ sich nicht starten: {{message}}"
+    "https_failed": "HTTPS ließ sich nicht starten: {{message}}",
+    "dns_inwx_login": "INWX hat die Anmeldung abgelehnt: Benutzername oder Passwort stimmen nicht. Nimm den INWX-Benutzernamen (nicht die E-Mail-Adresse) und prüfe das Passwort, z. B. indem du dich damit auf inwx.de anmeldest. Nach mehreren Fehlversuchen sperrt INWX die Anmeldung kurz.",
+    "dns_inwx_2fa_wrong": "INWX hat den 2FA-Code abgelehnt. Prüfe den 2FA-Schlüssel: Es ist der lange geheime Schlüssel aus der Einrichtung, nicht der 6-stellige Code.",
+    "software_not_switchable": "Zwischen diesen beiden Programmen kann der Server nicht wechseln.",
+    "software_switch_running": "Stoppe den Server, bevor du die Software wechselst.",
+    "software_switch_addons": "Schalte Bedrock-Spieler (Geyser) und Voice-Chat aus, bevor du die Software wechselst.",
+    "software_switch_version": "Wähle eine Minecraft-Version für die neue Software."
   },
   "update": {
     "text": "Deine Minecraft-Server laufen beim Update weiter.",
@@ -548,7 +569,13 @@
       "pull": "Neuen Code holen",
       "build": "Panel bauen (ein paar Minuten)",
       "restart": "Panel neu starten"
-    }
+    },
+    "headline": {
+      "ok": "Alles aktuell",
+      "new": "Neue Version verfügbar",
+      "failed": "Prüfung gerade nicht möglich"
+    },
+    "checkedWhen": "Zuletzt geprüft {{when}}."
   },
   "players": {
     "online": "Gerade online",
@@ -658,7 +685,9 @@
       "kickText": "Die Verbindung wird getrennt. Der Spieler kann sofort wieder beitreten.",
       "banTitle": "{{name}} sperren?",
       "banText": "Der Spieler wird getrennt und kann nicht mehr beitreten, bis du die Sperre aufhebst."
-    }
+    },
+    "title": "Spieler",
+    "intro": "Wer gerade online ist, wer OP ist und wer auf die Whitelist darf. Mit einem Klick kicken, bannen oder OP geben."
   },
   "settings": {
     "sections": {
@@ -772,7 +801,8 @@
       "deleteFiles": "Auch alle Dateien und Welten löschen",
       "deleteFilesHint": "Ohne Haken landen sie im Archiv-Ordner des Panels.",
       "deleted": "„{{name}}“ wurde gelöscht"
-    }
+    },
+    "intro": "Hier passt du den Serverstart an. Änderungen gelten nach einem Neustart des Servers."
   },
   "props": {
     "motd": {
@@ -1010,7 +1040,15 @@
     "dropHere": "Loslassen zum Hochladen",
     "removed": "{{name}} liegt im Papierkorb",
     "deleteTitle": "{{name}} löschen?",
-    "deleteText": "Die Datei kommt 7 Tage in den Papierkorb. Der Einstellungs-Ordner des Plugins bleibt erhalten."
+    "deleteText": "Die Datei kommt 7 Tage in den Papierkorb. Der Einstellungs-Ordner des Plugins bleibt erhalten.",
+    "intro": {
+      "plugins": "Plugins erweitern deinen Server, z. B. um Homes, Schutz oder Minispiele. Neue Plugins findest du über „Hinzufügen“.",
+      "mods": "Mods verändern das Spiel. Spieler brauchen meist dieselben Mods im eigenen Minecraft."
+    },
+    "add": {
+      "plugins": "Plugins hinzufügen",
+      "mods": "Mods hinzufügen"
+    }
   },
   "market": {
     "sources": "Quelle",
@@ -1092,10 +1130,12 @@
     "excludePlaceholder": "z. B. logs/ oder *.log",
     "addExclude": "Hinzufügen",
     "removeExclude": "{{pattern}} wieder sichern",
-    "excludeHint": "Ordner mit / am Ende (logs/), Dateitypen mit Stern (*.log). Protokolle und Cache brauchst du meist nicht."
+    "excludeHint": "Ordner mit / am Ende (logs/), Dateitypen mit Stern (*.log). Protokolle und Cache brauchst du meist nicht.",
+    "title": "Backups",
+    "intro": "Sicherungen deiner Welt und Dateien. Ein Klick stellt einen früheren Stand wieder her."
   },
   "schedules": {
-    "new": "Neuer Zeitplan",
+    "new": "Routine erstellen",
     "newTitle": "Neuer Zeitplan",
     "editTitle": "Zeitplan bearbeiten",
     "dialogText": "Was soll wann passieren? Der Server erledigt es dann von allein.",
@@ -1153,7 +1193,9 @@
     "emptyText": "Lass den Server nachts neu starten oder regelmäßig sichern, ganz ohne Cron. Nimm eine Schnellvorlage oder erstelle einen eigenen Zeitplan.",
     "timezoneNote": "Uhrzeiten gelten in der Zeitzone des Panels.",
     "deleteTitle": "„{{name}}“ löschen?",
-    "deleteText": "Der Zeitplan läuft dann nicht mehr."
+    "deleteText": "Der Zeitplan läuft dann nicht mehr.",
+    "title": "Routinen",
+    "intro": "Erstelle Routinen, um Aufgaben auf deinem Server zu automatisieren: Neustarts, Backups oder regelmäßige Chat-Nachrichten."
   },
   "webhooks": {
     "title": "Benachrichtigungen",
@@ -1660,7 +1702,8 @@
       "random": "Der NetBird-Proxy lässt von sich aus nur Port 443 durch, und dein NetBird vergibt für jeden Server einen eigenen Port. Gib jeden dieser Ports frei – in der docker-compose.yml deines NetBird-Servers beim Dienst netbird-proxy, danach „docker compose up -d“. Erlaubt dein Proxy eigene Ports, nimmt MorniHosting automatisch die Server-Ports (25565 …).",
       "firewall": "Hat dein Anbieter eine eigene Firewall im Kundenmenü (z. B. IONOS, Hetzner), dort dieselben Ports öffnen – die kann kein Skript erreichen. Von Hand geht es auch: die Ports oben in der docker-compose.yml beim netbird-proxy eintragen oder den Proxy mit „network_mode: host“ laufen lassen.",
       "auto": "Am einfachsten: diesen Befehl einmal auf deinem NetBird-Server ausführen. Er gibt 25565–25575/tcp, 19132–19140/udp und 24454–24460/udp im netbird-proxy frei (und in ufw/firewalld, falls aktiv) und startet nur den Proxy neu."
-    }
+    },
+    "managedDns": "Wird über deine eigene Domain eingerichtet."
   },
   "minecraftAccount": {
     "title": "Minecraft-Konto",
@@ -1732,16 +1775,19 @@
     "gamesText": "Such dir aus, womit du loslegst – Version und Software kannst du jederzeit wechseln.",
     "games": {
       "java": {
-        "title": "Minecraft Java",
-        "text": "Paper, Purpur, Fabric, Forge, NeoForge oder Vanilla – für PC und Mac."
+        "title": "Minecraft Java Edition",
+        "text": "Paper, Purpur, Fabric, Forge, NeoForge oder Vanilla – für PC und Mac.",
+        "edition": "Java Edition"
       },
       "bedrock": {
-        "title": "Minecraft Bedrock",
-        "text": "Für Handy, Konsole und Windows – die Edition aus dem Store."
+        "title": "Minecraft Bedrock Edition",
+        "text": "Für Handy, Konsole und Windows – die Edition aus dem Store.",
+        "edition": "Bedrock Edition"
       },
       "crossplay": {
-        "title": "Minecraft Crossplay",
-        "text": "Java-Server, auf dem auch Bedrock-Spieler mitspielen (Geyser)."
+        "title": "Minecraft Geyser",
+        "text": "Java-Server, auf dem auch Bedrock-Spieler mitspielen – Handy, Konsole und PC zusammen.",
+        "edition": "Geyser"
       }
     },
     "free": "Kostenlos",
@@ -1773,7 +1819,7 @@
     "title": {
       "java": "Minecraft: Java Edition Server",
       "bedrock": "Minecraft: Bedrock Edition Server",
-      "crossplay": "Minecraft Crossplay-Server (Java + Bedrock)"
+      "crossplay": "Minecraft Geyser Server (Java + Bedrock)"
     },
     "backToGames": "Zurück zur Spieleauswahl",
     "performance": "Performance auswählen",
@@ -1785,11 +1831,11 @@
     "customText": "Du brauchst eine andere Größe? Stell den Arbeitsspeicher selbst ein.",
     "recommendation": "Für {{software}} empfehlen wir mindestens {{ram}}. Die Spielerzahl ist ein Richtwert – viele Mods brauchen mehr.",
     "software": "Software & Version",
-    "softwareText": "Die Server-Software bestimmt, ob Plugins oder Mods laufen. Nicht sicher? Lass die Vorauswahl.",
+    "softwareText": "Die Server-Software bestimmt, ob Plugins oder Mods laufen. Nicht sicher? Paper passt für die meisten.",
     "version": "Minecraft-Version",
     "name": "Servername auswählen",
     "nameText": "Die Adresse, mit der sich Spieler auf deinen Server verbinden.",
-    "addressReady": "Spieler verbinden sich mit {{hostname}}. Wir haben schon einen Namen vorausgefüllt – du kannst ihn jetzt oder jederzeit später ändern.",
+    "addressReady": "Spieler verbinden sich mit {{hostname}}. Du kannst den Namen jederzeit später ändern.",
     "noDomain": "Noch keine eigene Domain eingerichtet – Spieler verbinden sich dann über IP und Port. Eine Domain stellst du im Admin-Bereich ein.",
     "displayName": "Anzeigename (optional)",
     "displayNameHint": "So heißt der Server im Panel. Leer = wie die Adresse.",
@@ -1812,7 +1858,7 @@
     "price": "Preis",
     "month": "Monat",
     "priceNote": "Kostenlos – es ist dein eigener Server.",
-    "startNow": "Der Server wird sofort bereitgestellt und gestartet",
+    "startNow": "Server gleich nach der Bestellung starten",
     "changeLater": "Leistung & Add-ons später jederzeit änderbar",
     "bedrockJoin": "Bedrock-Spieler tragen {{hostname}} als Serveradresse ein und {{port}} als Port. Bedrock kennt keine Adressen mit eingebautem Port – nur ein Server auf 19132 klappt ganz ohne Port-Angabe.",
     "geyserJoin": "Java-Spieler geben nur {{hostname}} ein. Bedrock-Spieler nehmen dieselbe Adresse; den Port zeigt die Server-Seite nach dem Erstellen (der erste Server bekommt 19132, das ist schon vorausgefüllt).",
@@ -1824,8 +1870,52 @@
       "emerald": "Smaragd",
       "diamond": "Diamant",
       "amethyst": "Amethyst",
-      "ruby": "Rubin",
-      "netherite": "Netherite"
-    }
+      "netherite": "Netherite",
+      "redstone": "Redstone"
+    },
+    "pickPlan": "Wähle ein Paket – die Spielerzahl ist ein Richtwert.",
+    "pickSoftware": "Wähle eine Server-Software, danach die Version.",
+    "pickVersion": "Version wählen",
+    "nameIdea": "Namen vorschlagen",
+    "pickName": "Gib deinem Server einen Namen – daraus wird seine Adresse unter {{domain}}. Der Würfel schlägt dir einen vor."
+  },
+  "version": {
+    "title": "Minecraft-Version",
+    "text": "Wähle Server-Software und Minecraft-Version. Deine Welt bleibt erhalten; neue Dateien lädt der Server beim nächsten Start.",
+    "current": "Aktuell läuft {{software}}",
+    "installed": "Installierte Minecraft-Version: {{version}}",
+    "available": "Andere Software",
+    "switchHint": "Klick eine Software an, wähle die Version und wechsle. Plugins und Mods der alten Software passen danach meist nicht mehr – mach vorher ein Backup.",
+    "stopFirst": "Stoppe den Server, um die Software zu wechseln.",
+    "addOnsOff": "Schalte vorher Bedrock-Spieler (Geyser) und Voice-Chat im Reiter Netzwerk aus.",
+    "pick": "Version wählen",
+    "switch": "Zu {{software}} wechseln",
+    "install": "Version installieren",
+    "saved": "{{software}} {{version}} ist eingestellt. Gilt beim nächsten Start.",
+    "running": "Läuft gerade",
+    "dev": "Entwicklerversion"
+  },
+  "network": {
+    "title": "Netzwerk",
+    "text": "Adresse für deine Freunde, Erreichbarkeit von außen, Bedrock-Spieler und Voice-Chat."
+  },
+  "advanced": {
+    "title": "Erweitert",
+    "text": "Angaben für Hilfe und Support – und den Server löschen.",
+    "debug": "Debug-Informationen",
+    "serverId": "Server-ID",
+    "container": "Container",
+    "image": "Image",
+    "created": "Angelegt am"
+  },
+  "changelog": {
+    "title": "Was ist neu",
+    "open": "Version und Neuerungen anzeigen",
+    "running": "Dein Panel läuft mit {{version}}. Das sind die letzten Änderungen:",
+    "updateReady_one": "Ein Update ist bereit – jetzt ansehen",
+    "updateReady_other": "{{count}} Neuerungen sind bereit – jetzt aktualisieren",
+    "updateDot": "Update verfügbar",
+    "failed": "GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.",
+    "all": "Alle Änderungen auf GitHub"
   }
 }

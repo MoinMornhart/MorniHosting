@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { Package, RotateCw, Search } from 'lucide-react';
+import { Package, Plus, RotateCw } from 'lucide-react';
 import { useEffect, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { SOFTWARE } from '@mornihosting/shared';
 import { EmptyState } from '@/components/page';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { useServerAction } from '@/features/dashboard/ServerCard';
 import { useServer } from '../ServerLayout';
 import { contentQuery, InstalledList } from './InstalledList';
 import { Marketplace, useInstallFeedback, type InstallOutcome } from './Marketplace';
+import { TabIntro } from '@/components/tab-intro';
 
 type View = 'installed' | 'browse';
 
@@ -42,34 +42,26 @@ export default function ContentTab(): ReactElement {
     feedback(outcome);
     changed();
   };
-  const tabs: readonly { id: View; icon: typeof Package; label: string }[] = [
-    { id: 'installed', icon: Package, label: t('content.installed', { count: installed?.length ?? 0 }) },
-    { id: 'browse', icon: Search, label: t(`content.discover.${kind}`) },
-  ];
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-[12px] border border-border bg-secondary p-1" role="tablist">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={view === tab.id}
-              onClick={() => setParams(tab.id === 'browse' ? { view: 'browse' } : {})}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-[9px] px-3.5 py-1.5 text-sm font-semibold text-muted-foreground transition-colors [&_svg]:size-4',
-                view === tab.id && 'bg-card text-foreground shadow-card',
-              )}
-            >
-              <tab.icon aria-hidden />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+      <TabIntro
+        title={t(`server.tabs.${kind}`)}
+        text={t(`content.intro.${kind}`)}
+        action={
+          view === 'browse' ? (
+            <Button variant="secondary" onClick={() => setParams({})}>
+              <Package />
+              {t('content.installed', { count: installed?.length ?? 0 })}
+            </Button>
+          ) : (
+            <Button onClick={() => setParams({ view: 'browse' })}>
+              <Plus />
+              {t(`content.add.${kind}`)}
+            </Button>
+          )
+        }
+      />
       {restartNeeded ? (
         <div className="flex flex-wrap items-center gap-3 rounded-[14px] border border-warning/40 bg-warning-soft px-4 py-3 text-sm">
           <span className="flex-1 font-medium text-warning">{t(`content.restartHint.${kind}`)}</span>

@@ -155,7 +155,7 @@ export function ServerCard({ server }: { server: ServerSummary }): ReactElement 
   const nobody = live.state === 'starting' ? t('card.nobodyYet') : t('card.nobodyOnline');
 
   return (
-    <Card className="grid content-start gap-3.5 p-[18px]">
+    <Card className="grid grid-rows-[auto_auto_auto_1fr] gap-3.5 p-[18px]">
       <div className="flex items-center gap-3">
         <ServerIcon id={server.id} software={server.software} hasIcon={server.hasIcon} />
         <Link to={`/servers/${server.id}`} className="min-w-0 flex-1 after:absolute">
@@ -177,7 +177,8 @@ export function ServerCard({ server }: { server: ServerSummary }): ReactElement 
         />
       </div>
       <Body server={server} />
-      <div className="flex items-center gap-2">
+      {/* The footer sits at the bottom, so stopped and running cards in a row line up. */}
+      <div className="flex items-center gap-2 self-end">
         {players.length ? (
           <span className="flex items-center">
             {players.slice(0, MAX_HEADS).map((name, i) => (

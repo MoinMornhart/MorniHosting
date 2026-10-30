@@ -29,7 +29,8 @@ const THEME = {
   foreground: '#cfd8d3',
   cursor: '#0a0f0d',
   selectionBackground: '#10b98155',
-  black: '#1b2621',
+  // Minecraft's §0 (black) and §8 (dark grey) must stay readable on the dark terminal.
+  black: '#8a9993',
   red: '#fb8a8a',
   green: '#34d399',
   yellow: '#f6b54e',
@@ -37,7 +38,7 @@ const THEME = {
   magenta: '#d6a0ff',
   cyan: '#7fd8ff',
   white: '#cfd8d3',
-  brightBlack: '#6f817a',
+  brightBlack: '#9aa8a2',
   brightRed: '#ff9e9e',
   brightGreen: '#58e0a4',
   brightYellow: '#ffd27a',

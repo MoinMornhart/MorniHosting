@@ -70,6 +70,44 @@ describe('server lifecycle with the fake driver', () => {
     await waitFor(async () => (await state(created.id)) === 'stopped');
   });
 
+  test('a stopped Java server can switch its software', async () => {
+    const created = (
+      await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: { ...paper, startNow: false },
+      })
+    ).json<ServerSummary>();
+    const patch = async (
+      payload: object,
+    ): Promise<{ status: number; body: { error?: string; software?: string } }> => {
+      const res = await t.app.inject({
+        method: 'PATCH',
+        url: `/api/servers/${created.id}`,
+        headers: authHeaders(s),
+        payload,
+      });
+      return { status: res.statusCode, body: res.json() };
+    };
+    expect((await patch({ software: 'fabric' })).body.error).toBe('software_switch_version');
+    expect((await patch({ software: 'velocity', version: '3.4.0' })).body.error).toBe(
+      'software_not_switchable',
+    );
+    const switched = await patch({ software: 'fabric', version: '1.21.4' });
+    expect(switched.status).toBe(200);
+    expect(switched.body.software).toBe('fabric');
+    await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/actions/start`,
+      headers: authHeaders(s),
+    });
+    await waitFor(async () => (await state(created.id)) === 'running');
+    expect((await patch({ software: 'paper', version: '1.21.4' })).body.error).toBe(
+      'software_switch_running',
+    );
+  });
+
   test('a port can only be used once', async () => {
     await t.app.inject({
       method: 'POST',

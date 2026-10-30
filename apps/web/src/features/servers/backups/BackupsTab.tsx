@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { api } from '@/lib/api';
 import { formatBytes, formatDateTime, formatRelative } from '@/lib/format';
 import { useServer } from '../ServerLayout';
+import { TabIntro } from '@/components/tab-intro';
 
 interface BackupsResponse {
   readonly backups: readonly BackupEntry[];
@@ -257,6 +258,9 @@ export default function BackupsTab(): ReactElement {
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="lg:col-span-2">
+        <TabIntro title={t('backups.title')} text={t('backups.intro')} />
+      </div>
       <div className="grid min-w-0 gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => create.mutate()} disabled={create.isPending || running}>

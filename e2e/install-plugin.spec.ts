@@ -2,6 +2,10 @@
 import { expect, test } from '@playwright/test';
 import { createServer } from './helpers';
 
+// The button back to the list: "Installiert (1)" matches; "Installiert" (a done marketplace entry) does not.
+// https://regex101.com/?regex=%5EInstalliert%20%5C(&testString=Installiert%20(1)%0AInstalliert
+const INSTALLED_BUTTON = /^Installiert \(/;
+
 test('install a plugin from the marketplace and add an own .jar', async ({ page, request }) => {
   const server = await createServer(request, 'E2E Plugins', false);
   const installed: { name: string }[] = [];
@@ -43,7 +47,8 @@ test('install a plugin from the marketplace and add an own .jar', async ({ page,
   await expect(page.getByText('LuckPerms ist installiert')).toBeVisible();
   expect(installed).toHaveLength(1);
 
-  await page.getByRole('tab', { name: 'Installiert' }).click();
+  // The button in the tab head switches back from the marketplace to the installed list.
+  await page.getByRole('button', { name: INSTALLED_BUTTON }).click();
   await page.locator('input[type=file]').setInputFiles({
     name: 'MeinPlugin-1.0.jar',
     mimeType: 'application/java-archive',

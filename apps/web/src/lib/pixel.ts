@@ -1,6 +1,6 @@
 /** Small pixel-art faces for players, drawn on a canvas (Minecraft skins are pixel art, so they stay that way). */
 
-type Rng = () => number;
+export type Rng = () => number;
 
 const MULBERRY_INCREMENT = 0x6d2b79f5;
 const SHIFT_A = 15;
@@ -24,7 +24,7 @@ const RIGHT_EYE_X = 6;
 const MOUTH_LEFT = 3;
 const MOUTH_RIGHT = 4;
 
-function rng(seed: number): Rng {
+export function rng(seed: number): Rng {
   const state = { seed };
   return () => {
     state.seed = (state.seed + MULBERRY_INCREMENT) | 0;

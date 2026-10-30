@@ -18,7 +18,7 @@ export interface FieldProps {
 /** A label, the control, and its hint or error underneath, tied together for screen readers. */
 export function Field({ id, label, hint, error, children, className }: FieldProps): ReactElement {
   return (
-    <div className={cn('grid gap-2', className)}>
+    <div className={cn('grid content-start gap-2', className)}>
       <Label htmlFor={id}>{label}</Label>
       {children}
       {error ? (

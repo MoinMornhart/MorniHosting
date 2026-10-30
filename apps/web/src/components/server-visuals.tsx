@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { ServerState } from '@mornihosting/shared';
 import { playerFace } from '@/lib/pixel';
 import { cn } from '@/lib/utils';
-import { Badge, glyphFor, LogoMark } from './art';
+import { Badge, LogoMark } from './art';
+import { blockOf, McBlock } from './mc-block';
 import { Pill, type PillTone } from './ui/pill';
 
 const STATE_TONES: Readonly<Record<ServerState, PillTone>> = {
@@ -53,13 +54,17 @@ function useIconVersion(id: string): number {
   );
 }
 
-/** The server's own server-icon.png if it has one, otherwise a badge with the glyph of its software. */
+/** The server's own server-icon.png if it has one, otherwise the Minecraft block of its software. */
 export function ServerIcon({ id, software, hasIcon, className }: ServerIconProps): ReactElement {
   const version = useIconVersion(id);
   const iconUrl = `/api/servers/${id}/icon${version ? `?v=${version}` : ''}`;
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   if (!hasIcon || failedUrl === iconUrl) {
-    return <Badge glyph={id === ALL_SERVERS ? 'all' : glyphFor(software)} seed={id} className={className} />;
+    return id === ALL_SERVERS ? (
+      <Badge glyph="all" className={className} />
+    ) : (
+      <McBlock kind={blockOf(software)} className={className} />
+    );
   }
   return (
     <img

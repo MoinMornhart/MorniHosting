@@ -18,6 +18,9 @@ const MS_PER_SECOND = 1000;
 export interface LiveSample {
   readonly cpu: number;
   readonly mem: number;
+  /** Bytes received and sent since the server started (the charts show the change between samples). */
+  readonly rx: number | null;
+  readonly tx: number | null;
 }
 
 /** Recent live samples per server, for the small charts on the cards. */
@@ -26,9 +29,10 @@ const historyListeners = new Set<() => void>();
 
 function pushSample(serverId: string, live: ServerLive): void {
   if (live.cpuPercent === null || live.memoryMb === null) return;
-  const next = [...(history.get(serverId) ?? []), { cpu: live.cpuPercent, mem: live.memoryMb }].slice(
-    -HISTORY_POINTS,
-  );
+  const next = [
+    ...(history.get(serverId) ?? []),
+    { cpu: live.cpuPercent, mem: live.memoryMb, rx: live.netRxBytes ?? null, tx: live.netTxBytes ?? null },
+  ].slice(-HISTORY_POINTS);
   history.set(serverId, next);
   historyListeners.forEach((l) => l());
 }

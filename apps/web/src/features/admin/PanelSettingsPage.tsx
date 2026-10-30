@@ -378,10 +378,7 @@ export function PanelSettingsPage(): ReactElement {
     <div className="grid min-w-0 gap-5">
       <PageHeader title={t('admin.title')} subtitle={t('admin.subtitle')} />
       <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <nav
-          aria-label={t('admin.title')}
-          className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:sticky lg:top-4 lg:mx-0 lg:grid lg:overflow-visible lg:p-0"
-        >
+        <nav aria-label={t('admin.title')} className="flex flex-wrap gap-1.5 lg:sticky lg:top-4 lg:grid">
           {TABS.map(({ key, icon: Icon }) => (
             <button
               key={key}

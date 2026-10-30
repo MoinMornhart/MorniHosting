@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { ServerDetail, SoftwareId } from '@mornihosting/shared';
 import { Button } from '@/components/ui/button';
+import { ProjectLogo } from '@/components/project-logo';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pill } from '@/components/ui/pill';
 import { Switch } from '@/components/ui/switch';
@@ -49,7 +50,11 @@ export function GeyserCard({ server }: { server: ServerDetail }): ReactElement {
     <Card className="p-5 sm:p-6">
       <CardHeader className="mb-1">
         <CardTitle className="flex items-center gap-2">
-          <Smartphone className="size-4 text-primary" aria-hidden />
+          <ProjectLogo
+            project="geyser"
+            className="size-6 rounded-[6px]"
+            fallback={<Smartphone className="size-4 text-primary" aria-hidden />}
+          />
           {t('geyser.title')}
         </CardTitle>
         <Switch

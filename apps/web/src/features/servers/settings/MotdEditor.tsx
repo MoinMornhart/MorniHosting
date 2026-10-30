@@ -28,6 +28,18 @@ export const MC_COLOURS: Readonly<Record<string, string>> = {
 };
 
 const DEFAULT_COLOUR = '#AAAAAA';
+/** Colours that would vanish on the dark preview: they get a light halo so you can still see what you typed. */
+const DARK_COLOURS: ReadonlySet<string> = new Set([
+  '#000000',
+  '#0000AA',
+  '#555555',
+  '#AA0000',
+  '#AA00AA',
+  '#00AA00',
+]);
+/** Minecraft draws every letter with a small dark shadow. */
+const MC_SHADOW = '1px 1px 0 rgb(0 0 0 / 0.55)';
+const DARK_HALO = '0 0 2px rgb(255 255 255 / 0.7), 0 0 1px rgb(255 255 255 / 0.9)';
 /** The server list shows two MOTD lines. */
 const MOTD_LINES = 2;
 /** "§" plus one code character. */
@@ -98,6 +110,7 @@ function cssOf(style: Style): CSSProperties {
     fontWeight: style.bold ? WEIGHT_BOLD : WEIGHT_NORMAL,
     fontStyle: style.italic ? 'italic' : 'normal',
     textDecoration: lines.length ? lines.join(' ') : 'none',
+    textShadow: DARK_COLOURS.has(style.color) ? DARK_HALO : MC_SHADOW,
   };
 }
 

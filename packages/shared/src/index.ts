@@ -5,3 +5,4 @@ export * from './properties.js';
 export * from './schedule.js';
 export * from './software.js';
 export * from './dns.js';
+export * from './branding.js';

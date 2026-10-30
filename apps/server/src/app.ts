@@ -65,6 +65,7 @@ import { createDnsAutomation, type DnsAutomation } from './dns/service.js';
 import { registerDnsRoutes } from './dns/routes.js';
 import { createHttpsGateway } from './https/gateway.js';
 import { registerHttpsRoutes } from './https/routes.js';
+import { registerGameArtRoutes } from './branding/game-art.js';
 import { registerNetbirdRoutes } from './netbird/routes.js';
 import { createMinecraftLinkService } from './minecraft/service.js';
 import { registerMinecraftRoutes } from './minecraft/routes.js';
@@ -241,6 +242,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerNetbirdRoutes(app, netbird, dns);
   registerDnsRoutes(app, dns);
   registerHttpsRoutes(app, https);
+  registerGameArtRoutes(app, ctx);
   registerMinecraftRoutes(app, minecraftLink);
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
