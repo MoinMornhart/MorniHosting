@@ -49,6 +49,7 @@ function roleLabel(role: RoleEntry, t: (key: string) => string): string {
 interface UserDraft {
   readonly username: string;
   readonly displayName: string;
+  readonly email: string;
   readonly password: string;
   readonly isAdmin: boolean;
   readonly canCreateServers: boolean;
@@ -68,6 +69,7 @@ function UserDialog({
   const empty: UserDraft = {
     username: '',
     displayName: '',
+    email: '',
     password: '',
     isAdmin: false,
     canCreateServers: false,
@@ -80,6 +82,7 @@ function UserDialog({
         ? {
             username: user.username,
             displayName: user.displayName,
+            email: user.email ?? '',
             password: '',
             isAdmin: user.isAdmin,
             canCreateServers: user.canCreateServers,
@@ -95,6 +98,7 @@ function UserDialog({
             method: 'PATCH',
             body: {
               displayName: draft.displayName,
+              email: draft.email.trim() || null,
               isAdmin: draft.isAdmin,
               canCreateServers: draft.canCreateServers,
               ...(draft.password ? { password: draft.password } : {}),
@@ -105,6 +109,7 @@ function UserDialog({
             body: {
               username: draft.username.trim(),
               displayName: draft.displayName.trim() || undefined,
+              email: draft.email.trim() || undefined,
               password: draft.password,
               isAdmin: draft.isAdmin,
               canCreateServers: draft.canCreateServers,
@@ -149,6 +154,15 @@ function UserDialog({
               value={draft.displayName}
               maxLength={40}
               onChange={(e) => set({ displayName: e.target.value })}
+            />
+          </Field>
+          <Field id="u-email" label={t('users.email')} hint={t('users.emailHint')}>
+            <Input
+              id="u-email"
+              type="email"
+              value={draft.email}
+              autoComplete="off"
+              onChange={(e) => set({ email: e.target.value })}
             />
           </Field>
           <Field

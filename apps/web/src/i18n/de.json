@@ -154,7 +154,10 @@
     "or": "oder",
     "passkey": "Mit Passkey anmelden",
     "passkeyWaiting": "Warte auf dein Gerät …",
-    "passkeyElsewhere": "Mit Passkey anmelden geht über"
+    "passkeyElsewhere": "Mit Passkey anmelden geht über",
+    "forgot": "Passwort vergessen?",
+    "noAccount": "Noch kein Konto?",
+    "register": "Jetzt registrieren"
   },
   "dashboard": {
     "title": "Deine Server",
@@ -532,7 +535,15 @@
     "software_not_switchable": "Zwischen diesen beiden Programmen kann der Server nicht wechseln.",
     "software_switch_running": "Stoppe den Server, bevor du die Software wechselst.",
     "software_switch_addons": "Schalte Bedrock-Spieler (Geyser) und Voice-Chat aus, bevor du die Software wechselst.",
-    "software_switch_version": "Wähle eine Minecraft-Version für die neue Software."
+    "software_switch_version": "Wähle eine Minecraft-Version für die neue Software.",
+    "email_unconfirmed": "Bitte bestätige zuerst deine E-Mail-Adresse. Den Link haben wir dir geschickt.",
+    "registration_closed": "Die Registrierung ist gerade nicht möglich.",
+    "reset_unavailable": "„Passwort vergessen“ ist hier nicht eingerichtet. Frag bitte die Person, die das Panel betreibt.",
+    "link_invalid": "Dieser Link ist abgelaufen oder wurde schon benutzt. Fordere bitte einen neuen an.",
+    "email_taken": "Diese E-Mail-Adresse gehört schon zu einem anderen Konto.",
+    "mail_failed": "Die Mail konnte nicht verschickt werden: {{message}}",
+    "mail_not_configured": "E-Mail ist noch nicht eingerichtet (Admin-Bereich → E-Mail, dazu die Domain des Panels).",
+    "mail_no_recipient": "Bitte gib eine Empfänger-Adresse an oder trage zuerst deine eigene E-Mail-Adresse ein."
   },
   "update": {
     "text": "Deine Minecraft-Server laufen beim Update weiter.",
@@ -1292,7 +1303,9 @@
     "enable": "Entsperren",
     "you": "Du",
     "deleteTitle": "{{name}} löschen?",
-    "deleteText": "Das Konto und seine API-Schlüssel werden gelöscht. Server bleiben erhalten."
+    "deleteText": "Das Konto und seine API-Schlüssel werden gelöscht. Server bleiben erhalten.",
+    "email": "E-Mail-Adresse (optional)",
+    "emailHint": "Für Willkommens-Mail, „Passwort vergessen“ und Bestätigungen. Jede Adresse nur einmal."
   },
   "roles": {
     "new": "Rolle anlegen",
@@ -1476,7 +1489,14 @@
       "dns_disconnect": "Eigene Domain getrennt",
       "dns_server": "Adresse unter eigener Domain geändert",
       "https_enable": "HTTPS eingeschaltet",
-      "https_disable": "HTTPS ausgeschaltet"
+      "https_disable": "HTTPS ausgeschaltet",
+      "auth_register": "Registriert",
+      "auth_email_confirmed": "E-Mail bestätigt",
+      "account_email_changed": "E-Mail-Adresse geändert",
+      "account_email_removed": "E-Mail-Adresse entfernt",
+      "auth_password_forgotten": "Passwort per Mail zurückgesetzt",
+      "mail_settings": "Mail-Einstellungen gespeichert",
+      "mail_removed": "Mail-Einstellungen entfernt"
     }
   },
   "account": {
@@ -1546,7 +1566,8 @@
       "update": "Updates",
       "passwords": "Passwörter",
       "settings": "Einstellungen",
-      "netbird": "NetBird"
+      "netbird": "NetBird",
+      "mail": "E-Mail"
     },
     "domainTitle": "Panel-Adresse von Hand",
     "domainSet": "Eingetragen",
@@ -1569,7 +1590,8 @@
       "netbird": "Für Server ohne Portfreigabe: NetBird verbindet sie mit deiner Domain.",
       "update": "Neue Funktionen und Fehlerbehebungen mit einem Klick einspielen.",
       "passwords": "Jemand hat sein Passwort vergessen? Hier setzt du es zurück.",
-      "settings": "Adressen im Heimnetz, CurseForge-Schlüssel, Zeitzone und Sprache."
+      "settings": "Adressen im Heimnetz, CurseForge-Schlüssel, Zeitzone und Sprache.",
+      "mail": "Mails an deine Leute: Willkommen, Registrierung, „Passwort vergessen“ und Bestellungen."
     },
     "netbirdManual": "NetBird von Hand einrichten",
     "netbirdManualHint": "Nur nötig, wenn du die Automatik oben nicht nutzt. Zum Aufklappen tippen."
@@ -1917,5 +1939,95 @@
     "updateDot": "Update verfügbar",
     "failed": "GitHub ist gerade nicht erreichbar. Versuch es später noch einmal.",
     "all": "Alle Änderungen auf GitHub"
+  },
+  "mail": {
+    "title": "E-Mail-Versand",
+    "on": "Eingerichtet",
+    "off": "Nicht eingerichtet",
+    "text": "Mit einem Postfach (SMTP) kann das Panel Mails schicken. Ohne diese Einstellung läuft alles wie bisher.",
+    "host": "Mailserver",
+    "hostHint": "Die Adresse des Ausgangsservers, z. B. smtp.example.de.",
+    "port": "Port",
+    "security": "Verschlüsselung",
+    "securityHint": "„STARTTLS“ (Port 587) ist heute üblich, „TLS“ (Port 465) auch. „Keine“ nur im eigenen Netz.",
+    "securityKinds": {
+      "starttls": "STARTTLS (587)",
+      "tls": "TLS (465)",
+      "none": "Keine (25)"
+    },
+    "user": "Benutzer",
+    "password": "Passwort",
+    "passwordHint": "Wird verschlüsselt gespeichert und nie wieder angezeigt.",
+    "passwordKept": "Ein Passwort ist gespeichert. Leer lassen, um es zu behalten.",
+    "from": "Absender",
+    "fromHint": "So erscheint die Mail beim Empfänger, z. B. MorniHosting <noreply@mornihosting.de>.",
+    "needsDomain": "Links in Mails brauchen die Domain des Panels (Reiter „Domain & HTTPS“). Bis dahin sind Registrierung und „Passwort vergessen“ aus.",
+    "registration": "Registrierung auf der Startseite erlauben",
+    "registrationHint": "Neue Leute legen sich selbst ein Konto an und müssen ihre E-Mail-Adresse per Link bestätigen. Sie bekommen nur Standardrechte.",
+    "registrationOrders": "Neue Konten dürfen Server bestellen",
+    "registrationOrdersHint": "Ohne diesen Schalter musst du neue Konten erst freigeben (Benutzer → „Darf Server erstellen“).",
+    "crashMails": "Mail an Admins bei Server-Absturz",
+    "crashMailsHint": "Maximal eine Mail pro Server und Viertelstunde, zusätzlich zu den Webhooks.",
+    "saved": "E-Mail-Einstellungen gespeichert.",
+    "removed": "E-Mail-Versand ausgeschaltet.",
+    "remove": "E-Mail-Versand ausschalten",
+    "testTitle": "Test-Mail senden",
+    "testHint": "Leer lassen, dann geht sie an deine eigene Adresse (Mein Konto).",
+    "testPlaceholder": "empfaenger@example.de",
+    "testSend": "Test-Mail senden",
+    "testSent": "Test-Mail an {{to}} geschickt.",
+    "helpTitle": "Woher bekomme ich einen Mailserver?",
+    "helpInwx": "INWX: Im Kundenmenü ein Postfach für noreply@deine-domain anlegen. Server und Port stehen dort in den Postfach-Angaben (meist mail.inwx.de, Port 587).",
+    "helpIonos": "IONOS: Ein Postfach anlegen. Server smtp.ionos.de, Port 587, Benutzer ist die ganze Adresse.",
+    "helpGmail": "Gmail: smtp.gmail.com, Port 587. Du brauchst ein „App-Passwort“ (Google-Konto → Sicherheit → 2-Schritt-Bestätigung → App-Passwörter), nicht dein normales Passwort."
+  },
+  "mailPages": {
+    "backToLogin": "Zurück zur Anmeldung",
+    "email": "E-Mail-Adresse",
+    "usernameHint": "Buchstaben, Zahlen, Punkt, Strich und Unterstrich.",
+    "passwordHint": "Mindestens 10 Zeichen.",
+    "registerTitle": "Konto erstellen",
+    "registerText": "Dein eigener Minecraft-Server in wenigen Klicks. Zuerst brauchen wir deine E-Mail-Adresse.",
+    "registerSubmit": "Konto erstellen",
+    "registerSentTitle": "Schau in dein Postfach",
+    "registerSent": "Wir haben dir eine Mail an {{email}} geschickt. Klicke auf den Link darin, dann kannst du dich anmelden. Nichts angekommen? Schau auch im Spam-Ordner.",
+    "forgotTitle": "Passwort vergessen?",
+    "forgotText": "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link, mit dem du ein neues Passwort festlegst.",
+    "forgotSubmit": "Link schicken",
+    "forgotSentTitle": "Schau in dein Postfach",
+    "forgotSent": "Wenn es zu dieser Adresse ein Konto gibt, ist gerade eine Mail unterwegs. Der Link gilt eine Stunde.",
+    "resetTitle": "Neues Passwort",
+    "resetText": "Wähle ein neues Passwort für dein Konto.",
+    "newPassword": "Neues Passwort",
+    "resetSubmit": "Passwort speichern",
+    "resetDoneTitle": "Passwort geändert",
+    "resetDone": "Du kannst dich jetzt mit dem neuen Passwort anmelden. Alle anderen Geräte wurden abgemeldet.",
+    "verifying": "Einen Moment …",
+    "verifyFailedTitle": "Das hat nicht geklappt",
+    "verifyFailed": "Der Link ist unvollständig.",
+    "verified": {
+      "register": {
+        "title": "E-Mail bestätigt",
+        "text": "Danke! Dein Konto ist freigeschaltet. Du kannst dich jetzt anmelden."
+      },
+      "email_change": {
+        "title": "Adresse bestätigt",
+        "text": "Deine neue E-Mail-Adresse ist gespeichert."
+      }
+    }
+  },
+  "emailCard": {
+    "title": "E-Mail-Adresse",
+    "confirmed": "Bestätigt",
+    "text": "Für „Passwort vergessen“ und Bestätigungen deiner Bestellungen. Eine neue Adresse wird erst aktiv, wenn du den Link in der Mail anklickst.",
+    "label": "E-Mail-Adresse",
+    "newLabel": "Neue E-Mail-Adresse",
+    "password": "Dein Passwort",
+    "passwordHint": "Zur Sicherheit fragen wir es noch einmal.",
+    "send": "Bestätigungs-Mail schicken",
+    "sent": "Wir haben dir eine Mail an {{email}} geschickt. Klicke auf den Link darin.",
+    "remove": "Entfernen",
+    "removed": "E-Mail-Adresse entfernt.",
+    "unavailable": "E-Mail ist in diesem Panel noch nicht eingerichtet. Frag bitte die Person, die es betreibt."
   }
 }

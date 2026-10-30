@@ -1,5 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowUpCircle, ExternalLink, Globe, KeyRound, Network, Save, SlidersHorizontal } from 'lucide-react';
+import {
+  ArrowUpCircle,
+  ExternalLink,
+  Globe,
+  KeyRound,
+  Mail,
+  Network,
+  Save,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
@@ -18,6 +27,7 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { updateQuery } from '@/features/shell/UpdateCard';
 import { useSession } from '@/features/auth/session';
+import { MailCard } from './MailCard';
 import { NetBirdGuide } from './NetBirdGuide';
 import { DnsDomainCard } from './DnsDomainCard';
 import { NetbirdAutomationCard } from './NetbirdAutomationCard';
@@ -30,6 +40,7 @@ const TABS = [
   { key: 'domain', icon: Globe },
   { key: 'netbird', icon: Network },
   { key: 'update', icon: ArrowUpCircle },
+  { key: 'mail', icon: Mail },
   { key: 'passwords', icon: KeyRound },
   { key: 'settings', icon: SlidersHorizontal },
 ] as const;
@@ -370,6 +381,7 @@ export function PanelSettingsPage(): ReactElement {
       </>
     ),
     update: <UpdateSection />,
+    mail: <MailCard />,
     passwords: <PasswordResetCard />,
     settings: settingsForm,
   };

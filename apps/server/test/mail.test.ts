@@ -1,6 +1,8 @@
 /* eslint-disable ts-patterns/no-magic-numbers -- tests compare against literal expected values */
+import { sql } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import type { MailStatus, ServerSummary, UserInfo } from '@mornihosting/shared';
+import { mailTokens } from '../src/db/schema.js';
 import type { OutgoingMail, SmtpConfig } from '../src/mail/service.js';
 import {
   authHeaders,
@@ -196,9 +198,7 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
     ).toBe(403);
     await asAdmin('PUT', '/api/mail', { ...SMTP });
     await post('/api/auth/register', { username: 'lena', email: 'l@example.test', password: 'longenough1' });
-    t.ctx.db.$client
-      .prepare("update users set created_at = '2020-01-01T00:00:00.000Z' where username = 'lena'")
-      .run();
+    t.ctx.db.run(sql.raw("update users set created_at = '2020-01-01T00:00:00.000Z' where username = 'lena'"));
     t.mail.purgeStale();
     expect(
       (
@@ -261,7 +261,7 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
     });
     await post('/api/auth/forgot', { email: 'lena@example.test' });
     await waitFor(() => sent.length === 2);
-    t.ctx.db.$client.prepare("update mail_tokens set expires_at = '2020-01-01T00:00:00.000Z'").run();
+    t.ctx.db.run(sql.raw("update mail_tokens set expires_at = '2020-01-01T00:00:00.000Z'"));
     expect(
       (await post('/api/auth/reset', { token: tokenIn(lastMail()), password: 'brandnewpass1' })).statusCode,
     ).toBe(400);
@@ -277,11 +277,9 @@ describe('mail: settings, sign-up, password forgotten, orders', () => {
     await post('/api/auth/forgot', { email: 'lena@example.test' });
     await waitFor(() => sent.length === 2);
     const token = tokenIn(lastMail());
-    const rows = t.ctx.db.$client.prepare('select token_hash from mail_tokens').all() as {
-      token_hash: string;
-    }[];
+    const rows = t.ctx.db.select({ tokenHash: mailTokens.tokenHash }).from(mailTokens).all();
     expect(rows.length).toBe(1);
-    expect(rows[0]?.token_hash).not.toContain(token);
+    expect(rows[0]?.tokenHash).not.toContain(token);
   });
 
   test('own address: change needs the password and a confirmation link', async () => {
