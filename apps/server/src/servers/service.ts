@@ -254,7 +254,10 @@ export function createServerService(ctx: AppContext): ServerService {
   const portListeners = new Set<(id: string) => void>();
   const createdListeners = new Set<(id: string) => Promise<void>>();
   const portsChanged = (id: string): void => portListeners.forEach((listener) => listener(id));
-  const netbird: { describe: (row: ServerRow) => NetbirdServerInfo | null } = { describe: () => null };
+  // NetBird or the own-domain DNS automation describe a server's address; whichever is set up answers.
+  const addressDescribers = new Set<(row: ServerRow) => NetbirdServerInfo | null>();
+  const describeAddress = (row: ServerRow): NetbirdServerInfo | null =>
+    [...addressDescribers].map((d) => d(row)).find((info) => info !== null) ?? null;
 
   const addressOf = (r: ServerRow): string => {
     const s = settings.get();
@@ -599,7 +602,7 @@ export function createServerService(ctx: AppContext): ServerService {
         voicePort: r.voiceChat ? (r.extraPorts.find((p) => p.purpose === VOICE_PURPOSE)?.port ?? null) : null,
         voicePublicPort: r.voicePublicPort,
         voiceHost: r.voiceChat ? voiceHostOf(r) : null,
-        netbird: netbird.describe(r),
+        netbird: describeAddress(r),
         permissions: ctx.access.permissionsFor(user, id),
       };
     },
@@ -825,7 +828,7 @@ export function createServerService(ctx: AppContext): ServerService {
       db.update(servers).set(patch).where(eq(servers.id, id)).run();
     },
     describeNetbird: (provider) => {
-      netbird.describe = provider;
+      addressDescribers.add(provider);
     },
     newId,
   };

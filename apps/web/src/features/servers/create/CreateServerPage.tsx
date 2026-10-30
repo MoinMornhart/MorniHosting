@@ -27,7 +27,7 @@ import { errorText } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
 import { NetbirdNameInput } from '@/features/netbird/NetbirdNameInput';
-import { toNetbirdName, useNetbird } from '@/features/netbird/netbird';
+import { toNetbirdName, useAddressAutomation } from '@/features/netbird/netbird';
 import { serversQuery } from '../live';
 
 const STEPS = ['stepEdition', 'stepSoftware', 'stepVersion', 'stepSize', 'stepName'] as const;
@@ -105,7 +105,7 @@ export function CreateServerPage(): ReactElement {
   const [port, setPort] = useState<number | null>(null);
   const [startNow, setStartNow] = useState(true);
   const [eula, setEula] = useState(false);
-  const netbird = useNetbird();
+  const netbird = useAddressAutomation();
   /** null while the address simply follows the server name. */
   const [netbirdName, setNetbirdName] = useState<string | null>(null);
   const chosenNetbirdName = (netbirdName ?? toNetbirdName(name)).trim();

@@ -5,6 +5,7 @@ import {
   type ConnectionInfo,
   type InstalledContent,
   type NetbirdServiceInfo,
+  type DnsStatus,
   type NetbirdStatus,
   type MeResponse,
   type PanelSettings,
@@ -847,6 +848,22 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/netbird', () => ok(netbird.status)],
+  // The demo shows the own-domain card unconnected: a real key would be needed for the provider.
+  [
+    'GET',
+    '/api/dns',
+    () =>
+      ok({
+        configured: false,
+        provider: null,
+        domain: null,
+        ip: null,
+        ipCheckedAt: null,
+        error: null,
+        netbirdActive: netbird.status.configured,
+      } satisfies DnsStatus),
+  ],
+  ['POST', '/api/dns/discover', () => error(502, 'dns_unauthorized')],
   [
     'POST',
     '/api/netbird/discover',

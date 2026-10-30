@@ -497,7 +497,17 @@
     "netbird_name_taken": "Another server already uses the name {{name}}.",
     "netbird_failed": "NetBird could not be set up.",
     "minecraft_taken": "{{name}} is already linked to another account in the panel.",
-    "netbird_token_unknown": "{{host}} does not know this key. It is well-formed but was created on another NetBird server – or has been deleted since. If you run NetBird yourself, enter its address under “Your own NetBird server?” (the address where you open the NetBird dashboard)."
+    "netbird_token_unknown": "{{host}} does not know this key. It is well-formed but was created on another NetBird server – or has been deleted since. If you run NetBird yourself, enter its address under “Your own NetBird server?” (the address where you open the NetBird dashboard).",
+    "dns_unauthorized": "{{host}} rejected the API key. Check it and its permissions (edit DNS).",
+    "dns_unreachable": "The DNS provider cannot be reached right now ({{host}}).",
+    "dns_rejected": "The DNS provider says: {{message}}",
+    "dns_token_missing": "Please enter the API key.",
+    "dns_zone_unknown": "This domain does not exist (anymore) at the provider.",
+    "dns_netbird_active": "NetBird is connected – disconnect it first, then the own domain works.",
+    "netbird_dns_active": "The own domain (without NetBird) is connected – disconnect it first, then NetBird works.",
+    "dns_no_public_ip": "Your public IP cannot be found right now (api.ipify.org does not answer). The panel tries again every 5 minutes.",
+    "dns_not_configured": "Neither NetBird nor an own domain is connected (admin area).",
+    "dns_failed": "The DNS records could not be created."
   },
   "update": {
     "available": "Version {{version}} is available",
@@ -1392,7 +1402,10 @@
       "netbird_server": "Address through NetBird changed",
       "netbird_panel": "Panel address set up in NetBird",
       "account_minecraft_link": "Minecraft account linked",
-      "account_minecraft_unlink": "Minecraft account unlinked"
+      "account_minecraft_unlink": "Minecraft account unlinked",
+      "dns_configure": "Own domain connected",
+      "dns_disconnect": "Own domain disconnected",
+      "dns_server": "Address under own domain changed"
     }
   },
   "account": {
@@ -1588,12 +1601,12 @@
     "panelPort": "Panel port",
     "panelButton": "Set up",
     "panelDone": "The panel is reachable at {{address}}",
-    "fieldLabel": "Address on the internet (NetBird)",
-    "fieldHint": "Just the name – MorniHosting sets up the rest in NetBird. Remove takes the address away again.",
-    "createHint": "Suggested from the name. Leave empty if the server should not get an address through NetBird.",
+    "fieldLabel": "Address on the internet",
+    "fieldHint": "Just the name – MorniHosting sets up the rest (via NetBird or your own domain). Removing it takes the address away again.",
+    "createHint": "Suggested from the name. Leave empty if the server should not get its own address.",
     "saving": "Setting up …",
-    "serverSaved": "Address set up in NetBird",
-    "serverRemoved": "Address removed in NetBird",
+    "serverSaved": "Address set up",
+    "serverRemoved": "Address removed",
     "remove": "Remove",
     "managed": "Set up through NetBird.",
     "purpose": {
@@ -1622,5 +1635,32 @@
     "linked": "{{name}} is linked – you are now OP on your servers.",
     "unlinked": "Minecraft account unlinked",
     "note": "For Java servers. A running server gets it right away, otherwise at the next start. Operators you added yourself stay when you unlink."
+  },
+  "dnsAuto": {
+    "title": "Own domain (without NetBird)",
+    "connectedPill": "Connected",
+    "notConnected": "Not connected",
+    "text": "If you have your own domain, MorniHosting writes the addresses at your DNS provider itself: every named server becomes name.your-domain.com, and Java players need no port thanks to an SRV record. When your public IP changes, the panel follows within 5 minutes (like DynDNS).",
+    "provider": "DNS provider",
+    "tokenLabel": "API key",
+    "tokenKeep": "Leave empty to keep using the stored key.",
+    "tokenHint": {
+      "cloudflare": "dash.cloudflare.com → Profile → API Tokens → “Create Token” → template “Edit zone DNS” → choose your domain as zone. The domain must use Cloudflare's name servers (Cloudflare shows them when you add the domain). Stored encrypted.",
+      "ionos": "developer.hosting.ionos.de → create an “API key”. It looks like prefix.secret – paste both together with the dot. Stored encrypted."
+    },
+    "connect": "Connect",
+    "connecting": "Connecting …",
+    "noZones": "This key cannot manage any domain. Check that it is valid for your domain.",
+    "domain": "Domain",
+    "saving": "Saving …",
+    "connected": "Own domain connected – named servers now get their address.",
+    "summary": "Server names become <b>name.{{domain}}</b> at {{provider}} · points to <b>{{ip}}</b> (checked {{time}})",
+    "portNote": "The ports still need to be forwarded to this machine in your router (e.g. TCP 25565). You give the name when creating a server or in its settings.",
+    "change": "Change",
+    "disconnect": "Disconnect",
+    "disconnected": "Own domain disconnected – the records are deleted.",
+    "disconnectTitle": "Disconnect own domain?",
+    "disconnectText": "MorniHosting deletes all records it created at your DNS provider. The servers keep running but are only reachable by IP.",
+    "netbirdActive": "NetBird hands out the addresses right now. For an own domain without NetBird, disconnect NetBird first (card below)."
   }
 }

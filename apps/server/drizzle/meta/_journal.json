@@ -36,6 +36,13 @@
       "when": 1793174968866,
       "tag": "0004_minecraft_link",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793356331442,
+      "tag": "0005_dns_records",
+      "breakpoints": true
     }
   ]
 }
