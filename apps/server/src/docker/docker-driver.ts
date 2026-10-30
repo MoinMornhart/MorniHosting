@@ -236,6 +236,8 @@ export function createDockerDriver(config: Config): DockerDriver {
           cpuPercent: cpuPercent(s),
           memoryBytes: Math.max(0, (s.memory_stats.usage ?? 0) - cache),
           memoryLimitBytes: s.memory_stats.limit ?? 0,
+          rxBytes: Object.values(s.networks ?? {}).reduce((sum, n) => sum + n.rx_bytes, 0),
+          txBytes: Object.values(s.networks ?? {}).reduce((sum, n) => sum + n.tx_bytes, 0),
         };
       } catch (err) {
         if (statusOf(err) === HTTP_NOT_FOUND) return null;

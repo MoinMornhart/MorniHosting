@@ -35,6 +35,9 @@ export interface ContainerStats {
   readonly cpuPercent: number;
   readonly memoryBytes: number;
   readonly memoryLimitBytes: number;
+  /** Bytes received and sent by the container since it started. */
+  readonly rxBytes: number;
+  readonly txBytes: number;
 }
 
 /** How a console command reaches the server process. */

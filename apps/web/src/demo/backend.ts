@@ -286,6 +286,10 @@ function tick(): void {
       ),
       tps:
         server.edition === 'java' ? Math.min(20, 19.5 + Math.random() * 0.6 - players.length * 0.04) : null,
+      // Traffic grows with the players; the folder stays about the size of a small world.
+      netRxBytes: (live.netRxBytes ?? 0) + 2_000 + players.length * 9_000 * Math.random(),
+      netTxBytes: (live.netTxBytes ?? 0) + 2_000 + players.length * 60_000 * Math.random(),
+      diskMb: live.diskMb ?? (server.edition === 'java' ? 418 : 126),
     });
   });
 }
@@ -342,6 +346,8 @@ function stopServer(serverId: string, then?: () => void): void {
       cpuPercent: null,
       memoryMb: null,
       tps: null,
+      netRxBytes: null,
+      netTxBytes: null,
       startedAt: null,
     });
     log(serverId, '\u001b[33m[MorniHosting]\u001b[0m Server ist gestoppt. Die Welt ist gespeichert.');

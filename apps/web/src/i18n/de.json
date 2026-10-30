@@ -57,7 +57,9 @@
   "theme": {
     "dark": "Dunkel",
     "light": "Hell",
-    "system": "Wie das System"
+    "system": "Wie das System",
+    "toLight": "Hell einschalten",
+    "toDark": "Dunkel einschalten"
   },
   "nav": {
     "main": "Hauptmenü",
@@ -195,13 +197,19 @@
       "mods": "Mods",
       "files": "Dateien",
       "backups": "Backups",
-      "schedules": "Zeitpläne",
+      "schedules": "Routinen",
       "players": "Spieler",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "version": "Version",
+      "network": "Netzwerk",
+      "advanced": "Erweitert"
     },
     "meta": "{{software}} {{version}} · {{edition}} · Port {{port}}",
     "notFound": "Diesen Server gibt es nicht (mehr).",
-    "noPermission": "Dafür fehlen dir die Rechte auf diesem Server."
+    "noPermission": "Dafür fehlen dir die Rechte auf diesem Server.",
+    "connect": "Verbinden",
+    "portLabel": "Port",
+    "geyserPortLabel": "Geyser-Port"
   },
   "connection": {
     "title": "Verbindung",
@@ -247,7 +255,14 @@
     "last24h": "Letzte 24 Stunden",
     "last7d": "Letzte 7 Tage",
     "noData": "Noch keine Messwerte. Sie erscheinen, sobald der Server läuft.",
-    "title": "Verlauf"
+    "title": "Verlauf",
+    "uptime": "Laufzeit",
+    "disk": "Festplatte",
+    "netIn": "Netzwerk (eingehend)",
+    "netOut": "Netzwerk (ausgehend)",
+    "network": "Netzwerk",
+    "netInShort": "Rein",
+    "netOutShort": "Raus"
   },
   "console": {
     "title": "Konsole",
@@ -513,7 +528,11 @@
     "https_needs_domain": "Verbinde zuerst deine eigene Domain.",
     "https_failed": "HTTPS ließ sich nicht starten: {{message}}",
     "dns_inwx_login": "INWX hat die Anmeldung abgelehnt: Benutzername oder Passwort stimmen nicht. Nimm den INWX-Benutzernamen (nicht die E-Mail-Adresse) und prüfe das Passwort, z. B. indem du dich damit auf inwx.de anmeldest. Nach mehreren Fehlversuchen sperrt INWX die Anmeldung kurz.",
-    "dns_inwx_2fa_wrong": "INWX hat den 2FA-Code abgelehnt. Prüfe den 2FA-Schlüssel: Es ist der lange geheime Schlüssel aus der Einrichtung, nicht der 6-stellige Code."
+    "dns_inwx_2fa_wrong": "INWX hat den 2FA-Code abgelehnt. Prüfe den 2FA-Schlüssel: Es ist der lange geheime Schlüssel aus der Einrichtung, nicht der 6-stellige Code.",
+    "software_not_switchable": "Zwischen diesen beiden Programmen kann der Server nicht wechseln.",
+    "software_switch_running": "Stoppe den Server, bevor du die Software wechselst.",
+    "software_switch_addons": "Schalte Bedrock-Spieler (Geyser) und Voice-Chat aus, bevor du die Software wechselst.",
+    "software_switch_version": "Wähle eine Minecraft-Version für die neue Software."
   },
   "update": {
     "text": "Deine Minecraft-Server laufen beim Update weiter.",
@@ -666,7 +685,9 @@
       "kickText": "Die Verbindung wird getrennt. Der Spieler kann sofort wieder beitreten.",
       "banTitle": "{{name}} sperren?",
       "banText": "Der Spieler wird getrennt und kann nicht mehr beitreten, bis du die Sperre aufhebst."
-    }
+    },
+    "title": "Spieler",
+    "intro": "Wer gerade online ist, wer OP ist und wer auf die Whitelist darf. Mit einem Klick kicken, bannen oder OP geben."
   },
   "settings": {
     "sections": {
@@ -780,7 +801,8 @@
       "deleteFiles": "Auch alle Dateien und Welten löschen",
       "deleteFilesHint": "Ohne Haken landen sie im Archiv-Ordner des Panels.",
       "deleted": "„{{name}}“ wurde gelöscht"
-    }
+    },
+    "intro": "Hier passt du den Serverstart an. Änderungen gelten nach einem Neustart des Servers."
   },
   "props": {
     "motd": {
@@ -1018,7 +1040,15 @@
     "dropHere": "Loslassen zum Hochladen",
     "removed": "{{name}} liegt im Papierkorb",
     "deleteTitle": "{{name}} löschen?",
-    "deleteText": "Die Datei kommt 7 Tage in den Papierkorb. Der Einstellungs-Ordner des Plugins bleibt erhalten."
+    "deleteText": "Die Datei kommt 7 Tage in den Papierkorb. Der Einstellungs-Ordner des Plugins bleibt erhalten.",
+    "intro": {
+      "plugins": "Plugins erweitern deinen Server, z. B. um Homes, Schutz oder Minispiele. Neue Plugins findest du über „Hinzufügen“.",
+      "mods": "Mods verändern das Spiel. Spieler brauchen meist dieselben Mods im eigenen Minecraft."
+    },
+    "add": {
+      "plugins": "Plugins hinzufügen",
+      "mods": "Mods hinzufügen"
+    }
   },
   "market": {
     "sources": "Quelle",
@@ -1100,10 +1130,12 @@
     "excludePlaceholder": "z. B. logs/ oder *.log",
     "addExclude": "Hinzufügen",
     "removeExclude": "{{pattern}} wieder sichern",
-    "excludeHint": "Ordner mit / am Ende (logs/), Dateitypen mit Stern (*.log). Protokolle und Cache brauchst du meist nicht."
+    "excludeHint": "Ordner mit / am Ende (logs/), Dateitypen mit Stern (*.log). Protokolle und Cache brauchst du meist nicht.",
+    "title": "Backups",
+    "intro": "Sicherungen deiner Welt und Dateien. Ein Klick stellt einen früheren Stand wieder her."
   },
   "schedules": {
-    "new": "Neuer Zeitplan",
+    "new": "Routine erstellen",
     "newTitle": "Neuer Zeitplan",
     "editTitle": "Zeitplan bearbeiten",
     "dialogText": "Was soll wann passieren? Der Server erledigt es dann von allein.",
@@ -1161,7 +1193,9 @@
     "emptyText": "Lass den Server nachts neu starten oder regelmäßig sichern, ganz ohne Cron. Nimm eine Schnellvorlage oder erstelle einen eigenen Zeitplan.",
     "timezoneNote": "Uhrzeiten gelten in der Zeitzone des Panels.",
     "deleteTitle": "„{{name}}“ löschen?",
-    "deleteText": "Der Zeitplan läuft dann nicht mehr."
+    "deleteText": "Der Zeitplan läuft dann nicht mehr.",
+    "title": "Routinen",
+    "intro": "Erstelle Routinen, um Aufgaben auf deinem Server zu automatisieren: Neustarts, Backups oder regelmäßige Chat-Nachrichten."
   },
   "webhooks": {
     "title": "Benachrichtigungen",
@@ -1844,5 +1878,33 @@
     "pickVersion": "Version wählen",
     "nameIdea": "Namen vorschlagen",
     "pickName": "Gib deinem Server einen Namen – daraus wird seine Adresse unter {{domain}}. Der Würfel schlägt dir einen vor."
+  },
+  "version": {
+    "title": "Minecraft-Version",
+    "text": "Wähle Server-Software und Minecraft-Version. Deine Welt bleibt erhalten; neue Dateien lädt der Server beim nächsten Start.",
+    "current": "Aktuell läuft {{software}}",
+    "installed": "Installierte Minecraft-Version: {{version}}",
+    "available": "Andere Software",
+    "switchHint": "Klick eine Software an, wähle die Version und wechsle. Plugins und Mods der alten Software passen danach meist nicht mehr – mach vorher ein Backup.",
+    "stopFirst": "Stoppe den Server, um die Software zu wechseln.",
+    "addOnsOff": "Schalte vorher Bedrock-Spieler (Geyser) und Voice-Chat im Reiter Netzwerk aus.",
+    "pick": "Version wählen",
+    "switch": "Zu {{software}} wechseln",
+    "install": "Version installieren",
+    "saved": "{{software}} {{version}} ist eingestellt. Gilt beim nächsten Start.",
+    "running": "Läuft gerade"
+  },
+  "network": {
+    "title": "Netzwerk",
+    "text": "Adresse für deine Freunde, Erreichbarkeit von außen, Bedrock-Spieler und Voice-Chat."
+  },
+  "advanced": {
+    "title": "Erweitert",
+    "text": "Angaben für Hilfe und Support – und den Server löschen.",
+    "debug": "Debug-Informationen",
+    "serverId": "Server-ID",
+    "container": "Container",
+    "image": "Image",
+    "created": "Angelegt am"
   }
 }

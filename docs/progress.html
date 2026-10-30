@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T16:14:44+00:00",
-  "now": "Warte auf dein Go für den Merge nach main; danach Panel im ggde-Stil",
+  "updated": "2026-10-30T16:44:32+00:00",
+  "now": "Warte auf dein Go für den Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -271,6 +271,11 @@ footer { color: var(--muted); font-size: 13px; }
       "detail": "Heller Modus in der Claude-App lesbar (Demo malt eigenen Hintergrund, Schrift und Knöpfe; folgt hell/dunkel der App). Beim Scrollen bleiben Menü, Server-Kopf und Reiter stehen. Neues Icon: Grasblock mit Pixel-„M“ auf Smaragd (Tab-Bild und Logo). Neueste Minecraft-Version wieder vorausgefüllt, sonst nichts. Vanilla überall vorne (bei Geyser nicht, braucht Plugins). Felder in den Einstellungen bündig, Hinweis „über deine eigene Domain“ statt „NetBird“. INWX: klare Meldung bei falschem Benutzernamen/Passwort bzw. 2FA-Schlüssel (INWX antwortet mit „Authentication error“)."
     },
     {
+      "title": "Server-Panel im Stil von ggdehosting",
+      "status": "fertig",
+      "detail": "Neuer Server-Kopf: Banner mit Spielbild, Server-Bild, „Verbinden“-Feld mit Kopieren, IP/Port/Geyser-Port, Neustarten grau und Stoppen rot, Reiterleiste; bleibt beim Scrollen stehen (auch das Einstellungs-Menü). Konsole ist jetzt die Startseite mit 6 Kacheln (Laufzeit, CPU, RAM, Festplatte, Netzwerk rein/raus – Backend misst Ordnergröße und Docker-Netzwerk) und 3 Live-Diagrammen. Neue Reiter Version (Software wechseln: Vanilla, Paper, Purpur, Fabric, Forge, NeoForge – bei gestopptem Server), Netzwerk (Adresse, Erreichbarkeit, Geyser, Voice-Chat), Erweitert (Debug-Infos, Löschen). Spieler, Plugins/Mods, Backups, Routinen mit Überschrift und Hauptknopf. Hell/Dunkel mit einem Klick unten links. 195 Tests + 4 Browser-Tests grün."
+    },
+    {
       "title": "Demo zeigen, nach deinem Go Merge nach main",
       "status": "läuft",
       "detail": "Demo und Screenshots geschickt. Gemergt wird erst nach deinem Go."
@@ -282,6 +287,11 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p19-panel.webp",
+      "caption": "Neues Server-Panel wie bei ggdehosting · links hell, rechts dunkel",
+      "time": "2026-10-30T16:44:32+00:00"
+    },
     {
       "img": "progress/p18-light.webp",
       "caption": "Hell und dunkel lesbar, Server-Kopf bleibt beim Scrollen stehen, neues Icon",
@@ -336,11 +346,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p13-update.webp",
       "caption": "Update · Fortschritt in 3 Schritten mit Protokoll und „Was ist neu?“",
       "time": "2026-10-30T13:12:00+01:00"
-    },
-    {
-      "img": "progress/p13-admin.webp",
-      "caption": "Admin-Bereich mit Reitern · NetBird-Karte passt wieder in den Rahmen",
-      "time": "2026-10-30T13:05:00+01:00"
     }
   ],
   "files": [
@@ -362,17 +367,12 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "status": "done",
       "until": "",
-      "title": "Heller Modus, fester Kopf, neues Icon, INWX-Meldung"
+      "title": "Server-Panel im Stil von ggdehosting"
     },
     {
       "status": "current",
       "until": "",
       "title": "Auf dein Go warten, dann Merge nach main"
-    },
-    {
-      "status": "todo",
-      "until": "",
-      "title": "Server-Panel im Stil von ggdehosting"
     }
   ]
 }

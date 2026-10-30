@@ -14,6 +14,7 @@ import { Skeleton, Tip } from '@/components/ui/misc';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
 import { useServer } from '../ServerLayout';
+import { TabIntro } from '@/components/tab-intro';
 
 interface ActionInput {
   readonly action: PlayerAction;
@@ -213,6 +214,7 @@ export default function PlayersTab(): ReactElement {
 
   return (
     <div className="grid gap-4">
+      <TabIntro title={t('playersTab.title')} text={t('playersTab.intro')} />
       {!running ? (
         <p className="rounded-[12px] border border-border bg-secondary px-4 py-3 text-sm text-muted-foreground">
           {t(bedrock ? 'playersTab.offlineBedrock' : 'playersTab.offline')}

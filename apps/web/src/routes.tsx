@@ -10,10 +10,12 @@ import { PanelSettingsPage } from '@/features/admin/PanelSettingsPage';
 import { UsersPage } from '@/features/admin/UsersPage';
 import { CreateServerPage } from '@/features/servers/create/CreateServerPage';
 import { ImportServerPage } from '@/features/servers/create/ImportServerPage';
-import { OverviewTab } from '@/features/servers/OverviewTab';
+import { ConsoleHome } from '@/features/servers/ConsoleHome';
 import { ServerLayout } from '@/features/servers/ServerLayout';
 
-const ConsoleTab = lazyPage(() => import('@/features/servers/ConsoleTab'));
+const VersionTab = lazyPage(() => import('@/features/servers/version/VersionTab'));
+const NetworkTab = lazyPage(() => import('@/features/servers/network/NetworkTab'));
+const AdvancedTab = lazyPage(() => import('@/features/servers/advanced/AdvancedTab'));
 const ContentTab = lazyPage(() => import('@/features/servers/content/ContentTab'));
 const BackupsTab = lazyPage(() => import('@/features/servers/backups/BackupsTab'));
 const SchedulesTab = lazyPage(() => import('@/features/servers/schedules/SchedulesTab'));
@@ -40,12 +42,30 @@ export const appRoutes: RouteObject[] = [
     path: 'servers/:serverId',
     element: <ServerLayout />,
     children: [
-      { index: true, element: <OverviewTab /> },
+      { index: true, element: <ConsoleHome /> },
+      // The console used to be its own tab; old links land on the first tab, where it is now.
+      { path: 'console', element: <Navigate to=".." replace /> },
       {
-        path: 'console',
+        path: 'version',
         element: (
           <Lazy>
-            <ConsoleTab />
+            <VersionTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'network',
+        element: (
+          <Lazy>
+            <NetworkTab />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'advanced',
+        element: (
+          <Lazy>
+            <AdvancedTab />
           </Lazy>
         ),
       },

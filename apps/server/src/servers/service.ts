@@ -7,6 +7,7 @@ import {
   CREATABLE_SOFTWARE,
   PORT_VOICE_CHAT,
   SOFTWARE,
+  SWITCHABLE_SOFTWARE,
   type CreateServerInput,
   type NetbirdServerInfo,
   type ServerDetail,
@@ -23,6 +24,7 @@ import { randomToken } from '../lib/crypto.js';
 import { AppError, badRequest, conflict, errorMessage, notFound } from '../lib/errors.js';
 import { HTTP_CONFLICT } from '../lib/http-status.js';
 import { BYTES_PER_MB, MS_PER_DAY, MS_PER_SECOND, nowIso, sleep } from '../lib/units.js';
+import { folderBytes } from '../lib/folder-size.js';
 import { createKeyedLock } from '../lib/locks.js';
 import { analyseCrash } from './crash.js';
 import { isPanelNoise, isStartFinished, parseListAnswer, parseTps, playerEventOf } from './log-parse.js';
@@ -97,6 +99,9 @@ interface Runtime {
   cpu: number | null;
   memMb: number | null;
   tps: number | null;
+  diskMb: number | null;
+  netRx: number | null;
+  netTx: number | null;
   startedAt: string | null;
   progress: number | null;
   stopRequested: boolean;
@@ -112,6 +117,8 @@ const STATS_INTERVAL_SECONDS = 10;
 const TPS_EVERY_TICKS = 3;
 const LIST_EVERY_TICKS = 6;
 const PERSIST_EVERY_TICKS = 6;
+/** The folder size is measured once a minute (it walks every file). */
+const DISK_EVERY_TICKS = 6;
 const STATS_RETENTION_DAYS = 7;
 const STOP_TIMEOUT_SECONDS = 60;
 const DOCKER_STOP_GRACE_SECONDS = 30;
@@ -143,6 +150,9 @@ function emptyRuntime(): Runtime {
     cpu: null,
     memMb: null,
     tps: null,
+    diskMb: null,
+    netRx: null,
+    netTx: null,
     startedAt: null,
     progress: null,
     stopRequested: false,
@@ -185,6 +195,9 @@ export function createServerService(ctx: AppContext): ServerService {
       cpuPercent: r.cpu,
       memoryMb: r.memMb,
       tps: r.tps,
+      diskMb: r.diskMb,
+      netRxBytes: r.netRx,
+      netTxBytes: r.netTx,
       startedAt: r.startedAt,
       progress: r.progress,
     };
@@ -468,6 +481,8 @@ export function createServerService(ctx: AppContext): ServerService {
     if (s) {
       runtime.cpu = s.cpuPercent;
       runtime.memMb = s.memoryBytes / BYTES_PER_MB;
+      runtime.netRx = s.rxBytes;
+      runtime.netTx = s.txBytes;
     }
     const isRunningJava = runtime.state === 'running' && r.edition === 'java' && !SOFTWARE[r.software].proxy;
     if (isRunningJava && !(tick % TPS_EVERY_TICKS)) await sampleTps(r.id, r);
@@ -504,6 +519,17 @@ export function createServerService(ctx: AppContext): ServerService {
         }
       }),
     );
+    if (tick % DISK_EVERY_TICKS === 1) {
+      await Promise.all(
+        db
+          .select({ id: servers.id })
+          .from(servers)
+          .all()
+          .map(async ({ id }) => {
+            rt(id).diskMb = (await folderBytes(serverDir(config, id))) / BYTES_PER_MB;
+          }),
+      );
+    }
     if (!(tick % PURGE_EVERY_TICKS)) {
       db.delete(stats)
         .where(lt(stats.at, Date.now() - STATS_RETENTION_DAYS * MS_PER_DAY))
@@ -666,6 +692,15 @@ export function createServerService(ctx: AppContext): ServerService {
     },
     update: (id, patch, actor) => {
       const current = row(id);
+      const software = patch.software ?? current.software;
+      if (software !== current.software) {
+        if (![current.software, software].every((s) => SWITCHABLE_SOFTWARE.includes(s)))
+          throw badRequest('software_not_switchable');
+        if (ACTIVE_STATES.includes(rt(id).state)) throw conflict('software_switch_running');
+        // Geyser and Simple Voice Chat come as plugins or mods for the old software; they would not load.
+        if (current.geyser || current.voiceChat) throw badRequest('software_switch_addons');
+        if (!patch.version) throw badRequest('software_switch_version');
+      }
       if (patch.port !== undefined && patch.port !== current.port) {
         assertPortFree(patch.port, SOFTWARE[current.software].protocol, id);
       }
@@ -678,9 +713,11 @@ export function createServerService(ctx: AppContext): ServerService {
         publicPort: patch.publicPort === undefined ? current.publicPort : patch.publicPort,
         javaTag: patch.javaTag === undefined ? current.javaTag : patch.javaTag,
         version: patch.version ?? current.version,
+        software,
       };
+      if (software !== current.software) next.javaTag = null;
       const image = imageFor(config, {
-        software: current.software,
+        software,
         version: next.version,
         javaTag: next.javaTag,
       });

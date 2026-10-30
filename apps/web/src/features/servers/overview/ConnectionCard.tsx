@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CircleCheck,
   CircleHelp,
@@ -27,11 +27,8 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Skeleton } from '@/components/ui/misc';
 import { api } from '@/lib/api';
 import { formatRelative } from '@/lib/format';
+import { useShareInfo, withPort } from './share';
 import { cn } from '@/lib/utils';
-
-function withPort(host: string, port: number, defaultPort: number): string {
-  return port === defaultPort ? host : `${host}:${port}`;
-}
 
 const BEDROCK_PORT = SOFTWARE.bedrock.defaultPort;
 const PORT_MARK = ':';
@@ -60,10 +57,7 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [help, setHelp] = useState(false);
-  const { data } = useQuery({
-    queryKey: ['connection', server.id],
-    queryFn: () => api<ConnectionInfo>(`/api/servers/${server.id}/connection`),
-  });
+  const share = useShareInfo(server);
   const check = useMutation({
     mutationFn: () =>
       api<ReachabilityResult>(`/api/servers/${server.id}/connection/check`, { method: 'POST' }),
@@ -72,23 +66,14 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
         prev ? { ...prev, reachable: result } : prev,
       ),
   });
-  if (!data) return <Skeleton className="h-[260px] rounded-[16px]" />;
+  if (!share) return <Skeleton className="h-[260px] rounded-[16px]" />;
 
+  const { data, shareAddress, sharePort, bedrockHost, bedrockPort } = share;
   const defaultPort = SOFTWARE[server.software].defaultPort;
-  const host = data.domain ?? data.publicIp ?? data.lanIp;
-  // With a domain friends use the tunnel's port (NetBird, playit.gg) if one is set; via the IP the server port.
-  const sharePort = data.domain ? data.sharePort : data.port;
-  // A SRV record at the own domain tells Java where the port is; Bedrock has its own port field (hint below).
-  const bareName = data.srv === true || (server.edition === 'bedrock' && data.domain !== null);
-  const shareAddress = host && bareName ? host : host && withPort(host, sharePort, defaultPort);
   const voicePort = server.voicePublicPort ?? server.voicePort;
   // From home the public IP usually does not loop back through the router: show the LAN address too.
   const homeAddress = data.lanIp ? withPort(data.lanIp, data.port, defaultPort) : null;
   const showHome = data.viewerAtHome === true && homeAddress !== null && homeAddress !== shareAddress;
-  // Through NetBird, Bedrock players have their own name and the port NetBird assigned.
-  const bedrock = server.netbird?.services.find((s) => s.purpose === 'geyser');
-  const bedrockHost = bedrock?.domain ?? host;
-  const bedrockPort = bedrock?.port ?? server.geyserPort;
   // Bedrock knows no SRV records: off the standard port, players type the port into its own field.
   const bedrockOffPort = server.edition === 'bedrock' ? sharePort : bedrockPort;
   const bedrockPortHint =

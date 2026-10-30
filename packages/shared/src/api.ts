@@ -187,6 +187,8 @@ export const updateServerSchema = z.object({
   publicPort: portSchema.nullable().optional(),
   javaTag: z.enum(JAVA_TAGS).nullable().optional(),
   version: z.string().trim().min(1).max(VERSION_MAX).optional(),
+  /** Another server software (Java only, server stopped, see SWITCHABLE_SOFTWARE); needs a version for it. */
+  software: z.enum(SOFTWARE_IDS).optional(),
 });
 export type UpdateServerInput = z.infer<typeof updateServerSchema>;
 
@@ -216,6 +218,11 @@ export interface ServerLive {
   readonly cpuPercent: number | null;
   readonly memoryMb: number | null;
   readonly tps: number | null;
+  /** Size of the server's folder (worlds, plugins, …), measured about once a minute. */
+  readonly diskMb: number | null;
+  /** Bytes received and sent since the server started. */
+  readonly netRxBytes: number | null;
+  readonly netTxBytes: number | null;
   readonly startedAt: string | null;
   /** 0 to 100 while a server installs or starts, if known. */
   readonly progress: number | null;

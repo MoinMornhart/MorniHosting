@@ -57,7 +57,9 @@
   "theme": {
     "dark": "Dark",
     "light": "Light",
-    "system": "Match system"
+    "system": "Match system",
+    "toLight": "Switch to light",
+    "toDark": "Switch to dark"
   },
   "nav": {
     "main": "Main menu",
@@ -195,13 +197,19 @@
       "mods": "Mods",
       "files": "Files",
       "backups": "Backups",
-      "schedules": "Schedules",
+      "schedules": "Routines",
       "players": "Players",
-      "settings": "Settings"
+      "settings": "Settings",
+      "version": "Version",
+      "network": "Network",
+      "advanced": "Advanced"
     },
     "meta": "{{software}} {{version}} · {{edition}} · Port {{port}}",
     "notFound": "This server does not exist (anymore).",
-    "noPermission": "You do not have the rights for this on this server."
+    "noPermission": "You do not have the rights for this on this server.",
+    "connect": "Connect",
+    "portLabel": "Port",
+    "geyserPortLabel": "Geyser port"
   },
   "connection": {
     "title": "Connection",
@@ -247,7 +255,14 @@
     "last24h": "Last 24 hours",
     "last7d": "Last 7 days",
     "noData": "No measurements yet. They appear once the server runs.",
-    "title": "History"
+    "title": "History",
+    "uptime": "Uptime",
+    "disk": "Disk",
+    "netIn": "Network (in)",
+    "netOut": "Network (out)",
+    "network": "Network",
+    "netInShort": "In",
+    "netOutShort": "Out"
   },
   "console": {
     "title": "Console",
@@ -513,7 +528,11 @@
     "https_needs_domain": "Connect your own domain first.",
     "https_failed": "HTTPS could not start: {{message}}",
     "dns_inwx_login": "INWX refused the login: user name or password is wrong. Use your INWX user name (not the email address) and check the password, e.g. by logging in on inwx.com with it. After several failed attempts INWX blocks logins for a while.",
-    "dns_inwx_2fa_wrong": "INWX refused the 2FA code. Check the 2FA secret: it is the long secret key from the setup, not the 6-digit code."
+    "dns_inwx_2fa_wrong": "INWX refused the 2FA code. Check the 2FA secret: it is the long secret key from the setup, not the 6-digit code.",
+    "software_not_switchable": "The server cannot switch between these two programs.",
+    "software_switch_running": "Stop the server before switching the software.",
+    "software_switch_addons": "Turn off Bedrock players (Geyser) and voice chat before switching the software.",
+    "software_switch_version": "Pick a Minecraft version for the new software."
   },
   "update": {
     "text": "Your Minecraft servers keep running during the update.",
@@ -666,7 +685,9 @@
       "kickText": "They are disconnected and can join again right away.",
       "banTitle": "Ban {{name}}?",
       "banText": "They are disconnected and can't join until you lift the ban."
-    }
+    },
+    "title": "Players",
+    "intro": "Who is online, who is OP and who may join through the whitelist. Kick, ban or OP with one click."
   },
   "settings": {
     "sections": {
@@ -780,7 +801,8 @@
       "deleteFiles": "Also delete all files and worlds",
       "deleteFilesHint": "If unticked, they are moved to the panel's archive folder.",
       "deleted": "“{{name}}” was deleted"
-    }
+    },
+    "intro": "Adjust how the server starts. Changes apply after the next restart."
   },
   "props": {
     "motd": {
@@ -1018,7 +1040,15 @@
     "dropHere": "Drop to upload",
     "removed": "{{name}} is in the trash",
     "deleteTitle": "Delete {{name}}?",
-    "deleteText": "The file stays in the trash for 7 days. The plugin's settings folder is kept."
+    "deleteText": "The file stays in the trash for 7 days. The plugin's settings folder is kept.",
+    "intro": {
+      "plugins": "Plugins extend your server, e.g. with homes, protection or minigames. Find new ones with \"Add\".",
+      "mods": "Mods change the game. Players usually need the same mods in their own Minecraft."
+    },
+    "add": {
+      "plugins": "Add plugins",
+      "mods": "Add mods"
+    }
   },
   "market": {
     "sources": "Source",
@@ -1100,10 +1130,12 @@
     "excludePlaceholder": "e.g. logs/ or *.log",
     "addExclude": "Add",
     "removeExclude": "Back up {{pattern}} again",
-    "excludeHint": "Folders with a trailing / (logs/), file types with a star (*.log). You rarely need logs and cache."
+    "excludeHint": "Folders with a trailing / (logs/), file types with a star (*.log). You rarely need logs and cache.",
+    "title": "Backups",
+    "intro": "Copies of your world and files. One click brings back an earlier state."
   },
   "schedules": {
-    "new": "New schedule",
+    "new": "Create routine",
     "newTitle": "New schedule",
     "editTitle": "Edit schedule",
     "dialogText": "What should happen and when? The server then does it on its own.",
@@ -1161,7 +1193,9 @@
     "emptyText": "Let the server restart at night or back up regularly, no cron needed. Pick a quick template or create your own schedule.",
     "timezoneNote": "Times are in the panel's time zone.",
     "deleteTitle": "Delete “{{name}}”?",
-    "deleteText": "The schedule will no longer run."
+    "deleteText": "The schedule will no longer run.",
+    "title": "Routines",
+    "intro": "Create routines to automate tasks on your server: restarts, backups or regular chat messages."
   },
   "webhooks": {
     "title": "Notifications",
@@ -1844,5 +1878,33 @@
     "pickVersion": "Pick a version",
     "nameIdea": "Suggest a name",
     "pickName": "Give your server a name – it becomes its address under {{domain}}. The dice suggests one."
+  },
+  "version": {
+    "title": "Minecraft version",
+    "text": "Choose server software and Minecraft version. Your world stays; the server fetches new files on its next start.",
+    "current": "Currently running {{software}}",
+    "installed": "Installed Minecraft version: {{version}}",
+    "available": "Other software",
+    "switchHint": "Click a software, pick the version and switch. Plugins and mods of the old software usually stop working – make a backup first.",
+    "stopFirst": "Stop the server to switch the software.",
+    "addOnsOff": "Turn off Bedrock players (Geyser) and voice chat in the Network tab first.",
+    "pick": "Pick a version",
+    "switch": "Switch to {{software}}",
+    "install": "Install version",
+    "saved": "{{software}} {{version}} is set. Applies on the next start.",
+    "running": "Running now"
+  },
+  "network": {
+    "title": "Network",
+    "text": "Address for your friends, reachability from outside, Bedrock players and voice chat."
+  },
+  "advanced": {
+    "title": "Advanced",
+    "text": "Details for help and support – and deleting the server.",
+    "debug": "Debug information",
+    "serverId": "Server ID",
+    "container": "Container",
+    "image": "Image",
+    "created": "Created"
   }
 }

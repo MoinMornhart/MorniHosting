@@ -42,5 +42,5 @@ export async function createServer(
 }
 
 export async function waitForState(page: Page, label: string): Promise<void> {
-  await expect(page.locator('h1').getByText(label)).toBeVisible({ timeout: STATE_TIMEOUT_MS });
+  await expect(page.getByTestId('server-state')).toHaveText(label, { timeout: STATE_TIMEOUT_MS });
 }

@@ -37,8 +37,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/art';
 import { GameCard } from '@/components/game-card';
-import { blockOf, McBlock } from '@/components/mc-block';
-import { hasProjectLogo, ProjectLogo } from '@/components/project-logo';
+import { McBlock } from '@/components/mc-block';
+import { ProjectLogo } from '@/components/project-logo';
+import { SoftwareLogo } from '@/components/software-logo';
 import { api } from '@/lib/api';
 import { formatMemoryMb } from '@/lib/format';
 import { errorText } from '@/lib/query';
@@ -180,19 +181,8 @@ function AddOnTile({ children }: { children: ReactNode }): ReactElement {
   );
 }
 
-/** The software's own logo (Paper, Purpur, Fabric, Forge, NeoForge, Velocity); Vanilla and the rest keep their block. */
 function SoftwareIcon({ id }: { id: SoftwareId }): ReactElement {
-  const block = <McBlock kind={blockOf(id)} className="size-6" />;
-  // Same box for every software, so logos and blocks line up.
-  return (
-    <span className="grid size-6 shrink-0 place-items-center">
-      {hasProjectLogo(id) ? (
-        <ProjectLogo project={id} className="size-6 rounded-[5px]" fallback={block} />
-      ) : (
-        block
-      )}
-    </span>
-  );
+  return <SoftwareLogo id={id} />;
 }
 
 function AddOn({

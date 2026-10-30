@@ -58,6 +58,10 @@ const EXIT_KILLED = 137;
 const MIN_MODDED_MEMORY_MB = 4096;
 const BASE_CPU = 6;
 const CPU_PER_PLAYER = 4;
+/** Simulated traffic per stats call: a little background chatter plus some per player. */
+const RX_BASE_BYTES = 2_000;
+const RX_PER_PLAYER_BYTES = 9_000;
+const TX_PER_PLAYER_BYTES = 60_000;
 const CPU_JITTER = 6;
 const MEMORY_SHARE = 0.55;
 const MEMORY_JITTER = 0.08;
@@ -211,6 +215,7 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
   const statusOf = (id: string): FakeStatus => statuses.get(id) ?? STOPPED;
   const isRunning = (id: string): boolean => statusOf(id).running;
   const cpuById = new Map<string, number>();
+  const trafficById = new Map<string, { rx: number; tx: number }>();
   const eventListeners = new Set<(e: ContainerEvent) => void>();
   const images = new Set<string>();
 
@@ -550,7 +555,15 @@ export function createFakeDriver(options: FakeDriverOptions): DockerDriver {
       const previous = cpuById.get(id) ?? target;
       const cpu = Math.max(1, (previous + target) * HALF + (Math.random() - HALF) * CPU_JITTER);
       cpuById.set(id, cpu);
+      const before = trafficById.get(id) ?? { rx: 0, tx: 0 };
+      const traffic = {
+        rx: before.rx + RX_BASE_BYTES + c.players.size * RX_PER_PLAYER_BYTES * Math.random(),
+        tx: before.tx + RX_BASE_BYTES + c.players.size * TX_PER_PLAYER_BYTES * Math.random(),
+      };
+      trafficById.set(id, traffic);
       return {
+        rxBytes: Math.round(traffic.rx),
+        txBytes: Math.round(traffic.tx),
         cpuPercent: cpu,
         memoryBytes: c.spec.memoryLimitBytes * (MEMORY_SHARE + (Math.random() - HALF) * MEMORY_JITTER),
         memoryLimitBytes: c.spec.memoryLimitBytes,
