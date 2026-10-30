@@ -1,8 +1,9 @@
 import { useState, type ReactElement, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ServerState } from '@mornihosting/shared';
-import { blockForServer, blockIcon, playerFace } from '@/lib/pixel';
+import { playerFace } from '@/lib/pixel';
 import { cn } from '@/lib/utils';
+import { Badge, glyphFor, LogoMark } from './art';
 import { Pill, type PillTone } from './ui/pill';
 
 const STATE_TONES: Readonly<Record<ServerState, PillTone>> = {
@@ -23,6 +24,9 @@ export function StatePill({ state, className }: { state: ServerState; className?
   );
 }
 
+/** The id the server switcher uses for "all servers". */
+export const ALL_SERVERS = 'all';
+
 export interface ServerIconProps {
   readonly id: string;
   readonly software: string;
@@ -30,7 +34,6 @@ export interface ServerIconProps {
   readonly className?: string;
 }
 
-/** The server's own server-icon.png if it has one, otherwise a block that fits its software. */
 const iconVersions = new Map<string, number>();
 const iconListeners = new Set<() => void>();
 
@@ -50,14 +53,17 @@ function useIconVersion(id: string): number {
   );
 }
 
+/** The server's own server-icon.png if it has one, otherwise a badge with the glyph of its software. */
 export function ServerIcon({ id, software, hasIcon, className }: ServerIconProps): ReactElement {
   const version = useIconVersion(id);
   const iconUrl = `/api/servers/${id}/icon${version ? `?v=${version}` : ''}`;
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const src = hasIcon && failedUrl !== iconUrl ? iconUrl : blockIcon(blockForServer(software, id));
+  if (!hasIcon || failedUrl === iconUrl) {
+    return <Badge glyph={id === ALL_SERVERS ? 'all' : glyphFor(software)} seed={id} className={className} />;
+  }
   return (
     <img
-      src={src}
+      src={iconUrl}
       alt=""
       onError={() => setFailedUrl(iconUrl)}
       className={cn('pixelated size-11 shrink-0 rounded-[10px] object-cover', className)}
@@ -106,9 +112,5 @@ export function PlayerHead({
 }
 
 export function BrandMark({ className }: { className?: string }): ReactElement {
-  return (
-    <span className={cn('grid size-8 shrink-0 place-items-center rounded-[9px] bg-primary', className)}>
-      <img src={blockIcon('grass')} alt="" className="pixelated size-[18px]" />
-    </span>
-  );
+  return <LogoMark className={className} />;
 }
