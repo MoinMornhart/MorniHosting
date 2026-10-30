@@ -4,11 +4,15 @@ import {
   SOFTWARE,
   type ConfirmResult,
   type Locale,
+  type MailAttempt,
+  type MailEndpoint,
   type MailSecurity,
   type MailSettingsInput,
   type MailSettingsView,
   type MailStatus,
+  type MailTestResult,
 } from '@mornihosting/shared';
+import net from 'node:net';
 import { hashPassword } from '../auth/passwords.js';
 import type { UserRow } from '../auth/context.js';
 import type { Actor } from '../audit/service.js';
@@ -20,12 +24,15 @@ import { MS_PER_DAY, MS_PER_HOUR, MS_PER_MINUTE, MS_PER_SECOND } from '../lib/un
 import { connectionInfo } from '../servers/connectivity.js';
 import type { ServerService } from '../servers/service.js';
 import { CRASH_REASONS } from '../webhooks/messages.js';
+import { realNetwork, runMailCheck, SMTP_CONNECT_TIMEOUT_MS, type MailNetwork } from './check.js';
 import { formatWhen, oneLine, renderMail, type MailKind, type MailVars } from './templates.js';
 
 /** Sending mail: the SMTP settings, one-time links, and the flows built on them (sign-up, password reset, orders). */
 
 export interface SmtpConfig {
   readonly host: string;
+  /** Address actually dialled (e.g. a LAN IP); empty means `host`. TLS is always checked against `host`. */
+  readonly internalHost: string;
   readonly port: number;
   readonly security: MailSecurity;
   readonly user: string;
@@ -43,12 +50,16 @@ export interface OutgoingMail {
 
 export interface MailTransport {
   readonly sendMail: (mail: OutgoingMail) => Promise<unknown>;
+  /** Connects and logs in without sending; transports without it count as fine. */
+  readonly verify?: () => Promise<unknown>;
 }
 /** Tests plug in a fake transport here instead of talking to a mail server. */
 export type TransportFactory = (config: SmtpConfig) => MailTransport;
 
 interface StoredMail {
   host: string;
+  /** Missing in settings saved before this field existed. */
+  internalHost?: string;
   port: number;
   security: MailSecurity;
   user: string;
@@ -68,6 +79,8 @@ export interface MailService {
   readonly panelUrl: () => string | null;
   /** Sends and reports a failure to the caller (admin test). */
   readonly send: (to: string, kind: MailKind, locale: Locale, vars: Partial<MailVars>) => Promise<void>;
+  /** Test mail, step by step; tries 465/TLS and 587/STARTTLS when the saved port does not answer and keeps what works. */
+  readonly test: (to: string, locale: Locale, vars: Partial<MailVars>) => Promise<MailTestResult>;
   readonly welcome: (user: UserRow) => void;
   readonly register: (input: RegisterInput) => Promise<void>;
   readonly confirm: (token: string) => ConfirmResult;
@@ -87,7 +100,15 @@ export interface RegisterInput {
 }
 
 const MAIL_KEY = 'mail';
-const SMTP_TIMEOUT_MS = 15 * MS_PER_SECOND;
+const SMTP_SOCKET_TIMEOUT_SECONDS = 30;
+const SMTP_SOCKET_TIMEOUT_MS = SMTP_SOCKET_TIMEOUT_SECONDS * MS_PER_SECOND;
+/** Tried in this order when the saved port/encryption gets no answer. */
+const FALLBACKS: readonly MailEndpoint[] = [
+  { port: 465, security: 'tls' }, // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP with implicit TLS
+  { port: 587, security: 'starttls' }, // eslint-disable-line ts-patterns/no-magic-numbers -- SMTP submission
+];
+/** Problems a different port or encryption can fix; a wrong password or a bad certificate cannot. */
+const PORT_PROBLEMS = new Set(['port_closed', 'timeout', 'wrong_security']);
 const SIGNUP_TTL_MS = MS_PER_DAY;
 const RESET_TTL_MS = MS_PER_HOUR;
 const RESEND_AFTER_MS = MS_PER_MINUTE;
@@ -104,18 +125,24 @@ const planText = (memoryMb: number): string =>
 
 const realTransport: TransportFactory = (config) =>
   nodemailer.createTransport({
-    host: config.host,
+    host: config.internalHost || config.host,
     port: config.port,
+    // Dialling an IP: SNI and the certificate check still use the real name. Verification is never switched off.
+    ...(config.internalHost && !net.isIP(config.host) ? { tls: { servername: config.host } } : {}),
     secure: config.security === 'tls',
     requireTLS: config.security === 'starttls',
     ignoreTLS: config.security === 'none',
     auth: config.user ? { user: config.user, pass: config.password } : undefined,
-    connectionTimeout: SMTP_TIMEOUT_MS,
-    greetingTimeout: SMTP_TIMEOUT_MS,
-    socketTimeout: SMTP_TIMEOUT_MS,
+    connectionTimeout: SMTP_CONNECT_TIMEOUT_MS,
+    greetingTimeout: SMTP_CONNECT_TIMEOUT_MS,
+    socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
   });
 
-export function createMailService(ctx: AppContext, factory: TransportFactory = realTransport): MailService {
+export function createMailService(
+  ctx: AppContext,
+  factory: TransportFactory = realTransport,
+  network: MailNetwork = realNetwork,
+): MailService {
   const { db, settings, secrets, log } = ctx;
 
   const stored = (): StoredMail | undefined => settings.getValue<StoredMail>(MAIL_KEY);
@@ -134,6 +161,7 @@ export function createMailService(ctx: AppContext, factory: TransportFactory = r
       passwordSet: Boolean(s?.passwordSealed),
       linksPossible: panelUrl() !== null,
       host: s?.host ?? '',
+      internalHost: s?.internalHost ?? '',
       port: s?.port ?? 587, // eslint-disable-line ts-patterns/no-magic-numbers -- the standard submission port
       security: s?.security ?? 'starttls',
       user: s?.user ?? '',
@@ -154,6 +182,7 @@ export function createMailService(ctx: AppContext, factory: TransportFactory = r
     if (!s) throw badRequest('mail_not_configured');
     return {
       host: s.host,
+      internalHost: s.internalHost ?? '',
       port: s.port,
       security: s.security,
       user: s.user,
@@ -176,6 +205,53 @@ export function createMailService(ctx: AppContext, factory: TransportFactory = r
       log.warn({ err, kind }, 'mail could not be sent');
       throw badRequest('mail_failed', { message: oneLine(errorMessage(err)).slice(0, SMTP_ERROR_MAX) });
     }
+  };
+
+  const test: MailService['test'] = async (to, locale, vars) => {
+    const saved = smtp();
+    const message = renderMail('test', locale, {
+      name: '',
+      link: null,
+      host: settings.get().panelDomain || null,
+      ...vars,
+    });
+    const check = (config: SmtpConfig, withSend: boolean) => {
+      const transport = factory(config);
+      return runMailCheck(
+        config,
+        network,
+        {
+          verify: () => transport.verify?.() ?? Promise.resolve(true),
+          send: () => transport.sendMail({ from: config.from, to, ...message }),
+        },
+        withSend,
+      );
+    };
+    const first = await check(saved, true);
+    const attempts: MailAttempt[] = [{ port: saved.port, security: saved.security, problem: first.problem }];
+    const result = (outcome: typeof first, switchedTo: MailEndpoint | null): MailTestResult => ({
+      ok: outcome.problem === null,
+      sentTo: to,
+      steps: outcome.steps,
+      problem: outcome.problem,
+      message: outcome.message,
+      attempts,
+      switchedTo,
+    });
+    if (first.problem === null || !PORT_PROBLEMS.has(first.problem)) return result(first, null);
+
+    const others = FALLBACKS.filter((e) => e.port !== saved.port || e.security !== saved.security);
+    const probes = await Promise.all(others.map((e) => check({ ...saved, ...e }, false)));
+    const problems = probes.map((probe) => probe.problem);
+    others.forEach((e, i) => attempts.push({ ...e, problem: problems[i] ?? null }));
+    const found = others.find((_, i) => problems[i] === null);
+    if (!found) return result(first, null);
+
+    const s = stored();
+    if (s)
+      settings.setValue(MAIL_KEY, { ...s, port: found.port, security: found.security } satisfies StoredMail);
+    log.info({ port: found.port, security: found.security }, 'mail: switched to a port that answers');
+    return result(await check({ ...saved, ...found }, true), found);
   };
 
   /** Mails nobody waits for: a failure is logged, never shown to (or timed for) the visitor. */
@@ -421,6 +497,7 @@ export function createMailService(ctx: AppContext, factory: TransportFactory = r
         : (previous?.passwordSealed ?? '');
       settings.setValue(MAIL_KEY, {
         host: input.host,
+        internalHost: input.internalHost,
         port: input.port,
         security: input.security,
         user: input.user,
@@ -437,6 +514,7 @@ export function createMailService(ctx: AppContext, factory: TransportFactory = r
     configured,
     panelUrl,
     send,
+    test,
     welcome,
     register,
     confirm,

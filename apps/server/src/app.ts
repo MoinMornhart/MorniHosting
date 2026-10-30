@@ -72,6 +72,7 @@ import { registerMinecraftRoutes } from './minecraft/routes.js';
 import type { Resolver } from './lib/net-guard.js';
 import { createDdosService } from './ddos/service.js';
 import { registerDdosRoutes } from './ddos/routes.js';
+import type { MailNetwork } from './mail/check.js';
 import { createMailService, type MailService, type TransportFactory } from './mail/service.js';
 import { registerMailRoutes } from './mail/routes.js';
 
@@ -84,6 +85,8 @@ export interface BuildOptions {
   readonly resolver?: Resolver;
   /** Tests catch outgoing mails here instead of reaching a mail server. */
   readonly mailTransport?: TransportFactory;
+  /** Tests answer DNS and TCP for the mail check here. */
+  readonly mailNetwork?: MailNetwork;
 }
 
 export interface BuiltApp {
@@ -168,7 +171,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   proxies.isGateway = https.isGateway;
   const minecraftLink = createMinecraftLinkService(ctx, servers);
   const ddos = createDdosService(ctx, servers);
-  const mail = createMailService(ctx, options.mailTransport);
+  const mail = createMailService(ctx, options.mailTransport, options.mailNetwork);
   mail.init(servers);
 
   await app.register(helmet, {

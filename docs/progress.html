@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T22:06:56+00:00",
-  "now": "Alles veröffentlicht. Nächster Schritt: Spiele bei Philip mit echtem Docker ausprobieren.",
+  "updated": "2026-10-30T22:21:52+00:00",
+  "now": "E-Mail-Versand robust gemacht – wartet auf Philips Go zum Veröffentlichen.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -329,9 +329,34 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Weitere Spiele veröffentlichen",
       "status": "fertig",
       "detail": "Nach Philips Go nach main gemergt (PR #23). Update im Panel verfügbar."
+    },
+    {
+      "title": "E-Mail-Versand robust (SMTP)",
+      "status": "fertig",
+      "detail": "Test-Mail zeigt jeden Schritt (DNS → Verbindung → TLS → Anmeldung → Versand) mit Ursache und Tipp; antwortet der Port nicht, werden 465/TLS und 587/STARTTLS probiert und gespeichert. Neues Feld „Server-Adresse intern (IP)“: Verbindung zur IP, Zertifikat gegen den Namen. 10 s Timeout. Echt geprüft mit nodemailer gegen einen lokalen TLS-Mailserver; mail.pmornhart.de selbst ist aus der Cloud nicht erreichbar. 256 Tests."
     }
   ],
   "shots": [
+    {
+      "img": "progress/smtp-desktop-wechsel.webp",
+      "caption": "Test-Mail: 587 antwortet nicht, 465/TLS gefunden und gespeichert",
+      "time": "2026-10-30T22:21:52+00:00"
+    },
+    {
+      "img": "progress/smtp-desktop-zertifikat.webp",
+      "caption": "Zertifikat passt nicht zum Namen – mit Tipp",
+      "time": "2026-10-30T22:21:52+00:00"
+    },
+    {
+      "img": "progress/smtp-desktop-passwort.webp",
+      "caption": "Falsches Passwort – Anmeldung abgelehnt",
+      "time": "2026-10-30T22:21:52+00:00"
+    },
+    {
+      "img": "progress/smtp-handy.webp",
+      "caption": "E-Mail-Einstellungen auf dem Handy",
+      "time": "2026-10-30T22:21:52+00:00"
+    },
     {
       "img": "progress/spiele-uebersicht.webp",
       "caption": "Spielauswahl mit den neuen Spielen",
@@ -371,40 +396,16 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p24-email-bestellung.webp",
       "caption": "Neu gestaltete Bestellmail",
       "time": "2026-10-30T21:10:11+00:00"
-    },
-    {
-      "img": "progress/p23-email-mail-bestaetigung.webp",
-      "caption": "Bestätigungs-Mail bei der Registrierung",
-      "time": "2026-10-30T21:08:03+00:00"
-    },
-    {
-      "img": "progress/p23-email-admin.webp",
-      "caption": "Reiter „E-Mail“ im Admin-Bereich",
-      "time": "2026-10-30T21:08:03+00:00"
-    },
-    {
-      "img": "progress/p23-email-login.webp",
-      "caption": "Anmeldung mit „Passwort vergessen“ und „Jetzt registrieren“",
-      "time": "2026-10-30T21:08:03+00:00"
-    },
-    {
-      "img": "progress/p22-ddos.webp",
-      "caption": "DDoS-Schutz im Admin-Bereich",
-      "time": "2026-10-30T21:07:22+00:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "packages/shared/src/branding.ts (alle Logo- und Bildquellen an einer Stelle), apps/server/src/branding/game-art.ts (Spielbilder)"
+      "path": "apps/server/src/mail/check.ts (Schritt-Prüfung, Fehler-Einordnung), test/mail-check.test.ts"
     },
     {
       "tag": "geändert",
-      "path": "CreateServerPage.tsx (Logos, Vanilla zuerst, keine Vorauswahl, Namens-Würfel), project-logo.tsx, vite.config.ts (Demo bettet Bilder ein)"
-    },
-    {
-      "tag": "behoben",
-      "path": "styles/demo.css (Schrift in der Claude-App lesbar), PanelSettingsPage.tsx (kein Scroll-Strich)"
+      "path": "mail/service.ts (interne IP, 10 s, Port-Erkennung), MailCard.tsx (Schritte, Tipps), packages/shared/src/mail.ts, README (Stalwart im Heimnetz), docs/email.md"
     }
   ],
   "eta": null,
@@ -412,7 +413,7 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "status": "done",
       "until": "",
-      "title": "Weitere Spiele veröffentlicht"
+      "title": "E-Mail-Versand robust"
     }
   ]
 }

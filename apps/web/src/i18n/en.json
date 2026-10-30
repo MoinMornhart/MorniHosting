@@ -2042,7 +2042,7 @@
     "hostHint": "The address of the outgoing server, e.g. smtp.example.com.",
     "port": "Port",
     "security": "Encryption",
-    "securityHint": "“STARTTLS” (port 587) is the usual choice today, “TLS” (port 465) works too. “None” only inside your own network.",
+    "securityHint": "“TLS” (port 465) and “STARTTLS” (port 587) are both secure. Not sure? The test below tries both. “None” only inside your own network.",
     "securityKinds": {
       "starttls": "STARTTLS (587)",
       "tls": "TLS (465)",
@@ -2072,7 +2072,58 @@
     "helpTitle": "Where do I get a mail server?",
     "helpInwx": "INWX: create a mailbox for noreply@your-domain in the customer menu. Server and port are in the mailbox details (usually mail.inwx.de, port 587).",
     "helpIonos": "IONOS: create a mailbox. Server smtp.ionos.com, port 587, the user is the full address.",
-    "helpGmail": "Gmail: smtp.gmail.com, port 587. You need an “app password” (Google account → Security → 2-step verification → App passwords), not your normal password."
+    "helpGmail": "Gmail: smtp.gmail.com, port 587. You need an “app password” (Google account → Security → 2-step verification → App passwords), not your normal password.",
+    "internalHost": "Internal server address (IP)",
+    "internalHostHint": "Optional. If the mail server is in your home network, enter its IP here (e.g. 192.168.178.116). The panel then connects to this IP but still checks the certificate against the name above.",
+    "testRunning": "Checking …",
+    "switched": "Port {{old}} did not answer, port {{port}} with {{security}} did. That is saved now.",
+    "tried": "Tried: {{list}}",
+    "serverSaid": "Reply",
+    "steps": {
+      "dns": "Address found (DNS)",
+      "connect": "Connection to the port",
+      "tls": "Encryption (TLS) and certificate",
+      "login": "Login",
+      "send": "Mail sent"
+    },
+    "problems": {
+      "unreachable": {
+        "title": "Mail server not found",
+        "tip": "The name cannot be resolved or the machine does not answer. If the mail server is in your home network, enter its IP under “Internal server address (IP)”. An /etc/hosts entry does not help because the panel runs in its own container."
+      },
+      "port_closed": {
+        "title": "Port closed",
+        "tip": "The mail server is reachable but accepts nothing on port {{port}}. Check which ports it listens on (Stalwart: usually 465 with TLS) and whether a firewall is in the way."
+      },
+      "timeout": {
+        "title": "No answer (after 10 seconds)",
+        "tip": "Nothing came back on port {{port}}. Often the name points to another machine from outside (e.g. NetBird) or a firewall drops the connection. Enter the mail server’s internal IP and try port 465 with TLS."
+      },
+      "wrong_security": {
+        "title": "Encryption does not match the port",
+        "tip": "Port 465 needs “TLS”, port 587 needs “STARTTLS”. Set the encryption to match the port."
+      },
+      "tls": {
+        "title": "Certificate does not match",
+        "tip": "No secure connection: the certificate does not match the name, has expired or is self-signed. Enter exactly the name from the certificate under “Mail server” (e.g. mail.pmornhart.de) and put the IP only in the “internal” field. The check stays on for security."
+      },
+      "login": {
+        "title": "Login refused",
+        "tip": "User or password is wrong. With Stalwart the user is usually the full address, e.g. noreply@mornihosting.de. Enter the password again, save and test once more."
+      },
+      "sender": {
+        "title": "Sender refused",
+        "tip": "The mail server does not allow this account to send as {{from}}. Use the account’s own address as sender or allow it for this account on the mail server."
+      },
+      "recipient": {
+        "title": "Recipient refused",
+        "tip": "The mail server does not accept this recipient. Check the spelling or try another address."
+      },
+      "other": {
+        "title": "Unexpected error",
+        "tip": "This matches no known cause. The reply below helps to look further."
+      }
+    }
   },
   "mailPages": {
     "backToLogin": "Back to login",

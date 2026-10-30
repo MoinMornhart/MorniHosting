@@ -59,8 +59,15 @@ export function registerMailRoutes(app: Api, ctx: AppContext, mail: MailService)
       const auth = requireAdmin(request);
       const to = request.body.to ?? auth.user.email;
       if (!to) throw badRequest('mail_no_recipient');
-      await mail.send(to, 'test', auth.user.locale, { name: auth.user.displayName || auth.user.username });
-      return { sentTo: to };
+      const result = await mail.test(to, auth.user.locale, {
+        name: auth.user.displayName || auth.user.username,
+      });
+      if (result.switchedTo)
+        ctx.audit.record(actorOf(request), 'mail.settings', null, {
+          host: mail.view().host,
+          port: result.switchedTo.port,
+        });
+      return result;
     },
   );
 

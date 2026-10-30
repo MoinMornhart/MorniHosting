@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Mail, Save, Send, Trash2 } from 'lucide-react';
+import { CheckCircle2, CircleMinus, Mail, Save, Send, Trash2, XCircle } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import {
   type MailSecurity,
   type MailSettingsInput,
   type MailSettingsView,
+  type MailStepState,
   type MailTestResult,
 } from '@mornihosting/shared';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,67 @@ function Toggle(props: {
         <span className="text-[13px] text-muted-foreground">{props.hint}</span>
       </span>
     </label>
+  );
+}
+
+const STEP_ICON: Readonly<Record<MailStepState, ReactElement>> = {
+  ok: <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />,
+  failed: <XCircle className="size-4 shrink-0 text-destructive" aria-hidden />,
+  skipped: <CircleMinus className="size-4 shrink-0 text-muted-foreground" aria-hidden />,
+};
+
+/** What the test button found: each step, what went wrong with a tip, and a port that was found instead. */
+function TestReport(props: { readonly result: MailTestResult; readonly from: string }): ReactElement {
+  const { t } = useTranslation();
+  const { result } = props;
+  const failedPort = result.attempts[0]?.port ?? 0;
+  return (
+    <div className="grid gap-3" aria-live="polite">
+      <ol className="grid gap-1.5 rounded-[12px] border border-border p-3">
+        {result.steps.map((s) => (
+          <li key={s.step} className="flex min-w-0 items-center gap-2 text-sm">
+            {STEP_ICON[s.state]}
+            <span className={s.state === 'skipped' ? 'text-muted-foreground' : 'font-medium'}>
+              {t(`mail.steps.${s.step}`)}
+            </span>
+            {s.detail ? (
+              <span className="min-w-0 truncate font-mono text-xs text-muted-foreground">{s.detail}</span>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+      {result.switchedTo ? (
+        <p role="note" className="rounded-[10px] bg-primary/10 px-3 py-2 text-sm">
+          {t('mail.switched', {
+            old: failedPort,
+            port: result.switchedTo.port,
+            security: t(`mail.securityKinds.${result.switchedTo.security}`).split(' ')[0],
+          })}
+        </p>
+      ) : null}
+      {result.ok ? (
+        <p className="text-sm font-medium text-primary">{t('mail.testSent', { to: result.sentTo })}</p>
+      ) : result.problem ? (
+        <div role="alert" className="grid gap-1 rounded-[10px] bg-destructive-soft px-3 py-2 text-sm">
+          <b>{t(`mail.problems.${result.problem}.title`)}</b>
+          <span>{t(`mail.problems.${result.problem}.tip`, { port: failedPort, from: props.from })}</span>
+          {result.attempts.length > 1 ? (
+            <span className="text-muted-foreground">
+              {t('mail.tried', {
+                list: result.attempts
+                  .map((a) => `${a.port} ${t(`mail.securityKinds.${a.security}`).split(' ')[0]}`)
+                  .join(', '),
+              })}
+            </span>
+          ) : null}
+          {result.message ? (
+            <span className="break-words font-mono text-xs text-muted-foreground">
+              {t('mail.serverSaid')}: {result.message}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -90,7 +152,10 @@ export function MailCard(): ReactElement {
         method: 'POST',
         body: testTo.trim() ? { to: testTo.trim() } : {},
       }),
-    onSuccess: (result) => toast.success(t('mail.testSent', { to: result.sentTo })),
+    onSuccess: (result) => {
+      if (result.switchedTo) void queryClient.invalidateQueries({ queryKey: mailQuery.queryKey });
+      if (result.ok) toast.success(t('mail.testSent', { to: result.sentTo }));
+    },
   });
 
   if (!data || !draft) return <Card className="h-64 animate-pulse p-6" aria-busy />;
@@ -136,6 +201,16 @@ export function MailCard(): ReactElement {
             />
           </Field>
         </div>
+        <Field id="mail-internal" label={t('mail.internalHost')} hint={t('mail.internalHostHint')}>
+          <Input
+            id="mail-internal"
+            value={draft.internalHost}
+            onChange={(e) => set({ internalHost: e.target.value })}
+            placeholder="192.168.178.116"
+            autoComplete="off"
+            inputMode="decimal"
+          />
+        </Field>
         <Field id="mail-security" label={t('mail.security')} hint={t('mail.securityHint')}>
           <Select
             value={draft.security}
@@ -260,10 +335,11 @@ export function MailCard(): ReactElement {
                   onClick={() => test.mutate()}
                 >
                   <Send />
-                  {t('mail.testSend')}
+                  {test.isPending ? t('mail.testRunning') : t('mail.testSend')}
                 </Button>
               </div>
             </Field>
+            {test.data ? <TestReport result={test.data} from={draft.from} /> : null}
           </div>
         ) : null}
 
