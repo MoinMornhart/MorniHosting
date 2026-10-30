@@ -4,8 +4,14 @@ import type { Theme } from '@mornihosting/shared';
 const media = window.matchMedia('(prefers-color-scheme: dark)');
 const state: { theme: Theme } = { theme: 'dark' };
 
+/** A page shown inside an app (the demo in Claude) may get the app's own choice as data-theme on <html>. */
+function hostTheme(): 'dark' | 'light' | null {
+  const own = document.documentElement.dataset['theme'];
+  return own === 'dark' || own === 'light' ? own : null;
+}
+
 function resolve(theme: Theme): 'dark' | 'light' {
-  if (theme === 'system') return media.matches ? 'dark' : 'light';
+  if (theme === 'system') return hostTheme() ?? (media.matches ? 'dark' : 'light');
   return theme;
 }
 
@@ -20,6 +26,9 @@ function paint(): void {
 media.addEventListener('change', () => {
   if (state.theme === 'system') paint();
 });
+new MutationObserver(() => {
+  if (state.theme === 'system') paint();
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 export function applyTheme(theme: Theme): void {
   state.theme = theme;
@@ -38,7 +47,8 @@ export function initialTheme(): Theme {
   } catch {
     // Fall through to the default.
   }
-  return 'dark';
+  // The demo follows the app it is shown in; the panel starts dark.
+  return import.meta.env.MODE === 'demo' ? 'system' : 'dark';
 }
 
 const themeListeners = new Set<() => void>();

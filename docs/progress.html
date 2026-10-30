@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T14:58:33+00:00",
-  "now": "Warte auf dein Go für den Merge nach main",
+  "updated": "2026-10-30T16:14:44+00:00",
+  "now": "Warte auf dein Go für den Merge nach main; danach Panel im ggde-Stil",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -266,9 +266,14 @@ footer { color: var(--muted); font-size: 13px; }
       "detail": "Paper, Purpur, Fabric, Forge, NeoForge und Velocity mit ihren echten Logos (von den Projekt-Seiten geladen, in der Demo beim Bauen eingebettet, nicht im Repo). Vanilla steht vorne. Auf der Bestellseite ist nichts mehr vorausgewählt: Paket, Software, Version, Name (Würfel schlägt einen vor), Add-ons und „gleich starten“ wählst du selbst; ohne Auswahl bleibt „Server erstellen“ aus. In der Demo sind jetzt auch die echten Spielbilder zu sehen; Knopf-Text in der Claude-App überall lesbar. Demo Version 12."
     },
     {
+      "title": "Heller Modus, fester Kopf, neues Icon, INWX-Meldung",
+      "status": "fertig",
+      "detail": "Heller Modus in der Claude-App lesbar (Demo malt eigenen Hintergrund, Schrift und Knöpfe; folgt hell/dunkel der App). Beim Scrollen bleiben Menü, Server-Kopf und Reiter stehen. Neues Icon: Grasblock mit Pixel-„M“ auf Smaragd (Tab-Bild und Logo). Neueste Minecraft-Version wieder vorausgefüllt, sonst nichts. Vanilla überall vorne (bei Geyser nicht, braucht Plugins). Felder in den Einstellungen bündig, Hinweis „über deine eigene Domain“ statt „NetBird“. INWX: klare Meldung bei falschem Benutzernamen/Passwort bzw. 2FA-Schlüssel (INWX antwortet mit „Authentication error“)."
+    },
+    {
       "title": "Demo zeigen, nach deinem Go Merge nach main",
       "status": "läuft",
-      "detail": "Demo Version 12 und Screenshots geschickt. Gemergt wird erst nach deinem Go."
+      "detail": "Demo und Screenshots geschickt. Gemergt wird erst nach deinem Go."
     },
     {
       "title": "DDoS-Schutz (eigenes Update)",
@@ -277,6 +282,11 @@ footer { color: var(--muted); font-size: 13px; }
     }
   ],
   "shots": [
+    {
+      "img": "progress/p18-light.webp",
+      "caption": "Hell und dunkel lesbar, Server-Kopf bleibt beim Scrollen stehen, neues Icon",
+      "time": "2026-10-30T16:14:44+00:00"
+    },
     {
       "img": "progress/p17-order.webp",
       "caption": "Bestellseite ohne Vorauswahl, echte Software-Logos · links dunkel, rechts hell",
@@ -331,11 +341,6 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p13-admin.webp",
       "caption": "Admin-Bereich mit Reitern · NetBird-Karte passt wieder in den Rahmen",
       "time": "2026-10-30T13:05:00+01:00"
-    },
-    {
-      "img": "progress/p13-demo.webp",
-      "caption": "Demo · survival.mornihosting.de ohne Port, Heimnetz-Adresse bricht sauber um",
-      "time": "2026-10-30T13:14:00+01:00"
     }
   ],
   "files": [
@@ -356,18 +361,18 @@ footer { color: var(--muted); font-size: 13px; }
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T16:05:00+01:00",
-      "title": "Echte Logos, Vanilla zuerst, nichts vorausgewählt"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T16:20:00+01:00",
-      "title": "Demo neu (Version 12), Screenshots dunkel/hell/Handy"
+      "until": "",
+      "title": "Heller Modus, fester Kopf, neues Icon, INWX-Meldung"
     },
     {
       "status": "current",
       "until": "",
       "title": "Auf dein Go warten, dann Merge nach main"
+    },
+    {
+      "status": "todo",
+      "until": "",
+      "title": "Server-Panel im Stil von ggdehosting"
     }
   ]
 }

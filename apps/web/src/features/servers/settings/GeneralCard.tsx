@@ -93,6 +93,7 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
   const [pendingRestart, setPendingRestart] = useState(false);
   const netbird = useAddressAutomation();
   const managed = server.netbird !== null;
+  const managedHint = netbird?.via === 'dns' ? t('netbirdAuto.managedDns') : t('netbirdAuto.managed');
   const { data: host } = useQuery(hostQuery);
   const versions = useQuery({
     queryKey: ['versions', server.software],
@@ -228,7 +229,7 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
           <Field
             id="s-domain"
             label={t('settings.general.domain')}
-            hint={managed ? t('netbirdAuto.managed') : t('settings.general.domainHint')}
+            hint={managed ? managedHint : t('settings.general.domainHint')}
           >
             <Input
               id="s-domain"
@@ -241,7 +242,7 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
           <Field
             id="s-public-port"
             label={t('settings.general.publicPort')}
-            hint={managed ? t('netbirdAuto.managed') : t('settings.general.publicPortHint')}
+            hint={managed ? managedHint : t('settings.general.publicPortHint')}
           >
             <Input
               id="s-public-port"

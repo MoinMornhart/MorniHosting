@@ -157,50 +157,50 @@ export function ServerLayout(): ReactElement {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-4">
-        <ServerIcon
-          id={server.id}
-          software={server.software}
-          hasIcon={server.hasIcon}
-          className="size-[60px] rounded-[14px]"
-        />
-        <div className="min-w-[240px] flex-1">
-          <h1 className="flex flex-wrap items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.02em]">
-            {server.name}
-            <StatePill state={server.live.state} />
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            {t('server.meta', {
-              software: SOFTWARE[server.software].label,
-              version: server.version,
-              edition: server.edition === 'java' ? 'Java' : 'Bedrock',
-              port: server.port,
-            })}
-          </p>
+      {/* Server head and tabs stay in place; only the page below them scrolls. */}
+      <div className="sticky top-[65px] z-20 -mx-4 -mt-6 grid gap-[22px] border-b border-border bg-background px-4 pt-6 sm:-mx-8 sm:-mt-7 sm:px-8 sm:pt-7 lg:top-0">
+        <div className="flex flex-wrap items-center gap-4">
+          <ServerIcon
+            id={server.id}
+            software={server.software}
+            hasIcon={server.hasIcon}
+            className="size-[60px] rounded-[14px]"
+          />
+          <div className="min-w-[240px] flex-1">
+            <h1 className="flex flex-wrap items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.02em]">
+              {server.name}
+              <StatePill state={server.live.state} />
+            </h1>
+            <p className="mt-1 text-muted-foreground">
+              {t('server.meta', {
+                software: SOFTWARE[server.software].label,
+                version: server.version,
+                edition: server.edition === 'java' ? 'Java' : 'Bedrock',
+                port: server.port,
+              })}
+            </p>
+          </div>
+          <ServerActions {...context} />
         </div>
-        <ServerActions {...context} />
+        <nav aria-label={server.name} className="-mb-px flex gap-1 overflow-x-auto [scrollbar-width:none]">
+          {tabs.map((tab) => (
+            <NavLink
+              key={tab.key}
+              to={tab.to}
+              end={tab.to === ''}
+              className={({ isActive }) =>
+                cn(
+                  '-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 font-semibold text-muted-foreground transition-colors hover:text-foreground [&_svg]:size-4',
+                  isActive && 'border-primary text-foreground',
+                )
+              }
+            >
+              <tab.icon aria-hidden />
+              {t(`server.tabs.${tab.key === 'plugins' ? contentTab : tab.key}`)}
+            </NavLink>
+          ))}
+        </nav>
       </div>
-      <nav
-        aria-label={server.name}
-        className="-mb-px flex gap-1 overflow-x-auto border-b border-border [scrollbar-width:none]"
-      >
-        {tabs.map((tab) => (
-          <NavLink
-            key={tab.key}
-            to={tab.to}
-            end={tab.to === ''}
-            className={({ isActive }) =>
-              cn(
-                '-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 font-semibold text-muted-foreground transition-colors hover:text-foreground [&_svg]:size-4',
-                isActive && 'border-primary text-foreground',
-              )
-            }
-          >
-            <tab.icon aria-hidden />
-            {t(`server.tabs.${tab.key === 'plugins' ? contentTab : tab.key}`)}
-          </NavLink>
-        ))}
-      </nav>
       <Outlet context={context} />
     </>
   );

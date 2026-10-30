@@ -1,12 +1,42 @@
 /*
- * The demo runs inside the Claude app, which gives the page and its buttons its own text colours. Those
- * rules sit outside Tailwind's layers and would beat the panel's colours, so the demo marks every Tailwind
- * utility as important, and every button takes its card's colour again unless a utility gives it its own
- * (":where" has no weight, so ".text-primary" on a button still wins).
+ * The demo runs inside the Claude app, which paints the page and colours its text, headings and buttons itself.
+ * Those rules sit outside Tailwind's layers and would beat the panel's colours, so the demo marks every Tailwind
+ * utility as important, paints its own background, and lets text take its card's colour again unless a utility
+ * (or an inline colour, like the MOTD preview) gives it its own. ":where" has no weight, so ".text-primary" wins.
  */
 @import 'tailwindcss' important;
 @import './panel.css';
 
-:where(button) {
+html,
+body {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+:where(
+  h1:not([style*='color']),
+  h2:not([style*='color']),
+  h3:not([style*='color']),
+  h4:not([style*='color']),
+  p:not([style*='color']),
+  a:not([style*='color']),
+  span:not([style*='color']),
+  label:not([style*='color']),
+  li:not([style*='color']),
+  dt:not([style*='color']),
+  dd:not([style*='color']),
+  th:not([style*='color']),
+  td:not([style*='color']),
+  strong:not([style*='color']),
+  b:not([style*='color']),
+  small:not([style*='color']),
+  button:not([style*='color'])
+) {
   color: inherit !important;
+}
+
+/* Buttons without their own background or border stay see-through, as in the panel (utilities still win). */
+:where(button) {
+  background-color: transparent !important;
+  border-width: 0 !important;
 }

@@ -128,7 +128,8 @@ const state = {
     ['lena', 'lena-passwort-1'],
     ['finn', 'finn-passwort-1'],
   ]),
-  theme: adminMe.user.theme,
+  // The demo follows the light or dark mode of the app it is shown in.
+  theme: 'system' as MeResponse['user']['theme'],
   passkeys: new Map<number, PasskeyEntry[]>([
     [
       adminMe.user.id,

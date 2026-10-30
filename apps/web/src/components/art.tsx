@@ -1,4 +1,5 @@
 import { useId, type ReactElement, type ReactNode } from 'react';
+import logoUrl from '@/assets/logo.svg';
 import { hashString } from '@/lib/pixel';
 import { McBlock } from './mc-block';
 import { cn } from '@/lib/utils';
@@ -299,25 +300,9 @@ export function Monogram({ name, className }: { name: string; className?: string
 /* ---------- Logo ---------- */
 
 /** The MorniHosting mark: an emerald cube floating on a soft glow. */
+/** The MorniHosting logo: a grass block with a pixel "M" on emerald (same picture as the browser tab icon). */
 export function LogoMark({ className }: { className?: string }): ReactElement {
-  const id = useId();
-  return (
-    <svg viewBox="0 0 40 40" aria-hidden className={cn('size-8 shrink-0', className)}>
-      <defs>
-        <linearGradient id={`${id}bg`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#10b981" />
-          <stop offset="1" stopColor="#065f46" />
-        </linearGradient>
-      </defs>
-      <rect width="40" height="40" rx="11" fill={`url(#${id}bg)`} />
-      <path d="M0 0h40v15C27 20 13 20 0 15Z" fill="#fff" fillOpacity="0.12" />
-      <path d="M20 8.5 30 14.2 20 19.9 10 14.2 20 8.5Z" fill="#ecfdf5" />
-      <path d="M10 14.2 20 19.9v11.5L10 25.7V14.2Z" fill="#a7f3d0" />
-      <path d="M30 14.2 20 19.9v11.5l10-5.7V14.2Z" fill="#6ee7b7" />
-      <path d="M20 19.9v11.5" stroke="#065f46" strokeOpacity="0.25" />
-      <path d="m31.5 6.2.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5-1.5-.6 1.5-.6.6-1.5Z" fill="#fff" />
-    </svg>
-  );
+  return <img src={logoUrl} alt="" aria-hidden className={cn('size-8 shrink-0', className)} />;
 }
 
 /* ---------- Game scenes ---------- */

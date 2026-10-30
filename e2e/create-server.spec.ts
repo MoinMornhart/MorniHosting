@@ -23,9 +23,7 @@ test('order a Paper server like at a hoster and see it running', async ({ page }
   await page.getByRole('button', { name: 'Java Edition' }).click();
   await page.getByRole('button', { name: '4 GB RAM' }).click();
   await page.getByRole('button', { name: PAPER_CHOICE }).click();
-  // Nothing is chosen for the person: version and start are picked by hand.
-  await page.getByRole('combobox').first().click();
-  await page.getByRole('option').first().click();
+  // Only the newest version is filled in; starting right away is picked by hand.
   await expect(page.getByText('1.21.4').first()).toBeVisible();
   await page.locator('#start-now').click();
   await page.fill('#server-address', 'e2e-survival');

@@ -281,6 +281,9 @@ export function CreateServerPage(): ReactElement {
   const [startNow, setStartNow] = useState(false);
   const [eula, setEula] = useState(false);
 
+  const geyserPossible = edition === 'java' && software !== null && GEYSER_SOFTWARE.includes(software);
+  const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
+
   const versions = useQuery({
     queryKey: ['versions', software],
     queryFn: () => api<VersionOption[]>(`/api/versions/${software ?? ''}`),
@@ -291,7 +294,9 @@ export function CreateServerPage(): ReactElement {
     [versions.data, showUnstable],
   );
   const latestStable = versions.data?.find((v) => v.stable)?.id ?? '';
-  const chosenVersion = version;
+  // The newest stable version is the one choice made for the person (Philip's wish); a picked one counts
+  // while the list offers it (switching Geyser on Vanilla changes the list).
+  const chosenVersion = versions.data?.some((v) => v.id === version) ? version : latestStable;
 
   const recommendedMb = recommendedMemoryMb(portSoftware);
   const recommendedPlan = PLANS.find((p) => p.gb * MB_PER_GB >= recommendedMb) ?? PLANS[PLANS.length - 1];
@@ -313,9 +318,7 @@ export function CreateServerPage(): ReactElement {
 
   const defaultPort = SOFTWARE[portSoftware].defaultPort;
   const port = portPick ?? nextFreePort(defaultPort, servers);
-  const geyserPossible = edition === 'java' && software !== null && GEYSER_SOFTWARE.includes(software);
   const voicePossible = software !== null && VOICE_CHAT_SOFTWARE.includes(software);
-  const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
   const voice = voicePossible && addOns.voice;
   const addressName = toNetbirdName(subdomain, '');
   const name = displayName.trim() || subdomain.trim();
