@@ -18,8 +18,14 @@ const say = (socket: WebSocket, message: WsClientMessage): void => socket.send(J
 describe('live connection (WebSocket)', () => {
   let t: TestApp;
   let s: Session;
+  // A real socket always has an address; the injected one gets one so the visitor's IP can be worked out.
+  const socket = { remoteAddress: '127.0.0.1' };
   const open = (headers: Record<string, string>) =>
-    t.app.injectWS('/api/ws', { headers: { cookie: s.cookie, ...headers } });
+    t.app.injectWS('/api/ws', {
+      headers: { cookie: s.cookie, ...headers },
+      connection: socket,
+      socket,
+    } as never);
 
   beforeEach(async () => {
     t = await createTestApp();

@@ -160,8 +160,10 @@ export function createHttpsGateway(ctx: AppContext, domainOf: () => string | nul
       return label !== '' && !label.includes('.');
     },
     isGateway: (address) => {
+      // Without a running gateway nothing is trusted; some sockets have no address at all (undefined).
+      if (state.ip === null || typeof address !== 'string') return false;
       const plain = address.startsWith(IPV4_MAPPED) ? address.slice(IPV4_MAPPED.length) : address;
-      return state.ip !== null && plain === state.ip;
+      return plain === state.ip;
     },
     init: async () => {
       const s = stored();

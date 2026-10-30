@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T11:18:27+00:00",
-  "now": "Schritt 6: Java und Bedrock joinen mit name.mornihosting.de",
+  "updated": "2026-10-30T11:32:39+00:00",
+  "now": "Schritt 7: PR, CI abwarten, Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -238,10 +238,15 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "laeuft",
-      "detail": "Fertig: INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei ggdehosting (Pakete 2–16 GB mit Spielerzahl, Benutzerdefiniert, Name frei wählbar .mornihosting.de, Add-ons Bedrock/Voice/Backups, Bestellübersicht 0,00 €). Gerade: Java und Bedrock joinen mit name.mornihosting.de."
+      "detail": "Fertig: INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei ggdehosting, Joinen mit name.mornihosting.de (Java ohne Port, Bedrock mit Port-Hinweis). Alle Prüfungen grün (192 Tests, 4 Playwright-Abläufe). Gerade: PR und Merge nach main."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p12-join.webp",
+      "caption": "mornihosting.de · Adresse für Freunde: Java nur reich.mornihosting.de (SRV-Eintrag), Bedrock mit Hinweis aufs Port-Feld",
+      "time": "2026-10-30T12:30:00+01:00"
+    },
     {
       "img": "progress/p12-order.webp",
       "caption": "mornihosting.de · Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, Benutzerdefiniert, Name .mornihosting.de, Add-ons, Bestellübersicht (0,00 €)",
@@ -296,28 +301,27 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p8-reset.webp",
       "caption": "Phase 8 · Neues Passwort für Lena, nur einmal sichtbar",
       "time": "2026-10-28T07:10:00+01:00"
-    },
-    {
-      "img": "progress/p8-demo-passkey.webp",
-      "caption": "Phase 8 · Demo: simulierter Passkey-Dialog (im echten Panel fragt das Gerät)",
-      "time": "2026-10-28T07:10:00+01:00"
     }
   ],
   "files": [
     {
-      "tag": "neu",
-      "path": "apps/web/src/features/servers/create/CreateServerPage.tsx (Bestellseite statt Assistent)"
+      "tag": "geändert",
+      "path": "ConnectionCard.tsx: Java nur Name (SRV), Bedrock mit Port-Hinweis"
     },
     {
       "tag": "geändert",
-      "path": "Texte de/en unter order.*"
+      "path": "servers/routes.ts: /connection meldet srv"
+    },
+    {
+      "tag": "behoben",
+      "path": "WebSocket-Tests (seit HTTPS-Schritt rot)"
     },
     {
       "tag": "geändert",
-      "path": "e2e/create-server.spec.ts (bestellt einen Paper-Server)"
+      "path": "README und STAND.md: INWX, HTTPS, Bestellung, Joinen"
     }
   ],
-  "eta": "2026-10-30T13:30:00+01:00",
+  "eta": "2026-10-30T13:15:00+01:00",
   "plan": [
     {
       "status": "done",
@@ -345,13 +349,13 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, unten Benutzerdefiniert, Servername .mornihosting.de, Add-ons, Bestellübersicht"
     },
     {
-      "status": "current",
-      "until": "2026-10-30T12:50:00+01:00",
+      "status": "done",
+      "until": "2026-10-30T12:30:00+01:00",
       "title": "Java und Bedrock joinen mit name.mornihosting.de"
     },
     {
-      "status": "",
-      "until": "2026-10-30T13:30:00+01:00",
+      "status": "current",
+      "until": "2026-10-30T13:15:00+01:00",
       "title": "Tests, Doku, Merge nach main"
     }
   ]

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import {
   SERVER_ACTIONS,
@@ -14,7 +14,7 @@ import {
 } from '@mornihosting/shared';
 import { actorOf, requireAuth } from '../auth/context.js';
 import type { Api, AppContext } from '../context.js';
-import { stats } from '../db/schema.js';
+import { dnsRecords, stats } from '../db/schema.js';
 import { forbidden, notFound } from '../lib/errors.js';
 import { HTTP_ACCEPTED, HTTP_NO_CONTENT } from '../lib/http-status.js';
 import { isHomeNetworkAddress } from '../lib/net-guard.js';
@@ -130,6 +130,12 @@ export function registerServerRoutes(app: Api, ctx: AppContext, servers: ServerS
     return {
       ...(await connectionInfo(servers.row(request.params.id), ctx.settings)),
       viewerAtHome: isHomeNetworkAddress(request.ip),
+      srv:
+        ctx.db
+          .select({ id: dnsRecords.id })
+          .from(dnsRecords)
+          .where(and(eq(dnsRecords.serverId, request.params.id), eq(dnsRecords.type, 'SRV')))
+          .get() !== undefined,
     };
   });
 

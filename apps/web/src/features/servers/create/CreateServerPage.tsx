@@ -548,6 +548,13 @@ export function CreateServerPage(): ReactElement {
             <p className="text-sm text-muted-foreground">
               {hostname ? t('order.addressReady', { hostname }) : t('order.noDomain')}
             </p>
+            {hostname && (edition === 'bedrock' || geyser) ? (
+              <p className="rounded-[10px] bg-secondary px-3 py-2 text-sm text-muted-foreground">
+                {edition === 'bedrock'
+                  ? t('order.bedrockJoin', { hostname, port })
+                  : t('order.geyserJoin', { hostname })}
+              </p>
+            ) : null}
             <Field id="server-name" label={t('order.displayName')} hint={t('order.displayNameHint')}>
               <Input
                 id="server-name"

@@ -232,7 +232,8 @@
     "voiceChat": "Voice chat:",
     "voicePort": "UDP port {{port}}",
     "netbirdError": "NetBird could not set up the address: {{reason}}",
-    "atHome": "You are on the same home network right now – join from here with this address:"
+    "atHome": "You are on the same home network right now – join from here with this address:",
+    "bedrockNoSrv": "Bedrock knows no addresses with a built-in port: in the game, put the address above into “Server address” and {{port}} into “Port”. Only a server on {{standard}} works without a port."
   },
   "stats": {
     "players": "Players",
@@ -1780,6 +1781,8 @@
     "month": "month",
     "priceNote": "Free – it's your own server.",
     "startNow": "The server is set up and started right away",
-    "changeLater": "Power & add-ons can be changed any time"
+    "changeLater": "Power & add-ons can be changed any time",
+    "bedrockJoin": "Bedrock players enter {{hostname}} as server address and {{port}} as port. Bedrock knows no addresses with a built-in port – only a server on 19132 works without entering a port.",
+    "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled)."
   }
 }

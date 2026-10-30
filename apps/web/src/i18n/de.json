@@ -232,7 +232,8 @@
     "voiceChat": "Voice-Chat:",
     "voicePort": "UDP-Port {{port}}",
     "netbirdError": "NetBird konnte die Adresse nicht einrichten: {{reason}}",
-    "atHome": "Du bist gerade im selben Heimnetz – von hier aus mit dieser Adresse joinen:"
+    "atHome": "Du bist gerade im selben Heimnetz – von hier aus mit dieser Adresse joinen:",
+    "bedrockNoSrv": "Bedrock kennt keine Adressen mit eingebautem Port: im Spiel die Adresse oben ins Feld „Serveradresse“ und {{port}} ins Feld „Port“ eintragen. Nur ein Server auf {{standard}} klappt ohne Port."
   },
   "stats": {
     "players": "Spieler",
@@ -1780,6 +1781,8 @@
     "month": "Monat",
     "priceNote": "Kostenlos – es ist dein eigener Server.",
     "startNow": "Der Server wird sofort bereitgestellt und gestartet",
-    "changeLater": "Leistung & Add-ons später jederzeit änderbar"
+    "changeLater": "Leistung & Add-ons später jederzeit änderbar",
+    "bedrockJoin": "Bedrock-Spieler tragen {{hostname}} als Serveradresse ein und {{port}} als Port. Bedrock kennt keine Adressen mit eingebautem Port – nur ein Server auf 19132 klappt ganz ohne Port-Angabe.",
+    "geyserJoin": "Java-Spieler geben nur {{hostname}} ein. Bedrock-Spieler nehmen dieselbe Adresse; den Port zeigt die Server-Seite nach dem Erstellen (der erste Server bekommt 19132, das ist schon vorausgefüllt)."
   }
 }

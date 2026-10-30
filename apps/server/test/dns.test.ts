@@ -2,7 +2,13 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { DnsStatus, HttpsStatus, ServerDetail, ServerSummary } from '@mornihosting/shared';
+import type {
+  ConnectionInfo,
+  DnsStatus,
+  HttpsStatus,
+  ServerDetail,
+  ServerSummary,
+} from '@mornihosting/shared';
 import { createDnsClient } from '../src/dns/providers.js';
 import { authHeaders, createTestApp, setupAdmin, type Session, type TestApp } from './helpers.js';
 
@@ -144,8 +150,11 @@ describe('own domain without NetBird (DNS)', () => {
     expect(info.netbird?.services).toEqual([
       { purpose: 'main', domain: 'reich.mein-minecraft.de', port: 25565 },
     ]);
+    // The address card: Java players type just the name, the SRV record carries the port.
+    const javaConnection = (await call('GET', `/api/servers/${java.id}/connection`)).json<ConnectionInfo>();
+    expect(javaConnection).toMatchObject({ domain: 'reich.mein-minecraft.de', srv: true });
 
-    await create({
+    const bedrock = await create({
       name: 'Handy',
       edition: 'bedrock',
       software: 'bedrock',
@@ -155,6 +164,14 @@ describe('own domain without NetBird (DNS)', () => {
     });
     expect(fake.byName('A', 'handy.mein-minecraft.de')).toBeDefined();
     expect(fake.byName('SRV', '_minecraft._tcp.handy.mein-minecraft.de')).toBeUndefined();
+    const bedrockConnection = (
+      await call('GET', `/api/servers/${bedrock.id}/connection`)
+    ).json<ConnectionInfo>();
+    expect(bedrockConnection).toMatchObject({
+      domain: 'handy.mein-minecraft.de',
+      srv: false,
+      sharePort: 19133,
+    });
   });
 
   test('a new home IP moves all records (DynDNS), a new port moves the SRV record', async () => {
