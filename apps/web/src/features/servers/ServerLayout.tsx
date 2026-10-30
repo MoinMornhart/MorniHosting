@@ -209,7 +209,7 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
             id={server.id}
             software={server.software}
             hasIcon={server.hasIcon}
-            className="-mt-12 size-24 shrink-0 rounded-[16px] shadow-float ring-4 ring-card lg:-mt-16 lg:size-28"
+            className="relative z-10 -mt-12 size-24 shrink-0 rounded-[16px] shadow-float ring-4 ring-card lg:-mt-16 lg:size-28"
           />
           <div className="grid min-w-0 flex-1 gap-2">
             <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[22px] font-bold leading-tight tracking-[-0.02em]">
