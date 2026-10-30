@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T11:10:09+00:00",
-  "now": "Startseite fertig. Gerade: Server bestellen wie bei ggdehosting.",
+  "updated": "2026-10-30T11:18:27+00:00",
+  "now": "Schritt 6: Java und Bedrock joinen mit name.mornihosting.de",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -238,24 +238,29 @@ footer { color: var(--muted); font-size: 13px; }
     {
       "title": "mornihosting.de wie ein echter Hoster",
       "status": "laeuft",
-      "detail": "Fertig: INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite im ggdehosting-Stil (Anmeldung rechts, Spiele mit „Jetzt starten“, Funktionen). Gerade: die Server-Bestellung wie bei ggdehosting."
+      "detail": "Fertig: INWX, mornihosting.de + *.mornihosting.de auf deine IP, HTTPS per Klick, neue Startseite, Server-Bestellung wie bei ggdehosting (Pakete 2–16 GB mit Spielerzahl, Benutzerdefiniert, Name frei wählbar .mornihosting.de, Add-ons Bedrock/Voice/Backups, Bestellübersicht 0,00 €). Gerade: Java und Bedrock joinen mit name.mornihosting.de."
     }
   ],
   "shots": [
     {
+      "img": "progress/p12-order.webp",
+      "caption": "mornihosting.de · Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, Benutzerdefiniert, Name .mornihosting.de, Add-ons, Bestellübersicht (0,00 €)",
+      "time": "2026-10-30T12:20:00+01:00"
+    },
+    {
       "img": "progress/p12-start.webp",
       "caption": "mornihosting.de · Neue Startseite mit Anmeldung, Spielen (Java, Bedrock, Crossplay) und Funktionen",
-      "time": "2026-10-30T13:30:00+01:00"
+      "time": "2026-10-30T12:10:00+01:00"
     },
     {
       "img": "progress/p12-https.webp",
       "caption": "mornihosting.de · HTTPS mit einem Klick: https://mornihosting.de öffnet das Panel",
-      "time": "2026-10-30T13:05:00+01:00"
+      "time": "2026-10-30T12:05:00+01:00"
     },
     {
       "img": "progress/p12-inwx.webp",
       "caption": "mornihosting.de · INWX im Admin-Bereich: Benutzername, Passwort, optional 2FA-Schlüssel",
-      "time": "2026-10-30T12:25:00+01:00"
+      "time": "2026-10-30T11:59:00+01:00"
     },
     {
       "img": "progress/p11-minecraft.webp",
@@ -296,62 +301,57 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p8-demo-passkey.webp",
       "caption": "Phase 8 · Demo: simulierter Passkey-Dialog (im echten Panel fragt das Gerät)",
       "time": "2026-10-28T07:10:00+01:00"
-    },
-    {
-      "img": "progress/p7-geyser.webp",
-      "caption": "Phase 7 · Bedrock-Spieler erlauben: Geyser und Floodgate mit einem Schalter",
-      "time": "2026-10-28T02:15:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/web/src/features/auth/LandingLayout.tsx (Startseite)"
+      "path": "apps/web/src/features/servers/create/CreateServerPage.tsx (Bestellseite statt Assistent)"
     },
     {
       "tag": "geändert",
-      "path": "LoginPage.tsx nutzt die Startseite, Texte de/en unter landing.*"
+      "path": "Texte de/en unter order.*"
     },
     {
       "tag": "geändert",
-      "path": "e2e/passkey.spec.ts (Anmelde-Knopf im Formular)"
+      "path": "e2e/create-server.spec.ts (bestellt einen Paper-Server)"
     }
   ],
-  "eta": "2026-10-30T17:45:00+01:00",
+  "eta": "2026-10-30T13:30:00+01:00",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T12:45:00+01:00",
+      "until": "2026-10-30T11:59:00+01:00",
       "title": "INWX als DNS-Anbieter (Anmeldung, Einträge, DynDNS)"
     },
     {
       "status": "done",
-      "until": "2026-10-30T13:00:00+01:00",
+      "until": "2026-10-30T11:59:00+01:00",
       "title": "mornihosting.de und *.mornihosting.de zeigen auf deine öffentliche IP"
     },
     {
       "status": "done",
-      "until": "2026-10-30T14:15:00+01:00",
+      "until": "2026-10-30T12:05:00+01:00",
       "title": "HTTPS: jede Adresse unter mornihosting.de öffnet das Panel (Zertifikat automatisch)"
     },
     {
       "status": "done",
-      "until": "2026-10-30T14:45:00+01:00",
+      "until": "2026-10-30T12:10:00+01:00",
       "title": "Startseite und Anmeldeseite im ggdehosting-Stil"
     },
     {
-      "status": "current",
-      "until": "2026-10-30T16:30:00+01:00",
+      "status": "done",
+      "until": "2026-10-30T12:20:00+01:00",
       "title": "Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, unten Benutzerdefiniert, Servername .mornihosting.de, Add-ons, Bestellübersicht"
     },
     {
-      "status": "",
-      "until": "2026-10-30T17:00:00+01:00",
+      "status": "current",
+      "until": "2026-10-30T12:50:00+01:00",
       "title": "Java und Bedrock joinen mit name.mornihosting.de"
     },
     {
       "status": "",
-      "until": "2026-10-30T17:45:00+01:00",
+      "until": "2026-10-30T13:30:00+01:00",
       "title": "Tests, Doku, Merge nach main"
     }
   ]
