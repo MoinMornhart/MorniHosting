@@ -129,7 +129,7 @@ function decode(bytes: Buffer): string {
   }
 }
 
-export function propertiesPath(serverDir: string): string {
+function propertiesPath(serverDir: string): string {
   return path.join(serverDir, 'server.properties');
 }
 

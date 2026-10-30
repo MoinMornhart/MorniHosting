@@ -40,7 +40,7 @@ const PASSWORD_MIN = 10;
 
 type Tab = 'users' | 'roles';
 
-export function roleLabel(role: RoleEntry, t: (key: string) => string): string {
+function roleLabel(role: RoleEntry, t: (key: string) => string): string {
   return role.builtIn ? t(`roles.builtin.${role.name}`) : role.name;
 }
 

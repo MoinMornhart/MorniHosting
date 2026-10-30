@@ -3,6 +3,8 @@
   // Die Demo-Website hat einen eigenen Einstieg: apps/web/demo.html → src/demo/main.ts, beim Demo-Bau
   // ersetzt webauthn-shim.ts das Passkey-Paket (vite.config.ts).
   "entry": ["apps/web/src/demo/main.ts", "apps/web/src/demo/webauthn-shim.ts"],
+  // demo.css bindet nur der Demo-Bau ein: vite.config.ts ersetzt dort globals.css durch diese Datei.
+  "ignorePatterns": ["apps/web/src/styles/demo.css"],
   // Die Schrift wird per CSS-@import geladen (src/styles/globals.css).
   "ignoreDependencies": ["@fontsource/jetbrains-mono"],
 }

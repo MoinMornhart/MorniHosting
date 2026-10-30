@@ -42,7 +42,7 @@ export interface HttpsGateway {
 }
 
 /** Caddy's whole configuration: the domain serves the panel, every other name below it redirects there. */
-export function caddyfile(domain: string, panelPort: number): string {
+function caddyfile(domain: string, panelPort: number): string {
   const panel = `${PANEL_HOST}:${panelPort}`;
   return [
     '{',

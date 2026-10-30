@@ -1,6 +1,5 @@
 import {
   Checkbox as CheckboxPrimitive,
-  Popover as PopoverPrimitive,
   Progress as ProgressPrimitive,
   Slider as SliderPrimitive,
   Tooltip as TooltipPrimitive,
@@ -88,28 +87,5 @@ export function Tip({ content, children }: { content: ReactNode; children: React
         </TooltipPrimitive.Content>
       </TooltipPrimitive.Portal>
     </TooltipPrimitive.Root>
-  );
-}
-
-export const Popover = PopoverPrimitive.Root;
-export const PopoverTrigger = PopoverPrimitive.Trigger;
-
-export function PopoverContent({
-  className,
-  align = 'start',
-  ...props
-}: ComponentProps<typeof PopoverPrimitive.Content>): ReactElement {
-  return (
-    <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
-        align={align}
-        sideOffset={6}
-        className={cn(
-          'z-50 w-72 rounded-[12px] border border-border bg-popover p-3 text-popover-foreground shadow-float',
-          className,
-        )}
-        {...props}
-      />
-    </PopoverPrimitive.Portal>
   );
 }

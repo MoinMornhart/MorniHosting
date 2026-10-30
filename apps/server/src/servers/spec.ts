@@ -25,7 +25,7 @@ const ITZG_TYPE: Readonly<Record<SoftwareId, string>> = {
   custom: 'CUSTOM',
 };
 
-export function containerName(serverId: string): string {
+function containerName(serverId: string): string {
   return `mh-${serverId}`;
 }
 
@@ -71,7 +71,7 @@ function bedrockEnv(row: ServerRow, timezone: string): Record<string, string> {
   return { EULA: 'TRUE', VERSION: row.version, TZ: timezone, UID: RUN_UID, GID: RUN_UID };
 }
 
-export function memoryLimitBytes(row: Pick<ServerRow, 'software' | 'memoryMb'>): number {
+function memoryLimitBytes(row: Pick<ServerRow, 'software' | 'memoryMb'>): number {
   const mb =
     row.software === 'bedrock'
       ? row.memoryMb

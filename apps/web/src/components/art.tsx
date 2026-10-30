@@ -158,14 +158,6 @@ const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
   ),
 };
 
-export function GlyphIcon({ glyph, className }: { glyph: Glyph; className?: string }): ReactElement {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className={cn('size-5', className)}>
-      {GLYPHS[glyph]}
-    </svg>
-  );
-}
-
 /* ---------- Badges (app-icon style) ---------- */
 
 /** Two colours per software, top-left to bottom-right. */
@@ -189,10 +181,6 @@ const MAX_INITIALS = 2;
 // Where a name splits into words for its initials: "lena_baut" gives "LB", "Philip" stays one word.
 // https://regex101.com/?flavor=javascript&regex=%5B%5Cs._-%5D%2B&flags=g&testString=lena_baut%0APhilip
 const WORD_BREAK = /[\s._-]+/;
-
-export function glyphFor(software: string): Glyph {
-  return GLYPH_NAMES.find((g) => g === software) ?? 'custom';
-}
 
 /** Where the soft light sits in a badge, picked from the server's id so every server looks a bit its own. */
 const SHINES = [
