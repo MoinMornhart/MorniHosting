@@ -548,7 +548,13 @@
       "pull": "Neuen Code holen",
       "build": "Panel bauen (ein paar Minuten)",
       "restart": "Panel neu starten"
-    }
+    },
+    "headline": {
+      "ok": "Alles aktuell",
+      "new": "Neue Version verfügbar",
+      "failed": "Prüfung gerade nicht möglich"
+    },
+    "checkedWhen": "Zuletzt geprüft {{when}}."
   },
   "players": {
     "online": "Gerade online",

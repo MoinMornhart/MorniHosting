@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Archive,
   ArrowLeft,
+  Mic,
   Blocks,
   Check,
   Cpu,
@@ -32,7 +34,9 @@ import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge, Gem, GameScene, glyphFor, type GemTier } from '@/components/art';
+import { Badge, Gem, GameScene, type GemTier } from '@/components/art';
+import { blockOf, McBlock } from '@/components/mc-block';
+import { hasProjectLogo, ProjectLogo } from '@/components/project-logo';
 import { api } from '@/lib/api';
 import { formatMemoryMb } from '@/lib/format';
 import { errorText } from '@/lib/query';
@@ -72,7 +76,7 @@ const TIERS: Readonly<Record<Tier, GemTier>> = {
   diamond: { shades: ['#cffafe', '#22d3ee', '#0e7490'], sparkles: 2 },
   amethyst: { shades: ['#f3e8ff', '#a855f7', '#6b21a8'], sparkles: 2 },
   ruby: { shades: ['#ffe4e6', '#f43f5e', '#9f1239'], sparkles: 2 },
-  netherite: { shades: ['#a8a29e', '#57534e', '#1c1917'], sparkles: 3 },
+  netherite: { shades: ['#e7e5e4', '#8a7f7a', '#44403c'], sparkles: 3 },
 };
 /* eslint-enable ts-patterns/no-magic-numbers */
 const FALLBACK_PLAN_GB = 2;
@@ -179,14 +183,31 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
   );
 }
 
+/** A small tile for an add-on without its own logo. */
+function AddOnMark({ icon: Icon }: { icon: typeof Archive }): ReactElement {
+  return (
+    <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-gradient-to-br from-emerald-400 to-emerald-700 text-white shadow-sm">
+      <Icon className="size-5" aria-hidden />
+    </span>
+  );
+}
+
+/** The software's own logo where its project allows it (Paper, Velocity), otherwise its Minecraft block. */
+function SoftwareIcon({ id }: { id: SoftwareId }): ReactElement {
+  const block = <McBlock kind={blockOf(id)} className="size-6" />;
+  return hasProjectLogo(id) ? <ProjectLogo project={id} className="size-5" fallback={block} /> : block;
+}
+
 function AddOn({
   title,
   text,
   on,
   locked,
   recommended,
+  icon,
   onChange,
 }: {
+  icon?: ReactNode;
   title: string;
   text: string;
   on: boolean;
@@ -202,6 +223,7 @@ function AddOn({
         on && 'border-primary/60 bg-accent',
       )}
     >
+      {icon}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 font-semibold">
           {title}
@@ -348,7 +370,7 @@ export function CreateServerPage(): ReactElement {
       <header className="grid gap-3 rounded-[16px] border border-border bg-card bg-[radial-gradient(ellipse_at_0%_0%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)] p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="flex items-center gap-3 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
-            <Badge glyph={game} className="size-10" />
+            <McBlock kind={game === 'bedrock' ? 'diamond' : 'grass'} className="size-11" />
             {t(`order.title.${game}`)}
           </h1>
           <Link
@@ -499,7 +521,7 @@ export function CreateServerPage(): ReactElement {
                     )}
                     title={t(`create.software.${id}`)}
                   >
-                    <Badge glyph={glyphFor(id)} className="size-6" />
+                    <SoftwareIcon id={id} />
                     {SOFTWARE[id].label}
                   </button>
                 ))}
@@ -590,6 +612,13 @@ export function CreateServerPage(): ReactElement {
           >
             {edition === 'java' ? (
               <AddOn
+                icon={
+                  <ProjectLogo
+                    project="geyser"
+                    className="size-9 rounded-[8px]"
+                    fallback={<Badge glyph="crossplay" className="size-9" />}
+                  />
+                }
                 title={t('order.geyser')}
                 text={geyserPossible ? t('order.geyserText') : t('order.notForSoftware')}
                 on={geyser}
@@ -599,6 +628,13 @@ export function CreateServerPage(): ReactElement {
               />
             ) : null}
             <AddOn
+              icon={
+                <ProjectLogo
+                  project="voicechat"
+                  className="size-9 rounded-[8px]"
+                  fallback={<AddOnMark icon={Mic} />}
+                />
+              }
               title={t('order.voice')}
               text={voicePossible ? t('order.voiceText') : t('order.notForSoftware')}
               on={voice}
@@ -606,6 +642,7 @@ export function CreateServerPage(): ReactElement {
               onChange={(on) => setAddOns({ ...addOns, voice: on })}
             />
             <AddOn
+              icon={<AddOnMark icon={Archive} />}
               title={t('order.backups')}
               text={t('order.backupsText', { time: BACKUP_TIME })}
               on={addOns.backups}

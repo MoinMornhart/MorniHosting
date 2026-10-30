@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  ArrowRight,
   ArrowUpCircle,
+  CloudOff,
+  Sparkles,
   CircleCheck,
   CircleX,
   ExternalLink,
@@ -15,9 +18,8 @@ import { toast } from 'sonner';
 import type { UpdateInfo, UpdateRun } from '@mornihosting/shared';
 import { CommandLine } from '@/components/command-line';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/misc';
-import { Pill } from '@/components/ui/pill';
 import { api } from '@/lib/api';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -25,6 +27,12 @@ import { updateQuery } from '@/features/shell/UpdateCard';
 
 const MANUAL_COMMANDS = ['update', 'sudo /opt/mornihosting/update.sh'] as const;
 const STEPS = ['pull', 'build', 'restart'] as const;
+/** The big symbol at the top: all fine, something new, or GitHub could not be asked. */
+const STATUS_LOOKS = {
+  ok: { icon: CircleCheck, box: 'from-emerald-400 to-emerald-700' },
+  new: { icon: Sparkles, box: 'from-amber-300 to-orange-600' },
+  failed: { icon: CloudOff, box: 'from-slate-400 to-slate-700' },
+} as const;
 /** While an update runs the card asks every few seconds, also while the panel restarts. */
 const POLL_MS = 3000;
 const RELOAD_DELAY_MS = 1500;
@@ -172,61 +180,60 @@ export function UpdateSection(): ReactElement {
   const shownRun: UpdateRun | null =
     data.run ?? (startedOn.current ? { state: 'requested', step: null, at: '', log: [] } : null);
   const retry = shownRun?.state === 'failed' || shownRun?.state === 'stuck';
+  const flags = { failed: data.checkFailed, new: data.available } as const;
+  const status = (['failed', 'new'] as const).find((key) => flags[key]) ?? 'ok';
+  const look = STATUS_LOOKS[status];
 
   return (
     <Card id="update" className="grid min-w-0 scroll-mt-4 gap-4 p-5 sm:p-6">
-      <CardHeader className="mb-0">
-        <CardTitle className="flex flex-wrap items-center gap-2">
-          {t('update.title')}
-          {data.checkFailed ? <Pill tone="warn">{t('update.checkFailed')}</Pill> : null}
-          {!data.checkFailed && data.available ? (
-            <Pill tone="accent">
-              {data.behind ? t('update.behind', { count: data.behind }) : t('update.newer')}
-            </Pill>
-          ) : null}
-          {!data.checkFailed && !data.available ? (
-            <Pill tone="ok" dot={false}>
-              <CircleCheck className="size-3" aria-hidden />
-              {t('update.upToDate')}
-            </Pill>
-          ) : null}
-        </CardTitle>
-      </CardHeader>
-      <CardDescription>{t('update.intro')}</CardDescription>
+      <div className="flex flex-wrap items-center gap-4">
+        <span
+          className={cn(
+            'grid size-14 shrink-0 place-items-center rounded-[16px] bg-gradient-to-br text-white shadow-lg ring-1 ring-white/15',
+            look.box,
+          )}
+        >
+          <look.icon className="size-7" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            {t('update.title')}
+          </p>
+          <h2 className="text-xl font-extrabold tracking-[-0.01em]">
+            {status === 'new' && data.behind
+              ? t('update.behind', { count: data.behind })
+              : t(`update.headline.${status}`)}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {data.checkedAt
+              ? t('update.checkedWhen', { when: formatRelative(data.checkedAt) })
+              : t('update.intro')}
+          </p>
+        </div>
+        <Button variant="secondary" size="sm" disabled={check.isPending} onClick={() => check.mutate()}>
+          <RefreshCw className={cn(check.isPending && 'animate-spin')} />
+          {t('update.checkNow')}
+        </Button>
+      </div>
 
-      <dl className="grid gap-3 rounded-[12px] border border-border p-3 text-sm sm:grid-cols-3">
-        <div className="min-w-0">
-          <dt className="text-xs text-muted-foreground">{t('update.installed')}</dt>
-          <dd className="font-mono font-semibold">{data.current}</dd>
-        </div>
-        <div className="min-w-0">
-          <dt className="text-xs text-muted-foreground">{t('update.newest')}</dt>
-          <dd className="font-mono font-semibold">
-            {data.latest ?? '–'}
-            {data.latestDate ? (
-              <span className="ml-1.5 font-sans text-xs font-normal text-muted-foreground">
-                {formatDateTime(data.latestDate)}
-              </span>
-            ) : null}
-          </dd>
-        </div>
-        <div className="flex min-w-0 items-end justify-between gap-2 sm:col-span-1">
-          <div>
-            <dt className="text-xs text-muted-foreground">{t('update.lastCheck')}</dt>
-            <dd>{data.checkedAt ? formatRelative(data.checkedAt) : '–'}</dd>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={check.isPending}
-            onClick={() => check.mutate()}
-            aria-label={t('update.checkNow')}
-          >
-            <RefreshCw className={cn(check.isPending && 'animate-spin')} />
-            <span className="hidden sm:inline">{t('update.checkNow')}</span>
-          </Button>
-        </div>
-      </dl>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5">
+          <span className="text-muted-foreground">{t('update.installed')}</span>
+          <b className="font-mono">{data.current}</b>
+        </span>
+        {data.available && data.latest ? (
+          <>
+            <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/50 bg-accent px-3 py-1.5">
+              <span className="text-muted-foreground">{t('update.newest')}</span>
+              <b className="font-mono">{data.latest}</b>
+              {data.latestDate ? (
+                <span className="text-xs text-muted-foreground">{formatDateTime(data.latestDate)}</span>
+              ) : null}
+            </span>
+          </>
+        ) : null}
+      </div>
 
       {shownRun ? <RunState run={shownRun} restarting={restarting} /> : null}
 

@@ -548,7 +548,13 @@
       "pull": "Fetch new code",
       "build": "Build the panel (a few minutes)",
       "restart": "Restart the panel"
-    }
+    },
+    "headline": {
+      "ok": "All up to date",
+      "new": "New version available",
+      "failed": "Check not possible right now"
+    },
+    "checkedWhen": "Last checked {{when}}."
   },
   "players": {
     "online": "Online now",

@@ -9,5 +9,6 @@
 - **Update-Funktion:** ja. **Proxmox-Quick-Start:** ja.
 - Repo ist öffentlich: keine Geheimnisse, Tokens oder privaten Daten committen. Secrets nur über `.env`.
 - Fortschrittsseite `docs/progress.html` nach jedem Baustein aktualisieren (Bilder in `docs/progress/`).
+- Nach jeder sichtbaren Änderung Philip Screenshots schicken, wie es jetzt aussieht (auch Handy, wenn betroffen).
 - `STAND.md` nach jedem größeren Schritt aktualisieren.
 - Sicherheit ist nicht verhandelbar: Docker nur über den Socket-Proxy, Pfade strikt begrenzen, keine Standard-Passwörter.

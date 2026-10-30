@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T13:16:35+00:00",
-  "now": "Fertig – neue Grafiken sind in main",
+  "updated": "2026-10-30T13:56:56+00:00",
+  "now": "PR, CI abwarten, Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -249,9 +249,29 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Eigene Grafiken statt Pixel-Blöcke",
       "status": "fertig",
       "detail": "Neues Logo (Smaragd-Würfel), Server als glänzende App-Icons mit eigenem Symbol je Software (Papierflieger, Flamme, Amboss, Blitz, Gamepad …), Spiele-Karten mit kleinen schwebenden Szenen, Pakete als Edelsteine von Stein bis Netherite, Benutzer mit Initialen. Alles als Vektor, scharf in jeder Größe. Demo neu veröffentlicht."
+    },
+    {
+      "title": "Minecraft-Blöcke, echte Logos, Fehler behoben",
+      "status": "fertig",
+      "detail": "Server-Icons als 3D-Minecraft-Blöcke (selbst gezeichnet), Paper-/Velocity-Logo von PaperMC, Geyser- und Voice-Chat-Logo von Modrinth (nur geladen, nicht kopiert), neues Tab-Bild. Behoben: lange Servernamen sprengten die Karte, schwarze Konsolen-Farben unsichtbar, MOTD-Vorschau mit dunklen Farben, Netherite-Stein fast schwarz. Update-Karte neu gestaltet."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p15-blocks.webp",
+      "caption": "Server mit 3D-Minecraft-Blöcken · lange Namen werden sauber gekürzt",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
+    {
+      "img": "progress/p15-games.webp",
+      "caption": "Spiele-Karten mit Grasblock, Diamanterz und Geyser-Logo",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
+    {
+      "img": "progress/p15-update.webp",
+      "caption": "Neue Update-Karte · Add-ons mit Geyser- und Voice-Chat-Logo",
+      "time": "2026-10-30T15:05:00+01:00"
+    },
     {
       "img": "progress/p14-servers.webp",
       "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
@@ -296,52 +316,42 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p12-start.webp",
       "caption": "mornihosting.de · Neue Startseite mit Anmeldung, Spielen (Java, Bedrock, Crossplay) und Funktionen",
       "time": "2026-10-30T12:10:00+01:00"
-    },
-    {
-      "img": "progress/p12-https.webp",
-      "caption": "mornihosting.de · HTTPS mit einem Klick: https://mornihosting.de öffnet das Panel",
-      "time": "2026-10-30T12:05:00+01:00"
-    },
-    {
-      "img": "progress/p12-inwx.webp",
-      "caption": "mornihosting.de · INWX im Admin-Bereich: Benutzername, Passwort, optional 2FA-Schlüssel",
-      "time": "2026-10-30T11:59:00+01:00"
-    },
-    {
-      "img": "progress/p11-minecraft.webp",
-      "caption": "Phase 11 · Minecraft-Konto verbunden: eigener Kopf und automatisch OP als Besitzer",
-      "time": "2026-10-28T09:25:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "apps/web/src/components/art.tsx (Logo, Badges, Szenen, Edelsteine, Initialen)"
+      "path": "components/mc-block.tsx (3D-Minecraft-Blöcke), components/project-logo.tsx (Paper, Velocity, Geyser, Voice-Chat)"
+    },
+    {
+      "tag": "behoben",
+      "path": "styles/globals.css (Raster sprengen keine Karten mehr), Konsole Schwarz, MOTD-Vorschau"
     },
     {
       "tag": "geändert",
-      "path": "Bestellseite, Startseite, Server-Icons, Benutzerliste"
-    },
-    {
-      "tag": "entfernt",
-      "path": "Pixel-Blöcke in lib/pixel.ts (Spielerköpfe bleiben Pixel – das sind echte Skins)"
+      "path": "UpdateSection.tsx (neue Karte), public/favicon.svg"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-30T15:30:00+01:00",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T13:45:00+01:00",
-      "title": "Eigene Grafiken zeichnen: Logo, Server-Icons, Spiele-Szenen, Edelsteine, Initialen"
+      "until": "2026-10-30T14:45:00+01:00",
+      "title": "Fehler: lange Namen sprengen Karten, schwarze Farben unsichtbar"
     },
     {
       "status": "done",
-      "until": "2026-10-30T13:55:00+01:00",
-      "title": "Überall einbauen, Demo neu veröffentlichen"
+      "until": "2026-10-30T15:00:00+01:00",
+      "title": "Server-Icons als echte Minecraft-Blöcke, Logos von Paper, Velocity, Geyser, Voice-Chat"
     },
     {
       "status": "done",
-      "until": "2026-10-30T14:16:00+01:00",
+      "until": "2026-10-30T15:05:00+01:00",
+      "title": "Update-Karte schöner, neues Tab-Bild, Demo neu"
+    },
+    {
+      "status": "current",
+      "until": "2026-10-30T15:30:00+01:00",
       "title": "Tests, PR, Merge nach main"
     }
   ]

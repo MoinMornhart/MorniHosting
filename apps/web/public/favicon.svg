@@ -1,9 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
-  <rect width="16" height="16" rx="3" fill="#10b981"/>
-  <rect x="3" y="3" width="10" height="4" fill="#6bbd42"/>
-  <rect x="3" y="7" width="10" height="6" fill="#8a5a2c"/>
-  <rect x="3" y="6" width="2" height="2" fill="#5aa636"/>
-  <rect x="8" y="6" width="2" height="2" fill="#5aa636"/>
-  <rect x="5" y="9" width="2" height="1" fill="#6e4520"/>
-  <rect x="10" y="11" width="2" height="1" fill="#6e4520"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#065f46"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="11" fill="url(#bg)"/>
+  <path d="M0 0h40v14C27 18 13 18 0 14Z" fill="#fff" fill-opacity="0.1"/>
+  <path d="M20 7.5 31 13.8 20 20.1 9 13.8 20 7.5Z" fill="#ecfdf5"/>
+  <path d="M9 13.8 20 20.1v12.6L9 26.4V13.8Z" fill="#a7f3d0"/>
+  <path d="M31 13.8 20 20.1v12.6l11-6.3V13.8Z" fill="#6ee7b7"/>
+  <path d="m32 5.2.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7Z" fill="#fff"/>
 </svg>

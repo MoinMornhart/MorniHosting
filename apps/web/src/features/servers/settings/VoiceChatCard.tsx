@@ -11,6 +11,7 @@ import {
 } from '@mornihosting/shared';
 import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
+import { ProjectLogo } from '@/components/project-logo';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
@@ -61,7 +62,11 @@ export function VoiceChatCard({ server }: { server: ServerDetail }): ReactElemen
     <Card className="p-5 sm:p-6">
       <CardHeader className="mb-1">
         <CardTitle className="flex items-center gap-2">
-          <Mic className="size-4 text-primary" aria-hidden />
+          <ProjectLogo
+            project="voicechat"
+            className="size-6 rounded-[6px]"
+            fallback={<Mic className="size-4 text-primary" aria-hidden />}
+          />
           {t('voiceChat.title')}
         </CardTitle>
         <Switch

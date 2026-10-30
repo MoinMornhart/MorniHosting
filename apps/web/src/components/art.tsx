@@ -1,5 +1,7 @@
 import { useId, type ReactElement, type ReactNode } from 'react';
 import { hashString } from '@/lib/pixel';
+import { McBlock } from './mc-block';
+import { ProjectLogo } from './project-logo';
 import { cn } from '@/lib/utils';
 
 /**
@@ -168,18 +170,18 @@ export function GlyphIcon({ glyph, className }: { glyph: Glyph; className?: stri
 
 /** Two colours per software, top-left to bottom-right. */
 const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
-  paper: ['#34d399', '#047857'],
-  purpur: ['#d8b4fe', '#7c3aed'],
-  vanilla: ['#7dd3fc', '#2563eb'],
-  fabric: ['#fde68a', '#c2410c'],
-  forge: ['#fdba74', '#b91c1c'],
-  neoforge: ['#fb923c', '#7c2d12'],
-  velocity: ['#67e8f9', '#0e7490'],
-  bedrock: ['#f9a8d4', '#be185d'],
-  custom: ['#cbd5e1', '#475569'],
-  all: ['#6ee7b7', '#065f46'],
-  java: ['#86efac', '#15803d'],
-  crossplay: ['#fcd34d', '#d97706'],
+  paper: ['#10b981', '#065f46'],
+  purpur: ['#a855f7', '#4c1d95'],
+  vanilla: ['#3b82f6', '#1e3a8a'],
+  fabric: ['#f59e0b', '#9a3412'],
+  forge: ['#f97316', '#991b1b'],
+  neoforge: ['#ea580c', '#7c2d12'],
+  velocity: ['#06b6d4', '#164e63'],
+  bedrock: ['#ec4899', '#831843'],
+  custom: ['#64748b', '#1e293b'],
+  all: ['#10b981', '#064e3b'],
+  java: ['#22c55e', '#14532d'],
+  crossplay: ['#f59e0b', '#92400e'],
 };
 
 const GLYPH_NAMES = Object.keys(TONES) as Glyph[];
@@ -224,7 +226,7 @@ export function Badge({
           <stop offset="1" stopColor={to} />
         </linearGradient>
         <radialGradient id={`${id}s`}>
-          <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
           <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
         <clipPath id={`${id}c`}>
@@ -234,7 +236,8 @@ export function Badge({
       <g clipPath={`url(#${id}c)`}>
         <rect width="44" height="44" fill={`url(#${id}g)`} />
         <circle {...shine} r="20" fill={`url(#${id}s)`} />
-        <path d="M0 0h44v17C30 22 14 22 0 17Z" fill="#fff" fillOpacity="0.14" />
+        <path d="M0 0h44v15C30 19 14 19 0 15Z" fill="#fff" fillOpacity="0.08" />
+        <path d="M0 34C14 39 30 39 44 34v10H0Z" fill="#000" fillOpacity="0.14" />
         <rect
           x="0.75"
           y="0.75"
@@ -243,14 +246,14 @@ export function Badge({
           rx="11.25"
           fill="none"
           stroke="#fff"
-          strokeOpacity="0.22"
+          strokeOpacity="0.16"
           strokeWidth="1.5"
         />
       </g>
       <g
-        transform="translate(10 10)"
+        transform="translate(9.2 9.2) scale(1.07)"
         color="#fff"
-        style={{ filter: 'drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.3))' }}
+        style={{ filter: 'drop-shadow(0 1.2px 1.2px rgb(0 0 0 / 0.35))' }}
       >
         {GLYPHS[glyph]}
       </g>
@@ -277,7 +280,7 @@ export function Monogram({ name, className }: { name: string; className?: string
         </linearGradient>
       </defs>
       <rect width="40" height="40" rx="11" fill={`url(#${id}g)`} />
-      <path d="M0 0h40v15C27 20 13 20 0 15Z" fill="#fff" fillOpacity="0.14" />
+      <path d="M0 0h40v14C27 18 13 18 0 14Z" fill="#fff" fillOpacity="0.08" />
       <text
         x="20"
         y="21"
@@ -322,60 +325,7 @@ export function LogoMark({ className }: { className?: string }): ReactElement {
 
 export type GameKind = 'java' | 'bedrock' | 'crossplay';
 
-/** cos 30°: how far an isometric edge reaches sideways. */
-const COS_30 = 0.866;
 const HALF = 0.5;
-
-/** The three visible faces of an isometric cube standing at (x, y) with edge length `s`. */
-function cubeFaces(x: number, y: number, s: number): { top: string; left: string; right: string } {
-  const w = s * COS_30;
-  const h = s * HALF;
-  const pts = (list: readonly (readonly [number, number])[]): string =>
-    list.map(([a, b]) => `${a},${b}`).join(' ');
-  return {
-    top: pts([
-      [x, y - s],
-      [x + w, y - h],
-      [x, y],
-      [x - w, y - h],
-    ]),
-    left: pts([
-      [x - w, y - h],
-      [x, y],
-      [x, y + s],
-      [x - w, y + h],
-    ]),
-    right: pts([
-      [x, y],
-      [x + w, y - h],
-      [x + w, y + h],
-      [x, y + s],
-    ]),
-  };
-}
-
-function Cube({
-  x,
-  y,
-  s,
-  colors,
-  opacity = 1,
-}: {
-  x: number;
-  y: number;
-  s: number;
-  colors: readonly [string, string, string];
-  opacity?: number;
-}): ReactElement {
-  const f = cubeFaces(x, y, s);
-  return (
-    <g opacity={opacity}>
-      <polygon points={f.top} fill={colors[0]} />
-      <polygon points={f.left} fill={colors[1]} />
-      <polygon points={f.right} fill={colors[2]} />
-    </g>
-  );
-}
 
 function Sparkle({
   x,
@@ -392,10 +342,6 @@ function Sparkle({
   const d = `M${x} ${y - r}L${x + k} ${y - k}L${x + r} ${y}L${x + k} ${y + k}L${x} ${y + r}L${x - k} ${y + k}L${x - r} ${y}L${x - k} ${y - k}Z`;
   return <path d={d} fill={color} />;
 }
-
-const EMERALD = ['#d1fae5', '#34d399', '#059669'] as const;
-const EMERALD_SMALL = ['#a7f3d0', '#10b981', '#047857'] as const;
-const GOLD = ['#fef3c7', '#fbbf24', '#d97706'] as const;
 
 function Phone({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): ReactElement {
   return (
@@ -424,6 +370,7 @@ function Gamepad({ x, y }: { x: number; y: number }): ReactElement {
   );
 }
 
+/* eslint-disable ts-patterns/no-magic-numbers -- positions in the 160 × 80 scene drawings */
 const SCENES: Readonly<
   Record<GameKind, { readonly sky: readonly [string, string]; readonly art: ReactNode }>
 > = {
@@ -432,10 +379,10 @@ const SCENES: Readonly<
     art: (
       <>
         <ellipse cx="80" cy="66" rx="30" ry="7" fill="#000" fillOpacity="0.3" />
-        <Cube x={80} y={38} s={24} colors={EMERALD} />
-        <Cube x={42} y={30} s={9} colors={EMERALD_SMALL} opacity={0.85} />
-        <Cube x={122} y={22} s={7} colors={EMERALD_SMALL} opacity={0.7} />
-        <Cube x={128} y={56} s={5} colors={GOLD} />
+        <McBlock kind="grass" at={{ x: 50, y: 4, size: 60 }} />
+        <McBlock kind="diamond" at={{ x: 22, y: 20, size: 22 }} />
+        <McBlock kind="purpur" at={{ x: 118, y: 10, size: 18 }} />
+        <McBlock kind="magma" at={{ x: 124, y: 46, size: 15 }} />
         <Sparkle x={58} y={12} r={4} />
         <Sparkle x={108} y={8} r={2.6} />
         <Sparkle x={30} y={56} r={2.2} color="#6ee7b7" />
@@ -447,8 +394,9 @@ const SCENES: Readonly<
     art: (
       <>
         <ellipse cx="80" cy="68" rx="34" ry="6" fill="#000" fillOpacity="0.3" />
-        <Phone x={64} y={38} />
-        <Gamepad x={102} y={50} />
+        <McBlock kind="diamond" at={{ x: 14, y: 26, size: 30 }} />
+        <Phone x={68} y={38} />
+        <Gamepad x={106} y={50} />
         <Sparkle x={124} y={18} r={3.6} />
         <Sparkle x={38} y={16} r={2.4} color="#f9a8d4" />
         <Sparkle x={136} y={44} r={2} color="#7dd3fc" />
@@ -468,7 +416,7 @@ const SCENES: Readonly<
           strokeDasharray="3 4"
           strokeLinecap="round"
         />
-        <Cube x={52} y={40} s={18} colors={EMERALD} />
+        <McBlock kind="grass" at={{ x: 26, y: 14, size: 50 }} />
         <Phone x={108} y={42} scale={0.8} />
         <Sparkle x={80} y={10} r={4} color="#fde68a" />
         <Sparkle x={30} y={20} r={2.2} />
@@ -477,6 +425,7 @@ const SCENES: Readonly<
     ),
   },
 };
+/* eslint-enable ts-patterns/no-magic-numbers */
 
 /** A little scene for a game card: a glowing cube for Java, phone and gamepad for Bedrock, both linked for crossplay. */
 export function GameScene({ game, className }: { game: GameKind; className?: string }): ReactElement {
@@ -499,6 +448,16 @@ export function GameScene({ game, className }: { game: GameKind; className?: str
         <circle cx="80" cy="40" r="46" fill={`url(#${id}glow)`} />
         <g className="art-float">{scene.art}</g>
       </svg>
+      {game === 'crossplay' ? (
+        <span className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-black/45 py-1 pl-1 pr-2.5 text-[11px] font-semibold text-white backdrop-blur">
+          <ProjectLogo
+            project="geyser"
+            className="size-5 rounded-full"
+            fallback={<Badge glyph="crossplay" className="size-5" />}
+          />
+          Geyser
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -543,9 +502,9 @@ export function Gem({ tier, className }: { tier: GemTier; className?: string }):
       <polygon
         points="8,15 14,8 26,8 32,15 20,33"
         fill="none"
-        stroke="#fff"
-        strokeOpacity="0.35"
-        strokeWidth="0.8"
+        stroke={dark}
+        strokeOpacity="0.9"
+        strokeWidth="1"
         strokeLinejoin="round"
       />
       {GEM_SPARKLES.slice(0, tier.sparkles).map((s) => (

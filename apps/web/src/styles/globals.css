@@ -132,6 +132,14 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
+  /*
+   * A grid without its own columns gets one column as wide as the grid itself. Otherwise a long text
+   * (a server name, a command) widens the column past its card and spills out of it.
+   * Any grid-cols-* utility still wins, because utilities come after this layer.
+   */
+  :where(.grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .tabular {
     font-variant-numeric: tabular-nums;
   }
