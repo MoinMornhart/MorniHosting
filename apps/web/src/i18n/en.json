@@ -1476,8 +1476,93 @@
       "dns_disconnect": "Own domain disconnected",
       "dns_server": "Address under own domain changed",
       "https_enable": "HTTPS turned on",
-      "https_disable": "HTTPS turned off"
+      "https_disable": "HTTPS turned off",
+      "ddos_update": "DDoS protection changed"
     }
+  },
+  "ddos": {
+    "title": "DDoS protection",
+    "headline": {
+      "active": "Protection is on",
+      "off": "Protection is off",
+      "switchingOn": "Switching on …",
+      "switchingOff": "Switching off …",
+      "stuck": "The computer does not answer",
+      "failed": "Protection could not be switched on",
+      "no_host": "A part on the computer is still missing"
+    },
+    "state": {
+      "active": "On",
+      "off": "Off",
+      "waiting": "Almost there",
+      "stuck": "No answer",
+      "failed": "Error",
+      "no_host": "Not set up"
+    },
+    "stateText": {
+      "active": "Anyone sending too many connections or packets gets slowed down. Normal players do not notice anything.",
+      "off": "Switch it on so single troublemakers cannot knock your servers over.",
+      "waiting": "The computer picks up the setting within a few seconds.",
+      "stuck": "The helper on the computer has not reported back for a few minutes.",
+      "failed": "The firewall rules could not be set. Your servers keep running normally.",
+      "no_host": "For safety the panel may not touch the firewall itself. A small helper on the computer does that."
+    },
+    "switch": "Switch on DDoS protection",
+    "switchHint": "Slows down per sender: too many new connections, too many at once, UDP floods (Bedrock, voice chat) and broken packets. Home network and NetBird stay free.",
+    "installTitle": "Set up the helper on the computer",
+    "stuckTitle": "Check the helper on the computer",
+    "installText": "Enter this once on the computer (or in the Proxmox container) – an update sets it up as well:",
+    "error": {
+      "rules_failed": "The firewall rules were refused.",
+      "iptables_missing": "iptables is missing on the computer."
+    },
+    "errorHint": "Usually a kernel module is missing (xt_hashlimit, xt_connlimit). In a Proxmox container the Proxmox host loads it: run “modprobe -a xt_hashlimit xt_connlimit xt_conntrack xt_comment” there once, then switch off and on again.",
+    "dropped": {
+      "tcpRate": "too many new connections",
+      "tcpConnections": "too many at once",
+      "udpRate": "UDP flood (Bedrock, voice)",
+      "invalid": "broken packets"
+    },
+    "checked": "Last checked {{when}}",
+    "families": {
+      "both": "IPv4 and IPv6",
+      "v4": "IPv4"
+    },
+    "noDocker": "Docker was not found yet – the server ports are protected once Docker runs (happens automatically within a minute).",
+    "noSysctl": "SYN cookies and the bigger connection table are up to the host here (e.g. Proxmox). The firewall rules work anyway.",
+    "limitsTitle": "Which limits apply?",
+    "limits": {
+      "tcpNew": "At most {{count}} new connections per minute and sender (up to {{burst}} at once) – enough for a whole family behind one connection.",
+      "tcpConnections": "At most {{count}} open connections at the same time per sender (a player needs one).",
+      "udp": "At most {{count}} UDP packets per second and sender (a Bedrock player sends about 100, voice chat about 50).",
+      "invalid": "Broken TCP packets that belong to no connection are dropped; SYN cookies catch SYN floods.",
+      "trusted": "Never slowed down: your home network, Docker inside and NetBird."
+    },
+    "limitsChange": "Put your own limits into this file on the computer:",
+    "honestTitle": "What the protection can do – and what not",
+    "honestText": "It helps against single troublemakers and small floods: bots connecting thousands of times, or someone flooding your Bedrock port. Against big attacks that clog your whole internet line nothing running at your home helps – the line is full before a packet reaches your computer. Only a service in front of your connection helps there:",
+    "providers": {
+      "tcpshield": {
+        "name": "TCPShield",
+        "text": "Made for Minecraft Java, free to start. Players connect to TCPShield, which only passes clean connections on to you."
+      },
+      "cloudflare": {
+        "name": "Cloudflare Spectrum",
+        "text": "Protects any TCP/UDP port, Bedrock too. Costs money; for the panel plain Cloudflare (HTTPS) is enough and free."
+      },
+      "netbird": {
+        "name": "NetBird proxy on a rented server",
+        "text": "If your NetBird runs on a rented server, the world only sees its address. Many providers (e.g. IONOS, Hetzner) filter big attacks there already."
+      }
+    },
+    "rateTitle": "Spam limit in Minecraft",
+    "ratePill": "{{count}} packets/s",
+    "off": "Off",
+    "rateText": "Minecraft can kick players who send extremely many packets (for example with cheat tools). A normal game sends far fewer.",
+    "rateSwitch": "Switch on spam limit",
+    "rateHint": "Applies to all Java servers from their next start (in server.properties: rate-limit).",
+    "rateValue": "Packets per second and player",
+    "rateValueHint": "Between {{min}} and {{max}}. 500 is generous."
   },
   "account": {
     "subtitle": "Your name, password, passkeys and two-factor sign-in.",
@@ -1546,7 +1631,8 @@
       "update": "Updates",
       "passwords": "Passwords",
       "settings": "Settings",
-      "netbird": "NetBird"
+      "netbird": "NetBird",
+      "ddos": "DDoS protection"
     },
     "domainTitle": "Panel address by hand",
     "domainSet": "Set",
@@ -1569,7 +1655,8 @@
       "netbird": "For servers without port forwarding: NetBird connects them to your domain.",
       "update": "Install new features and fixes with one click.",
       "passwords": "Someone forgot their password? Reset it here.",
-      "settings": "Home network addresses, CurseForge key, time zone and language."
+      "settings": "Home network addresses, CurseForge key, time zone and language.",
+      "ddos": "Protects your servers and the panel from flood attacks, as far as that is possible at home."
     },
     "netbirdManual": "Set up NetBird by hand",
     "netbirdManualHint": "Only needed if you don't use the automation above. Tap to open."

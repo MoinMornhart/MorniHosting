@@ -125,6 +125,10 @@ lxc.cgroup2.devices.allow: c 10:200 rwm
 lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
 CONF
 fi
+# Firewall-Module für den DDoS-Schutz: Ein LXC teilt den Kernel des Hosts und kann sie nicht selbst laden.
+DDOS_MODULES=(xt_hashlimit xt_connlimit xt_conntrack xt_comment)
+modprobe -a "${DDOS_MODULES[@]}" 2>/dev/null || true
+printf '%s\n' "# MorniHosting DDoS-Schutz" "${DDOS_MODULES[@]}" >/etc/modules-load.d/mornihosting-ddos.conf
 pct start "${CTID}"
 msg_ok "Container ${CTID} läuft"
 

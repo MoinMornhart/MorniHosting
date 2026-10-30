@@ -96,6 +96,16 @@ fi
 msg_ok "Panel neu gestartet"
 
 docker image prune -f >/dev/null 2>&1 || true
+
+# Neue oder geänderte systemd-Einheiten (DDoS-Schutz) mit einrichten; ein Fehler hier stoppt das Update nicht.
+if [[ -f scripts/ddos-guard.sh ]]; then
+  chmod +x scripts/ddos-guard.sh
+  if scripts/ddos-guard.sh install >/dev/null; then
+    msg_ok "DDoS-Schutz eingerichtet"
+  else
+    msg_error "DDoS-Schutz ließ sich nicht einrichten (Details: sudo ${INSTALL_DIR}/scripts/ddos-guard.sh install)"
+  fi
+fi
 STEP="null"
 write_status "done"
 msg_ok "Fertig. Deine Minecraft-Server sind die ganze Zeit weitergelaufen."
