@@ -75,6 +75,7 @@ export function GameCard({ game, onStart }: { game: GameKind | GameId; onStart: 
 const SCENE_COLOURS: Readonly<Record<GameId, readonly [string, string]>> = {
   factorio: ['#7a4a12', '#1b1206'],
   cs2: ['#1e3a5f', '#070b12'],
+  gmod: ['#0e4f73', '#050d14'],
 };
 
 export function OtherGameScene({ game }: { game: GameId }): ReactElement {

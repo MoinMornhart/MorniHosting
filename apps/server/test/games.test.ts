@@ -270,3 +270,38 @@ describe('Counter-Strike 2 container', () => {
     }
   });
 });
+
+describe("Garry's Mod container", () => {
+  test('two folders, RCON password and workshop as start arguments', async () => {
+    const t = await createTestApp();
+    const s = await setupAdmin(t);
+    try {
+      const payload = order('gmod', {
+        startNow: false,
+        gameSettings: { workshopCollection: '123456', password: 'geheim' },
+      });
+      const res = await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload,
+      });
+      const row = t.servers.rowWithSecrets(res.json<ServerSummary>().id);
+      const spec = buildContainerSpec(t.ctx.config, row, 'Europe/Berlin');
+      expect(spec.mounts?.map((m) => m.subdir)).toEqual(['data', 'addons']);
+      expect(spec.env['ARGS']).toBe(
+        `+rcon_password ${row.rconPassword} +host_workshop_collection 123456 +sv_password geheim`,
+      );
+      // A blank would add another start argument.
+      const sneaky = await t.app.inject({
+        method: 'PUT',
+        url: `/api/servers/${row.id}/game-settings`,
+        headers: authHeaders(s),
+        payload: { values: { password: 'a +exec evil' } },
+      });
+      expect(sneaky.statusCode).toBe(400);
+    } finally {
+      await t.cleanup();
+    }
+  });
+});

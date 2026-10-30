@@ -322,7 +322,7 @@ function startServer(serverId: string): void {
   setLive(serverId, { state: 'starting', progress: 0, startedAt: null });
   log(
     serverId,
-    `\u001b[33m[MorniHosting]\u001b[0m Server wird gestartet (${server.software} ${server.version}) …`,
+    `\u001b[33m[MorniHosting]\u001b[0m Server wird gestartet (${gameOf(server.software)?.label ?? `${server.software} ${server.version}`}) …`,
   );
   const game = gameOf(server.software);
   const boot = game

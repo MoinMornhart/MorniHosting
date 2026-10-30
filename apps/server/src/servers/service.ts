@@ -417,7 +417,11 @@ export function createServerService(ctx: AppContext): ServerService {
     runtime.stopRequested = false;
     runtime.progress = 0;
     setState(id, 'starting');
-    panelLog(id, `Server wird gestartet (${SOFTWARE[r.software].label} ${r.version}) …`);
+    // Other games' "version" is an image choice ("stable", "steam"); the name says enough.
+    const what = gameOf(r.software)
+      ? SOFTWARE[r.software].label
+      : `${SOFTWARE[r.software].label} ${r.version}`;
+    panelLog(id, `Server wird gestartet (${what}) …`);
     beforeStart.forEach((prepare) => prepare(id));
     await docker.ensureNetwork(config.mcNetwork);
     await docker.ensureImage(r.image, (percent) => {

@@ -5,7 +5,7 @@
  * For these games the server's `edition` and `software` both hold the game id.
  */
 
-export const GAME_IDS = ['factorio', 'cs2'] as const;
+export const GAME_IDS = ['factorio', 'cs2', 'gmod'] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /** How console commands reach the game: Source RCON over the internal network, the process' stdin, or not at all. */
@@ -150,6 +150,17 @@ const SOURCE_JOIN = /"([^"<]+)<\d+><[^>]*><[^>]*>" connected/;
 // https://regex101.com/?flavor=javascript&regex=%22(%5B%5E%22%3C%5D%2B)%3C%5Cd%2B%3E%3C%5B%5E%3E%5D*%3E%3C%5B%5E%3E%5D*%3E%22%20disconnected&flags=gm&testString=%22Lena%3C2%3E%3C%5BU%3A1%3A123%5D%3E%3CCT%3E%22%20disconnected%20(reason%20%22Disconnect%22)%0A%22Lena%3C2%3E%3C%5BU%3A1%3A123%5D%3E%3C%3E%22%20connected
 const SOURCE_LEAVE = /"([^"<]+)<\d+><[^>]*><[^>]*>" disconnected/;
 
+// Source 1 servers (Garry's Mod) are ready: "VAC secure mode is activated." or "Connection to Steam servers successful.".
+// https://regex101.com/?flavor=javascript&regex=VAC%20secure%20mode%20is%20activated%7CConnection%20to%20Steam%20servers%20successful&flags=gm&testString=VAC%20secure%20mode%20is%20activated.%0AConnection%20to%20Steam%20servers%20successful.%0AVAC%20secure%20mode%20disabled.
+const SRCDS_READY = /VAC secure mode is activated|Connection to Steam servers successful/;
+// srcds console join: 'Client "Lena" connected (10.0.0.2:27005).' → "Lena".
+// https://regex101.com/?flavor=javascript&regex=Client%20%22(%5B%5E%22%5D%2B)%22%20connected&flags=gm&testString=Client%20%22Lena%22%20connected%20(10.0.0.2%3A27005).%0AClient%20disconnected
+const SRCDS_JOIN = /Client "([^"]+)" connected/;
+// srcds console leave: "Dropped Lena from server (Disconnect by user.)" → "Lena".
+// https://regex101.com/?flavor=javascript&regex=Dropped%20(.%2B%3F)%20from%20server&flags=gm&testString=Dropped%20Lena%20from%20server%20(Disconnect%20by%20user.)%0ADropped%20packets
+const SRCDS_LEAVE = /Dropped (.+?) from server/;
+const GMOD_DIR = '/home/gmod/server/garrysmod';
+
 export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
   factorio: {
     id: 'factorio',
@@ -236,6 +247,51 @@ export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
     logPatterns: { ready: CS2_READY, join: SOURCE_JOIN, leave: SOURCE_LEAVE },
     steamAppId: 730,
     downloadGb: 60,
+  },
+  gmod: {
+    id: 'gmod',
+    label: "Garry's Mod",
+    image: 'ceifa/garrysmod',
+    versions: STEAM_VERSIONS,
+    // The game itself is in the image; only saved data and own addons are kept.
+    mounts: [
+      { subdir: 'data', path: `${GMOD_DIR}/data` },
+      { subdir: 'addons', path: `${GMOD_DIR}/addons` },
+    ],
+    ports: [{ key: 'main', defaultPort: SOURCE_PORT, protocol: 'udp', env: 'PORT' }],
+    console: 'rcon',
+    rconPort: 'main',
+    rconArg: '+rcon_password',
+    argsEnv: 'ARGS',
+    env: { PUID: RUN_UID, PGID: RUN_UID },
+    fields: [
+      { key: 'serverName', env: 'NAME', kind: 'text', onOrder: true },
+      { key: 'gamemode', env: 'GAMEMODE', kind: 'text', fallback: 'sandbox', onOrder: true },
+      { key: 'workshopCollection', arg: '+host_workshop_collection', kind: 'number', onOrder: true },
+      {
+        key: 'authKey',
+        env: 'AUTHKEY',
+        kind: 'secret',
+        helpUrl: 'https://steamcommunity.com/dev/apikey',
+      },
+      { key: 'map', env: 'MAP', kind: 'text', fallback: 'gm_construct' },
+      { key: 'maxPlayers', env: 'MAXPLAYERS', kind: 'number', fallback: '16' },
+      { key: 'password', arg: '+sv_password', kind: 'secret' },
+      {
+        key: 'gslt',
+        env: 'GSLT',
+        kind: 'secret',
+        helpUrl: 'https://steamcommunity.com/dev/managegameservers',
+      },
+    ],
+    packagesGb: [2, 3, 4],
+    recommendedGb: 2,
+    playersPerGb: 8,
+    maxPlayers: 128,
+    stopCommand: 'quit',
+    logPatterns: { ready: SRCDS_READY, join: SRCDS_JOIN, leave: SRCDS_LEAVE },
+    steamAppId: 4000,
+    downloadGb: 4,
   },
 } satisfies Record<GameId, GameInfo>);
 /* eslint-enable ts-patterns/no-magic-numbers */

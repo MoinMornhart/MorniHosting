@@ -1997,6 +1997,30 @@
           "armsrace": "Waffenwettlauf"
         }
       }
+    },
+    "gmod": {
+      "kicker": "Sandkasten",
+      "text": "Bauen, Unsinn treiben oder Trouble in Terrorist Town – mit Addons aus dem Workshop.",
+      "about": "Ein eigener Garry's-Mod-Server. Addons und Karten kommen am einfachsten über eine Steam-Workshop-Sammlung.",
+      "memoryHint": "{{gb}} GB reichen für die meisten Server. Viele Addons brauchen mehr.",
+      "fields": {
+        "serverName": "Servername im Spiel",
+        "serverNameHint": "So heißt der Server in der Server-Liste.",
+        "gamemode": "Spielmodus",
+        "gamemodeHint": "z. B. sandbox oder terrortown (TTT). Andere Modi kommen über die Workshop-Sammlung.",
+        "workshopCollection": "Workshop-Sammlung",
+        "workshopCollectionHint": "Die Nummer deiner Steam-Workshop-Sammlung (aus der Adresse, nach „id=“). Der Server lädt alle Addons daraus.",
+        "authKey": "Steam-Web-API-Schlüssel",
+        "authKeyHint": "Braucht der Server, um die Workshop-Sammlung herunterzuladen. Bleibt verschlüsselt.",
+        "map": "Startkarte",
+        "mapHint": "Die Karte nach dem Start, z. B. gm_construct oder gm_flatgrass.",
+        "maxPlayers": "Maximale Spieler",
+        "maxPlayersHint": "Wie viele gleichzeitig spielen dürfen (Standard 16).",
+        "password": "Beitritts-Passwort",
+        "passwordHint": "Ohne Leerzeichen. Leer = jeder mit der Adresse kann beitreten.",
+        "gslt": "Steam-Token (GSLT)",
+        "gsltHint": "Ein „Game Server Login Token“ mit App-ID 4000. Nur nötig, damit der Server dauerhaft in der Liste erscheint."
+      }
     }
   }
 }

@@ -1997,6 +1997,30 @@
           "armsrace": "Arms Race"
         }
       }
+    },
+    "gmod": {
+      "kicker": "Sandbox",
+      "text": "Build, mess around or play Trouble in Terrorist Town – with addons from the workshop.",
+      "about": "Your own Garry's Mod server. Addons and maps come easiest through a Steam Workshop collection.",
+      "memoryHint": "{{gb}} GB is enough for most servers. Many addons need more.",
+      "fields": {
+        "serverName": "Server name in game",
+        "serverNameHint": "What the server is called in the server list.",
+        "gamemode": "Game mode",
+        "gamemodeHint": "e.g. sandbox or terrortown (TTT). Other modes come through the workshop collection.",
+        "workshopCollection": "Workshop collection",
+        "workshopCollectionHint": "The number of your Steam Workshop collection (from its address, after “id=”). The server downloads all addons from it.",
+        "authKey": "Steam Web API key",
+        "authKeyHint": "The server needs it to download the workshop collection. Stays encrypted.",
+        "map": "Start map",
+        "mapHint": "The map after starting, e.g. gm_construct or gm_flatgrass.",
+        "maxPlayers": "Maximum players",
+        "maxPlayersHint": "How many may play at once (default 16).",
+        "password": "Join password",
+        "passwordHint": "No spaces. Empty = everyone with the address can join.",
+        "gslt": "Steam token (GSLT)",
+        "gsltHint": "A “Game Server Login Token” with app id 4000. Only needed for the server to stay in the list."
+      }
     }
   }
 }
