@@ -13,6 +13,7 @@ import {
 import { actorOf, requireAdmin, toUserInfo, type UserRow } from '../auth/context.js';
 import { hashPassword, randomPassword } from '../auth/passwords.js';
 import type { Api, AppContext } from '../context.js';
+import type { MailService } from '../mail/service.js';
 import { passkeys, roles, serverAccess, servers, users } from '../db/schema.js';
 import { badRequest, conflict, notFound } from '../lib/errors.js';
 import { HTTP_NO_CONTENT } from '../lib/http-status.js';
@@ -32,7 +33,7 @@ const toRole = (r: RoleRow): RoleEntry => ({
   builtIn: r.builtIn !== null,
 });
 
-export function registerUserRoutes(app: Api, ctx: AppContext): void {
+export function registerUserRoutes(app: Api, ctx: AppContext, mail: MailService): void {
   const { db } = ctx;
 
   const userOf = (id: number): UserRow => {
@@ -52,6 +53,17 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
       .where(
         and(
           sql`lower(${users.username}) = lower(${username})`,
+          exceptId === undefined ? undefined : ne(users.id, exceptId),
+        ),
+      )
+      .get() !== undefined;
+  const emailTaken = (email: string, exceptId?: number): boolean =>
+    db
+      .select({ id: users.id })
+      .from(users)
+      .where(
+        and(
+          sql`lower(${users.email}) = ${email.toLowerCase()}`,
           exceptId === undefined ? undefined : ne(users.id, exceptId),
         ),
       )
@@ -83,6 +95,7 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
     requireAdmin(request);
     const input = request.body;
     if (usernameTaken(input.username)) throw conflict('username_taken');
+    if (input.email && emailTaken(input.email)) throw conflict('email_taken');
     const row = db
       .insert(users)
       .values({
@@ -92,9 +105,11 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
         isAdmin: input.isAdmin,
         canCreateServers: input.isAdmin || input.canCreateServers,
         locale: input.locale,
+        email: input.email ?? null,
       })
       .returning()
       .get();
+    mail.welcome(row);
     ctx.audit.record(actorOf(request), 'user.create', null, { username: row.username, admin: row.isAdmin });
     return listEntry(row);
   });
@@ -110,6 +125,7 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
       const losesAdmin = (input.isAdmin === false || input.disabled === true) && target.isAdmin;
       if (self && input.disabled) throw badRequest('cannot_disable_self');
       if (losesAdmin && otherAdmins(target.id) === 0) throw conflict('last_admin');
+      if (input.email && emailTaken(input.email, target.id)) throw conflict('email_taken');
       const passwordHash = input.password ? await hashPassword(input.password) : undefined;
       db.update(users)
         .set({
@@ -117,6 +133,7 @@ export function registerUserRoutes(app: Api, ctx: AppContext): void {
           ...(input.isAdmin !== undefined ? { isAdmin: input.isAdmin } : {}),
           ...(input.canCreateServers !== undefined ? { canCreateServers: input.canCreateServers } : {}),
           ...(input.disabled !== undefined ? { disabled: input.disabled } : {}),
+          ...(input.email !== undefined ? { email: input.email } : {}),
           ...(passwordHash ? { passwordHash } : {}),
         })
         .where(eq(users.id, target.id))

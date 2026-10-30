@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/misc';
 import { queryClient } from '@/lib/query';
 import { AuthGate } from '@/features/auth/AuthGate';
+import { ForgotPage, RegisterPage, ResetPage, VerifyPage } from './features/auth/MailPages';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { SetupPage } from '@/features/auth/SetupPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
@@ -17,6 +18,10 @@ const createRouter = import.meta.env.MODE === 'demo' ? createMemoryRouter : crea
 const router = createRouter([
   { path: '/setup', element: <SetupPage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
+  { path: '/forgot', element: <ForgotPage /> },
+  { path: '/reset', element: <ResetPage /> },
+  { path: '/verify', element: <VerifyPage /> },
   {
     element: <AuthGate />,
     children: [

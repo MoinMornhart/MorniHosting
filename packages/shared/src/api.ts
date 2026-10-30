@@ -53,6 +53,9 @@ const PLAYER_PATTERN = /^[A-Za-z0-9_ .]{3,32}$/;
 
 export const usernameSchema = z.string().trim().min(USERNAME_MIN).max(USERNAME_MAX).regex(USERNAME_PATTERN);
 export const passwordSchema = z.string().min(PASSWORD_MIN).max(PASSWORD_MAX);
+const EMAIL_MAX = 254;
+/** Mail addresses are stored lower-case; zod's check keeps out spaces and line breaks (no header injection). */
+export const emailSchema = z.string().trim().toLowerCase().max(EMAIL_MAX).email();
 export const totpCodeSchema = z.string().trim().regex(TOTP_PATTERN);
 export const hostnameSchema = z.string().trim().max(DOMAIN_MAX).regex(HOSTNAME_PATTERN);
 export const playerNameSchema = z.string().trim().regex(PLAYER_PATTERN);
@@ -123,6 +126,8 @@ export interface UserInfo {
   readonly disabled: boolean;
   /** The linked Minecraft (Java) account: its head is shown, and on servers the user owns they are OP. */
   readonly minecraft: MinecraftAccount | null;
+  /** Mail address for notifications and "password forgotten"; null if none was given. */
+  readonly email: string | null;
 }
 
 export interface MinecraftAccount {
@@ -155,6 +160,15 @@ export interface SystemStatus {
   readonly passkeys: PasskeySupport;
   /** The panel's own domain from the admin area, or null. */
   readonly panelDomain: string | null;
+  /** What the start page may offer: depends on the mail settings in the admin area. */
+  readonly mail: MailStatus;
+}
+
+export interface MailStatus {
+  /** People may sign up themselves (mail confirmation required). */
+  readonly registration: boolean;
+  /** "Password forgotten" works (mail server set up and the panel's domain known). */
+  readonly passwordReset: boolean;
 }
 
 /* ---------- Servers ---------- */
@@ -571,6 +585,7 @@ export const userCreateSchema = z.object({
   isAdmin: z.boolean().default(false),
   canCreateServers: z.boolean().default(false),
   locale: z.enum(LOCALES).default('de'),
+  email: emailSchema.optional(),
 });
 export const passwordResetSchema = z.object({
   /** Also switch off 2FA and remove passkeys, e.g. when the phone is lost. */
@@ -588,6 +603,8 @@ export const userUpdateSchema = z.object({
   isAdmin: z.boolean().optional(),
   canCreateServers: z.boolean().optional(),
   disabled: z.boolean().optional(),
+  /** null removes the address. */
+  email: emailSchema.nullable().optional(),
 });
 export const accessUpdateSchema = z.object({
   access: z.array(z.object({ serverId: z.string(), roleId: z.number().int() })),

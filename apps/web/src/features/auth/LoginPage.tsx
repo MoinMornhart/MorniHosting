@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { KeyRound, LogIn, ShieldCheck } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import type { LoginResponse } from '@mornihosting/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -161,6 +161,19 @@ export function LoginPage(): ReactElement {
             <a className="font-semibold text-primary hover:underline" href={`https://${passkeyDomain}`}>
               {passkeyDomain}
             </a>
+          </p>
+        ) : null}
+        {step === 'password' && status.data?.mail.passwordReset ? (
+          <Link className="text-center text-sm font-semibold text-primary hover:underline" to="/forgot">
+            {t('login.forgot')}
+          </Link>
+        ) : null}
+        {step === 'password' && status.data?.mail.registration ? (
+          <p className="text-center text-sm text-muted-foreground">
+            {t('login.noAccount')}{' '}
+            <Link className="font-semibold text-primary hover:underline" to="/register">
+              {t('login.register')}
+            </Link>
           </p>
         ) : null}
         {step === 'code' ? (

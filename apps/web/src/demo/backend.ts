@@ -3,6 +3,9 @@ import {
   NETBIRD_DEFAULT_API,
   PORT_VOICE_CHAT,
   type Changelog,
+  type ConfirmResult,
+  type MailSettingsView,
+  type MailTestResult,
   type ConnectionInfo,
   type DdosHostStatus,
   type DdosStatus,
@@ -125,7 +128,20 @@ const adminMe = read<MeResponse>('/api/auth/me');
 const roles = read<RoleEntry[]>('/api/roles');
 const state = {
   userId: null as number | null,
-  users: read<UserListEntry[]>('/api/users'),
+  users: read<UserListEntry[]>('/api/users').map((u) => ({ ...u, email: u.email ?? null })),
+  mail: {
+    configured: true,
+    passwordSet: true,
+    linksPossible: true,
+    host: 'mail.inwx.de',
+    port: 587,
+    security: 'starttls',
+    user: 'noreply@mornihosting.de',
+    from: 'MorniHosting <noreply@mornihosting.de>',
+    registration: true,
+    registrationOrders: true,
+    crashMails: false,
+  } as MailSettingsView,
   passwords: new Map<string, string>([
     [DEMO_USER, DEMO_PASSWORD],
     ['lena', 'lena-passwort-1'],
@@ -782,6 +798,10 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
         defaultLocale: 'de',
         passkeys: 'ok',
         panelDomain: state.settings.panelDomain || null,
+        mail: {
+          registration: state.mail.configured && state.mail.registration,
+          passwordReset: state.mail.configured,
+        },
       } satisfies SystemStatus),
   ],
   ['GET', '/api/auth/me', () => ok(meNow())],
@@ -824,6 +844,57 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
     },
   ],
   ['GET', '/api/account/passkeys', () => ok(state.passkeys.get(state.userId ?? -1) ?? [])],
+  ['GET', '/api/mail', () => ok(state.mail)],
+  [
+    'PUT',
+    '/api/mail',
+    ({ body }) => {
+      state.mail = {
+        ...(body as unknown as MailSettingsView),
+        configured: true,
+        passwordSet: state.mail.passwordSet || Boolean(body['password']),
+        linksPossible: true,
+      };
+      return ok(state.mail);
+    },
+  ],
+  [
+    'DELETE',
+    '/api/mail',
+    () => {
+      state.mail = { ...state.mail, configured: false, passwordSet: false, registration: false };
+      return noContent();
+    },
+  ],
+  [
+    'POST',
+    '/api/mail/test',
+    ({ body }) => {
+      const to = String(body['to'] ?? '') || meNow()?.user.email || 'philip@mornihosting.de';
+      return ok({ sentTo: to } satisfies MailTestResult);
+    },
+  ],
+  ['POST', '/api/auth/register', () => noContent()],
+  ['POST', '/api/auth/confirm', () => ok({ kind: 'register' } satisfies ConfirmResult)],
+  ['POST', '/api/auth/forgot', () => noContent()],
+  ['POST', '/api/auth/reset', () => noContent()],
+  [
+    'PUT',
+    '/api/account/email',
+    ({ body }) => {
+      const email = String(body['email'] ?? '');
+      state.users = state.users.map((u) => (u.id === state.userId ? { ...u, email } : u));
+      return noContent();
+    },
+  ],
+  [
+    'DELETE',
+    '/api/account/email',
+    () => {
+      state.users = state.users.map((u) => (u.id === state.userId ? { ...u, email: null } : u));
+      return noContent();
+    },
+  ],
   ['PUT', '/api/account/minecraft', ({ body }) => linkMinecraft(String(body['name'] ?? ''))],
   ['DELETE', '/api/account/minecraft', () => linkMinecraft(null)],
   ['POST', '/api/account/passkeys/options', () => ok({ challenge: randomText(32) })],
@@ -960,6 +1031,7 @@ const ROUTES: readonly (readonly [string, string, Handler])[] = [
         isAdmin: body['isAdmin'] === true,
         canCreateServers: body['isAdmin'] === true || body['canCreateServers'] === true,
         minecraft: null,
+        email: String(body['email'] ?? '') || null,
         locale: 'de',
         theme: 'dark',
         totpEnabled: false,
@@ -1223,6 +1295,10 @@ const PUBLIC_PATHS: readonly string[] = [
   '/api/auth/logout',
   '/api/auth/passkey/options',
   '/api/auth/passkey/login',
+  '/api/auth/register',
+  '/api/auth/confirm',
+  '/api/auth/forgot',
+  '/api/auth/reset',
 ];
 const SERVER_PREFIX = '/api/servers/';
 // A numeric id at the end of a path: "12" matches, "files" and "12a" do not.

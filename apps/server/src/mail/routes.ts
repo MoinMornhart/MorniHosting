@@ -1,0 +1,122 @@
+import { eq } from 'drizzle-orm';
+import {
+  confirmSchema,
+  emailChangeSchema,
+  forgotSchema,
+  mailSettingsSchema,
+  mailTestSchema,
+  registerSchema,
+  resetSchema,
+  type ConfirmResult,
+  type MailSettingsView,
+  type MailTestResult,
+} from '@mornihosting/shared';
+import { actorOf, requireAdmin, requireAuth } from '../auth/context.js';
+import { verifyPassword } from '../auth/passwords.js';
+import type { Api, AppContext } from '../context.js';
+import { users } from '../db/schema.js';
+import { badRequest } from '../lib/errors.js';
+import { HTTP_NO_CONTENT } from '../lib/http-status.js';
+import type { MailService } from './service.js';
+
+/** Mail settings for admins, plus the pages behind the links in mails (sign-up, reset, new address). */
+
+const ANONYMOUS_LIMIT = 5;
+const ANONYMOUS_WINDOW = '1 minute';
+const anonymousRateLimit = { rateLimit: { max: ANONYMOUS_LIMIT, timeWindow: ANONYMOUS_WINDOW } };
+
+export function registerMailRoutes(app: Api, ctx: AppContext, mail: MailService): void {
+  app.get('/api/mail', async (request): Promise<MailSettingsView> => {
+    requireAdmin(request);
+    return mail.view();
+  });
+
+  app.put(
+    '/api/mail',
+    { schema: { body: mailSettingsSchema } },
+    async (request): Promise<MailSettingsView> => {
+      requireAdmin(request);
+      const view = mail.save(request.body);
+      ctx.audit.record(actorOf(request), 'mail.settings', null, {
+        host: view.host,
+        registration: view.registration,
+      });
+      return view;
+    },
+  );
+
+  app.delete('/api/mail', async (request, reply) => {
+    requireAdmin(request);
+    mail.clear();
+    ctx.audit.record(actorOf(request), 'mail.removed');
+    return reply.code(HTTP_NO_CONTENT).send();
+  });
+
+  app.post(
+    '/api/mail/test',
+    { schema: { body: mailTestSchema }, config: anonymousRateLimit },
+    async (request): Promise<MailTestResult> => {
+      const auth = requireAdmin(request);
+      const to = request.body.to ?? auth.user.email;
+      if (!to) throw badRequest('mail_no_recipient');
+      await mail.send(to, 'test', auth.user.locale, { name: auth.user.displayName || auth.user.username });
+      return { sentTo: to };
+    },
+  );
+
+  /* ---------- Visitors ---------- */
+
+  app.post(
+    '/api/auth/register',
+    { schema: { body: registerSchema }, config: anonymousRateLimit },
+    async (request, reply) => {
+      await mail.register({ ...request.body, ip: request.ip });
+      return reply.code(HTTP_NO_CONTENT).send();
+    },
+  );
+
+  app.post(
+    '/api/auth/confirm',
+    { schema: { body: confirmSchema }, config: anonymousRateLimit },
+    async (request): Promise<ConfirmResult> => mail.confirm(request.body.token),
+  );
+
+  app.post(
+    '/api/auth/forgot',
+    { schema: { body: forgotSchema }, config: anonymousRateLimit },
+    async (request, reply) => {
+      mail.forgot(request.body.email);
+      return reply.code(HTTP_NO_CONTENT).send();
+    },
+  );
+
+  app.post(
+    '/api/auth/reset',
+    { schema: { body: resetSchema }, config: anonymousRateLimit },
+    async (request, reply) => {
+      await mail.reset(request.body.token, request.body.password, actorOf(request));
+      return reply.code(HTTP_NO_CONTENT).send();
+    },
+  );
+
+  /* ---------- Own account ---------- */
+
+  app.put(
+    '/api/account/email',
+    { schema: { body: emailChangeSchema }, config: anonymousRateLimit },
+    async (request, reply) => {
+      const auth = requireAuth(request);
+      if (!(await verifyPassword(auth.user.passwordHash, request.body.password)))
+        throw badRequest('wrong_password');
+      mail.startEmailChange(auth.user, request.body.email);
+      return reply.code(HTTP_NO_CONTENT).send();
+    },
+  );
+
+  app.delete('/api/account/email', async (request, reply) => {
+    const auth = requireAuth(request);
+    ctx.db.update(users).set({ email: null }).where(eq(users.id, auth.user.id)).run();
+    ctx.audit.record(actorOf(request), 'account.email_removed');
+    return reply.code(HTTP_NO_CONTENT).send();
+  });
+}

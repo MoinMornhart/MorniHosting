@@ -4,6 +4,7 @@ import {
   ExternalLink,
   Globe,
   KeyRound,
+  Mail,
   Network,
   Save,
   Shield,
@@ -27,6 +28,7 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { updateQuery } from '@/features/shell/UpdateCard';
 import { useSession } from '@/features/auth/session';
+import { MailCard } from './MailCard';
 import { NetBirdGuide } from './NetBirdGuide';
 import { DnsDomainCard } from './DnsDomainCard';
 import { NetbirdAutomationCard } from './NetbirdAutomationCard';
@@ -41,6 +43,7 @@ const TABS = [
   { key: 'netbird', icon: Network },
   { key: 'update', icon: ArrowUpCircle },
   { key: 'ddos', icon: Shield },
+  { key: 'mail', icon: Mail },
   { key: 'passwords', icon: KeyRound },
   { key: 'settings', icon: SlidersHorizontal },
 ] as const;
@@ -382,6 +385,7 @@ export function PanelSettingsPage(): ReactElement {
     ),
     update: <UpdateSection />,
     ddos: <DdosSection />,
+    mail: <MailCard />,
     passwords: <PasswordResetCard />,
     settings: settingsForm,
   };
