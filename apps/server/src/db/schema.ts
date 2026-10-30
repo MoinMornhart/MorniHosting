@@ -51,9 +51,14 @@ export const users = sqliteTable(
     /** The user's own Minecraft account (Java), for the head and automatic OP on their servers. */
     minecraftName: text('minecraft_name'),
     minecraftUuid: text('minecraft_uuid'),
+    /** Optional, unique (any case); used for mails and "password forgotten". */
+    email: text('email'),
+    /** Registered on the start page and the mail link was not opened yet: cannot log in. */
+    signupPending: integer('signup_pending', { mode: 'boolean' }).notNull().default(false),
   },
   (t) => [
     uniqueIndex('users_username_nocase').on(sql`lower(${t.username})`),
+    uniqueIndex('users_email_nocase').on(sql`lower(${t.email})`),
     uniqueIndex('users_minecraft_uuid').on(t.minecraftUuid),
   ],
 );
@@ -313,4 +318,22 @@ export const panelOps = sqliteTable(
     name: text('name').notNull(),
   },
   (t) => [primaryKey({ columns: [t.serverId, t.uuid] })],
+);
+
+/** One-time links sent by mail (confirm registration, confirm new address, reset password). Only the hash is kept. */
+export const mailTokens = sqliteTable(
+  'mail_tokens',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    purpose: text('purpose').$type<'register' | 'email_change' | 'password_reset'>().notNull(),
+    tokenHash: text('token_hash').notNull().unique(),
+    /** The address a change is about (email_change only). */
+    email: text('email'),
+    expiresAt: text('expires_at').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('mail_tokens_user').on(t.userId)],
 );

@@ -11,6 +11,7 @@ import {
   type SystemStatus,
 } from '@mornihosting/shared';
 import type { Api, AppContext } from '../context.js';
+import type { MailService } from '../mail/service.js';
 import { users } from '../db/schema.js';
 import { AppError, badRequest, conflict, unauthorized } from '../lib/errors.js';
 import { HTTP_FORBIDDEN, HTTP_NO_CONTENT } from '../lib/http-status.js';
@@ -40,7 +41,7 @@ function findUser(ctx: AppContext, username: string): UserRow | undefined {
     .get();
 }
 
-export function registerAuthRoutes(app: Api, ctx: AppContext): void {
+export function registerAuthRoutes(app: Api, ctx: AppContext, mail: MailService): void {
   app.get('/api/system/status', async (request): Promise<SystemStatus> => {
     const docker = await (async () => {
       try {
@@ -58,6 +59,7 @@ export function registerAuthRoutes(app: Api, ctx: AppContext): void {
       defaultLocale: ctx.settings.get().defaultLocale,
       passkeys: passkeySupport(ctx, request),
       panelDomain: ctx.settings.get().panelDomain || null,
+      mail: mail.status(),
     };
   });
 
@@ -105,6 +107,8 @@ export function registerAuthRoutes(app: Api, ctx: AppContext): void {
         ctx.audit.record({ userId: user.id, username: user.username, ip: request.ip }, 'auth.login_failed');
         throw unauthorized('invalid_credentials');
       }
+      // Only after the right password, so the message does not tell strangers which names exist.
+      if (user.signupPending) throw new AppError(HTTP_FORBIDDEN, 'email_unconfirmed');
       const pending = user.totpEnabled;
       const { token, session } = ctx.sessions.create(user.id, {
         ip: request.ip,

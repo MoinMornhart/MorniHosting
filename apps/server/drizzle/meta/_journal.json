@@ -43,6 +43,13 @@
       "when": 1793356331442,
       "tag": "0005_dns_records",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793393516303,
+      "tag": "0006_mail",
+      "breakpoints": true
     }
   ]
 }
