@@ -32,9 +32,9 @@ import { Field } from '@/components/ui/label';
 import { Checkbox, Skeleton, Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Badge, Gem, GameScene, glyphFor, type GemTier } from '@/components/art';
 import { api } from '@/lib/api';
 import { formatMemoryMb } from '@/lib/format';
-import { blockForServer, blockIcon, type BlockKind } from '@/lib/pixel';
 import { errorText } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
@@ -46,22 +46,34 @@ import { serversQuery } from '../live';
 /** What can be ordered, like at a hoster: Java, Bedrock, or a Java server Bedrock players can join (Geyser). */
 const GAMES = ['java', 'bedrock', 'crossplay'] as const;
 type Game = (typeof GAMES)[number];
-const GAME_BLOCK: Readonly<Record<Game, BlockKind>> = { java: 'grass', bedrock: 'stone', crossplay: 'sand' };
 
 const MB_PER_GB = 1024;
-/* eslint-disable ts-patterns/no-magic-numbers -- the package table: GB and about how many players */
+/* eslint-disable ts-patterns/no-magic-numbers -- the package table: GB, about how many players, and its stone */
+type Tier = 'stone' | 'copper' | 'iron' | 'gold' | 'emerald' | 'diamond' | 'amethyst' | 'ruby' | 'netherite';
 /** The packages: memory and about how many players it carries (vanilla/Paper, a few plugins). */
-const PLANS: readonly { readonly gb: number; readonly players: number; readonly block: BlockKind }[] = [
-  { gb: 2, players: 4, block: 'grass' },
-  { gb: 3, players: 6, block: 'planks' },
-  { gb: 4, players: 8, block: 'stone' },
-  { gb: 5, players: 10, block: 'sand' },
-  { gb: 6, players: 15, block: 'pumpkin' },
-  { gb: 8, players: 20, block: 'ice' },
-  { gb: 10, players: 40, block: 'diamond' },
-  { gb: 12, players: 50, block: 'nether' },
-  { gb: 16, players: 100, block: 'diamond' },
+const PLANS: readonly { readonly gb: number; readonly players: number; readonly tier: Tier }[] = [
+  { gb: 2, players: 4, tier: 'stone' },
+  { gb: 3, players: 6, tier: 'copper' },
+  { gb: 4, players: 8, tier: 'iron' },
+  { gb: 5, players: 10, tier: 'gold' },
+  { gb: 6, players: 15, tier: 'emerald' },
+  { gb: 8, players: 20, tier: 'diamond' },
+  { gb: 10, players: 40, tier: 'amethyst' },
+  { gb: 12, players: 50, tier: 'ruby' },
+  { gb: 16, players: 100, tier: 'netherite' },
 ];
+/** Each package is a stone: the bigger, the rarer – with more sparkle. */
+const TIERS: Readonly<Record<Tier, GemTier>> = {
+  stone: { shades: ['#e2e8f0', '#94a3b8', '#475569'], sparkles: 0 },
+  copper: { shades: ['#fed7aa', '#ea7a3b', '#9a3412'], sparkles: 0 },
+  iron: { shades: ['#f8fafc', '#cbd5e1', '#64748b'], sparkles: 1 },
+  gold: { shades: ['#fef08a', '#facc15', '#b45309'], sparkles: 1 },
+  emerald: { shades: ['#bbf7d0', '#22c55e', '#166534'], sparkles: 1 },
+  diamond: { shades: ['#cffafe', '#22d3ee', '#0e7490'], sparkles: 2 },
+  amethyst: { shades: ['#f3e8ff', '#a855f7', '#6b21a8'], sparkles: 2 },
+  ruby: { shades: ['#ffe4e6', '#f43f5e', '#9f1239'], sparkles: 2 },
+  netherite: { shades: ['#a8a29e', '#57534e', '#1c1917'], sparkles: 3 },
+};
 /* eslint-enable ts-patterns/no-magic-numbers */
 const FALLBACK_PLAN_GB = 2;
 /** Rough rule for a custom size between the packages: two players per GB. */
@@ -139,17 +151,19 @@ function GamePicker({ onPick }: { onPick: (game: Game) => void }): ReactElement 
             key={g}
             type="button"
             onClick={() => onPick(g)}
-            className="grid gap-4 rounded-[16px] border border-border bg-card p-5 text-left transition hover:-translate-y-0.5 hover:border-primary"
+            className="group grid overflow-hidden rounded-[16px] border border-border bg-card text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
           >
-            <img src={blockIcon(GAME_BLOCK[g])} alt="" className="pixelated size-14 rounded-[10px]" />
-            <span>
-              <span className="block text-lg font-bold">{t(`landing.games.${g}.title`)}</span>
-              <span className="block text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</span>
-            </span>
-            <span className="flex items-center justify-between text-sm font-semibold">
-              {t('landing.free')}
-              <span className="rounded-[10px] bg-primary px-3 py-1.5 text-primary-foreground">
-                {t('landing.start')}
+            <GameScene game={g} className="h-32" />
+            <span className="grid gap-4 p-5">
+              <span>
+                <span className="block text-lg font-bold">{t(`landing.games.${g}.title`)}</span>
+                <span className="block text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</span>
+              </span>
+              <span className="flex items-center justify-between text-sm font-semibold">
+                {t('landing.free')}
+                <span className="rounded-[10px] bg-primary px-3 py-1.5 text-primary-foreground">
+                  {t('landing.start')}
+                </span>
               </span>
             </span>
           </button>
@@ -334,7 +348,7 @@ export function CreateServerPage(): ReactElement {
       <header className="grid gap-3 rounded-[16px] border border-border bg-card bg-[radial-gradient(ellipse_at_0%_0%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)] p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="flex items-center gap-3 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
-            <img src={blockIcon(GAME_BLOCK[game])} alt="" className="pixelated size-9 rounded-[8px]" />
+            <Badge glyph={game} className="size-10" />
             {t(`order.title.${game}`)}
           </h1>
           <Link
@@ -379,7 +393,7 @@ export function CreateServerPage(): ReactElement {
                       setMemoryPick(mb);
                     }}
                     className={cn(
-                      'relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
+                      'group relative grid justify-items-center gap-2 rounded-[14px] border border-border bg-secondary/50 px-3 py-4 text-center transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40',
                       selected && 'border-primary bg-accent ring-1 ring-primary',
                     )}
                   >
@@ -388,8 +402,14 @@ export function CreateServerPage(): ReactElement {
                         {t('order.recommended')}
                       </span>
                     ) : null}
-                    <img src={blockIcon(p.block)} alt="" className="pixelated size-10 rounded-[8px]" />
-                    <span className="text-xl font-extrabold">
+                    <Gem
+                      tier={TIERS[p.tier]}
+                      className="transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"
+                    />
+                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                      {t(`order.tiers.${p.tier}`)}
+                    </span>
+                    <span className="-mt-1 text-xl font-extrabold">
                       {p.gb} GB <span className="text-muted-foreground">RAM</span>
                     </span>
                     <span className="flex items-center gap-1 rounded-[8px] border border-border px-2 py-0.5 text-xs">
@@ -479,11 +499,7 @@ export function CreateServerPage(): ReactElement {
                     )}
                     title={t(`create.software.${id}`)}
                   >
-                    <img
-                      src={blockIcon(blockForServer(id, id))}
-                      alt=""
-                      className="pixelated size-5 rounded-[4px]"
-                    />
+                    <Badge glyph={glyphFor(id)} className="size-6" />
                     {SOFTWARE[id].label}
                   </button>
                 ))}

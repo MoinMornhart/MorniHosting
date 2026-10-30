@@ -22,7 +22,7 @@ import { useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router';
 import { SOFTWARE, type MeResponse, type Theme } from '@mornihosting/shared';
-import { BrandMark, PlayerHead, ServerIcon } from '@/components/server-visuals';
+import { ALL_SERVERS, BrandMark, PlayerHead, ServerIcon } from '@/components/server-visuals';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -129,7 +129,7 @@ function ServerSwitcher({ onNavigate }: { onNavigate?: () => void }): ReactEleme
               className="size-8 rounded-[8px]"
             />
           ) : (
-            <ServerIcon id="all" software="paper" hasIcon={false} className="size-8 rounded-[8px]" />
+            <ServerIcon id={ALL_SERVERS} software="all" hasIcon={false} className="size-8" />
           )}
           <span className="min-w-0 flex-1">
             <b className="block truncate text-sm font-semibold">{current?.name ?? t('nav.allServers')}</b>

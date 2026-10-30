@@ -1,0 +1,556 @@
+import { useId, type ReactElement, type ReactNode } from 'react';
+import { hashString } from '@/lib/pixel';
+import { cn } from '@/lib/utils';
+
+/**
+ * MorniHosting's own artwork, drawn as SVG: the logo, glossy app-style server badges with a glyph per
+ * software, little scenes for the games, gems for the packages and monograms for people. Everything is
+ * vector, so it stays sharp at every size and needs no files.
+ */
+
+/* ---------- Glyphs (24 × 24, white on a coloured badge) ---------- */
+
+export type Glyph =
+  | 'paper'
+  | 'purpur'
+  | 'vanilla'
+  | 'fabric'
+  | 'forge'
+  | 'neoforge'
+  | 'velocity'
+  | 'bedrock'
+  | 'custom'
+  | 'all'
+  | 'java'
+  | 'crossplay';
+
+/** Outline of a filled shape. */
+const STROKE = {
+  stroke: 'currentColor',
+  strokeWidth: '1.8',
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+} as const;
+/** A line without fill. */
+const LINE = { fill: 'none', ...STROKE } as const;
+
+const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
+  // A paper plane.
+  paper: (
+    <>
+      <path
+        d="M3.2 11.3 20.6 3.4l-6.3 17.2-3.1-7-8-2.3Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        {...STROKE}
+      />
+      <path d="m11.2 13.6 9.4-10.2" {...LINE} />
+    </>
+  ),
+  // A flame.
+  purpur: (
+    <>
+      <path
+        d="M12 2.6c.9 3.3 5.1 5.4 5.1 10.2a5.1 5.1 0 0 1-10.2 0c0-2.1 1-3.6 2.3-4.8.2 1.6 1 2.7 2.2 3.1-.1-3.3-.4-6 .6-8.5Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        {...STROKE}
+      />
+      <path d="M12 17.9a2 2 0 0 1-2-2c0-1.3 1.2-2 2-3.3.8 1.3 2 2 2 3.3a2 2 0 0 1-2 2Z" fill="currentColor" />
+    </>
+  ),
+  // A plain cube: Minecraft as it comes.
+  vanilla: (
+    <>
+      <path d="M12 2.9 20.4 7.6v8.8L12 21.1l-8.4-4.7V7.6L12 2.9Z" {...LINE} />
+      <path d="M12 2.9 20.4 7.6 12 12.3 3.6 7.6 12 2.9Z" fill="currentColor" fillOpacity="0.35" />
+      <path d="M3.6 7.6 12 12.3l8.4-4.7M12 12.3v8.8" {...LINE} />
+    </>
+  ),
+  // Woven threads.
+  fabric: (
+    <>
+      <path d="M12 3 21 12l-9 9-9-9 9-9Z" fill="currentColor" fillOpacity="0.2" {...STROKE} />
+      <path d="m7.5 7.5 9 9M16.5 7.5l-9 9M12 3v18M3 12h18" {...LINE} strokeOpacity="0.55" />
+    </>
+  ),
+  // An anvil.
+  forge: (
+    <>
+      <path
+        d="M3.5 6.5h12a5 5 0 0 0 5 4.5h-4.3l-1.7 2.6V16h2.6v3.3H6.9V16h2.6v-2.4L6.6 10.2H3.5V6.5Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        {...STROKE}
+      />
+    </>
+  ),
+  // An anvil with a spark.
+  neoforge: (
+    <>
+      <path
+        d="M3.5 8.5h10.5a4.5 4.5 0 0 0 4.5 4h-3.8l-1.5 2.3V17h2.3v2.8H6.6V17h2.3v-2.2L6.4 11.8H3.5V8.5Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        {...STROKE}
+      />
+      <path d="m19 2.5.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8.8-1.9Z" fill="currentColor" />
+    </>
+  ),
+  // A lightning bolt: the fast proxy.
+  velocity: (
+    <path
+      d="M13.2 2.5 4.6 13.6h6.3l-1 7.9 8.6-11.2h-6.3l1-7.8Z"
+      fill="currentColor"
+      fillOpacity="0.3"
+      {...STROKE}
+    />
+  ),
+  // A gamepad: phones, consoles, Windows.
+  bedrock: (
+    <>
+      <path
+        d="M7.2 7.5h9.6a4.2 4.2 0 0 1 4.2 4.2v1.6a3.6 3.6 0 0 1-6.5 2.1l-1-1.4h-3l-1 1.4A3.6 3.6 0 0 1 3 13.3v-1.6a4.2 4.2 0 0 1 4.2-4.2Z"
+        fill="currentColor"
+        fillOpacity="0.22"
+        {...STROKE}
+      />
+      <path d="M8 10.3v3M6.5 11.8h3" {...LINE} />
+      <circle cx="15.6" cy="10.9" r="1.1" fill="currentColor" />
+      <circle cx="17.6" cy="12.9" r="1.1" fill="currentColor" />
+    </>
+  ),
+  // A cog: an own server file.
+  custom: (
+    <>
+      <circle cx="12" cy="12" r="3.2" {...LINE} />
+      <path
+        d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.9 1.9M16.6 16.6l1.9 1.9M5.5 18.5l1.9-1.9M16.6 7.4l1.9-1.9"
+        {...LINE}
+      />
+    </>
+  ),
+  // Stacked layers: all servers.
+  all: (
+    <>
+      <path d="M12 3.2 21 8l-9 4.8L3 8l9-4.8Z" fill="currentColor" fillOpacity="0.3" {...STROKE} />
+      <path d="m3 12.2 9 4.8 9-4.8M3 16.4l9 4.8 9-4.8" {...LINE} />
+    </>
+  ),
+  // A cube with a sparkle: Java.
+  java: (
+    <>
+      <path d="M11 4.4 18.6 8.7v8.6L11 21.6l-7.6-4.3V8.7L11 4.4Z" {...LINE} />
+      <path d="M11 4.4 18.6 8.7 11 13 3.4 8.7 11 4.4Z" fill="currentColor" fillOpacity="0.45" />
+      <path d="M3.4 8.7 11 13l7.6-4.3M11 13v8.6" {...LINE} />
+      <path d="m19.6 1.8.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7Z" fill="currentColor" />
+    </>
+  ),
+  // Two linked rings: Java and Bedrock together.
+  crossplay: (
+    <>
+      <path d="M9.5 14.5 7.7 16.3a3.3 3.3 0 0 1-4.7-4.7l3.3-3.3a3.3 3.3 0 0 1 4.7 0" {...LINE} />
+      <path d="m14.5 9.5 1.8-1.8a3.3 3.3 0 0 1 4.7 4.7l-3.3 3.3a3.3 3.3 0 0 1-4.7 0" {...LINE} />
+      <path d="m9.2 14.8 5.6-5.6" {...LINE} />
+    </>
+  ),
+};
+
+export function GlyphIcon({ glyph, className }: { glyph: Glyph; className?: string }): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={cn('size-5', className)}>
+      {GLYPHS[glyph]}
+    </svg>
+  );
+}
+
+/* ---------- Badges (app-icon style) ---------- */
+
+/** Two colours per software, top-left to bottom-right. */
+const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
+  paper: ['#34d399', '#047857'],
+  purpur: ['#d8b4fe', '#7c3aed'],
+  vanilla: ['#7dd3fc', '#2563eb'],
+  fabric: ['#fde68a', '#c2410c'],
+  forge: ['#fdba74', '#b91c1c'],
+  neoforge: ['#fb923c', '#7c2d12'],
+  velocity: ['#67e8f9', '#0e7490'],
+  bedrock: ['#f9a8d4', '#be185d'],
+  custom: ['#cbd5e1', '#475569'],
+  all: ['#6ee7b7', '#065f46'],
+  java: ['#86efac', '#15803d'],
+  crossplay: ['#fcd34d', '#d97706'],
+};
+
+const GLYPH_NAMES = Object.keys(TONES) as Glyph[];
+const MAX_INITIALS = 2;
+// Where a name splits into words for its initials: "lena_baut" gives "LB", "Philip" stays one word.
+// https://regex101.com/?flavor=javascript&regex=%5B%5Cs._-%5D%2B&flags=g&testString=lena_baut%0APhilip
+const WORD_BREAK = /[\s._-]+/;
+
+export function glyphFor(software: string): Glyph {
+  return GLYPH_NAMES.find((g) => g === software) ?? 'custom';
+}
+
+/** Where the soft light sits in a badge, picked from the server's id so every server looks a bit its own. */
+const SHINES = [
+  { cx: '38', cy: '6' },
+  { cx: '6', cy: '40' },
+  { cx: '40', cy: '38' },
+  { cx: '4', cy: '6' },
+] as const;
+
+/**
+ * A glossy badge like an app icon: gradient, a highlight on top, a soft light in one corner and the glyph.
+ * `seed` (e.g. the server id) moves the light so two Paper servers still look different.
+ */
+export function Badge({
+  glyph,
+  seed = '',
+  className,
+}: {
+  glyph: Glyph;
+  seed?: string;
+  className?: string;
+}): ReactElement {
+  const id = useId();
+  const [from, to] = TONES[glyph];
+  const shine = SHINES[hashString(seed || glyph) % SHINES.length] ?? SHINES[0];
+  return (
+    <svg viewBox="0 0 44 44" aria-hidden className={cn('size-11 shrink-0', className)}>
+      <defs>
+        <linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={from} />
+          <stop offset="1" stopColor={to} />
+        </linearGradient>
+        <radialGradient id={`${id}s`}>
+          <stop offset="0" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <clipPath id={`${id}c`}>
+          <rect width="44" height="44" rx="12" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id}c)`}>
+        <rect width="44" height="44" fill={`url(#${id}g)`} />
+        <circle {...shine} r="20" fill={`url(#${id}s)`} />
+        <path d="M0 0h44v17C30 22 14 22 0 17Z" fill="#fff" fillOpacity="0.14" />
+        <rect
+          x="0.75"
+          y="0.75"
+          width="42.5"
+          height="42.5"
+          rx="11.25"
+          fill="none"
+          stroke="#fff"
+          strokeOpacity="0.22"
+          strokeWidth="1.5"
+        />
+      </g>
+      <g
+        transform="translate(10 10)"
+        color="#fff"
+        style={{ filter: 'drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.3))' }}
+      >
+        {GLYPHS[glyph]}
+      </g>
+    </svg>
+  );
+}
+
+/** Initials on a gradient, for people without a picture. */
+export function Monogram({ name, className }: { name: string; className?: string }): ReactElement {
+  const id = useId();
+  const tone = TONES[GLYPH_NAMES[hashString(name) % GLYPH_NAMES.length] ?? 'paper'];
+  const letters = name
+    .split(WORD_BREAK)
+    .filter(Boolean)
+    .slice(0, MAX_INITIALS)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden className={cn('size-10 shrink-0', className)}>
+      <defs>
+        <linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={tone[0]} />
+          <stop offset="1" stopColor={tone[1]} />
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="11" fill={`url(#${id}g)`} />
+      <path d="M0 0h40v15C27 20 13 20 0 15Z" fill="#fff" fillOpacity="0.14" />
+      <text
+        x="20"
+        y="21"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="#fff"
+        fontFamily="var(--font-sans)"
+        fontSize={letters.length > 1 ? '15' : '18'}
+        fontWeight="800"
+      >
+        {letters || '?'}
+      </text>
+    </svg>
+  );
+}
+
+/* ---------- Logo ---------- */
+
+/** The MorniHosting mark: an emerald cube floating on a soft glow. */
+export function LogoMark({ className }: { className?: string }): ReactElement {
+  const id = useId();
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden className={cn('size-8 shrink-0', className)}>
+      <defs>
+        <linearGradient id={`${id}bg`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#10b981" />
+          <stop offset="1" stopColor="#065f46" />
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="11" fill={`url(#${id}bg)`} />
+      <path d="M0 0h40v15C27 20 13 20 0 15Z" fill="#fff" fillOpacity="0.12" />
+      <path d="M20 8.5 30 14.2 20 19.9 10 14.2 20 8.5Z" fill="#ecfdf5" />
+      <path d="M10 14.2 20 19.9v11.5L10 25.7V14.2Z" fill="#a7f3d0" />
+      <path d="M30 14.2 20 19.9v11.5l10-5.7V14.2Z" fill="#6ee7b7" />
+      <path d="M20 19.9v11.5" stroke="#065f46" strokeOpacity="0.25" />
+      <path d="m31.5 6.2.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5-1.5-.6 1.5-.6.6-1.5Z" fill="#fff" />
+    </svg>
+  );
+}
+
+/* ---------- Game scenes ---------- */
+
+export type GameKind = 'java' | 'bedrock' | 'crossplay';
+
+/** cos 30°: how far an isometric edge reaches sideways. */
+const COS_30 = 0.866;
+const HALF = 0.5;
+
+/** The three visible faces of an isometric cube standing at (x, y) with edge length `s`. */
+function cubeFaces(x: number, y: number, s: number): { top: string; left: string; right: string } {
+  const w = s * COS_30;
+  const h = s * HALF;
+  const pts = (list: readonly (readonly [number, number])[]): string =>
+    list.map(([a, b]) => `${a},${b}`).join(' ');
+  return {
+    top: pts([
+      [x, y - s],
+      [x + w, y - h],
+      [x, y],
+      [x - w, y - h],
+    ]),
+    left: pts([
+      [x - w, y - h],
+      [x, y],
+      [x, y + s],
+      [x - w, y + h],
+    ]),
+    right: pts([
+      [x, y],
+      [x + w, y - h],
+      [x + w, y + h],
+      [x, y + s],
+    ]),
+  };
+}
+
+function Cube({
+  x,
+  y,
+  s,
+  colors,
+  opacity = 1,
+}: {
+  x: number;
+  y: number;
+  s: number;
+  colors: readonly [string, string, string];
+  opacity?: number;
+}): ReactElement {
+  const f = cubeFaces(x, y, s);
+  return (
+    <g opacity={opacity}>
+      <polygon points={f.top} fill={colors[0]} />
+      <polygon points={f.left} fill={colors[1]} />
+      <polygon points={f.right} fill={colors[2]} />
+    </g>
+  );
+}
+
+function Sparkle({
+  x,
+  y,
+  r,
+  color = '#fff',
+}: {
+  x: number;
+  y: number;
+  r: number;
+  color?: string;
+}): ReactElement {
+  const k = r * HALF * HALF;
+  const d = `M${x} ${y - r}L${x + k} ${y - k}L${x + r} ${y}L${x + k} ${y + k}L${x} ${y + r}L${x - k} ${y + k}L${x - r} ${y}L${x - k} ${y - k}Z`;
+  return <path d={d} fill={color} />;
+}
+
+const EMERALD = ['#d1fae5', '#34d399', '#059669'] as const;
+const EMERALD_SMALL = ['#a7f3d0', '#10b981', '#047857'] as const;
+const GOLD = ['#fef3c7', '#fbbf24', '#d97706'] as const;
+
+function Phone({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): ReactElement {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale}) rotate(-12)`}>
+      <rect x="-14" y="-24" width="28" height="48" rx="6" fill="#1e1b4b" />
+      <rect x="-11.5" y="-20" width="23" height="38" rx="3" fill="#f472b6" />
+      <path d="M-11.5 -2 L11.5 -12 V18 H-11.5Z" fill="#db2777" />
+      <rect x="-4" y="20" width="8" height="1.6" rx="0.8" fill="#fff" fillOpacity="0.5" />
+      <path d="M-5 -8 0 -12.5 5 -8 0 -3.5Z" fill="#fff" fillOpacity="0.9" />
+    </g>
+  );
+}
+
+function Gamepad({ x, y }: { x: number; y: number }): ReactElement {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(10)`}>
+      <path
+        d="M-16 -8h32a9 9 0 0 1 9 9v3a7.5 7.5 0 0 1-13.6 4.4L9 5H-9l-2.4 3.4A7.5 7.5 0 0 1-25 4V1a9 9 0 0 1 9-9Z"
+        fill="#38bdf8"
+      />
+      <path d="M-16 -8h32a9 9 0 0 1 9 9v1H-25V1a9 9 0 0 1 9-9Z" fill="#7dd3fc" />
+      <path d="M-14 -2v6M-17 1h6" stroke="#0c4a6e" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="12" cy="-1" r="2" fill="#0c4a6e" />
+      <circle cx="16.5" cy="3" r="2" fill="#0c4a6e" />
+    </g>
+  );
+}
+
+const SCENES: Readonly<
+  Record<GameKind, { readonly sky: readonly [string, string]; readonly art: ReactNode }>
+> = {
+  java: {
+    sky: ['#064e3b', '#022c22'],
+    art: (
+      <>
+        <ellipse cx="80" cy="66" rx="30" ry="7" fill="#000" fillOpacity="0.3" />
+        <Cube x={80} y={38} s={24} colors={EMERALD} />
+        <Cube x={42} y={30} s={9} colors={EMERALD_SMALL} opacity={0.85} />
+        <Cube x={122} y={22} s={7} colors={EMERALD_SMALL} opacity={0.7} />
+        <Cube x={128} y={56} s={5} colors={GOLD} />
+        <Sparkle x={58} y={12} r={4} />
+        <Sparkle x={108} y={8} r={2.6} />
+        <Sparkle x={30} y={56} r={2.2} color="#6ee7b7" />
+      </>
+    ),
+  },
+  bedrock: {
+    sky: ['#4c1d95', '#1e1b4b'],
+    art: (
+      <>
+        <ellipse cx="80" cy="68" rx="34" ry="6" fill="#000" fillOpacity="0.3" />
+        <Phone x={64} y={38} />
+        <Gamepad x={102} y={50} />
+        <Sparkle x={124} y={18} r={3.6} />
+        <Sparkle x={38} y={16} r={2.4} color="#f9a8d4" />
+        <Sparkle x={136} y={44} r={2} color="#7dd3fc" />
+      </>
+    ),
+  },
+  crossplay: {
+    sky: ['#78350f', '#1c1917'],
+    art: (
+      <>
+        <ellipse cx="80" cy="68" rx="40" ry="6" fill="#000" fillOpacity="0.3" />
+        <path
+          d="M58 30 Q80 2 104 28"
+          fill="none"
+          stroke="#fde68a"
+          strokeWidth="2"
+          strokeDasharray="3 4"
+          strokeLinecap="round"
+        />
+        <Cube x={52} y={40} s={18} colors={EMERALD} />
+        <Phone x={108} y={42} scale={0.8} />
+        <Sparkle x={80} y={10} r={4} color="#fde68a" />
+        <Sparkle x={30} y={20} r={2.2} />
+        <Sparkle x={136} y={16} r={2.4} />
+      </>
+    ),
+  },
+};
+
+/** A little scene for a game card: a glowing cube for Java, phone and gamepad for Bedrock, both linked for crossplay. */
+export function GameScene({ game, className }: { game: GameKind; className?: string }): ReactElement {
+  const id = useId();
+  const scene = SCENES[game];
+  // The sky fills the whole card; the drawing keeps its proportions in the middle, so nothing is cut off.
+  return (
+    <div
+      aria-hidden
+      className={cn('relative h-28 w-full overflow-hidden', className)}
+      style={{ background: `linear-gradient(160deg, ${scene.sky[0]}, ${scene.sky[1]})` }}
+    >
+      <svg viewBox="0 0 160 80" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 size-full">
+        <defs>
+          <radialGradient id={`${id}glow`} cx="0.5" cy="0.55" r="0.5">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
+            <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx="80" cy="40" r="46" fill={`url(#${id}glow)`} />
+        <g className="art-float">{scene.art}</g>
+      </svg>
+    </div>
+  );
+}
+
+/* ---------- Package gems ---------- */
+
+export interface GemTier {
+  /** Light, middle and dark shade of the stone. */
+  readonly shades: readonly [string, string, string];
+  /** Extra sparkles for the big packages. */
+  readonly sparkles: number;
+}
+
+/* eslint-disable ts-patterns/no-magic-numbers -- spots on the 40 × 40 gem drawing */
+const GEM_SPARKLES = [
+  { x: 31, y: 7, r: 3 },
+  { x: 7, y: 9, r: 2 },
+  { x: 33, y: 28, r: 1.8 },
+] as const;
+/* eslint-enable ts-patterns/no-magic-numbers */
+
+/** A cut gem: the bigger the package, the rarer the stone. */
+export function Gem({ tier, className }: { tier: GemTier; className?: string }): ReactElement {
+  const id = useId();
+  const [light, mid, dark] = tier.shades;
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden className={cn('size-14 shrink-0', className)}>
+      <defs>
+        <radialGradient id={`${id}glow`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor={mid} stopOpacity="0.55" />
+          <stop offset="1" stopColor={mid} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="20" cy="21" r="19" fill={`url(#${id}glow)`} />
+      <polygon points="8,15 14,8 17,15" fill={light} />
+      <polygon points="14,8 26,8 23,15 17,15" fill="#fff" fillOpacity="0.85" />
+      <polygon points="14,8 26,8 23,15 17,15" fill={light} fillOpacity="0.6" />
+      <polygon points="26,8 32,15 23,15" fill={mid} />
+      <polygon points="8,15 17,15 20,33" fill={mid} />
+      <polygon points="17,15 23,15 20,33" fill={light} />
+      <polygon points="23,15 32,15 20,33" fill={dark} />
+      <polygon
+        points="8,15 14,8 26,8 32,15 20,33"
+        fill="none"
+        stroke="#fff"
+        strokeOpacity="0.35"
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+      />
+      {GEM_SPARKLES.slice(0, tier.sparkles).map((s) => (
+        <Sparkle key={`${s.x}-${s.y}`} x={s.x} y={s.y} r={s.r} />
+      ))}
+    </svg>
+  );
+}

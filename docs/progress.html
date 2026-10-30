@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T12:26:59+00:00",
-  "now": "Fertig – Philip: einmal „update“ auf der Konsole, danach Updates per Knopf",
+  "updated": "2026-10-30T13:02:10+00:00",
+  "now": "PR, CI abwarten, Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -244,9 +244,29 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Admin aufgeräumt, Update neu, Demo aktualisiert",
       "status": "fertig",
       "detail": "Admin-Bereich mit Reitern (Domain & HTTPS, NetBird, Updates, Passwörter, Einstellungen); Darstellung repariert (lange Befehle ragten aus der NetBird-Karte, Heimnetz-Adresse brach mitten in der Zahl um). Update folgt jetzt main statt eines Releases (darum kam bisher nie eins): Liste „Was ist neu?“, Knopf, Fortschritt in 3 Schritten mit Protokoll, Hinweis wenn der Updater nicht reagiert, Seite lädt danach neu. Demo zeigt mornihosting.de mit INWX, HTTPS, Bestellung und Update."
+    },
+    {
+      "title": "Eigene Grafiken statt Pixel-Blöcke",
+      "status": "fertig",
+      "detail": "Neues Logo (Smaragd-Würfel), Server als glänzende App-Icons mit eigenem Symbol je Software (Papierflieger, Flamme, Amboss, Blitz, Gamepad …), Spiele-Karten mit kleinen schwebenden Szenen, Pakete als Edelsteine von Stein bis Netherite, Benutzer mit Initialen. Alles als Vektor, scharf in jeder Größe. Demo neu veröffentlicht."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p14-servers.webp",
+      "caption": "Eigene Grafiken · Server als App-Icons mit Symbol je Software",
+      "time": "2026-10-30T13:55:00+01:00"
+    },
+    {
+      "img": "progress/p14-games.webp",
+      "caption": "Eigene Grafiken · Spiele-Karten mit schwebenden Szenen",
+      "time": "2026-10-30T13:55:00+01:00"
+    },
+    {
+      "img": "progress/p14-gems.webp",
+      "caption": "Eigene Grafiken · Pakete als Edelsteine von Stein bis Netherite",
+      "time": "2026-10-30T13:55:00+01:00"
+    },
     {
       "img": "progress/p13-update.webp",
       "caption": "Update · Fortschritt in 3 Schritten mit Protokoll und „Was ist neu?“",
@@ -291,61 +311,37 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p11-minecraft.webp",
       "caption": "Phase 11 · Minecraft-Konto verbunden: eigener Kopf und automatisch OP als Besitzer",
       "time": "2026-10-28T09:25:00+01:00"
-    },
-    {
-      "img": "progress/p10-netbird-auto.webp",
-      "caption": "Phase 10 · NetBird einmal verbinden, danach reicht pro Server ein Name",
-      "time": "2026-10-28T08:50:00+01:00"
-    },
-    {
-      "img": "progress/p9-voice.webp",
-      "caption": "Phase 9 · Voice-Chat mit einem Schalter: Plugin, UDP-Port und Adresse richten sich selbst ein",
-      "time": "2026-10-28T07:30:00+01:00"
-    },
-    {
-      "img": "progress/p9-netbird.webp",
-      "caption": "Phase 9 · NetBird-Anleitung mit deinen echten Adressen und Ports zum Kopieren",
-      "time": "2026-10-28T07:30:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "components/command-line.tsx (Befehle brechen um statt überzustehen)"
+      "path": "apps/web/src/components/art.tsx (Logo, Badges, Szenen, Edelsteine, Initialen)"
     },
     {
       "tag": "geändert",
-      "path": "admin/PanelSettingsPage.tsx (Reiter), UpdateSection.tsx, shell/UpdateCard.tsx"
+      "path": "Bestellseite, Startseite, Server-Icons, Benutzerliste"
     },
     {
-      "tag": "geändert",
-      "path": "server/system/update.ts (folgt main), update.sh (Schritte + Protokoll), install.sh"
-    },
-    {
-      "tag": "geändert",
-      "path": "demo/backend.ts (mornihosting.de, HTTPS, Update-Ablauf)"
+      "tag": "entfernt",
+      "path": "Pixel-Blöcke in lib/pixel.ts (Spielerköpfe bleiben Pixel – das sind echte Skins)"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-30T14:20:00+01:00",
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T13:09:00+01:00",
-      "title": "Update reparieren: folgt main, Fortschritt mit Protokoll, Hinweis wenn der Updater hängt"
+      "until": "2026-10-30T13:45:00+01:00",
+      "title": "Eigene Grafiken zeichnen: Logo, Server-Icons, Spiele-Szenen, Edelsteine, Initialen"
     },
     {
       "status": "done",
-      "until": "2026-10-30T13:09:00+01:00",
-      "title": "Admin-Bereich aufräumen (Reiter) und Darstellung reparieren"
+      "until": "2026-10-30T13:55:00+01:00",
+      "title": "Überall einbauen, Demo neu veröffentlichen"
     },
     {
-      "status": "done",
-      "until": "2026-10-30T13:15:00+01:00",
-      "title": "Demo-Seite mit mornihosting.de, Bestellung und Update neu veröffentlichen"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T13:27:00+01:00",
+      "status": "current",
+      "until": "2026-10-30T14:20:00+01:00",
       "title": "Tests, PR, Merge nach main"
     }
   ]

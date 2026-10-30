@@ -154,3 +154,25 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The little scenes on the game cards float gently; hovering the card lifts them a bit more. */
+@keyframes art-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.art-float {
+  animation: art-float 5s ease-in-out infinite;
+}
+.group:hover .art-float {
+  animation-duration: 2.4s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-float {
+    animation: none;
+  }
+}

@@ -3,16 +3,13 @@ import { Archive, Blocks, Globe, LogIn, Plus, Puzzle, Rocket, ShieldCheck, Uploa
 import type { ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
+import { GameScene } from '@/components/art';
 import { BrandMark } from '@/components/server-visuals';
 import { Button } from '@/components/ui/button';
 import { statusQuery } from './session';
 
 /** The games on offer, like a hoster's shop: Java, Bedrock and both together (Geyser). */
-const GAMES = [
-  { key: 'java', tint: 'from-emerald-500/30 to-emerald-900/20', block: '#5d9c3c' },
-  { key: 'bedrock', tint: 'from-sky-500/30 to-sky-900/20', block: '#7b7b7b' },
-  { key: 'crossplay', tint: 'from-amber-400/30 to-amber-900/20', block: '#b5893c' },
-] as const;
+const GAMES = ['java', 'bedrock', 'crossplay'] as const;
 
 const FEATURES = [
   { key: 'mods', icon: Puzzle },
@@ -27,20 +24,6 @@ const PERKS = [
   { key: 'secure', icon: ShieldCheck },
   { key: 'fast', icon: Zap },
 ] as const;
-
-/** A Minecraft-style block drawn in CSS: top face lighter, sides darker. */
-function GameBlock({ color }: { color: string }): ReactElement {
-  return (
-    <span
-      aria-hidden
-      className="grid size-16 place-items-center rounded-[10px] shadow-lg"
-      style={{
-        background: `linear-gradient(180deg, color-mix(in oklab, ${color} 70%, white) 0 28%, ${color} 28% 100%)`,
-        boxShadow: `inset 0 -6px 0 color-mix(in oklab, ${color} 70%, black)`,
-      }}
-    />
-  );
-}
 
 /**
  * The public front page: what MorniHosting offers, the games to start with and the sign-in card. Opening
@@ -135,17 +118,19 @@ export function LandingLayout({ children }: { children: ReactNode }): ReactEleme
         <div className="grid gap-4 sm:grid-cols-3">
           {GAMES.map((g) => (
             <article
-              key={g.key}
-              className={`grid gap-4 rounded-[16px] border border-border bg-gradient-to-br ${g.tint} p-5`}
+              key={g}
+              className="group grid overflow-hidden rounded-[16px] border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
             >
-              <GameBlock color={g.block} />
-              <div>
-                <h3 className="text-lg font-bold">{t(`landing.games.${g.key}.title`)}</h3>
-                <p className="text-sm text-muted-foreground">{t(`landing.games.${g.key}.text`)}</p>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">{t('landing.free')}</span>
-                <Button onClick={() => focusLogin(`/servers/new?game=${g.key}`)}>{t('landing.start')}</Button>
+              <GameScene game={g} className="h-36" />
+              <div className="grid gap-4 p-5">
+                <div>
+                  <h3 className="text-lg font-bold">{t(`landing.games.${g}.title`)}</h3>
+                  <p className="text-sm text-muted-foreground">{t(`landing.games.${g}.text`)}</p>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold">{t('landing.free')}</span>
+                  <Button onClick={() => focusLogin(`/servers/new?game=${g}`)}>{t('landing.start')}</Button>
+                </div>
               </div>
             </article>
           ))}

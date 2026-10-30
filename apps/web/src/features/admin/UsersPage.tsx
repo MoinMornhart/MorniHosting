@@ -30,7 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
 import { formatRelative } from '@/lib/format';
-import { emblem } from '@/lib/pixel';
+import { Monogram } from '@/components/art';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/features/auth/session';
 import { serversQuery } from '@/features/servers/live';
@@ -336,7 +336,7 @@ function UsersList({ roles }: { roles: readonly RoleEntry[] }): ReactElement {
             key={user.id}
             className={cn('flex flex-wrap items-center gap-3 px-4 py-3', user.disabled && 'opacity-60')}
           >
-            <img src={emblem(user.username)} alt="" className="pixelated size-10 rounded-[10px]" />
+            <Monogram name={user.displayName || user.username} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <b className="truncate text-sm font-semibold">{user.displayName || user.username}</b>

@@ -1815,6 +1815,17 @@
     "startNow": "The server is set up and started right away",
     "changeLater": "Power & add-ons can be changed any time",
     "bedrockJoin": "Bedrock players enter {{hostname}} as server address and {{port}} as port. Bedrock knows no addresses with a built-in port – only a server on 19132 works without entering a port.",
-    "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled)."
+    "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled).",
+    "tiers": {
+      "stone": "Stone",
+      "copper": "Copper",
+      "iron": "Iron",
+      "gold": "Gold",
+      "emerald": "Emerald",
+      "diamond": "Diamond",
+      "amethyst": "Amethyst",
+      "ruby": "Ruby",
+      "netherite": "Netherite"
+    }
   }
 }
