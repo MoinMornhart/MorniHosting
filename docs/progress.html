@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-28T09:12:41+00:00",
-  "now": "Alles ist in main. Bei dir: Ports im netbird-proxy und in der Firewall freigeben, dann im Container „update“.",
+  "updated": "2026-10-30T10:47:01+00:00",
+  "now": "Ich baue mornihosting.de wie einen echten Hoster. Gerade: INWX als DNS-Anbieter.",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -224,6 +224,21 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Repo-Check: Sicherheitslücken, Geheimnisse, Befunde, Updates",
       "status": "fertig",
       "detail": "15 Sicherheitslücken behoben (pnpm audit sauber), die 4 „Geheimnisse“ sind erfundene Test-Passwörter, 30 Befunde abgearbeitet (Dockerfile, Hook, ungenutzter Code, Lieferketten-Schutz in pnpm), ESLint 10, TypeScript 6, Prettier, Playwright aktualisiert. 173 Tests, 4 Browser-Abläufe."
+    },
+    {
+      "title": "Heimnetz-Hinweis und Fritzbox-Freigabe",
+      "status": "fertig",
+      "detail": "Zu Hause zeigt das Panel die Heimnetz-Adresse (192.168.178.114). Fritzbox-Freigaben eingerichtet, der Server ist von außen unter 93.223.190.172 erreichbar."
+    },
+    {
+      "title": "Eigene Domain ohne NetBird (Cloudflare/IONOS, DynDNS)",
+      "status": "fertig",
+      "detail": "Karte „Eigene Domain“ im Admin-Bereich: A- und SRV-Einträge pro Server, öffentliche IP alle 5 Minuten geprüft. 189 Tests. PR #16, Merge nach grüner CI."
+    },
+    {
+      "title": "mornihosting.de wie ein echter Hoster",
+      "status": "laeuft",
+      "detail": "INWX als DNS-Anbieter, mornihosting.de und jede Server-Adresse (z. B. reich.mornihosting.de) öffnen im Browser die Anmeldeseite mit HTTPS, Minecraft joint über reich.mornihosting.de ohne NetBird. Server-Bestellung wie bei einem Hoster: Pakete mit Empfehlungen (z. B. 2 GB für 4 Spieler), ganz unten „Benutzerdefiniert“, Adresse prüfen, Bestellübersicht – nur ohne Bezahlen."
     }
   ],
   "shots": [
@@ -306,27 +321,42 @@ footer { color: var(--muted); font-size: 13px; }
       "path": "Dockerfile, .claude/hooks/skills-cloud.sh, ungenutzter Code entfernt"
     }
   ],
-  "eta": null,
+  "eta": "2026-10-30T17:45:00+01:00",
   "plan": [
     {
-      "status": "fertig",
-      "until": "",
-      "title": "Server offline über NetBird: feste Ports, Ports-Liste im Admin-Bereich"
+      "status": "current",
+      "until": "2026-10-30T12:45:00+01:00",
+      "title": "INWX als DNS-Anbieter (Anmeldung, Einträge, DynDNS)"
     },
     {
-      "status": "fertig",
-      "until": "",
-      "title": "Issues #10, #9, #11, #7 abgearbeitet"
+      "status": "",
+      "until": "2026-10-30T13:00:00+01:00",
+      "title": "mornihosting.de und *.mornihosting.de zeigen auf deine öffentliche IP"
     },
     {
-      "status": "fertig",
-      "until": "",
-      "title": "Prüfungen: 173 Tests, 4 Browser-Abläufe, Lint, Typen, Build"
+      "status": "",
+      "until": "2026-10-30T14:15:00+01:00",
+      "title": "HTTPS: jede Adresse unter mornihosting.de öffnet das Panel (Zertifikat automatisch)"
     },
     {
-      "status": "fertig",
-      "until": "",
-      "title": "Merge nach main"
+      "status": "",
+      "until": "2026-10-30T14:45:00+01:00",
+      "title": "Neue, schöne Anmeldeseite im Hoster-Stil"
+    },
+    {
+      "status": "",
+      "until": "2026-10-30T16:30:00+01:00",
+      "title": "Server bestellen wie beim Hoster: Pakete mit Empfehlungen, unten Benutzerdefiniert, Adresse prüfen, Bestellübersicht"
+    },
+    {
+      "status": "",
+      "until": "2026-10-30T17:00:00+01:00",
+      "title": "Java und Bedrock joinen mit reich.mornihosting.de"
+    },
+    {
+      "status": "",
+      "until": "2026-10-30T17:45:00+01:00",
+      "title": "Tests, Doku, Merge nach main"
     }
   ]
 }
@@ -359,21 +389,21 @@ footer { color: var(--muted); font-size: 13px; }
     eta.appendChild(document.createTextNode(left > 0 ? ' · noch ca. ' + rest : ' · gleich so weit'));
   }
   var plan = document.getElementById('plan');
-  (d.plan || []).forEach(function (p) {
+  (d.plan || []).forEach(function (p, i) {
     var li = el('li', p.status || '');
     var when = p.until ? 'bis ' + clock(p.until) : 'bei dir';
     var tm = el('time', null, p.status === 'done' ? 'fertig' : when);
     if (p.until) tm.setAttribute('datetime', p.until);
     li.appendChild(tm);
-    li.appendChild(el('span', null, p.title));
+    li.appendChild(el('span', null, (i + 1) + '. ' + p.title));
     plan.appendChild(li);
   });
   var steps = document.getElementById('steps');
-  d.steps.forEach(function (s) {
+  d.steps.forEach(function (s, i) {
     var li = el('li', 'step');
     li.appendChild(el('span', 'pill ' + s.status, label[s.status] || s.status));
     var body = el('div', 'step-body');
-    body.appendChild(el('div', 'step-title', s.title));
+    body.appendChild(el('div', 'step-title', (i + 1) + '. ' + s.title));
     if (s.detail) body.appendChild(el('div', 'step-detail', s.detail));
     li.appendChild(body);
     steps.appendChild(li);
