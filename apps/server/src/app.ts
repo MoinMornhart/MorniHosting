@@ -61,6 +61,8 @@ import { registerWebhookRoutes } from './webhooks/routes.js';
 import { createWebhookService } from './webhooks/service.js';
 import { registerWebSocket } from './ws.js';
 import { createNetbirdAutomation } from './netbird/service.js';
+import { createDnsAutomation, type DnsAutomation } from './dns/service.js';
+import { registerDnsRoutes } from './dns/routes.js';
 import { registerNetbirdRoutes } from './netbird/routes.js';
 import { createMinecraftLinkService } from './minecraft/service.js';
 import { registerMinecraftRoutes } from './minecraft/routes.js';
@@ -79,6 +81,8 @@ export interface BuiltApp {
   readonly app: Api;
   readonly ctx: AppContext;
   readonly servers: ServerService;
+  /** Own-domain DNS automation; tests trigger its IP check directly. */
+  readonly dns: DnsAutomation;
   readonly start: () => Promise<void>;
   readonly stop: () => Promise<void>;
 }
@@ -147,6 +151,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   const schedules = createScheduleService(ctx, servers, backups);
   const webhooks = createWebhookService(ctx, options.resolver);
   const netbird = createNetbirdAutomation(ctx, servers);
+  const dns = createDnsAutomation(ctx, servers);
   const minecraftLink = createMinecraftLinkService(ctx, servers);
 
   await app.register(helmet, {
@@ -227,7 +232,8 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
   registerMarketRoutes(app, ctx, servers, market);
   registerGeyserRoutes(app, ctx, createGeyserService(ctx, servers, market));
   registerVoiceChatRoutes(app, ctx, createVoiceChatService(ctx, servers, market));
-  registerNetbirdRoutes(app, netbird);
+  registerNetbirdRoutes(app, netbird, dns);
+  registerDnsRoutes(app, dns);
   registerMinecraftRoutes(app, minecraftLink);
   registerBackupRoutes(app, ctx, servers, backups);
   registerScheduleRoutes(app, ctx, servers, schedules);
@@ -256,6 +262,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     app,
     ctx,
     servers,
+    dns,
     start: async () => {
       sampleHostCpu();
       intervals.push(setInterval(sampleHostCpu, HOST_SAMPLE_SECONDS * MS_PER_SECOND));
@@ -270,6 +277,7 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     stop: async () => {
       intervals.forEach(clearInterval);
       schedules.shutdown();
+      dns.shutdown();
       servers.shutdown();
       ctx.docker.close();
       await app.close();

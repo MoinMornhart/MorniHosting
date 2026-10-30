@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
 import { useServerAction } from '@/features/dashboard/ServerCard';
 import { NetbirdServerField } from '@/features/netbird/NetbirdServerField';
-import { useNetbird } from '@/features/netbird/netbird';
+import { useAddressAutomation } from '@/features/netbird/netbird';
 
 const MEMORY_STEP_MB = 512;
 const MEMORY_MIN_MB = 512;
@@ -91,7 +91,7 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
   const restart = useServerAction(server.id);
   const [draft, setDraft] = useState<Draft>(() => draftOf(server));
   const [pendingRestart, setPendingRestart] = useState(false);
-  const netbird = useNetbird();
+  const netbird = useAddressAutomation();
   const managed = server.netbird !== null;
   const { data: host } = useQuery(hostQuery);
   const versions = useQuery({

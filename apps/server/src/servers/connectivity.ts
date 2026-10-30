@@ -16,15 +16,28 @@ const statusSchema = z.object({ online: z.boolean() });
 // https://regex101.com/?flavor=javascript&regex=%5E(%5Cd%7B1%2C3%7D%5C.)%7B3%7D%5Cd%7B1%2C3%7D%24&flags=gm&testString=203.0.113.42%0A203.0.113%0Aa.b.c.d
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/;
 
+async function askPublicIp(): Promise<string> {
+  const response = await fetchResponse('https://api.ipify.org', { headers: { accept: 'text/plain' } });
+  const text = (await response.text()).trim();
+  if (!IPV4.test(text)) throw new Error('unexpected answer');
+  return text;
+}
+
 async function publicIp(settings: SettingsService): Promise<string | null> {
   if (!settings.get().publicIpLookup) return null;
   try {
-    return await publicIpCache.wrap('ip', async () => {
-      const response = await fetchResponse('https://api.ipify.org', { headers: { accept: 'text/plain' } });
-      const text = (await response.text()).trim();
-      if (!IPV4.test(text)) throw new Error('unexpected answer');
-      return text;
-    });
+    return await publicIpCache.wrap('ip', askPublicIp);
+  } catch {
+    return null;
+  }
+}
+
+/** Asks again right now (DynDNS: the home connection may have a new IP); null when unknown. */
+export async function freshPublicIp(): Promise<string | null> {
+  try {
+    const ip = await askPublicIp();
+    publicIpCache.set('ip', ip);
+    return ip;
   } catch {
     return null;
   }

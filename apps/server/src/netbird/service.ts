@@ -311,7 +311,7 @@ export function createNetbirdAutomation(
     if (mappings(serverId).length) void syncQuietly(serverId);
   });
   const describe = (row: ServerRow): NetbirdServerInfo | null =>
-    row.netbirdName
+    row.netbirdName && config()
       ? {
           name: row.netbirdName,
           services: mappings(row.id).map((m) => ({
@@ -345,6 +345,7 @@ export function createNetbirdAutomation(
       };
     },
     configure: async (input, actor) => {
+      if (ctx.settings.getValue('dns') !== undefined) throw conflict('netbird_dns_active');
       const client = clientFromInput(input);
       const token = tokenFor(input);
       const [domains, peers] = await Promise.all([client.domains(), client.peers()]);

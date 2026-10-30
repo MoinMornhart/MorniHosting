@@ -497,7 +497,17 @@
     "netbird_name_taken": "Den Namen {{name}} hat schon ein anderer Server.",
     "netbird_failed": "NetBird konnte nicht eingerichtet werden.",
     "minecraft_taken": "{{name}} ist schon mit einem anderen Konto im Panel verbunden.",
-    "netbird_token_unknown": "{{host}} kennt diesen Schlüssel nicht. Er ist richtig aufgebaut, wurde aber auf einem anderen NetBird-Server angelegt – oder inzwischen gelöscht. Betreibst du NetBird selbst, trag bei „Eigener NetBird-Server?“ dessen Adresse ein (die Adresse, unter der du das NetBird-Dashboard öffnest)."
+    "netbird_token_unknown": "{{host}} kennt diesen Schlüssel nicht. Er ist richtig aufgebaut, wurde aber auf einem anderen NetBird-Server angelegt – oder inzwischen gelöscht. Betreibst du NetBird selbst, trag bei „Eigener NetBird-Server?“ dessen Adresse ein (die Adresse, unter der du das NetBird-Dashboard öffnest).",
+    "dns_unauthorized": "{{host}} hat den API-Schlüssel abgelehnt. Prüfe ihn und seine Rechte (DNS bearbeiten).",
+    "dns_unreachable": "Der DNS-Anbieter ist gerade nicht erreichbar ({{host}}).",
+    "dns_rejected": "Der DNS-Anbieter sagt: {{message}}",
+    "dns_token_missing": "Bitte trag den API-Schlüssel ein.",
+    "dns_zone_unknown": "Diese Domain gibt es bei dem Anbieter nicht (mehr).",
+    "dns_netbird_active": "NetBird ist verbunden – trenne es zuerst, dann geht die eigene Domain.",
+    "netbird_dns_active": "Die eigene Domain (ohne NetBird) ist verbunden – trenne sie zuerst, dann geht NetBird.",
+    "dns_no_public_ip": "Deine öffentliche IP lässt sich gerade nicht ermitteln (api.ipify.org antwortet nicht). Das Panel versucht es alle 5 Minuten wieder.",
+    "dns_not_configured": "Es ist weder NetBird noch eine eigene Domain verbunden (Admin-Bereich).",
+    "dns_failed": "Die DNS-Einträge konnten nicht angelegt werden."
   },
   "update": {
     "available": "Version {{version}} ist da",
@@ -1392,7 +1402,10 @@
       "netbird_server": "Adresse über NetBird geändert",
       "netbird_panel": "Panel-Adresse in NetBird eingerichtet",
       "account_minecraft_link": "Minecraft-Konto verbunden",
-      "account_minecraft_unlink": "Minecraft-Konto getrennt"
+      "account_minecraft_unlink": "Minecraft-Konto getrennt",
+      "dns_configure": "Eigene Domain verbunden",
+      "dns_disconnect": "Eigene Domain getrennt",
+      "dns_server": "Adresse unter eigener Domain geändert"
     }
   },
   "account": {
@@ -1588,12 +1601,12 @@
     "panelPort": "Port des Panels",
     "panelButton": "Einrichten",
     "panelDone": "Panel ist erreichbar unter {{address}}",
-    "fieldLabel": "Adresse im Internet (NetBird)",
-    "fieldHint": "Nur der Name – MorniHosting richtet den Rest in NetBird ein. Entfernen nimmt die Adresse wieder weg.",
-    "createHint": "Wird aus dem Namen vorgeschlagen. Leer lassen, wenn der Server keine Adresse über NetBird bekommen soll.",
+    "fieldLabel": "Adresse im Internet",
+    "fieldHint": "Nur der Name – MorniHosting richtet den Rest ein (über NetBird oder deine eigene Domain). Entfernen nimmt die Adresse wieder weg.",
+    "createHint": "Wird aus dem Namen vorgeschlagen. Leer lassen, wenn der Server keine eigene Adresse bekommen soll.",
     "saving": "Wird eingerichtet …",
-    "serverSaved": "Adresse in NetBird eingerichtet",
-    "serverRemoved": "Adresse in NetBird entfernt",
+    "serverSaved": "Adresse eingerichtet",
+    "serverRemoved": "Adresse entfernt",
     "remove": "Entfernen",
     "managed": "Wird über NetBird eingerichtet.",
     "purpose": {
@@ -1622,5 +1635,32 @@
     "linked": "{{name}} ist verbunden – auf deinen Servern bist du jetzt OP.",
     "unlinked": "Minecraft-Konto getrennt",
     "note": "Gilt für Java-Server. Läuft ein Server, passiert es sofort, sonst beim nächsten Start. OPs, die du selbst vergeben hast, bleiben beim Trennen bestehen."
+  },
+  "dnsAuto": {
+    "title": "Eigene Domain (ohne NetBird)",
+    "connectedPill": "Verbunden",
+    "notConnected": "Nicht verbunden",
+    "text": "Hast du eine eigene Domain, trägt MorniHosting die Adressen selbst bei deinem DNS-Anbieter ein: Jeder Server mit Namen wird zu name.deine-domain.de, Java-Spieler brauchen dank SRV-Eintrag keine Portnummer. Ändert sich deine öffentliche IP, zieht das Panel alles innerhalb von 5 Minuten nach (wie DynDNS).",
+    "provider": "DNS-Anbieter",
+    "tokenLabel": "API-Schlüssel",
+    "tokenKeep": "Leer lassen, um den gespeicherten Schlüssel weiter zu nutzen.",
+    "tokenHint": {
+      "cloudflare": "dash.cloudflare.com → Profil → API-Tokens → „Token erstellen“ → Vorlage „DNS-Zone bearbeiten“ → bei Zone deine Domain wählen. Die Domain muss die Nameserver von Cloudflare nutzen (das zeigt dir Cloudflare beim Hinzufügen der Domain). Wird verschlüsselt gespeichert.",
+      "ionos": "developer.hosting.ionos.de → „API-Schlüssel“ anlegen. Der Schlüssel hat die Form Präfix.Geheimnis – beides zusammen mit dem Punkt einfügen. Wird verschlüsselt gespeichert."
+    },
+    "connect": "Verbinden",
+    "connecting": "Verbinde …",
+    "noZones": "Mit diesem Schlüssel ist keine Domain verwaltbar. Prüfe, ob der Schlüssel für deine Domain gilt.",
+    "domain": "Domain",
+    "saving": "Speichere …",
+    "connected": "Eigene Domain verbunden – Server mit Namen bekommen jetzt ihre Adresse.",
+    "summary": "Server-Namen werden zu <b>name.{{domain}}</b> bei {{provider}} · zeigt auf <b>{{ip}}</b> (geprüft {{time}} Uhr)",
+    "portNote": "Die Ports müssen weiter im Router an diesen Rechner weitergeleitet sein (z. B. Fritzbox: TCP 25565). Den Namen vergibst du beim Server anlegen oder in den Server-Einstellungen.",
+    "change": "Ändern",
+    "disconnect": "Trennen",
+    "disconnected": "Eigene Domain getrennt – die Einträge sind gelöscht.",
+    "disconnectTitle": "Eigene Domain trennen?",
+    "disconnectText": "MorniHosting löscht alle Einträge, die es bei deinem DNS-Anbieter angelegt hat. Die Server laufen weiter, sind aber nur noch über die IP erreichbar.",
+    "netbirdActive": "Gerade verteilt NetBird die Adressen. Für eine eigene Domain ohne NetBird trenne zuerst NetBird (Karte unten)."
   }
 }

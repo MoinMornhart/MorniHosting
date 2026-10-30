@@ -19,6 +19,7 @@
   <a href="#installation"><b>Installation</b></a> ·
   <a href="#was-kann-mornihosting"><b>Funktionen</b></a> ·
   <a href="#deine-domain-und-passkeys"><b>Domain &amp; Passkeys</b></a> ·
+  <a href="#eigene-domain-ohne-netbird"><b>Eigene Domain</b></a> ·
   <a href="#netbird-eigene-domain-ohne-portfreigabe"><b>NetBird</b></a> ·
   <a href="#updates"><b>Updates</b></a> ·
   <a href="#häufige-fragen"><b>Fragen</b></a>
@@ -256,6 +257,24 @@ Mit einer eigenen Domain erreichst du das Panel über `https://panel.deine-domai
 
 Das Passwort bleibt als Rückfallebene erhalten. Wer sein Passwort vergessen hat, bekommt im **Admin-Bereich →
 Passwörter** mit zwei Klicks ein neues.
+
+## Eigene Domain ohne NetBird
+
+Du hast eine Domain (z. B. `mein-minecraft.de`) und die Ports im Router freigegeben? Dann trägt MorniHosting die
+Adressen selbst bei deinem DNS-Anbieter ein – **Cloudflare** (kostenlos, geht mit jeder Domain) oder **IONOS**.
+
+1. API-Schlüssel holen:
+   - **Cloudflare:** Domain bei Cloudflare hinzufügen und beim Domain-Anbieter die Nameserver von Cloudflare
+     eintragen. Dann **Profil → API-Tokens → Token erstellen → Vorlage „DNS-Zone bearbeiten“**, Zone: deine Domain.
+   - **IONOS:** auf [developer.hosting.ionos.de](https://developer.hosting.ionos.de) einen API-Schlüssel anlegen
+     (Form `Präfix.Geheimnis`).
+2. Im Panel **Admin-Bereich → Eigene Domain**: Anbieter wählen, Schlüssel einfügen, **Verbinden**, Domain wählen,
+   **Speichern**.
+3. Beim **Server anlegen** steht schon ein Name, z. B. `reich` – fertig: MorniHosting legt `reich.mein-minecraft.de`
+   an (A-Eintrag auf deine öffentliche IP) und für Java einen SRV-Eintrag, damit niemand eine Portnummer braucht.
+
+Ändert sich deine öffentliche IP (Zwangstrennung), zieht das Panel alle Einträge innerhalb von 5 Minuten nach –
+wie DynDNS. Pro Panel geht entweder NetBird oder die eigene Domain.
 
 ## NetBird: eigene Domain ohne Portfreigabe
 

@@ -289,6 +289,18 @@ export const netbirdServices = sqliteTable('netbird_services', {
   createdAt: createdAt(),
 });
 
+/** DNS records the panel keeps at the own domain's provider (Cloudflare, IONOS): one A and one SRV per server. */
+export const dnsRecords = sqliteTable('dns_records', {
+  /** Record id at the DNS provider. */
+  id: text('id').primaryKey(),
+  serverId: text('server_id').notNull(),
+  type: text('type').$type<'A' | 'SRV'>().notNull(),
+  name: text('name').notNull(),
+  /** What the record says right now: the IP for A, "port target" for SRV. */
+  content: text('content').notNull(),
+  createdAt: createdAt(),
+});
+
 /**
  * Operators the panel added because a user with a linked Minecraft account owns the server. Only these are
  * taken away again; operators added by hand stay.
