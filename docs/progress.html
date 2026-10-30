@@ -132,7 +132,7 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T16:44:32+00:00",
+  "updated": "2026-10-30T16:56:51+00:00",
   "now": "Warte auf dein Go für den Merge nach main",
   "steps": [
     {
@@ -274,6 +274,11 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Server-Panel im Stil von ggdehosting",
       "status": "fertig",
       "detail": "Neuer Server-Kopf: Banner mit Spielbild, Server-Bild, „Verbinden“-Feld mit Kopieren, IP/Port/Geyser-Port, Neustarten grau und Stoppen rot, Reiterleiste; bleibt beim Scrollen stehen (auch das Einstellungs-Menü). Konsole ist jetzt die Startseite mit 6 Kacheln (Laufzeit, CPU, RAM, Festplatte, Netzwerk rein/raus – Backend misst Ordnergröße und Docker-Netzwerk) und 3 Live-Diagrammen. Neue Reiter Version (Software wechseln: Vanilla, Paper, Purpur, Fabric, Forge, NeoForge – bei gestopptem Server), Netzwerk (Adresse, Erreichbarkeit, Geyser, Voice-Chat), Erweitert (Debug-Infos, Löschen). Spieler, Plugins/Mods, Backups, Routinen mit Überschrift und Hauptknopf. Hell/Dunkel mit einem Klick unten links. 195 Tests + 4 Browser-Tests grün."
+    },
+    {
+      "title": "Server-Bild-Fehler und Issues",
+      "status": "fertig",
+      "detail": "Server-Bild im Kopf wurde vom Banner verdeckt – behoben. Issue #11: 16 Befunde erledigt (ungenutzte Exporte entfernt bzw. intern gemacht, demo.css als Ausnahme). Issue #15/#7: typescript-eslint 8.72.1 erst ab 2.11. erlaubt (7-Tage-Regel), TypeScript 7 noch nicht unterstützt, @types/node bleibt 22 – als Kommentar in #15 erklärt. 195 Tests grün."
     },
     {
       "title": "Demo zeigen, nach deinem Go Merge nach main",
