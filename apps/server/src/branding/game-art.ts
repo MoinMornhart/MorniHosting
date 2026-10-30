@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { GAME_ART_SOURCES } from '@mornihosting/shared';
 import { z } from 'zod';
 import type { Api, AppContext } from '../context.js';
 import { notFound } from '../lib/errors.js';
@@ -7,18 +8,10 @@ import { fetchResponse } from '../lib/http-client.js';
 import { BYTES_PER_MB } from '../lib/units.js';
 
 /**
- * Background pictures for the game cards: Mojang's key art as the Minecraft Wiki hosts it, and the GeyserMC
- * logo from geysermc.org. The panel fetches each once and keeps it in its data folder; nothing is copied into
- * the repository. (minecraft.net itself refuses automated downloads.)
- * If a picture cannot be fetched, the web app shows its drawn scene instead.
+ * The panel fetches each game card picture once and keeps it in its data folder; nothing is copied into the
+ * repository. If a picture cannot be fetched, the web app shows its drawn scene instead.
  */
-
-const SOURCES = {
-  java: 'https://minecraft.wiki/images/thumb/Minecraft_Key_Art_2024.jpg/1200px-Minecraft_Key_Art_2024.jpg',
-  bedrock:
-    'https://minecraft.wiki/images/thumb/Minecraft_Java_%26_Bedrock_Edition_key_art.jpg/1200px-Minecraft_Java_%26_Bedrock_Edition_key_art.jpg',
-  crossplay: 'https://geysermc.org/img/geyser-1760-860.png',
-} as const;
+const SOURCES = GAME_ART_SOURCES;
 const MAX_MB = 4;
 const MAX_BYTES = MAX_MB * BYTES_PER_MB;
 const CACHE_SECONDS = 86400;

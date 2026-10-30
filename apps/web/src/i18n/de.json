@@ -1794,11 +1794,11 @@
     "customText": "Du brauchst eine andere Größe? Stell den Arbeitsspeicher selbst ein.",
     "recommendation": "Für {{software}} empfehlen wir mindestens {{ram}}. Die Spielerzahl ist ein Richtwert – viele Mods brauchen mehr.",
     "software": "Software & Version",
-    "softwareText": "Die Server-Software bestimmt, ob Plugins oder Mods laufen. Nicht sicher? Lass die Vorauswahl.",
+    "softwareText": "Die Server-Software bestimmt, ob Plugins oder Mods laufen. Nicht sicher? Paper passt für die meisten.",
     "version": "Minecraft-Version",
     "name": "Servername auswählen",
     "nameText": "Die Adresse, mit der sich Spieler auf deinen Server verbinden.",
-    "addressReady": "Spieler verbinden sich mit {{hostname}}. Wir haben schon einen Namen vorausgefüllt – du kannst ihn jetzt oder jederzeit später ändern.",
+    "addressReady": "Spieler verbinden sich mit {{hostname}}. Du kannst den Namen jederzeit später ändern.",
     "noDomain": "Noch keine eigene Domain eingerichtet – Spieler verbinden sich dann über IP und Port. Eine Domain stellst du im Admin-Bereich ein.",
     "displayName": "Anzeigename (optional)",
     "displayNameHint": "So heißt der Server im Panel. Leer = wie die Adresse.",
@@ -1821,7 +1821,7 @@
     "price": "Preis",
     "month": "Monat",
     "priceNote": "Kostenlos – es ist dein eigener Server.",
-    "startNow": "Der Server wird sofort bereitgestellt und gestartet",
+    "startNow": "Server gleich nach der Bestellung starten",
     "changeLater": "Leistung & Add-ons später jederzeit änderbar",
     "bedrockJoin": "Bedrock-Spieler tragen {{hostname}} als Serveradresse ein und {{port}} als Port. Bedrock kennt keine Adressen mit eingebautem Port – nur ein Server auf 19132 klappt ganz ohne Port-Angabe.",
     "geyserJoin": "Java-Spieler geben nur {{hostname}} ein. Bedrock-Spieler nehmen dieselbe Adresse; den Port zeigt die Server-Seite nach dem Erstellen (der erste Server bekommt 19132, das ist schon vorausgefüllt).",
@@ -1835,6 +1835,11 @@
       "amethyst": "Amethyst",
       "netherite": "Netherite",
       "redstone": "Redstone"
-    }
+    },
+    "pickPlan": "Wähle ein Paket – die Spielerzahl ist ein Richtwert.",
+    "pickSoftware": "Wähle eine Server-Software, danach die Version.",
+    "pickVersion": "Version wählen",
+    "nameIdea": "Namen vorschlagen",
+    "pickName": "Gib deinem Server einen Namen – daraus wird seine Adresse unter {{domain}}. Der Würfel schlägt dir einen vor."
   }
 }

@@ -132,8 +132,8 @@ footer { color: var(--muted); font-size: 13px; }
 <script type="application/json" id="data">
 {
   "goal": "Ein selbst gehostetes Panel für Minecraft-Server: so viel wie Crafty Controller 4, so einfach wie die Panels der großen Hoster.",
-  "updated": "2026-10-30T13:56:56+00:00",
-  "now": "PR, CI abwarten, Merge nach main",
+  "updated": "2026-10-30T14:58:33+00:00",
+  "now": "Warte auf dein Go für den Merge nach main",
   "steps": [
     {
       "title": "Vorbereitung",
@@ -254,9 +254,39 @@ footer { color: var(--muted); font-size: 13px; }
       "title": "Minecraft-Blöcke, echte Logos, Fehler behoben",
       "status": "fertig",
       "detail": "Server-Icons als 3D-Minecraft-Blöcke (selbst gezeichnet), Paper-/Velocity-Logo von PaperMC, Geyser- und Voice-Chat-Logo von Modrinth (nur geladen, nicht kopiert), neues Tab-Bild. Behoben: lange Servernamen sprengten die Karte, schwarze Konsolen-Farben unsichtbar, MOTD-Vorschau mit dunklen Farben, Netherite-Stein fast schwarz. Update-Karte neu gestaltet. Spielauswahl wie bei ggdehosting: große Bildkarten mit „Minecraft Java Edition“, „Minecraft Bedrock Edition“, „Minecraft Geyser“ (mit Geyser-Logo); gleich große Symbole und Kacheln, Fußzeilen der Server-Karten auf einer Linie; dunkel und hell geprüft. Pakete als echte Minecraft-Erze (Stein, Kupfer, Eisen, Gold, Smaragd, Diamant, Amethyst, Redstone, Netherit). Schwarze Schrift in Karten-Knöpfen auf dem iPhone (Demo in der Claude-App) behoben."
+    },
+    {
+      "title": "Echte Spielbilder, Schrift in der Demo lesbar, Admin-Reiter ohne Strich",
+      "status": "fertig",
+      "detail": "Spielauswahl mit echten Bildern (Minecraft-Key-Art vom Minecraft Wiki, Geyser-Bild von geysermc.org, vom Panel einmal geladen und gespeichert, nicht im Repo). Schwarze bzw. unsichtbare Schrift in der Demo in der Claude-App behoben (dunkel und hell geprüft). Scroll-Strich unter den Admin-Reitern weg, neues Tab-Bild. Demo neu veröffentlicht (Version 11)."
+    },
+    {
+      "title": "Echte Software-Logos, Vanilla zuerst, nichts vorausgewählt",
+      "status": "fertig",
+      "detail": "Paper, Purpur, Fabric, Forge, NeoForge und Velocity mit ihren echten Logos (von den Projekt-Seiten geladen, in der Demo beim Bauen eingebettet, nicht im Repo). Vanilla steht vorne. Auf der Bestellseite ist nichts mehr vorausgewählt: Paket, Software, Version, Name (Würfel schlägt einen vor), Add-ons und „gleich starten“ wählst du selbst; ohne Auswahl bleibt „Server erstellen“ aus. In der Demo sind jetzt auch die echten Spielbilder zu sehen; Knopf-Text in der Claude-App überall lesbar. Demo Version 12."
+    },
+    {
+      "title": "Demo zeigen, nach deinem Go Merge nach main",
+      "status": "läuft",
+      "detail": "Demo Version 12 und Screenshots geschickt. Gemergt wird erst nach deinem Go."
+    },
+    {
+      "title": "DDoS-Schutz (eigenes Update)",
+      "status": "offen",
+      "detail": "Kommt als eigenes Update nach diesem Release (Branch claude/ddos-schutz angefangen)."
     }
   ],
   "shots": [
+    {
+      "img": "progress/p17-order.webp",
+      "caption": "Bestellseite ohne Vorauswahl, echte Software-Logos · links dunkel, rechts hell",
+      "time": "2026-10-30T14:58:33+00:00"
+    },
+    {
+      "img": "progress/p16-games.webp",
+      "caption": "Spielauswahl mit echten Bildern · links dunkel, rechts hell",
+      "time": "2026-10-30T15:35:00+01:00"
+    },
     {
       "img": "progress/p15-ores.webp",
       "caption": "Pakete als Minecraft-Erze · links dunkel, rechts hell",
@@ -306,53 +336,38 @@ footer { color: var(--muted); font-size: 13px; }
       "img": "progress/p13-demo.webp",
       "caption": "Demo · survival.mornihosting.de ohne Port, Heimnetz-Adresse bricht sauber um",
       "time": "2026-10-30T13:14:00+01:00"
-    },
-    {
-      "img": "progress/p12-join.webp",
-      "caption": "mornihosting.de · Adresse für Freunde: Java nur reich.mornihosting.de (SRV-Eintrag), Bedrock mit Hinweis aufs Port-Feld",
-      "time": "2026-10-30T12:30:00+01:00"
-    },
-    {
-      "img": "progress/p12-order.webp",
-      "caption": "mornihosting.de · Server bestellen wie bei ggdehosting: Pakete mit Spielerzahl, Benutzerdefiniert, Name .mornihosting.de, Add-ons, Bestellübersicht (0,00 €)",
-      "time": "2026-10-30T12:20:00+01:00"
     }
   ],
   "files": [
     {
       "tag": "neu",
-      "path": "components/mc-block.tsx (3D-Minecraft-Blöcke), components/project-logo.tsx (Paper, Velocity, Geyser, Voice-Chat)"
-    },
-    {
-      "tag": "behoben",
-      "path": "styles/globals.css (Raster sprengen keine Karten mehr), Konsole Schwarz, MOTD-Vorschau"
+      "path": "packages/shared/src/branding.ts (alle Logo- und Bildquellen an einer Stelle), apps/server/src/branding/game-art.ts (Spielbilder)"
     },
     {
       "tag": "geändert",
-      "path": "UpdateSection.tsx (neue Karte), public/favicon.svg"
+      "path": "CreateServerPage.tsx (Logos, Vanilla zuerst, keine Vorauswahl, Namens-Würfel), project-logo.tsx, vite.config.ts (Demo bettet Bilder ein)"
+    },
+    {
+      "tag": "behoben",
+      "path": "styles/demo.css (Schrift in der Claude-App lesbar), PanelSettingsPage.tsx (kein Scroll-Strich)"
     }
   ],
-  "eta": "2026-10-30T15:30:00+01:00",
+  "eta": null,
   "plan": [
     {
       "status": "done",
-      "until": "2026-10-30T14:45:00+01:00",
-      "title": "Fehler: lange Namen sprengen Karten, schwarze Farben unsichtbar"
+      "until": "2026-10-30T16:05:00+01:00",
+      "title": "Echte Logos, Vanilla zuerst, nichts vorausgewählt"
     },
     {
       "status": "done",
-      "until": "2026-10-30T15:00:00+01:00",
-      "title": "Server-Icons als echte Minecraft-Blöcke, Logos von Paper, Velocity, Geyser, Voice-Chat"
-    },
-    {
-      "status": "done",
-      "until": "2026-10-30T15:05:00+01:00",
-      "title": "Update-Karte schöner, neues Tab-Bild, Demo neu"
+      "until": "2026-10-30T16:20:00+01:00",
+      "title": "Demo neu (Version 12), Screenshots dunkel/hell/Handy"
     },
     {
       "status": "current",
-      "until": "2026-10-30T15:30:00+01:00",
-      "title": "Tests, PR, Merge nach main"
+      "until": "",
+      "title": "Auf dein Go warten, dann Merge nach main"
     }
   ]
 }

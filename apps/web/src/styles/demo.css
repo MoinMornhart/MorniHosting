@@ -1,11 +1,12 @@
 /*
  * The demo runs inside the Claude app, which gives the page and its buttons its own text colours. Those
  * rules sit outside Tailwind's layers and would beat the panel's colours, so the demo marks every Tailwind
- * utility as important, and buttons without their own text colour take their card's colour again.
+ * utility as important, and every button takes its card's colour again unless a utility gives it its own
+ * (":where" has no weight, so ".text-primary" on a button still wins).
  */
 @import 'tailwindcss' important;
 @import './panel.css';
 
-button:not([class*='text-']) {
-  color: inherit;
+:where(button) {
+  color: inherit !important;
 }

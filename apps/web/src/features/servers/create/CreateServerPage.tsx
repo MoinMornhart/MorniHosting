@@ -6,6 +6,7 @@ import {
   Blocks,
   Check,
   Cpu,
+  Dices,
   Gauge,
   Globe,
   Puzzle,
@@ -86,7 +87,6 @@ const TIER_GLOW: Readonly<Record<Tier, string>> = {
   netherite: '#a8a29e',
 };
 /* eslint-enable ts-patterns/no-magic-numbers */
-const FALLBACK_PLAN_GB = 2;
 /** Rough rule for a custom size between the packages: two players per GB. */
 const PLAYERS_PER_GB = 2;
 const MEMORY_STEP_MB = 512;
@@ -180,13 +180,17 @@ function AddOnTile({ children }: { children: ReactNode }): ReactElement {
   );
 }
 
-/** The software's own logo where its project allows it (Paper, Velocity), otherwise its Minecraft block. */
+/** The software's own logo (Paper, Purpur, Fabric, Forge, NeoForge, Velocity); Vanilla and the rest keep their block. */
 function SoftwareIcon({ id }: { id: SoftwareId }): ReactElement {
   const block = <McBlock kind={blockOf(id)} className="size-6" />;
   // Same box for every software, so logos and blocks line up.
   return (
     <span className="grid size-6 shrink-0 place-items-center">
-      {hasProjectLogo(id) ? <ProjectLogo project={id} className="size-5" fallback={block} /> : block}
+      {hasProjectLogo(id) ? (
+        <ProjectLogo project={id} className="size-6 rounded-[5px]" fallback={block} />
+      ) : (
+        block
+      )}
     </span>
   );
 }
@@ -260,34 +264,38 @@ export function CreateServerPage(): ReactElement {
     (id) => game !== 'crossplay' || GEYSER_SOFTWARE.includes(id),
   );
   const [softwarePick, setSoftwarePick] = useState<SoftwareId | null>(null);
-  const software: SoftwareId =
-    softwarePick && softwareChoices.includes(softwarePick) ? softwarePick : (softwareChoices[0] ?? 'paper');
+  // Nothing is chosen for the person; only a single possibility (Bedrock) counts as chosen.
+  const onlyChoice = softwareChoices.length === 1 ? (softwareChoices[0] ?? null) : null;
+  const software: SoftwareId | null =
+    softwarePick && softwareChoices.includes(softwarePick) ? softwarePick : onlyChoice;
+  const portSoftware: SoftwareId = software ?? softwareChoices[0] ?? 'paper';
   const [version, setVersion] = useState('');
   const [showUnstable, setShowUnstable] = useState(false);
   const [memoryPick, setMemoryPick] = useState<number | null>(null);
   const [custom, setCustom] = useState(false);
-  const [subdomain, setSubdomain] = useState(suggestName);
+  const [subdomain, setSubdomain] = useState('');
+  const [nameIdea, setNameIdea] = useState(suggestName);
   const [displayName, setDisplayName] = useState('');
   const [portPick, setPortPick] = useState<number | null>(null);
-  const [addOns, setAddOns] = useState({ geyser: false, voice: false, backups: true });
-  const [startNow, setStartNow] = useState(true);
+  const [addOns, setAddOns] = useState({ geyser: false, voice: false, backups: false });
+  const [startNow, setStartNow] = useState(false);
   const [eula, setEula] = useState(false);
 
   const versions = useQuery({
     queryKey: ['versions', software],
-    queryFn: () => api<VersionOption[]>(`/api/versions/${software}`),
-    enabled: game !== null,
+    queryFn: () => api<VersionOption[]>(`/api/versions/${software ?? ''}`),
+    enabled: game !== null && software !== null,
   });
   const versionList = useMemo(
     () => (versions.data ?? []).filter((v) => showUnstable || v.stable),
     [versions.data, showUnstable],
   );
   const latestStable = versions.data?.find((v) => v.stable)?.id ?? '';
-  const chosenVersion = version || latestStable;
+  const chosenVersion = version;
 
-  const recommendedMb = recommendedMemoryMb(software);
+  const recommendedMb = recommendedMemoryMb(portSoftware);
   const recommendedPlan = PLANS.find((p) => p.gb * MB_PER_GB >= recommendedMb) ?? PLANS[PLANS.length - 1];
-  const memoryMb = memoryPick ?? (recommendedPlan?.gb ?? FALLBACK_PLAN_GB) * MB_PER_GB;
+  const memoryMb = memoryPick;
   const hostTotal = host?.memoryTotalMb ?? FALLBACK_HOST_MB;
   const hostFree = host ? host.memoryTotalMb - host.memoryUsedMb : null;
   const maxMemory = Math.max(
@@ -295,12 +303,18 @@ export function CreateServerPage(): ReactElement {
     Math.min(MEMORY_CAP_MB, Math.floor(hostTotal / MEMORY_STEP_MB) * MEMORY_STEP_MB),
   );
   const plan = custom ? undefined : PLANS.find((p) => p.gb * MB_PER_GB === memoryMb);
-  const players = plan?.players ?? Math.max(1, Math.round((memoryMb / MB_PER_GB) * PLAYERS_PER_GB));
+  const players =
+    memoryMb === null
+      ? null
+      : (plan?.players ?? Math.max(1, Math.round((memoryMb / MB_PER_GB) * PLAYERS_PER_GB)));
+  const memoryText =
+    memoryMb === null ? '–' : `${formatMemoryMb(memoryMb)} · ~${players} ${t('order.players')}`;
+  const overHostFree = hostFree !== null && memoryMb !== null && memoryMb > hostFree;
 
-  const defaultPort = SOFTWARE[software].defaultPort;
+  const defaultPort = SOFTWARE[portSoftware].defaultPort;
   const port = portPick ?? nextFreePort(defaultPort, servers);
-  const geyserPossible = edition === 'java' && GEYSER_SOFTWARE.includes(software);
-  const voicePossible = VOICE_CHAT_SOFTWARE.includes(software);
+  const geyserPossible = edition === 'java' && software !== null && GEYSER_SOFTWARE.includes(software);
+  const voicePossible = software !== null && VOICE_CHAT_SOFTWARE.includes(software);
   const geyser = game === 'crossplay' || (geyserPossible && addOns.geyser);
   const voice = voicePossible && addOns.voice;
   const addressName = toNetbirdName(subdomain, '');
@@ -309,6 +323,7 @@ export function CreateServerPage(): ReactElement {
 
   const create = useMutation({
     mutationFn: async () => {
+      if (software === null || memoryMb === null) throw new Error('incomplete order');
       const body: CreateServerInput = {
         name,
         edition,
@@ -350,7 +365,13 @@ export function CreateServerPage(): ReactElement {
 
   if (!game) return <GamePicker onPick={(g) => setParams({ game: g })} />;
 
-  const ready = Boolean(chosenVersion) && Boolean(name) && eula && (!address || Boolean(addressName));
+  const ready =
+    software !== null &&
+    memoryMb !== null &&
+    Boolean(chosenVersion) &&
+    Boolean(name) &&
+    eula &&
+    (!address || Boolean(addressName));
   const features = [
     { key: 'panel', icon: Blocks },
     { key: 'instant', icon: Rocket },
@@ -455,11 +476,17 @@ export function CreateServerPage(): ReactElement {
                   {t('order.custom')}
                 </span>
                 {custom ? (
-                  <span className="text-sm font-semibold">
-                    {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
-                  </span>
+                  <span className="text-sm font-semibold">{memoryText}</span>
                 ) : (
-                  <Button type="button" size="sm" variant="secondary" onClick={() => setCustom(true)}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setCustom(true);
+                      setMemoryPick(memoryMb ?? recommendedMb);
+                    }}
+                  >
                     {t('order.customize')}
                   </Button>
                 )}
@@ -467,7 +494,7 @@ export function CreateServerPage(): ReactElement {
               {custom ? (
                 <>
                   <Slider
-                    value={[memoryMb]}
+                    value={[memoryMb ?? recommendedMb]}
                     min={MEMORY_MIN_MB}
                     max={maxMemory}
                     step={MEMORY_STEP_MB}
@@ -483,18 +510,15 @@ export function CreateServerPage(): ReactElement {
                 <p className="text-sm text-muted-foreground">{t('order.customText')}</p>
               )}
             </div>
-            <p
-              className={cn(
-                'text-sm',
-                hostFree !== null && memoryMb > hostFree ? 'text-warning' : 'text-muted-foreground',
-              )}
-            >
-              {hostFree !== null && memoryMb > hostFree
-                ? t('create.ramWarn')
-                : t('order.recommendation', {
+            <p className={cn('text-sm', overHostFree ? 'text-warning' : 'text-muted-foreground')}>
+              {overHostFree ? t('create.ramWarn') : null}
+              {!overHostFree && software
+                ? t('order.recommendation', {
                     software: SOFTWARE[software].label,
                     ram: formatMemoryMb(recommendedMb),
-                  })}
+                  })
+                : null}
+              {!overHostFree && !software ? t('order.pickPlan') : null}
             </p>
           </Section>
 
@@ -529,16 +553,18 @@ export function CreateServerPage(): ReactElement {
                 ))}
               </div>
             ) : null}
-            <p className="text-sm text-muted-foreground">{t(`create.software.${software}`)}</p>
+            <p className="text-sm text-muted-foreground">
+              {software ? t(`create.software.${software}`) : t('order.pickSoftware')}
+            </p>
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid min-w-[180px] gap-2 text-sm font-semibold">
                 {t('order.version')}
-                {versions.isPending ? (
+                {software && versions.isPending ? (
                   <Skeleton className="h-10" />
                 ) : (
-                  <Select value={chosenVersion} onValueChange={setVersion}>
+                  <Select value={chosenVersion} onValueChange={setVersion} disabled={!software}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder={t('order.pickVersion')} />
                     </SelectTrigger>
                     <SelectContent>
                       {versionList.map((v) => (
@@ -576,9 +602,23 @@ export function CreateServerPage(): ReactElement {
                 maxLength={40}
                 spellCheck={false}
                 autoComplete="off"
+                placeholder={nameIdea}
                 onChange={(e) => setSubdomain(e.target.value)}
                 className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-base outline-none"
               />
+              <button
+                type="button"
+                style={OWN_TEXT_COLOUR}
+                title={t('order.nameIdea')}
+                aria-label={t('order.nameIdea')}
+                onClick={() => {
+                  setSubdomain(nameIdea);
+                  setNameIdea(suggestName());
+                }}
+                className="flex items-center border-l border-input px-3 text-muted-foreground hover:text-primary"
+              >
+                <Dices className="size-4" aria-hidden />
+              </button>
               {address ? (
                 <span className="flex items-center border-l border-input bg-secondary px-3 font-mono text-sm text-muted-foreground">
                   .{address.domain}
@@ -586,7 +626,9 @@ export function CreateServerPage(): ReactElement {
               ) : null}
             </div>
             <p className="text-sm text-muted-foreground">
-              {hostname ? t('order.addressReady', { hostname }) : t('order.noDomain')}
+              {hostname ? t('order.addressReady', { hostname }) : null}
+              {address && !hostname ? t('order.pickName', { domain: address.domain }) : null}
+              {address ? null : t('order.noDomain')}
             </p>
             {hostname && (edition === 'bedrock' || geyser) ? (
               <p className="rounded-[10px] bg-secondary px-3 py-2 text-sm text-muted-foreground">
@@ -694,14 +736,12 @@ export function CreateServerPage(): ReactElement {
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
               <dt className="text-muted-foreground">{t('order.performance')}</dt>
-              <dd className="text-right font-semibold">
-                {formatMemoryMb(memoryMb)} · ~{players} {t('order.players')}
-              </dd>
+              <dd className="text-right font-semibold">{memoryText}</dd>
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
               <dt className="text-muted-foreground">{t('order.software')}</dt>
               <dd className="text-right font-semibold">
-                {SOFTWARE[software].label} {chosenVersion}
+                {software ? `${SOFTWARE[software].label} ${chosenVersion}` : '–'}
               </dd>
             </div>
             <div className="flex justify-between gap-3 border-b border-border pb-3">
@@ -732,7 +772,7 @@ export function CreateServerPage(): ReactElement {
             <p className="text-xs text-muted-foreground">{t('order.priceNote')}</p>
           </div>
           <label className="flex items-center gap-2.5 text-sm">
-            <Checkbox checked={startNow} onCheckedChange={(v) => setStartNow(v === true)} />
+            <Checkbox id="start-now" checked={startNow} onCheckedChange={(v) => setStartNow(v === true)} />
             {t('order.startNow')}
           </label>
           <div className="flex items-start gap-2.5 text-sm">

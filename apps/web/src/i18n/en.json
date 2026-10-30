@@ -1794,11 +1794,11 @@
     "customText": "Need a different size? Set the memory yourself.",
     "recommendation": "For {{software}} we recommend at least {{ram}}. The player count is a guide – many mods need more.",
     "software": "Software & version",
-    "softwareText": "The server software decides whether plugins or mods run. Not sure? Keep the preselection.",
+    "softwareText": "The server software decides whether plugins or mods run. Not sure? Paper suits most servers.",
     "version": "Minecraft version",
     "name": "Choose a server name",
     "nameText": "The address players use to connect to your server.",
-    "addressReady": "Players connect with {{hostname}}. We already filled in a name – change it now or any time later.",
+    "addressReady": "Players connect with {{hostname}}. You can change the name any time later.",
     "noDomain": "No own domain set up yet – players then connect by IP and port. You can set up a domain in the admin area.",
     "displayName": "Display name (optional)",
     "displayNameHint": "The server's name in the panel. Empty = same as the address.",
@@ -1821,7 +1821,7 @@
     "price": "Price",
     "month": "month",
     "priceNote": "Free – it's your own server.",
-    "startNow": "The server is set up and started right away",
+    "startNow": "Start the server right after ordering",
     "changeLater": "Power & add-ons can be changed any time",
     "bedrockJoin": "Bedrock players enter {{hostname}} as server address and {{port}} as port. Bedrock knows no addresses with a built-in port – only a server on 19132 works without entering a port.",
     "geyserJoin": "Java players just type {{hostname}}. Bedrock players use the same address; the server page shows the port after creating (the first server gets 19132, which is already prefilled).",
@@ -1835,6 +1835,11 @@
       "amethyst": "Amethyst",
       "netherite": "Netherite",
       "redstone": "Redstone"
-    }
+    },
+    "pickPlan": "Pick a package – the player count is a guide.",
+    "pickSoftware": "Pick a server software, then the version.",
+    "pickVersion": "Pick a version",
+    "nameIdea": "Suggest a name",
+    "pickName": "Give your server a name – it becomes its address under {{domain}}. The dice suggests one."
   }
 }

@@ -1,21 +1,14 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
+import { PROJECT_LOGOS, type LogoProject } from '@mornihosting/shared';
+import demoImages from 'virtual:demo-images';
 import { cn } from '@/lib/utils';
 
-/**
- * Logos of the projects MorniHosting works with, loaded from where the projects publish them:
- * PaperMC asks to use its CDN and allows its logo in server selectors (https://docs.papermc.io/misc/assets/),
- * Geyser's and Simple Voice Chat's are the icons they show on Modrinth (as in the marketplace). Nothing is copied into this repository. Without internet (or in
- * the demo, which cannot load pictures from other sites) the given fallback is shown instead.
- */
-const LOGOS = {
-  paper: 'https://assets.papermc.io/brand/papermc_logo.min.svg',
-  velocity: 'https://assets.papermc.io/brand/velocity_logo_blue.min.svg',
-  geyser: 'https://cdn.modrinth.com/data/wKkoqHrH/6e8e781d5669ecef9e19a73b5c2eed060d6f73e7_96.webp',
-  voicechat: 'https://cdn.modrinth.com/data/9eGKb6K1/icon.png',
-} as const;
-export type LogoProject = keyof typeof LOGOS;
+const LOGOS = PROJECT_LOGOS;
+export type { LogoProject };
 
 const DEMO = import.meta.env.MODE === 'demo';
+/** The demo cannot load pictures from other sites; its build embeds them (empty outside the demo). */
+const EMBEDDED = demoImages;
 
 export function hasProjectLogo(id: string): id is LogoProject {
   return id in LOGOS;
@@ -31,10 +24,11 @@ export function ProjectLogo({
   className?: string;
 }): ReactElement {
   const [failed, setFailed] = useState(false);
-  if (DEMO || failed) return <>{fallback}</>;
+  const src = DEMO ? EMBEDDED.logos[project] : LOGOS[project];
+  if (!src || failed) return <>{fallback}</>;
   return (
     <img
-      src={LOGOS[project]}
+      src={src}
       alt=""
       loading="lazy"
       referrerPolicy="no-referrer"
@@ -44,11 +38,7 @@ export function ProjectLogo({
   );
 }
 
-/**
- * Background pictures for the game cards, from the publishers' own sites (minecraft.net, geysermc.org).
- * Nothing is copied into this repository; offline or in the demo the drawn scene shows.
- */
-/** The panel fetches them once from minecraft.net and geysermc.org and serves them from its data folder. */
+/** Game card pictures: the panel fetches them once (see GAME_ART_SOURCES) and serves them from its data folder. */
 const GAME_ART = {
   java: '/api/game-art/java',
   bedrock: '/api/game-art/bedrock',
@@ -65,10 +55,11 @@ export function GameArt({
   className?: string;
 }): ReactElement {
   const [failed, setFailed] = useState(false);
-  if (DEMO || failed) return <>{fallback}</>;
+  const src = DEMO ? EMBEDDED.gameArt[game] : GAME_ART[game];
+  if (!src || failed) return <>{fallback}</>;
   return (
     <img
-      src={GAME_ART[game]}
+      src={src}
       alt=""
       loading="lazy"
       referrerPolicy="no-referrer"
