@@ -34,6 +34,20 @@ function withPort(host: string, port: number, defaultPort: number): string {
 }
 
 const BEDROCK_PORT = SOFTWARE.bedrock.defaultPort;
+const PORT_MARK = ':';
+
+/** "192.168.178.40:25565" may wrap only before the port, never inside a number. */
+function BreakBeforePort({ text }: { text: string }): ReactElement {
+  const at = text.lastIndexOf(PORT_MARK);
+  if (at <= 0) return <span className="break-all">{text}</span>;
+  return (
+    <>
+      <span className="whitespace-nowrap">{text.slice(0, at)}</span>
+      <wbr />
+      <span className="whitespace-nowrap">{text.slice(at)}</span>
+    </>
+  );
+}
 
 const REACH_STYLE = {
   reachable: { icon: CircleCheck, box: 'bg-success-soft', dot: 'bg-success text-background' },
@@ -176,7 +190,7 @@ export function ConnectionCard({ server }: { server: ServerDetail }): ReactEleme
           <div key={row.label} className="grid min-w-0 gap-1 px-5 py-3.5">
             <span className="text-xs text-muted-foreground">{row.label}</span>
             <span className="flex items-center gap-1.5 font-mono text-sm font-medium">
-              <span className="min-w-0 break-all">{row.value ?? '–'}</span>
+              <span className="min-w-0">{row.value ? <BreakBeforePort text={row.value} /> : '–'}</span>
               {row.value && row.label !== t('connection.port') ? (
                 <CopyButton text={row.value} className="size-7" />
               ) : null}

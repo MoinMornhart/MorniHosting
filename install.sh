@@ -88,10 +88,12 @@ if NB_API="$(bash scripts/netbird-env.sh)" && [[ -n "${NB_API}" ]]; then
 fi
 
 msg_info "Panel wird gestartet (das erste Mal dauert es etwas)"
-if docker compose pull --quiet panel 2>/dev/null; then
+# Gebaut wird aus dem geladenen Code (main), damit Updates genau diesem Stand folgen. Ein fertiges Image
+# (ghcr.io) nur, wenn in der .env ausdrücklich MH_IMAGE_TAG steht.
+if grep -q '^MH_IMAGE_TAG=' .env; then
+  docker compose pull --quiet panel
   docker compose up -d --quiet-pull >/dev/null
 else
-  # Noch kein fertiges Image veröffentlicht: direkt aus dem Quellcode bauen.
   MH_BUILD_VERSION="$(git describe --tags --always 2>/dev/null || echo dev)" docker compose up -d --build >/dev/null
 fi
 msg_ok "Panel läuft"

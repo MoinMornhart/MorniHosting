@@ -514,18 +514,41 @@
     "https_failed": "HTTPS ließ sich nicht starten: {{message}}"
   },
   "update": {
-    "available": "Version {{version}} ist da",
-    "text": "Neue Funktionen und Fehlerbehebungen. Deine Server laufen beim Update weiter.",
+    "text": "Deine Minecraft-Server laufen beim Update weiter.",
     "now": "Jetzt aktualisieren",
     "running": "Update läuft …",
-    "started": "Update gestartet. Das Panel ist gleich wieder da.",
-    "howTo": "So aktualisierst du",
+    "started": "Update gestartet. Das Panel ist in ein paar Minuten wieder da.",
     "title": "Updates",
     "upToDate": "Aktuell",
-    "current": "Installiert: Version {{version}}",
-    "checked": "geprüft {{when}}",
-    "manual": "Der Updater auf dem Host ist nicht eingerichtet. Aktualisiere dort mit einem dieser Befehle (Proxmox-Container bzw. eigener Server):",
-    "releaseNotes": "Was ist neu?"
+    "manual": "Der Updater auf dem Rechner ist nicht eingerichtet. Aktualisiere dort mit einem dieser Befehle (Proxmox-Container bzw. eigener Server):",
+    "intro": "MorniHosting folgt dem neuesten Stand auf GitHub. Hier siehst du, was neu ist, und spielst es mit einem Klick ein.",
+    "behind_one": "1 Neuerung verfügbar",
+    "behind_other": "{{count}} Neuerungen verfügbar",
+    "newer": "Neue Version verfügbar",
+    "checkFailed": "Prüfung gerade nicht möglich",
+    "installed": "Installiert",
+    "newest": "Neueste Version",
+    "lastCheck": "Zuletzt geprüft",
+    "checkNow": "Jetzt prüfen",
+    "whatsNew": "Was ist neu?",
+    "allChanges": "Alle Änderungen auf GitHub",
+    "retry": "Nochmal versuchen",
+    "show": "Ansehen",
+    "restarting": "Das Panel startet neu – gleich geht es weiter …",
+    "finished": "Update fertig – jetzt läuft {{version}}.",
+    "done": "Update fertig ({{when}}). Alles läuft wieder.",
+    "failed": "Das Update hat nicht geklappt. Das Panel läuft in der alten Version weiter. Was schiefging, steht unten im Protokoll.",
+    "stuck": "Der Updater auf deinem Rechner hat nicht reagiert.",
+    "stuckText": "Wahrscheinlich ist er nicht eingerichtet oder läuft gerade nicht. Starte das Update einmal von Hand auf dem Rechner (Proxmox-Container bzw. eigener Server) – danach geht der Knopf wieder:",
+    "state": {
+      "requested": "Update angefordert – der Updater auf deinem Rechner übernimmt gleich …",
+      "running": "Update läuft …"
+    },
+    "steps": {
+      "pull": "Neuen Code holen",
+      "build": "Panel bauen (ein paar Minuten)",
+      "restart": "Panel neu starten"
+    }
   },
   "players": {
     "online": "Gerade online",
@@ -1475,18 +1498,18 @@
   },
   "admin": {
     "title": "Admin-Bereich",
-    "subtitle": "Nur für Admins: Domain, Updates, Passwörter und Einstellungen für das ganze Panel.",
+    "subtitle": "Alles, was das ganze Panel betrifft – nach Themen sortiert.",
     "sections": {
-      "domain": "Domain",
+      "domain": "Domain & HTTPS",
       "update": "Updates",
       "passwords": "Passwörter",
       "settings": "Einstellungen",
       "netbird": "NetBird"
     },
-    "domainTitle": "Domain",
+    "domainTitle": "Panel-Adresse von Hand",
     "domainSet": "Eingetragen",
     "domainNone": "Noch keine",
-    "domainText": "Hast du eine eigene Domain? Trag sie hier ein. Dann öffnest du das Panel über https://deine-domain, und Anmelden mit Passkey funktioniert.",
+    "domainText": "Nur nötig, wenn du das Panel hinter einem eigenen Reverse-Proxy betreibst. Mit „Eigene Domain“ und HTTPS oben trägt MorniHosting das selbst ein.",
     "panelDomain": "Adresse des Panels",
     "panelDomainHint": "Nur der Name, z. B. panel.meinname.de. Passkeys gehören dann zu dieser Adresse.",
     "domainActive": "✅ Du bist gerade über diese Domain mit HTTPS verbunden. Passkeys funktionieren.",
@@ -1498,7 +1521,16 @@
     "guides": {
       "proxy": "Eigener Reverse-Proxy",
       "netbird": "NetBird"
-    }
+    },
+    "sectionText": {
+      "domain": "Deine eigene Domain: Server-Adressen wie name.mornihosting.de, HTTPS und die Adresse des Panels.",
+      "netbird": "Für Server ohne Portfreigabe: NetBird verbindet sie mit deiner Domain.",
+      "update": "Neue Funktionen und Fehlerbehebungen mit einem Klick einspielen.",
+      "passwords": "Jemand hat sein Passwort vergessen? Hier setzt du es zurück.",
+      "settings": "Adressen im Heimnetz, CurseForge-Schlüssel, Zeitzone und Sprache."
+    },
+    "netbirdManual": "NetBird von Hand einrichten",
+    "netbirdManualHint": "Nur nötig, wenn du die Automatik oben nicht nutzt. Zum Aufklappen tippen."
   },
   "passwordReset": {
     "cardTitle": "Passwörter zurücksetzen",

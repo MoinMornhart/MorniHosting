@@ -35,6 +35,7 @@ const envSchema = z.object({
   MH_LAN_IP: z.string().optional(),
   MH_PUBLIC_ADDRESS: z.string().optional(),
   MH_UPDATE_REPO: z.string().default('pmornhart/MorniHosting'),
+  MH_UPDATE_BRANCH: z.string().default('main'),
   /** NetBird server this machine is connected to; install.sh and update.sh read it from `netbird status`. */
   MH_NETBIRD_API: netbirdApiUrlSchema.optional().catch(undefined),
   MH_DEMO: booleanFromEnv.default(false),
@@ -64,6 +65,7 @@ export interface Config {
   readonly lanIp: string | null;
   readonly publicAddress: string | null;
   readonly updateRepo: string;
+  readonly updateBranch: string;
   /** Default NetBird API address: the server this machine is connected to, else NetBird Cloud. */
   readonly netbirdApi: string;
   readonly demo: boolean;
@@ -107,6 +109,7 @@ export function loadConfig(env: NodeJS.ProcessEnv, version: string): Config {
     lanIp: e.MH_LAN_IP || null,
     publicAddress: e.MH_PUBLIC_ADDRESS || null,
     updateRepo: e.MH_UPDATE_REPO,
+    updateBranch: e.MH_UPDATE_BRANCH,
     netbirdApi: e.MH_NETBIRD_API ?? NETBIRD_DEFAULT_API,
     demo: e.MH_DEMO,
     webDir: e.MH_WEB_DIR ? path.resolve(e.MH_WEB_DIR) : path.resolve(here, '../../web/dist'),

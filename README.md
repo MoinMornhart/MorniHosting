@@ -352,13 +352,20 @@ Ausführlich mit allen Feldern: [docs/netbird.md](docs/netbird.md).
 
 <img src="docs/screenshots/admin.webp" alt="Admin-Bereich mit Updates" width="100%">
 
-- **Im Panel:** Im **Admin-Bereich → Updates** (und unten links in der Seitenleiste) erscheint ein Hinweis,
-  sobald es eine neue Version gibt. Ein Klick auf **Jetzt aktualisieren** genügt.
-- **Auf der Konsole:** `update` (nach Weg A oder B) bzw. `sudo /opt/mornihosting/update.sh`.
-- **Weg C (von Hand):** `git pull` und danach `docker compose pull && docker compose up -d`
-  (ohne fertiges Image: `docker compose up -d --build`).
+MorniHosting folgt dem neuesten Stand von `main` auf GitHub – ein eigenes Release ist dafür nicht nötig.
 
-Deine Minecraft-Server sind eigene Container und laufen während des Updates einfach weiter.
+- **Im Panel:** **Admin-Bereich → Updates** zeigt, welche Version läuft, was seitdem neu ist („Was ist neu?“)
+  und hat den Knopf **Jetzt aktualisieren**. Danach siehst du live, was passiert: neuen Code holen, Panel bauen,
+  Panel neu starten – mit den letzten Zeilen des Updaters. Ist das Update fertig, lädt die Seite von selbst neu.
+  Unten links in der Seitenleiste erscheint ein Hinweis, sobald es Neues gibt.
+- **Reagiert der Updater nicht** (z. B. weil er auf dem Rechner nicht eingerichtet ist), sagt das Panel das nach
+  zwei Minuten und zeigt den Befehl für die Konsole.
+- **Auf der Konsole:** `update` (nach Weg A oder B) bzw. `sudo /opt/mornihosting/update.sh`.
+- **Weg C (von Hand):** `git pull` und danach `docker compose up -d --build`.
+
+Gebaut wird immer aus dem eben geholten Code. Wer lieber das fertige Image von ghcr.io nimmt, trägt in der `.env`
+`MH_IMAGE_TAG=latest` (oder eine Version) ein. Deine Minecraft-Server sind eigene Container und laufen während des
+Updates einfach weiter.
 
 ## Sicherheit
 
