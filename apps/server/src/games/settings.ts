@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { gameOf, type GameInfo, type GameSettingsView } from '@mornihosting/shared';
+import { gameOf, type GameField, type GameInfo, type GameSettingsView } from '@mornihosting/shared';
 import type { SecretBox } from '../lib/crypto.js';
 import { badRequest } from '../lib/errors.js';
 import type { ServerRow } from '../servers/spec.js';
@@ -13,6 +13,7 @@ const PASSWORD_FILE_MODE = 0o600;
 // https://regex101.com/?flavor=javascript&regex=%5E%5B%5Cp%7BL%7D%5Cp%7BN%7D%20_.%3A%2F%40%2C%2B%23!%3F%26%3D%5C-%5D*%24&flags=gmu&testString=Mein%20Server%202%0Aabc123-_.%3A%2F%40%0A%24(x)
 const SAFE_VALUE = /^[\p{L}\p{N} _.:/@,+#!?&=-]*$/u;
 const NUMBER_VALUE = /^\d{1,9}$/; // eslint-disable-line ts-patterns/require-regex-example -- only digits: "64" passes, "6.4" and "-1" fail
+const WHITESPACE = /\s/; // eslint-disable-line ts-patterns/require-regex-example -- any blank: "a b" has one, "ab" none
 
 /**
  * Checks settings for a game: only its own fields, booleans as "true"/"false", numbers as digits, text without
@@ -23,12 +24,15 @@ export function validateGameSettings(game: GameInfo, input: Readonly<Record<stri
     const field = game.fields.find((f) => f.key === key);
     if (!field) throw badRequest('game_setting_unknown', { key });
     if (value === '') return;
-    const valid =
-      field.kind === 'boolean'
-        ? value === 'true' || value === 'false'
-        : field.kind === 'number'
-          ? NUMBER_VALUE.test(value)
-          : SAFE_VALUE.test(value);
+    const checks: Readonly<Record<GameField['kind'], () => boolean>> = {
+      boolean: () => value === 'true' || value === 'false',
+      number: () => NUMBER_VALUE.test(value),
+      select: () => field.options?.includes(value) ?? false,
+      text: () => SAFE_VALUE.test(value),
+      secret: () => SAFE_VALUE.test(value),
+    };
+    // Start arguments are split at blanks: a blank would smuggle in another argument.
+    const valid = checks[field.kind]() && !(field.arg && WHITESPACE.test(value));
     if (!valid) throw badRequest('game_setting_invalid', { key });
   });
 }
@@ -80,6 +84,8 @@ export function gameSettingsView(row: Pick<ServerRow, 'software' | 'gameSettings
 /** Writes files the image expects before it starts (the RCON password for Factorio). */
 export function prepareGameFiles(dir: string, row: Pick<ServerRow, 'software' | 'rconPassword'>): void {
   const game = gameOf(row.software);
+  // Mounted folders must exist, otherwise Docker creates them owned by root.
+  game?.mounts.forEach((m) => fs.mkdirSync(path.join(dir, m.subdir), { recursive: true }));
   if (!game?.rconPasswordFile) return;
   const file = path.join(dir, game.rconPasswordFile);
   fs.mkdirSync(path.dirname(file), { recursive: true });

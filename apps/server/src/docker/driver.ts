@@ -13,8 +13,8 @@ export interface ContainerSpec {
   readonly memoryLimitBytes: number;
   /** Server folder as the panel sees it, e.g. /data/servers/abc. */
   readonly dataDir: string;
-  /** Where the server folder appears inside the container (default /data, as the itzg images expect). */
-  readonly mountPath?: string;
+  /** Folders of dataDir and where they appear in the container (default: all of it at /data, as itzg expects). */
+  readonly mounts?: readonly { readonly subdir: string; readonly path: string }[];
   readonly labels: Readonly<Record<string, string>>;
   /** Replaces the image's start command (e.g. the HTTPS gateway runs Caddy with its own config). */
   readonly command?: readonly string[];

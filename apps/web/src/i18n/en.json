@@ -1934,7 +1934,9 @@
       "stable": "Stable",
       "stableText": "The recommended, tested version.",
       "latest": "Latest",
-      "latestText": "The very newest version – may still have bugs."
+      "latestText": "The very newest version – may still have bugs.",
+      "steam": "Always up to date",
+      "steamText": "The server fetches the newest version from Steam on every start."
     },
     "addressReady": "Your friends connect to {{address}}.",
     "settingsTitle": "Game settings",
@@ -1962,6 +1964,38 @@
         "updateModsHint": "Downloads new versions of your mods before every start. Needs username and token.",
         "spaceAge": "Turn on Space Age",
         "spaceAgeHint": "The Space Age expansion (with quality and elevated rails). Every player then needs it too."
+      }
+    },
+    "moreSettings": "More settings",
+    "cs2": {
+      "kicker": "Tactical shooter",
+      "text": "Your own Counter-Strike 2 server – competitive, deathmatch or workshop maps.",
+      "about": "Your own Counter-Strike 2 server. Without a Steam token (GSLT) only friends with the address can join; with one it also shows up in the server list.",
+      "memoryHint": "{{gb}} GB is enough for 5 versus 5. Take more for community servers with many players.",
+      "fields": {
+        "serverName": "Server name in game",
+        "serverNameHint": "What the server is called in the server list.",
+        "password": "Join password",
+        "passwordHint": "Anyone who wants to join needs this password. Empty = everyone with the address.",
+        "gameMode": "Game mode",
+        "gameModeHint": "How you play. Can be changed any time later.",
+        "startMap": "Start map",
+        "startMapHint": "The map after starting, e.g. de_inferno, de_mirage or de_dust2.",
+        "maxPlayers": "Maximum players",
+        "maxPlayersHint": "How many may play at once (default 10).",
+        "gslt": "Steam token (GSLT)",
+        "gsltHint": "A “Game Server Login Token” from Steam, with app id 730. Only needed for the server to show up publicly in the list.",
+        "workshopCollection": "Workshop collection",
+        "workshopCollectionHint": "The number of a Steam Workshop collection with maps (from the collection's address, after “id=”)."
+      },
+      "options": {
+        "gameMode": {
+          "competitive": "Competitive (5 vs 5)",
+          "casual": "Casual",
+          "deathmatch": "Deathmatch",
+          "wingman": "Wingman (2 vs 2)",
+          "armsrace": "Arms Race"
+        }
       }
     }
   }

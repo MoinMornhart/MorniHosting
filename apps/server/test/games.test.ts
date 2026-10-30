@@ -13,7 +13,7 @@ import {
   type ServerDetail,
   type ServerSummary,
 } from '@mornihosting/shared';
-import { buildContainerSpec } from '../src/servers/spec.js';
+import { buildContainerSpec, commandChannelFor } from '../src/servers/spec.js';
 import { authHeaders, createTestApp, setupAdmin, waitFor, type Session, type TestApp } from './helpers.js';
 
 const order = (game: GameId, extra: Record<string, unknown> = {}) => ({
@@ -33,10 +33,11 @@ describe('game catalog', () => {
       const game = GAMES[id];
       expect(game.id).toBe(id);
       expect(game.packagesGb).toContain(game.recommendedGb);
-      expect(game.mountPath.startsWith('/')).toBe(true);
+      game.mounts.forEach((m) => expect(m.path.startsWith('/') && !m.subdir.includes('..')).toBe(true));
       expect(new Set(game.ports.map((p) => p.key)).size).toBe(game.ports.length);
       expect(new Set(game.fields.map((f) => f.key)).size).toBe(game.fields.length);
-      if (game.console === 'rcon') expect(game.rconPort).toBeGreaterThan(0);
+      if (game.console === 'rcon') expect(game.rconPort === 'main' || (game.rconPort ?? 0) > 0).toBe(true);
+      game.fields.filter((f) => f.kind === 'select').forEach((f) => expect(f.options).toContain(f.fallback));
       expect(SOFTWARE[id].edition).toBe(id);
       expect(CREATABLE_SOFTWARE[id]).toEqual([id]);
     });
@@ -131,7 +132,7 @@ describe('Factorio with the fake driver', () => {
     );
     const row = t.servers.rowWithSecrets(created.id);
     const spec = buildContainerSpec(t.ctx.config, row, 'Europe/Berlin');
-    expect(spec.mountPath).toBe('/factorio');
+    expect(spec.mounts).toEqual([{ subdir: '', path: '/factorio' }]);
     expect(spec.ports).toEqual([{ containerPort: 34200, hostPort: 34200, protocol: 'udp' }]);
     expect(spec.env).toMatchObject({
       PORT: '34200',
@@ -184,5 +185,88 @@ describe('Factorio with the fake driver', () => {
       payload: order('factorio', { startNow: false }),
     });
     expect(again.statusCode).toBe(409);
+  });
+});
+
+describe.each(GAME_IDS.map((id) => [id]))('%s with the fake driver', (id) => {
+  let t: TestApp;
+  let s: Session;
+  beforeEach(async () => {
+    t = await createTestApp();
+    s = await setupAdmin(t);
+  });
+  afterEach(async () => {
+    await t.cleanup();
+  });
+
+  test('create, start, stop', async () => {
+    const game = GAMES[id];
+    const res = await t.app.inject({
+      method: 'POST',
+      url: '/api/servers',
+      headers: authHeaders(s),
+      payload: order(id),
+    });
+    expect(res.statusCode).toBe(200);
+    const created = res.json<ServerSummary>();
+    const detail = async (): Promise<ServerDetail> =>
+      (
+        await t.app.inject({ url: `/api/servers/${created.id}`, headers: authHeaders(s) })
+      ).json<ServerDetail>();
+    await waitFor(async () => (await detail()).live.state === 'running');
+    expect(allowedGameImages()).toContain((await detail()).image);
+    expect((await detail()).gamePorts.map((p) => p.protocol)).toEqual(game.ports.map((p) => p.protocol));
+    const command = await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/command`,
+      headers: authHeaders(s),
+      payload: { command: 'status' },
+    });
+    expect(command.statusCode).toBe(game.console === 'none' ? 400 : 200);
+    await t.app.inject({
+      method: 'POST',
+      url: `/api/servers/${created.id}/actions/stop`,
+      headers: authHeaders(s),
+    });
+    await waitFor(async () => (await detail()).live.state === 'stopped');
+  });
+});
+
+describe('Counter-Strike 2 container', () => {
+  test('RCON on the game port, password and settings as variables', async () => {
+    const t = await createTestApp();
+    const s = await setupAdmin(t);
+    try {
+      const res = await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload: order('cs2', {
+          port: 27016,
+          startNow: false,
+          gameSettings: { gameMode: 'wingman', gslt: 'ABC' },
+        }),
+      });
+      const row = t.servers.rowWithSecrets(res.json<ServerSummary>().id);
+      const spec = buildContainerSpec(t.ctx.config, row, 'Europe/Berlin');
+      expect(spec.ports).toEqual([{ containerPort: 27016, hostPort: 27016, protocol: 'udp' }]);
+      expect(spec.env).toMatchObject({
+        CS2_PORT: '27016',
+        CS2_RCONPW: row.rconPassword,
+        CS2_GAMEALIAS: 'wingman',
+        SRCDS_TOKEN: 'ABC',
+        CS2_STARTMAP: 'de_inferno',
+      });
+      expect(commandChannelFor(row)).toMatchObject({ kind: 'rcon', port: 27016 });
+      const bad = await t.app.inject({
+        method: 'PUT',
+        url: `/api/servers/${row.id}/game-settings`,
+        headers: authHeaders(s),
+        payload: { values: { gameMode: 'battle-royale' } },
+      });
+      expect(bad.statusCode).toBe(400);
+    } finally {
+      await t.cleanup();
+    }
   });
 });

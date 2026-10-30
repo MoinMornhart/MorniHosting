@@ -245,7 +245,27 @@ export function GameOrderPage({ game: id }: { game: GameId }): ReactElement {
             title={t('games.settingsTitle')}
             text={t('games.settingsText')}
           >
-            <GameFieldsForm game={id} values={settings} secretsSet={[]} onChange={setSettings} />
+            <GameFieldsForm
+              game={id}
+              values={settings}
+              secretsSet={[]}
+              onChange={setSettings}
+              filter={(f) => f.onOrder === true}
+            />
+            {game.fields.some((f) => !f.onOrder) ? (
+              <details className="rounded-[12px] border border-border p-3 text-sm">
+                <summary className="cursor-pointer font-semibold">{t('games.moreSettings')}</summary>
+                <div className="mt-3">
+                  <GameFieldsForm
+                    game={id}
+                    values={settings}
+                    secretsSet={[]}
+                    onChange={setSettings}
+                    filter={(f) => !f.onOrder}
+                  />
+                </div>
+              </details>
+            ) : null}
             <AddOn
               icon={
                 <AddOnTile>

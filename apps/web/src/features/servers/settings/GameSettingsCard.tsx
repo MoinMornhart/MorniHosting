@@ -3,10 +3,11 @@ import { ExternalLink, KeyRound, Save } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { GAMES, type GameId, type ServerDetail } from '@mornihosting/shared';
+import { GAMES, type GameField, type GameId, type ServerDetail } from '@mornihosting/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
@@ -21,7 +22,9 @@ export function GameFieldsForm({
   values,
   secretsSet,
   onChange,
+  filter = () => true,
 }: {
+  filter?: (field: GameField) => boolean;
   game: GameId;
   values: Readonly<Record<string, string>>;
   secretsSet: readonly string[];
@@ -31,7 +34,7 @@ export function GameFieldsForm({
   const set = (key: string, value: string): void => onChange({ ...values, [key]: value });
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {GAMES[game].fields.map((field) => {
+      {GAMES[game].fields.filter(filter).map((field) => {
         const id = `game-field-${field.key}`;
         const label = t(`games.${game}.fields.${field.key}`);
         const hint = (
@@ -66,6 +69,27 @@ export function GameFieldsForm({
               </label>
               <p className="text-xs text-muted-foreground">{hint}</p>
             </div>
+          );
+        }
+        if (field.kind === 'select') {
+          return (
+            <Field key={field.key} id={id} label={label} hint={hint}>
+              <Select
+                value={values[field.key] || field.fallback || ''}
+                onValueChange={(v) => set(field.key, v)}
+              >
+                <SelectTrigger id={id}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(field.options ?? []).map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {t(`games.${game}.options.${field.key}.${option}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           );
         }
         const stored = secretsSet.includes(field.key);

@@ -74,6 +74,7 @@ export function GameCard({ game, onStart }: { game: GameKind | GameId; onStart: 
 /** Drawn stand-in when the game's picture cannot be loaded: its own colours and a few shapes, no logos. */
 const SCENE_COLOURS: Readonly<Record<GameId, readonly [string, string]>> = {
   factorio: ['#7a4a12', '#1b1206'],
+  cs2: ['#1e3a5f', '#070b12'],
 };
 
 export function OtherGameScene({ game }: { game: GameId }): ReactElement {

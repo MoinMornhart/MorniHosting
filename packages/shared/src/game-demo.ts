@@ -31,19 +31,45 @@ const BOOT: Readonly<Record<GameId, (input: DemoBootInput) => readonly string[]>
     `${uptime(4)} Info RemoteCommandProcessor.cpp:131: Starting RCON interface at IP ADDR:({0.0.0.0:27015})`,
     `${uptime(5)} Info ServerMultiplayerManager.cpp:808: updateTick(0) changing state from(CreatingGame) to(InGame)`,
   ],
+  cs2: ({ port }) => [
+    'Redirecting stderr to /home/steam/cs2-dedicated/steamcmd.log',
+    "Success! App '730' fully installed.",
+    `Starting CS2 Dedicated Server on port ${port}`,
+    'Network: IP 0.0.0.0, mode MP, dedicated Yes, ports 27015 SV / 27005 CL',
+    'SV:  Connection to Steam servers successful.',
+    'Host activate: Loading (de_inferno)',
+  ],
 };
+
+/** Source games log like "L 10/30/2026 - 12:00:01: …". */
+function sourceStamp(): string {
+  const now = new Date();
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `L ${pad(now.getMonth() + 1)}/${pad(now.getDate())}/${now.getFullYear()} - ${now.toTimeString().slice(0, 8)}:`;
+}
 
 const JOIN: Readonly<Record<GameId, (name: string) => string>> = {
   factorio: (name) => `${demoClock()} [JOIN] ${name} joined the game`,
+  cs2: (name) =>
+    `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><>" connected, address "10.0.0.2:27005"`,
 };
 
 const LEAVE: Readonly<Record<GameId, (name: string) => string>> = {
   factorio: (name) => `${demoClock()} [LEAVE] ${name} left the game`,
+  cs2: (name) =>
+    `${sourceStamp()} "${name}<2><[U:1:${name.length * 7919}]><CT>" disconnected (reason "Disconnect")`,
+};
+
+/** Anything else typed into the console: Factorio treats it as chat, Source games run it as a command. */
+const CHAT: Readonly<Record<GameId, (text: string) => string>> = {
+  factorio: (text) => `${demoClock()} [CHAT] <server>: ${text}`,
+  cs2: (text) => `${sourceStamp()} rcon from "172.18.0.2": command "${text}"`,
 };
 
 /** Files a fresh server of the game has, so the file manager is not empty. */
 export const DEMO_GAME_FILES: Readonly<Record<GameId, readonly string[]>> = {
   factorio: ['saves/world.zip', 'config/server-settings.json', 'mods/mod-list.json'],
+  cs2: ['game/csgo/cfg/server.cfg', 'game/csgo/gameinfo.gi', 'steamcmd.log'],
 };
 
 export function demoBootLines(game: GameInfo, input: DemoBootInput): readonly string[] {
@@ -78,9 +104,17 @@ export function demoGameCommand(
     );
     return { answer, lines: [], quits: false };
   }
+  if (game.id === 'cs2' && trimmed === 'status')
+    return {
+      answer: [`hostname: MorniHosting CS2`, `players : ${players.length} humans, 0 bots (10 max)`].join(
+        '\n',
+      ),
+      lines: [],
+      quits: false,
+    };
   if (game.saveCommand && trimmed === game.saveCommand)
     return { answer: 'Saving map', lines: [`${demoClock()} [SAVE] Saving map as world`], quits: false };
   if (game.stopCommand && trimmed === game.stopCommand)
     return { answer: '', lines: [`${demoClock()} Quitting: remote-quit.`], quits: true };
-  return { answer: '', lines: [`${demoClock()} [CHAT] <server>: ${trimmed}`], quits: false };
+  return { answer: '', lines: [CHAT[game.id](trimmed)], quits: false };
 }

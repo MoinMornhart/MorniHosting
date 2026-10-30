@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/misc';
 import { Tag } from '@/components/ui/pill';
 import { api } from '@/lib/api';
-import { formatMemoryMb, formatNumber } from '@/lib/format';
+import { formatMemoryMb, formatNumber, versionLabel } from '@/lib/format';
 import { useSession } from '@/features/auth/session';
 import { serversQuery, useLiveHistory } from '@/features/servers/live';
 
@@ -162,7 +162,7 @@ export function ServerCard({ server }: { server: ServerSummary }): ReactElement 
           <b className="block truncate text-[15px] font-bold hover:underline">{server.name}</b>
           <span className="flex items-center gap-1 text-[13px] text-muted-foreground">
             {server.software === 'bedrock' ? 'Bedrock' : SOFTWARE[server.software].label}
-            <Tag>{server.version}</Tag>
+            <Tag>{versionLabel(server.software, server.version)}</Tag>
             {isGameId(server.edition) ? null : `· ${server.edition === 'java' ? 'Java' : 'Bedrock'}`}
           </span>
         </Link>

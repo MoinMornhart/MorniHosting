@@ -131,18 +131,37 @@ function buildGameSpec(config: Config, row: ServerRow, game: GameInfo, timezone:
       return p.env && bound ? [[p.env, String(bound.hostPort)]] : [];
     }),
   );
+  const rconPort = rconPortOf(row, game);
   const rconEnv = {
-    ...(game.rconEnv?.port && game.rconPort ? { [game.rconEnv.port]: String(game.rconPort) } : {}),
+    ...(game.rconEnv?.port && rconPort ? { [game.rconEnv.port]: String(rconPort) } : {}),
     ...(game.rconEnv?.password ? { [game.rconEnv.password]: row.rconPassword } : {}),
   };
+  const args = [
+    ...(game.rconArg ? [game.rconArg, row.rconPassword] : []),
+    ...game.fields.flatMap((f) => {
+      const value = row.gameSettings[f.key] || f.fallback;
+      return f.arg && value ? [f.arg, value] : [];
+    }),
+  ];
+  const argsEnv = game.argsEnv && args.length ? { [game.argsEnv]: args.join(' ') } : {};
+  const memoryEnv = game.memoryEnv ? { [game.memoryEnv]: `${row.memoryMb}M` } : {};
   return {
     name: containerName(row.id),
     image: row.image,
-    env: { ...game.env, TZ: timezone, ...gameFieldEnv(row, game), ...rconEnv, ...portEnv, ...row.extraEnv },
+    env: {
+      ...game.env,
+      TZ: timezone,
+      ...gameFieldEnv(row, game),
+      ...rconEnv,
+      ...argsEnv,
+      ...memoryEnv,
+      ...portEnv,
+      ...row.extraEnv,
+    },
     ports: ports.map(({ containerPort, hostPort, protocol }) => ({ containerPort, hostPort, protocol })),
     memoryLimitBytes: memoryLimitBytes(row),
     dataDir: serverDir(config, row.id),
-    mountPath: game.mountPath,
+    mounts: game.mounts,
     labels: {
       'mornihosting.server': row.id,
       'mornihosting.edition': row.edition,
@@ -180,7 +199,7 @@ function gameFieldEnv(row: ServerRow, game: GameInfo): Record<string, string> {
   return Object.fromEntries(
     game.fields.flatMap((f) => {
       const value = row.gameSettings[f.key] || f.fallback;
-      return value === undefined ? [] : [[f.env, value]];
+      return value === undefined || !f.env ? [] : [[f.env, value]];
     }),
   );
 }
@@ -193,9 +212,16 @@ export function commandChannelFor(row: ServerRow): CommandChannel {
   return { kind: 'rcon', host: containerName(row.id), port: PORT_RCON, password: row.rconPassword };
 }
 
+/** Source games answer RCON on their game port (TCP), which follows the server's port. */
+function rconPortOf(row: Pick<ServerRow, 'port'>, game: GameInfo): number | null {
+  if (game.rconPort === 'main') return row.port;
+  return game.rconPort ?? null;
+}
+
 function gameChannel(row: ServerRow, game: GameInfo): CommandChannel {
-  if (game.console === 'rcon' && game.rconPort)
-    return { kind: 'rcon', host: containerName(row.id), port: game.rconPort, password: row.rconPassword };
+  const port = rconPortOf(row, game);
+  if (game.console === 'rcon' && port)
+    return { kind: 'rcon', host: containerName(row.id), port, password: row.rconPassword };
   if (game.console === 'stdin') return { kind: 'stdin' };
   return { kind: 'none' };
 }

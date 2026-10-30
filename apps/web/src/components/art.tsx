@@ -39,6 +39,14 @@ const STROKE = {
 const LINE = { fill: 'none', ...STROKE } as const;
 
 const GLYPHS: Readonly<Record<Glyph, ReactNode>> = {
+  // A crosshair: tactical shooter (no game logo).
+  'game-cs2': (
+    <>
+      <circle cx="12" cy="12" r="7.5" fill="currentColor" fillOpacity="0.2" {...STROKE} />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+      <path d="M12 1.8v5M12 17.2v5M1.8 12h5M17.2 12h5" {...LINE} />
+    </>
+  ),
   // Two meshing gears above a conveyor belt: building factories (no game logo).
   'game-factorio': (
     <>
@@ -190,6 +198,7 @@ const TONES: Readonly<Record<Glyph, readonly [string, string]>> = {
   java: ['#22c55e', '#14532d'],
   crossplay: ['#f59e0b', '#92400e'],
   'game-factorio': ['#f59e0b', '#7c2d12'],
+  'game-cs2': ['#60a5fa', '#1e293b'],
 };
 
 const GLYPH_NAMES = Object.keys(TONES) as Glyph[];

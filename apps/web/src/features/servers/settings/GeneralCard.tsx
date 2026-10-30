@@ -23,7 +23,7 @@ import { Slider } from '@/components/ui/misc';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
-import { formatMemoryMb } from '@/lib/format';
+import { formatMemoryMb, versionLabel } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { hostQuery } from '@/features/dashboard/HostStrip';
 import { useServerAction } from '@/features/dashboard/ServerCard';
@@ -190,7 +190,7 @@ export function GeneralCard({ server }: { server: ServerDetail }): ReactElement 
               <SelectContent>
                 {versionList.map((v) => (
                   <SelectItem key={v.id} value={v.id}>
-                    {v.id}
+                    {versionLabel(server.software, v.id)}
                     {v.id === server.version ? ` · ${t('settings.general.current')}` : ''}
                   </SelectItem>
                 ))}

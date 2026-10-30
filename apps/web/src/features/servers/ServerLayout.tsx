@@ -38,6 +38,7 @@ import {
 import { Skeleton } from '@/components/ui/misc';
 import { ApiError } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { versionLabel } from '@/lib/format';
 import { useServerAction } from '@/features/dashboard/ServerCard';
 import { serverQuery } from './live';
 import { useShareInfo } from './overview/share';
@@ -224,7 +225,7 @@ function ServerHead({ server, can, children }: ServerOutletContext & { children:
               <span className="text-[13px] font-medium text-muted-foreground">
                 {t('server.meta', {
                   software: SOFTWARE[server.software].label,
-                  version: server.version,
+                  version: versionLabel(server.software, server.version),
                   edition: isGameId(server.edition)
                     ? t('games.dedicated')
                     : server.edition === 'java'

@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { versionLabel } from '@/lib/format';
 import { disconnect } from '@/lib/ws';
 import { setLanguage } from '@/i18n';
 import { meQuery, useSession } from '@/features/auth/session';
@@ -135,7 +136,7 @@ function ServerSwitcher({ onNavigate }: { onNavigate?: () => void }): ReactEleme
             <b className="block truncate text-sm font-semibold">{current?.name ?? t('nav.allServers')}</b>
             <span className="block truncate text-xs text-muted-foreground">
               {current
-                ? `${SOFTWARE[current.software].label} ${current.version}`
+                ? `${SOFTWARE[current.software].label} ${versionLabel(current.software, current.version)}`
                 : t('nav.serversRunning', { total: servers.length, running })}
             </span>
           </span>
