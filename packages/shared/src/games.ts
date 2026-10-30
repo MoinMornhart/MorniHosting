@@ -5,7 +5,7 @@
  * For these games the server's `edition` and `software` both hold the game id.
  */
 
-export const GAME_IDS = ['factorio', 'cs2', 'gmod', 'satisfactory', 'ets2'] as const;
+export const GAME_IDS = ['factorio', 'cs2', 'gmod', 'satisfactory', 'ets2', 'hytale'] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /** How console commands reach the game: Source RCON over the internal network, the process' stdin, or not at all. */
@@ -210,6 +210,10 @@ const ETS2_CONFIG = [
   '}',
   '',
 ].join('\n');
+const HYTALE_PORT = 5520;
+// Hytale is ready: "[HytaleServer] Hytale Server Booted! [Multiplayer]"; rejects "Booting Hytale Server".
+// https://regex101.com/?flavor=javascript&regex=Hytale%20Server%20Booted!&flags=gm&testString=%5BHytaleServer%5D%20Hytale%20Server%20Booted!%20%5BMultiplayer%5D%0ABooting%20Hytale%20Server
+const HYTALE_READY = /Hytale Server Booted!/;
 const SATISFACTORY_PORT = 7777;
 const SATISFACTORY_MESSAGING = 8888;
 // Satisfactory is ready: "LogServer: Display: Server API listening on '0.0.0.0:7777' (Standalone)".
@@ -410,6 +414,27 @@ export const GAMES: Readonly<Record<GameId, GameInfo>> = Object.freeze({
     logPatterns: { ready: ETS2_READY },
     steamAppId: 227300,
     downloadGb: 3,
+  },
+  hytale: {
+    id: 'hytale',
+    label: 'Hytale',
+    // Own small image (images/hytale): Java 25 plus a start script that fetches the official server files
+    // with Hytale's own downloader. Built by install.sh/update.sh and published with releases.
+    image: 'ghcr.io/pmornhart/mornihosting-hytale',
+    versions: [{ id: 'official', tag: 'latest', stable: true }],
+    mounts: [{ subdir: '', path: '/data' }],
+    ports: [{ key: 'main', defaultPort: HYTALE_PORT, protocol: 'udp', env: 'HYTALE_PORT' }],
+    console: 'stdin',
+    env: {},
+    memoryEnv: 'MEMORY',
+    jvm: true,
+    fields: [{ key: 'autoUpdate', env: 'HYTALE_UPDATE', kind: 'boolean', fallback: 'false' }],
+    packagesGb: [4, 6, 8, 12],
+    recommendedGb: 6,
+    playersPerGb: 3,
+    maxPlayers: 100,
+    logPatterns: { ready: HYTALE_READY },
+    downloadGb: 4,
   },
 } satisfies Record<GameId, GameInfo>);
 /* eslint-enable ts-patterns/no-magic-numbers */

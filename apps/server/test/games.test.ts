@@ -409,3 +409,27 @@ describe('Euro Truck Simulator 2', () => {
     }
   });
 });
+
+describe('Hytale container', () => {
+  test('own image, Java memory and room beyond the heap', async () => {
+    const t = await createTestApp();
+    const s = await setupAdmin(t);
+    try {
+      const payload = order('hytale', { startNow: false, memoryMb: 6144 });
+      const res = await t.app.inject({
+        method: 'POST',
+        url: '/api/servers',
+        headers: authHeaders(s),
+        payload,
+      });
+      const row = t.servers.rowWithSecrets(res.json<ServerSummary>().id);
+      const spec = buildContainerSpec(t.ctx.config, row, 'Europe/Berlin');
+      expect(spec.image).toBe('ghcr.io/pmornhart/mornihosting-hytale:latest');
+      expect(spec.env).toMatchObject({ MEMORY: '6144M', HYTALE_PORT: '5520', HYTALE_UPDATE: 'false' });
+      expect(spec.memoryLimitBytes).toBeGreaterThan(6144 * 1024 * 1024);
+      expect(commandChannelFor(row)).toEqual({ kind: 'stdin' });
+    } finally {
+      await t.cleanup();
+    }
+  });
+});

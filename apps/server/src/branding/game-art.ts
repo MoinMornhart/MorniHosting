@@ -28,7 +28,9 @@ export function registerGameArtRoutes(app: Api, ctx: AppContext): void {
     if (fs.existsSync(file) && fs.existsSync(typeFile))
       return { file, type: fs.readFileSync(typeFile, 'utf8') };
     try {
-      const response = await fetchResponse(SOURCES[game], { headers: { accept: 'image/*' } });
+      const url = SOURCES[game];
+      if (!url) return null;
+      const response = await fetchResponse(url, { headers: { accept: 'image/*' } });
       const type = response.headers.get('content-type') ?? '';
       const data = Buffer.from(await response.arrayBuffer());
       if (!type.startsWith(IMAGE_TYPE) || data.length > MAX_BYTES) return null;

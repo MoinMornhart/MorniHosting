@@ -1937,7 +1937,9 @@
       "latest": "Neueste",
       "latestText": "Die allerneueste Version – kann noch Fehler haben.",
       "steam": "Immer aktuell",
-      "steamText": "Der Server holt sich bei jedem Start die neueste Version von Steam."
+      "steamText": "Der Server holt sich bei jedem Start die neueste Version von Steam.",
+      "official": "Offizielle Version",
+      "officialText": "Der Server lädt die Dateien mit dem offiziellen Hytale-Downloader."
     },
     "addressReady": "Deine Freunde verbinden sich mit {{address}}.",
     "settingsTitle": "Spiel-Einstellungen",
@@ -2072,6 +2074,16 @@
         "welcomeHint": "Erscheint im Chat, wenn jemand beitritt.",
         "logonToken": "Steam-Token",
         "logonTokenHint": "Optional: Ein „Game Server Login Token“ mit App-ID 227300. Damit behält der Server dauerhaft dieselbe Kennung."
+      }
+    },
+    "hytale": {
+      "kicker": "Abenteuer & Bauen",
+      "text": "Erkundet, baut und kämpft zusammen in der Welt von Hytale.",
+      "about": "Ein eigener Hytale-Server. Beim ersten Start erscheint in der Konsole ein Link: Öffne ihn und melde dich mit deinem Hytale-Konto an, damit der Server die offiziellen Dateien laden darf. Danach tippst du in die Konsole /auth login device und meldest den Server genauso an.",
+      "memoryHint": "{{gb}} GB sind ein guter Start. Große Welten oder viele Spieler brauchen mehr.",
+      "fields": {
+        "autoUpdate": "Bei jedem Start aktualisieren",
+        "autoUpdateHint": "Lädt vor jedem Start die neueste Server-Version herunter. Aus = nur beim ersten Start."
       }
     }
   }

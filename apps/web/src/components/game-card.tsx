@@ -78,6 +78,7 @@ const SCENE_COLOURS: Readonly<Record<GameId, readonly [string, string]>> = {
   gmod: ['#0e4f73', '#050d14'],
   satisfactory: ['#8a4b12', '#120a04'],
   ets2: ['#3b5b1e', '#0b1205'],
+  hytale: ['#4c1d95', '#0b0618'],
 };
 
 export function OtherGameScene({ game }: { game: GameId }): ReactElement {

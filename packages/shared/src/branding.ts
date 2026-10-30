@@ -28,10 +28,13 @@ export const GAME_ART_SOURCES = Object.freeze({
     'https://minecraft.wiki/images/thumb/Minecraft_Java_%26_Bedrock_Edition_key_art.jpg/1200px-Minecraft_Java_%26_Bedrock_Edition_key_art.jpg',
   crossplay: 'https://geysermc.org/img/geyser-1760-860.png',
   // Other games: the header picture of their Steam store page.
-  ...(Object.fromEntries(GAME_IDS.map((id) => [id, steamHeaderUrl(GAMES[id]) ?? ''])) as Record<
-    GameId,
-    string
-  >),
+  // Games without one (Hytale is not on Steam) show their drawn scene.
+  ...(Object.fromEntries(
+    GAME_IDS.flatMap((id) => {
+      const url = steamHeaderUrl(GAMES[id]);
+      return url ? [[id, url]] : [];
+    }),
+  ) as Partial<Record<GameId, string>>),
 });
 export type GameArtId = keyof typeof GAME_ART_SOURCES;
 export const GAME_ART_IDS = Object.keys(GAME_ART_SOURCES) as [GameArtId, ...GameArtId[]];
